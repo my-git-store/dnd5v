@@ -1,0 +1,16 @@
+.c-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.c-scrollbar::-webkit-scrollbar:horizontal {
+    height: 4px;
+}
+
+.c-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.c-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: 10px;
+}

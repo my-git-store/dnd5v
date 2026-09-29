@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+    --font-base: 'Plus Jakarta Sans', sans-serif;
+    --font-serif: 'Lora', serif;
+
+    --color-primary-1000: #3e2c1c;
+    --color-primary-950: #5a4430;
+
+    --color-secondary-1000: #8b7355;
+    --color-secondary-text: var(--color-stone-700);
+
+    --color-accent: #d4c4b5;
+    --color-error: var(--color-red-900);
+    --color-error-100: var(--color-red-100);
+
+    --color-succes: var(--color-emerald-600);
+    --color-succes-100: var(--color-emerald-100);
+
+    --color-warning: var(--color-amber-700);
+    --color-warning-100: var(--color-amber-100);
+
+    --color-info: var(--color-slate-700);
+    --color-info-100: var(--color-slate-100);
+}
+
+body {
+    font-family: var(--font-base);
+    color: var(--color-stone-800);
+    background-color: #f7f3f0;
+}

@@ -1,0 +1,32 @@
+.c-btn {
+    border-radius: var(--radius-lg);
+    padding: 10px;
+    position: relative;
+}
+
+.c-btn-loader {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    padding: 4px;
+}
+
+.c-btn-primary {
+    background-color: var(--color-primary-1000);
+    color: white;
+}
+
+.c-btn-accent {
+    background-color: var(--color-accent);
+    color: var(--color-primary-1000);
+}
+
+.c-btn-delete {
+    background-color: var(--color-red-500);
+    color: white;
+}

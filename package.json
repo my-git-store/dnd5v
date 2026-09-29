@@ -1,0 +1,48 @@
+{
+  "name": "nastolka-dnd-5-sheet",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "postinstall": "node scripts/patch-editorjs-types.mjs",
+    "typecheck": "vue-tsc -b",
+    "test": "node --test --experimental-test-isolation=none tests/character-sheet/*.test.ts",
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@editorjs/editorjs": "^2.31.6",
+    "@tailwindcss/vite": "^4.3.1",
+    "axios": "^1.13.6",
+    "maska": "^3.2.0",
+    "socket.io-client": "^4.8.3",
+    "tailwindcss": "^4.3.1",
+    "vue": "^3.5.34"
+  },
+  "devDependencies": {
+    "@editorjs/checklist": "^1.6.0",
+    "@editorjs/code": "^2.9.4",
+    "@editorjs/delimiter": "^1.4.2",
+    "@editorjs/embed": "^2.8.0",
+    "@editorjs/header": "^2.8.8",
+    "@editorjs/image": "^2.10.3",
+    "@editorjs/inline-code": "^1.5.2",
+    "@editorjs/link": "^2.6.2",
+    "@editorjs/list": "^2.0.9",
+    "@editorjs/marker": "^1.4.0",
+    "@editorjs/quote": "^2.7.6",
+    "@editorjs/raw": "^2.5.1",
+    "@editorjs/table": "^2.4.5",
+    "@editorjs/warning": "^1.4.1",
+    "@iconify/vue": "^5.0.0",
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/tsconfig": "^0.8.1",
+    "@vueuse/core": "^14.2.1",
+    "@vueuse/nuxt": "^14.2.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1",
+    "vue-tsc": "^3.1.4"
+  }
+}

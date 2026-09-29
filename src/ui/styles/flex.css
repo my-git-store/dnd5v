@@ -1,0 +1,10 @@
+.c-flex-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.c-flex-row {
+    display: flex;
+    gap: 16px;
+}

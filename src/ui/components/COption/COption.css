@@ -1,0 +1,6 @@
+/* .c-option:disabled {
+    color: var(--color-red-800);
+} */
+.c-option:hover {
+    cursor: pointer;
+}
