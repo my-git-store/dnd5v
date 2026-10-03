@@ -1,38 +1,69 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { CTabs } from '@/ui/components'
 import CharacterSheetHeader from './components/CharacterSheetHeader.vue'
 import CharacterLoadState from './components/CharacterLoadState.vue'
 import CharacterMainTab from './components/CharacterMainTab.vue'
+import CharacterCombatTab from './components/CharacterCombatTab.vue'
 import CharacterMagicTab from './components/CharacterMagicTab.vue'
 import CharacterInventoryTab from './components/CharacterInventoryTab.vue'
 import CharacterBioTab from './components/CharacterBioTab.vue'
+import CharacterCreationTab from './components/CharacterCreationTab.vue'
 import { useCharacterSheet } from './composables/useCharacterSheet'
 import type { AbilityKey } from './types/character'
 import './styles/character-sheet.css'
 
-const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }] as const
+const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }, { name: 'Создание', value: 'creation' }] as const
 const activeTab = ref<string>('main')
+const tabDirection = ref<'forward' | 'backward'>('forward')
 const sheet = useCharacterSheet()
+const tabIndexes = new Map<string, number>(tabs.map((tab, index) => [tab.value, index]))
+watch(activeTab, (next, previous) => {
+  tabDirection.value = (tabIndexes.get(next) ?? 0) >= (tabIndexes.get(previous) ?? 0) ? 'forward' : 'backward'
+})
+function tabPanelClass(tab: string) {
+  return { 'sheet-tab-panel-active': activeTab.value === tab, [`sheet-tab-panel-${tabDirection.value}`]: activeTab.value === tab }
+}
 function updateAbility(key: AbilityKey, value: number) { sheet.updateAbility(key, value) }
+function applyCreation(payload: Parameters<typeof sheet.applyCreation>[0]) { sheet.applyCreation(payload) }
+function openSheetAfterCreation() { activeTab.value = 'main' }
 </script>
 <template>
   <main class="character-sheet">
     <CharacterLoadState :loading="sheet.isLoading.value" :error="sheet.loadError.value" @retry="sheet.load" />
     <template v-if="sheet.character.value && !sheet.isLoading.value && !sheet.loadError.value">
       <CharacterSheetHeader :name="sheet.character.value.name" @update:name="sheet.updateName"
+        :race="sheet.character.value.race.name" :class-name="sheet.character.value.class"
+        :level="sheet.character.value.level" :experience="sheet.character.value.experience"
         :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"
         :save-error="sheet.saveError.value" @save="sheet.save" />
-      <CTabs v-model="activeTab" :tabs="tabs" />
-      <CharacterMainTab v-show="activeTab === 'main'" :character="sheet.character.value"
-        :disabled="sheet.isSaving.value" @update:ability="updateAbility" @update:skill="sheet.updateSkill"
-        @update:attacks="sheet.updateAttacks" />
-      <CharacterMagicTab v-show="activeTab === 'magic'" :character="sheet.character.value"
-        :disabled="sheet.isSaving.value" @update:spells="sheet.updateSpells" @update:cantrips="sheet.updateCantrips" />
-      <CharacterInventoryTab v-show="activeTab === 'inventory'" :character="sheet.character.value"
-        :disabled="sheet.isSaving.value" @update:inventory="sheet.updateInventory" @update:money="sheet.updateMoney" />
-      <CharacterBioTab v-show="activeTab === 'bio'" :bio="sheet.character.value.bio" :disabled="sheet.isSaving.value"
-        @update="sheet.updateBio" />
+      <div class="sheet-tabs"><CTabs v-model="activeTab" :tabs="tabs" /></div>
+      <div class="sheet-tab-stage">
+        <div v-show="activeTab === 'main'" class="sheet-tab-panel" :class="tabPanelClass('main')">
+          <CharacterMainTab :character="sheet.character.value"
+            :disabled="sheet.isSaving.value" @update:identity="sheet.updateIdentity" @update:saving-throw="sheet.updateSavingThrow"
+            @update:ability="updateAbility" @update:skill="sheet.updateSkill" />
+        </div>
+        <div v-show="activeTab === 'combat'" class="sheet-tab-panel" :class="tabPanelClass('combat')">
+          <CharacterCombatTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
+            @update:combat="sheet.updateCombat" @update:attacks="sheet.updateAttacks" />
+        </div>
+        <div v-show="activeTab === 'magic'" class="sheet-tab-panel" :class="tabPanelClass('magic')">
+          <CharacterMagicTab :character="sheet.character.value"
+            :disabled="sheet.isSaving.value" @update:spells="sheet.updateSpells" @update:cantrips="sheet.updateCantrips" @update:spellcasting="sheet.updateSpellcasting" />
+        </div>
+        <div v-show="activeTab === 'inventory'" class="sheet-tab-panel" :class="tabPanelClass('inventory')">
+          <CharacterInventoryTab :character="sheet.character.value"
+            :disabled="sheet.isSaving.value" @update:inventory="sheet.updateInventory" @update:money="sheet.updateMoney" />
+        </div>
+        <div v-show="activeTab === 'bio'" class="sheet-tab-panel" :class="tabPanelClass('bio')">
+          <CharacterBioTab :personality="sheet.character.value.personality" :disabled="sheet.isSaving.value"
+            @update="sheet.updatePersonality" />
+        </div>
+        <div v-if="activeTab === 'creation'" class="sheet-tab-panel sheet-tab-panel-active" :class="`sheet-tab-panel-${tabDirection}`">
+          <CharacterCreationTab :character="sheet.character.value" :disabled="sheet.isSaving.value" @create="applyCreation" @back-to-sheet="openSheetAfterCreation" />
+        </div>
+      </div>
     </template>
   </main>
 </template>

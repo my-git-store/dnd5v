@@ -1,7 +1,23 @@
 <script setup lang="ts">
 import { CTextarea } from '@/ui/components'
-import type { CharacterBio } from '../types/character'
-defineProps<{ bio: CharacterBio; disabled?: boolean }>()
-const emit = defineEmits<{ update: [bio: CharacterBio] }>()
+import type { CharacterPersonalityV3 } from '../types/characterV3'
+
+const props = defineProps<{ personality: CharacterPersonalityV3; disabled?: boolean }>()
+const emit = defineEmits<{ update: [personality: CharacterPersonalityV3] }>()
+function update(key: keyof CharacterPersonalityV3, value: unknown) {
+  emit('update', { ...props.personality, [key]: String(value ?? '') })
+}
 </script>
-<template><div class="tab-content"><section class="sheet-section"><h2>Биография</h2><CTextarea :model-value="bio.biography" label="Биография" rows="7" :disabled="disabled" @update:model-value="emit('update', { ...bio, biography: String($event) })" /><CTextarea :model-value="bio.traits" label="Черты характера" rows="4" :disabled="disabled" @update:model-value="emit('update', { ...bio, traits: String($event) })" /><CTextarea :model-value="bio.features" label="Особенности персонажа" rows="4" :disabled="disabled" @update:model-value="emit('update', { ...bio, features: String($event) })" /></section></div></template>
+
+<template>
+  <div class="tab-content bio-tab">
+    <section class="sheet-section bio-grid">
+      <CTextarea label="Черты характера" rows="4" :model-value="personality.traits" :disabled="disabled" @update:model-value="update('traits', $event)" />
+      <CTextarea label="Идеалы" rows="4" :model-value="personality.ideals" :disabled="disabled" @update:model-value="update('ideals', $event)" />
+      <CTextarea label="Привязанности" rows="4" :model-value="personality.bonds" :disabled="disabled" @update:model-value="update('bonds', $event)" />
+      <CTextarea label="Слабости" rows="4" :model-value="personality.flaws" :disabled="disabled" @update:model-value="update('flaws', $event)" />
+      <CTextarea class="bio-wide" label="Биография" rows="7" :model-value="personality.biography" :disabled="disabled" @update:model-value="update('biography', $event)" />
+      <CTextarea class="bio-wide" label="Особенности и дополнительные заметки" rows="5" :model-value="personality.features" :disabled="disabled" @update:model-value="update('features', $event)" />
+    </section>
+  </div>
+</template>
