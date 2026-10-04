@@ -25,7 +25,7 @@ function update(key: keyof CharacterIdentityPatch, value: unknown) {
     </div>
     <div class="identity-grid">
       <CInput label="Имя" :disabled="disabled" :model-value="character.name" @update:model-value="update('name', $event)" />
-      <CInput label="Раса" :disabled="disabled" :model-value="character.race.name" @update:model-value="update('raceName', $event)" />
+      <CInput :label="character.ruleset === '2024' ? 'Вид' : 'Раса'" :disabled="disabled" :model-value="character.race.name" @update:model-value="update('raceName', $event)" />
       <CInput label="Класс" :disabled="disabled" :model-value="character.class" @update:model-value="update('className', $event)" />
       <CInput label="Подкласс" :disabled="disabled" :model-value="character.subclass" @update:model-value="update('subclass', $event)" />
       <CInput label="Предыстория" :disabled="disabled" :model-value="character.background.name" @update:model-value="update('backgroundName', $event)" />

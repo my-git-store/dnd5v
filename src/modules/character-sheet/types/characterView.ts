@@ -1,5 +1,6 @@
 import type { AbilityKey, Character, CharacterAttack, CharacterSkill } from './character.ts'
-import type { BackgroundProfileV3, CharacterCalculationMode, CharacterCombatV3, CharacterCreationV3, CharacterInventoryV3, CharacterPersonalityV3, CharacterProficiencyV3, CharacterSavingThrowsV3, CharacterSpellcastingV3, RaceProfileV3, SkillProficiencySource } from './characterV3.ts'
+import type { BackgroundProfileV3, CharacterCalculationMode, CharacterCombatV3, CharacterCreationV3, CharacterInventoryV3, CharacterOriginV3, CharacterPersonalityV3, CharacterProficiencyV3, CharacterRuleset, CharacterSavingThrowsV3, CharacterSpellcastingV3, RaceProfileV3, SkillProficiencySource } from './characterV3.ts'
+import type { CharacterProgressionV3 } from './rules.ts'
 
 export interface CharacterSkillView extends CharacterSkill {
   calculationMode: CharacterCalculationMode
@@ -14,9 +15,14 @@ export interface CharacterAttackView extends CharacterAttack {
   damageType: string
   properties: string[]
   range: string
+  weaponMastery?: string
+  weaponId?: string
+  masteryId?: string
 }
 
 export interface CharacterSheetView extends Omit<Character, 'skills' | 'attacks'> {
+  ruleset: CharacterRuleset
+  origin: CharacterOriginV3
   skills: CharacterSkillView[]
   attacks: CharacterAttackView[]
   combat: CharacterCombatV3
@@ -29,6 +35,8 @@ export interface CharacterSheetView extends Omit<Character, 'skills' | 'attacks'
   alignment: string
   savingThrows: CharacterSavingThrowsV3
   proficiency: CharacterProficiencyV3
+  features?: string[]
+  progression?: CharacterProgressionV3
   creation?: CharacterCreationV3
 }
 

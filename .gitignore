@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Conversation history, stage reports, and transient design notes.
+CR*_REPORT.md
+EV*_REPORT.md
+FINAL_ART_PASS_REPORT.md
+SHEET_TZ2_PHASE*_REPORT.md
+SHEET_DND5E_EVOLUTION_PLAN.md
+SHEET_DND5E_MODEL_DESIGN.md
+SHEET_SCHEMA_V2_PLAN.md
+SHEET_UI_DESIGN_V3.md

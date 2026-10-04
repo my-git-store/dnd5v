@@ -33,6 +33,10 @@ export interface CharacterSpell {
   name: string
   level: number
   description: string
+  /** Optional catalog metadata; legacy spell records may omit these fields. */
+  school?: string
+  classes?: string[]
+  metadata?: Record<string, unknown>
 }
 
 export interface InventoryItem {

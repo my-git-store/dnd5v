@@ -2,10 +2,12 @@
 import { computed, reactive, ref } from 'vue'
 import { CBtn, CInput } from '@/ui/components'
 import { ABILITY_FIELDS } from '../data/characterFields.ts'
-import { DND5E_BACKGROUNDS, DND5E_CLASSES, DND5E_RACES, findBackground, findClass, findRace, findSubrace, subracesForRace } from '../data/dnd5eOptions.ts'
+import { DND5E_BACKGROUNDS, DND5E_CLASSES, DND5E_RACES, findBackground, findClass, findRace, findSubrace, subracesForRace, type Dnd5eBackgroundOption, type Dnd5eClassOption, type Dnd5eRaceOption } from '../data/dnd5eOptions.ts'
+import { RULES_2024_BACKGROUNDS, RULES_2024_CLASSES, RULES_2024_SPECIES, findRules2024Background, findRules2024Class, findRules2024Feat, findSpecies2024, getRules2024ClassFeatures } from '../data/rules2024/index.ts'
 import { abilityModifier, signedModifier } from '../domain/abilityModifier.ts'
 import { calculateSkillBonus } from '../domain/skillBonus.ts'
 import type { AbilityKey, CharacterAbilities } from '../types/character.ts'
+import type { CharacterRuleset } from '../types/characterV3.ts'
 import type { CharacterCreationPayload } from '../domain/characterCreation.ts'
 import type { CharacterSheetView } from '../types/characterView.ts'
 
@@ -24,30 +26,86 @@ const stepDescriptions = [
   'Подготовьте снаряжение, с которым начнётся путь.',
   'Проверьте образ героя и примените выборы к листу.',
 ]
+const modernStepNames = ['Имя', 'Вид', 'Происхождение', 'Класс', 'Предыстория', 'Характеристики и происхождение', 'Навыки', 'Снаряжение', 'Готово']
+const modernStepDescriptions = [
+  'Дайте герою имя и выберите редакцию правил.',
+  'Выберите вид и познакомьтесь с его наследием.',
+  'В редакции 2024 отдельный подвид не выбирается: происхождение определяется видом и предысторией.',
+  'Выберите класс и его особенности первого уровня.',
+  'Определите прошлое, связи и начальные владения.',
+  'Распределите исходные значения и бонусы предыстории.',
+  'Выберите навыки класса и проверьте источники владения.',
+  'Подготовьте снаряжение, с которым начнётся путь.',
+  'Проверьте образ героя и примените выборы к листу.',
+]
+function stepLabel(index: number) { return ruleset.value === '2024' ? modernStepNames[index] ?? '' : stepNames[index] ?? '' }
+function stepDescription(index: number) { return ruleset.value === '2024' ? modernStepDescriptions[index] ?? '' : stepDescriptions[index] ?? '' }
 const currentStep = ref(1)
+const ruleset = ref<CharacterRuleset>(creation?.ruleset ?? (props.character.creation ? props.character.ruleset : '2024'))
 const highestUnlockedStep = ref(1)
 const completed = ref(false)
-const raceId = ref(creation?.raceId ?? DND5E_RACES[0]!.id)
+const initialRuleset = ruleset.value
+const raceId = ref(creation?.speciesId ?? creation?.raceId ?? (initialRuleset === '2024' ? RULES_2024_SPECIES[0]!.id : DND5E_RACES[0]!.id))
 const subraceId = ref(creation?.subraceId ?? subracesForRace(raceId.value)[0]?.id ?? '')
-const classId = ref(creation?.classId ?? DND5E_CLASSES[DND5E_CLASSES.length - 1]!.id)
-const backgroundId = ref(creation?.backgroundId ?? DND5E_BACKGROUNDS[0]!.id)
+const classId = ref(creation?.classId ?? (initialRuleset === '2024' ? RULES_2024_CLASSES[0]!.id : DND5E_CLASSES[DND5E_CLASSES.length - 1]!.id))
+const backgroundId = ref(creation?.backgroundId ?? (initialRuleset === '2024' ? RULES_2024_BACKGROUNDS[0]!.id : DND5E_BACKGROUNDS[0]!.id))
+const originAbilityChoices = ref<AbilityKey[]>([])
+const originAbilityFocus = ref<AbilityKey | undefined>(undefined)
+const speciesChoices = ref<Record<string, string[]>>(creation?.speciesChoices ? JSON.parse(JSON.stringify(creation.speciesChoices)) as Record<string, string[]> : {})
 const name = ref(props.character.name)
 const subclass = ref(props.character.subclass)
 const alignment = ref(props.character.alignment)
-const initialClass = findClass(classId.value)
-const initialRace = findRace(raceId.value)
+const initialClass = initialRuleset === '2024' ? classAsLegacy(classId.value) : findClass(classId.value)
+const initialRace = initialRuleset === '2024' ? speciesAsLegacy(raceId.value) : findRace(raceId.value)
 const selectedSkillIds = ref<string[]>([...new Set(creation?.classSkillIds ?? [])].filter((id) => initialClass.skillOptions.includes(id)).slice(0, initialClass.skillChoiceCount))
 const raceSkillChoices = ref<string[]>([...new Set(creation?.raceSkillIds ?? [])].filter((id) => initialRace.skillChoices?.options.includes(id)).slice(0, initialRace.skillChoices?.count ?? 0))
 const raceAbilityChoices = ref<AbilityKey[]>(creation?.raceAbilityChoices ? [...creation.raceAbilityChoices] : [])
 const baseAbilities = reactive<CharacterAbilities>({ ...(creation?.baseAbilityScores ?? props.character.abilities) })
-const classEquipmentId = ref(creation?.classEquipmentId ?? findClass(classId.value).equipmentOptions?.[0]?.id ?? '')
-const backgroundEquipmentId = ref(creation?.backgroundEquipmentId ?? findBackground(backgroundId.value).equipmentOptions[0]?.id ?? '')
+const classEquipmentId = ref(creation?.classEquipmentId ?? initialClass.equipmentOptions?.[0]?.id ?? '')
+const backgroundEquipmentId = ref(creation?.backgroundEquipmentId ?? (initialRuleset === '2024' ? findRules2024Background(backgroundId.value).equipmentOptions[0]?.id : findBackground(backgroundId.value).equipmentOptions[0]?.id) ?? '')
 
-const selectedRace = computed(() => findRace(raceId.value))
-const selectedSubrace = computed(() => findSubrace(raceId.value, subraceId.value))
-const selectedClass = computed(() => findClass(classId.value))
-const selectedBackground = computed(() => findBackground(backgroundId.value))
-const availableSubraces = computed(() => subracesForRace(raceId.value))
+function speciesAsLegacy(id: string): Dnd5eRaceOption {
+  const species = findSpecies2024(id)
+  return { id: species.id, label: species.name, profile: { name: species.name, subrace: '', size: species.size, speed: species.speed, abilityBonuses: {}, traits: [...species.traits], languages: [...species.languages] } }
+}
+function classAsLegacy(id: string): Dnd5eClassOption {
+  const option = findRules2024Class(id)
+  return {
+    id: option.id, label: option.label, description: option.description, hitDie: option.hitDie, primaryAbility: option.primaryAbility, primaryAbilities: [...option.primaryAbilities],
+    spellcastingAbility: option.spellcastingAbility, spellProgressionType: option.spellProgressionType, savingThrowKeys: [...option.savingThrowKeys], savingThrowProficiencies: [...option.savingThrowProficiencies],
+    skillChoiceCount: option.skillChoiceCount, skillOptions: [...option.skillOptions], skillChoices: { count: option.skillChoices.count, options: [...option.skillChoices.options] }, features: [...option.features], proficiencies: [...option.proficiencies],
+    weaponProficiencies: [...option.weaponProficiencies], armorProficiencies: [...option.armorProficiencies], equipmentOptions: option.equipmentOptions, startingEquipment: option.startingEquipment,
+  }
+}
+function backgroundAsLegacy(id: string): Dnd5eBackgroundOption {
+  const option = findRules2024Background(id)
+  return { id: option.id, label: option.name, description: option.description, skillProficiencies: [...option.skillProficiencies], toolProficiencies: [...option.toolProficiencies], languages: [...option.languages], feature: option.feature, equipmentOptions: option.equipmentOptions }
+}
+function backgroundAbilityLabels(id: string): string {
+  const option = findRules2024Background(id)
+  return option.abilityOptions.map((key) => ABILITY_FIELDS.find((field) => field.key === key)?.label ?? key).join(' · ')
+}
+function backgroundOriginFeatLabel(id: string): string {
+  return findRules2024Feat(findRules2024Background(id).originFeatId).label
+}
+function backgroundOriginFeatDescription(id: string): string {
+  return findRules2024Feat(findRules2024Background(id).originFeatId).description
+}
+const raceOptions = computed<Dnd5eRaceOption[]>(() => ruleset.value === '2024' ? RULES_2024_SPECIES.map((species) => speciesAsLegacy(species.id)) : DND5E_RACES)
+const classOptions = computed<Dnd5eClassOption[]>(() => ruleset.value === '2024' ? RULES_2024_CLASSES.map((item) => classAsLegacy(item.id)) : DND5E_CLASSES)
+const backgroundOptions = computed<Dnd5eBackgroundOption[]>(() => ruleset.value === '2024' ? RULES_2024_BACKGROUNDS.map((item) => backgroundAsLegacy(item.id)) : DND5E_BACKGROUNDS)
+
+const selectedRace = computed(() => ruleset.value === '2024' ? speciesAsLegacy(raceId.value) : findRace(raceId.value))
+const selected2024Species = computed(() => findSpecies2024(raceId.value))
+const selectedSubrace = computed(() => ruleset.value === '2024' ? undefined : findSubrace(raceId.value, subraceId.value))
+const selectedClass = computed(() => ruleset.value === '2024' ? classAsLegacy(classId.value) : findClass(classId.value))
+const selectedBackground = computed(() => ruleset.value === '2024' ? backgroundAsLegacy(backgroundId.value) : findBackground(backgroundId.value))
+const selected2024Background = computed(() => findRules2024Background(backgroundId.value))
+if (initialRuleset === '2024') {
+  originAbilityChoices.value = [...(creation?.originAbilityChoices ?? selected2024Background.value.abilityOptions)]
+  originAbilityFocus.value = creation?.originAbilityFocus ?? originAbilityChoices.value[0]
+}
+const availableSubraces = computed(() => ruleset.value === '2024' ? [] : subracesForRace(raceId.value))
 const classEquipmentOptions = computed(() => selectedClass.value.equipmentOptions ?? [])
 const backgroundEquipmentOptions = computed(() => selectedBackground.value.equipmentOptions)
 const skillLabels = computed(() => Object.fromEntries(props.character.skills.map((skill) => [skill.id, skill.name])) as Record<string, string>)
@@ -55,15 +113,23 @@ const selectedCount = computed(() => selectedSkillIds.value.filter((id) => selec
 const raceSelectedCount = computed(() => raceSkillChoices.value.filter((id) => selectedRace.value.skillChoices?.options.includes(id)).length)
 const classSkillsRemaining = computed(() => Math.max(0, selectedClass.value.skillChoiceCount - selectedCount.value))
 const raceSkillsRemaining = computed(() => Math.max(0, (selectedRace.value.skillChoices?.count ?? 0) - raceSelectedCount.value))
-const finalAbility = (key: AbilityKey) => baseAbilities[key] + (selectedRace.value.profile.abilityBonuses[key] ?? 0) + (selectedSubrace.value?.abilityBonuses[key] ?? 0) + (selectedRace.value.abilityChoices && raceAbilityChoices.value.includes(key) ? selectedRace.value.abilityChoices.bonus : 0)
+const speciesChoiceIssue = computed(() => {
+  if (ruleset.value !== '2024') return ''
+  const missing = selected2024Species.value.choices.find((choice) => (speciesChoices.value[choice.id]?.length ?? 0) < choice.minSelections)
+  return missing ? `Выберите вариант: ${missing.label}.` : ''
+})
+const finalAbility = (key: AbilityKey) => {
+  if (ruleset.value === '2024') return baseAbilities[key] + (originAbilityChoices.value.includes(key) ? (originAbilityFocus.value === key ? 2 : 1) : 0)
+  return baseAbilities[key] + (selectedRace.value.profile.abilityBonuses[key] ?? 0) + (selectedSubrace.value?.abilityBonuses[key] ?? 0) + (selectedRace.value.abilityChoices && raceAbilityChoices.value.includes(key) ? selectedRace.value.abilityChoices.bonus : 0)
+}
 const initials = computed(() => name.value.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toLocaleUpperCase('ru-RU') ?? '').join('') || '✦')
-const derivedRaceSkills = computed(() => [...new Set([...(selectedRace.value.skillProficiencies ?? []), ...raceSkillChoices.value, ...(selectedSubrace.value?.skillProficiencies ?? [])])])
+const derivedRaceSkills = computed(() => ruleset.value === '2024' ? [] : [...new Set([...(selectedRace.value.skillProficiencies ?? []), ...raceSkillChoices.value, ...(selectedSubrace.value?.skillProficiencies ?? [])])])
 const currentOwnedSkills = computed(() => props.character.skills.map((skill) => {
   const sources = new Set<string>()
   if (derivedRaceSkills.value.includes(skill.id)) sources.add('race')
   if (selectedSkillIds.value.includes(skill.id)) sources.add('class')
   if (selectedBackground.value.skillProficiencies.includes(skill.id)) sources.add('background')
-  for (const source of skill.proficiencySources ?? []) if (source === 'manual') sources.add(source)
+  for (const source of skill.proficiencySources ?? []) if (source === 'manual' || source === 'feat') sources.add(source)
   const proficiency = sources.size > 0 ? 'proficient' : 'none'
   const bonus = calculateSkillBonus({ ...skill, proficiency, calculationMode: 'computed', additionalBonus: skill.additionalBonus }, { ...baseAbilities, ...Object.fromEntries(ABILITY_FIELDS.map((field) => [field.key, finalAbility(field.key)])) }, props.character.level)
   return { ...skill, sources: [...sources], proficiency, bonus }
@@ -71,11 +137,16 @@ const currentOwnedSkills = computed(() => props.character.skills.map((skill) => 
 const selectedClassKit = computed(() => classEquipmentOptions.value.find((option) => option.id === classEquipmentId.value))
 const selectedBackgroundKit = computed(() => backgroundEquipmentOptions.value.find((option) => option.id === backgroundEquipmentId.value))
 const previewEquipment = computed(() => [...(selectedClassKit.value?.items.map((item) => ({ ...item, source: 'Класс' })) ?? []), ...(selectedBackgroundKit.value?.items.map((item) => ({ ...item, source: 'Предыстория' })) ?? [])])
-const previewFeatures = computed(() => [...selectedRace.value.profile.traits, ...(selectedSubrace.value?.traits ?? []), ...selectedClass.value.features, selectedBackground.value.feature].filter(Boolean))
+const previewClassFeatures = computed(() => ruleset.value === '2024'
+  ? getRules2024ClassFeatures(classId.value, props.character.level).map((feature) => feature.name)
+  : selectedClass.value.features)
+const previewFeatures = computed(() => [...selectedRace.value.profile.traits, ...(selectedSubrace.value?.traits ?? []), ...previewClassFeatures.value, selectedBackground.value.feature].filter(Boolean))
+const previewOriginFeat = computed(() => ruleset.value === '2024' ? findRules2024Feat(selected2024Background.value.originFeatId) : undefined)
 const stepProgress = computed(() => Math.round((currentStep.value / stepNames.length) * 100))
 const abilityError = computed(() => ABILITY_FIELDS.some((field) => !Number.isInteger(baseAbilities[field.key]) || baseAbilities[field.key] < 1 || baseAbilities[field.key] > 30))
 const stepIssue = computed(() => {
   if (currentStep.value === 1 && !name.value.trim()) return 'Введите имя персонажа, чтобы продолжить.'
+  if (currentStep.value === 2 && speciesChoiceIssue.value) return speciesChoiceIssue.value
   if (currentStep.value === 3 && availableSubraces.value.length > 0 && !selectedSubrace.value) return 'Выберите подрасу для выбранной расы.'
   if (currentStep.value === 6 && abilityError.value) return 'Каждая характеристика должна быть целым числом от 1 до 30.'
   if (currentStep.value === 7 && selectedCount.value !== selectedClass.value.skillChoiceCount) return `Выберите навыки класса: ${selectedClass.value.skillChoiceCount - selectedCount.value > 0 ? `осталось ${selectedClass.value.skillChoiceCount - selectedCount.value}` : `уберите лишние ${selectedCount.value - selectedClass.value.skillChoiceCount}`}.`
@@ -99,21 +170,24 @@ function nextStep() {
 function previousStep() { if (currentStep.value > 1) goToStep(currentStep.value - 1) }
 function updateRace(id: string) {
   raceId.value = id
-  subraceId.value = subracesForRace(id)[0]?.id ?? ''
+  subraceId.value = ruleset.value === '2024' ? '' : subracesForRace(id)[0]?.id ?? ''
   raceAbilityChoices.value = selectedRace.value.abilityChoices?.options.slice(0, selectedRace.value.abilityChoices.count) ?? []
   raceSkillChoices.value = []
+  speciesChoices.value = {}
   completed.value = false
 }
 function updateClass(id: string) {
   classId.value = id
-  const nextClass = findClass(id)
+  const nextClass = ruleset.value === '2024' ? classAsLegacy(id) : findClass(id)
   selectedSkillIds.value = [...new Set(selectedSkillIds.value.filter((skillId) => nextClass.skillOptions.includes(skillId)))].slice(0, nextClass.skillChoiceCount)
   classEquipmentId.value = nextClass.equipmentOptions?.[0]?.id ?? ''
   completed.value = false
 }
 function updateBackground(id: string) {
   backgroundId.value = id
-  backgroundEquipmentId.value = findBackground(id).equipmentOptions[0]?.id ?? ''
+  backgroundEquipmentId.value = selectedBackground.value.equipmentOptions[0]?.id ?? ''
+  originAbilityChoices.value = ruleset.value === '2024' ? [...selected2024Background.value.abilityOptions] : []
+  originAbilityFocus.value = ruleset.value === '2024' ? originAbilityChoices.value[0] : undefined
   completed.value = false
 }
 function updateAbility(key: AbilityKey, value: unknown) {
@@ -138,7 +212,35 @@ function toggleRaceSkill(id: string) {
 function selectSubrace(id: string) { subraceId.value = id; completed.value = false }
 function selectClassKit(id: string) { classEquipmentId.value = id; completed.value = false }
 function selectBackgroundKit(id: string) { backgroundEquipmentId.value = id; completed.value = false }
+function updateRuleset(value: CharacterRuleset) {
+  ruleset.value = value
+  if (value === '2024') {
+    raceId.value = RULES_2024_SPECIES[0]!.id
+    classId.value = RULES_2024_CLASSES[0]!.id
+    backgroundId.value = RULES_2024_BACKGROUNDS[0]!.id
+    originAbilityChoices.value = [...RULES_2024_BACKGROUNDS[0]!.abilityOptions]
+    originAbilityFocus.value = originAbilityChoices.value[0]
+  } else {
+    raceId.value = DND5E_RACES[0]!.id
+    classId.value = DND5E_CLASSES[DND5E_CLASSES.length - 1]!.id
+    backgroundId.value = DND5E_BACKGROUNDS[0]!.id
+    originAbilityChoices.value = []
+    originAbilityFocus.value = undefined
+  }
+  subraceId.value = ''
+  classEquipmentId.value = selectedClass.value.equipmentOptions?.[0]?.id ?? ''
+  backgroundEquipmentId.value = selectedBackground.value.equipmentOptions[0]?.id ?? ''
+  selectedSkillIds.value = []
+  raceSkillChoices.value = []
+  speciesChoices.value = {}
+  completed.value = false
+}
+function selectSpeciesChoice(choiceId: string, value: string) {
+  speciesChoices.value = { ...speciesChoices.value, [choiceId]: [value] }
+  completed.value = false
+}
 function raceBonusLines(raceIdValue: string) {
+  if (ruleset.value === '2024') return ['Бонусы характеристик выбираются через предысторию']
   const race = findRace(raceIdValue)
   return Object.entries(race.profile.abilityBonuses).map(([key, value]) => `${ABILITY_FIELDS.find((field) => field.key === key)?.label} ${signedModifier(value ?? 0)}`)
 }
@@ -146,10 +248,16 @@ function subraceBonusLines(subraceIdValue: string) {
   const subrace = findSubrace(raceId.value, subraceIdValue)
   return Object.entries(subrace?.abilityBonuses ?? {}).map(([key, value]) => `${ABILITY_FIELDS.find((field) => field.key === key)?.label} ${signedModifier(value ?? 0)}`)
 }
-function sourceLabel(source: string) { return ({ race: 'Раса', class: 'Класс', background: 'Предыстория', manual: 'Вручную' } as Record<string, string>)[source] ?? source }
+function sourceLabel(source: string) { return ({ race: 'Вид', class: 'Класс', background: 'Предыстория', feat: 'Черта', manual: 'Вручную' } as Record<string, string>)[source] ?? source }
 function applyCreation() {
   if (stepIssue.value || !name.value.trim()) return
   const payload: CharacterCreationPayload = {
+    ruleset: ruleset.value,
+    speciesId: ruleset.value === '2024' ? raceId.value : undefined,
+    originFeatId: ruleset.value === '2024' ? selected2024Background.value.originFeatId : undefined,
+    originAbilityChoices: ruleset.value === '2024' ? [...originAbilityChoices.value] : undefined,
+    originAbilityFocus: ruleset.value === '2024' ? originAbilityFocus.value : undefined,
+    speciesChoices: ruleset.value === '2024' ? JSON.parse(JSON.stringify(speciesChoices.value)) as Record<string, string[]> : undefined,
     name: name.value,
     raceId: raceId.value,
     subraceId: subraceId.value || undefined,
@@ -176,16 +284,16 @@ function applyCreation() {
       <div class="creation-hero-copy">
         <p class="eyebrow">Хроники начинаются здесь</p>
         <h1>Создание персонажа</h1>
-        <p class="section-note">{{ stepDescriptions[currentStep - 1] }}</p>
+        <p class="section-note">{{ stepDescription(currentStep - 1) }}</p>
       </div>
-      <div class="creation-progress-copy"><strong>Шаг {{ currentStep }} из {{ stepNames.length }}</strong><span>{{ stepNames[currentStep - 1] }}</span></div>
+      <div class="creation-progress-copy"><strong>Шаг {{ currentStep }} из {{ stepNames.length }}</strong><span>{{ stepLabel(currentStep - 1) }}</span></div>
       <div class="creation-progress-track" role="progressbar" :aria-valuenow="currentStep" :aria-valuemin="1" :aria-valuemax="stepNames.length" :aria-label="`Шаг ${currentStep} из ${stepNames.length}`"><span :style="{ width: `${stepProgress}%` }"></span></div>
     </header>
 
     <nav class="creation-step-nav" aria-label="Шаги создания персонажа">
       <ol>
-        <li v-for="(step, index) in stepNames" :key="step" :class="{ active: currentStep === index + 1, done: index + 1 < currentStep, locked: index + 1 > highestUnlockedStep }">
-          <button type="button" :disabled="disabled || index + 1 > highestUnlockedStep" :aria-current="currentStep === index + 1 ? 'step' : undefined" :aria-label="`${index + 1}. ${step}${index + 1 > highestUnlockedStep ? ', недоступен' : index + 1 < currentStep ? ', завершён' : ''}`" @click="goToStep(index + 1)"><span class="step-number">{{ index + 1 < currentStep ? '✓' : index + 1 }}</span><span class="step-label">{{ step }}</span></button>
+        <li v-for="(_, index) in stepNames" :key="stepLabel(index)" :class="{ active: currentStep === index + 1, done: index + 1 < currentStep, locked: index + 1 > highestUnlockedStep }">
+          <button type="button" :disabled="disabled || index + 1 > highestUnlockedStep" :aria-current="currentStep === index + 1 ? 'step' : undefined" :aria-label="`${index + 1}. ${stepLabel(index)}${index + 1 > highestUnlockedStep ? ', недоступен' : index + 1 < currentStep ? ', завершён' : ''}`" @click="goToStep(index + 1)"><span class="step-number">{{ index + 1 < currentStep ? '✓' : index + 1 }}</span><span class="step-label">{{ stepLabel(index) }}</span></button>
         </li>
       </ol>
     </nav>
@@ -194,13 +302,16 @@ function applyCreation() {
       <div class="creation-main-column">
         <Transition name="creation-step" mode="out-in">
           <section :key="currentStep" class="sheet-section creation-step-panel" :aria-labelledby="`creation-step-title-${currentStep}`">
-            <div class="creation-panel-heading"><div><p class="eyebrow">Этап {{ String(currentStep).padStart(2, '0') }}</p><h2 :id="`creation-step-title-${currentStep}`">{{ stepNames[currentStep - 1] }}</h2><p class="section-note">{{ stepDescriptions[currentStep - 1] }}</p></div><span class="creation-rune" aria-hidden="true">{{ currentStep === 9 ? '✧' : '✦' }}</span></div>
+            <div class="creation-panel-heading"><div><p class="eyebrow">Этап {{ String(currentStep).padStart(2, '0') }}</p><h2 :id="`creation-step-title-${currentStep}`">{{ stepLabel(currentStep - 1) }}</h2><p class="section-note">{{ stepDescription(currentStep - 1) }}</p></div><span class="creation-rune" aria-hidden="true">{{ currentStep === 9 ? '✧' : '✦' }}</span></div>
 
             <div v-if="stepIssue" class="creation-error" role="alert">{{ stepIssue }}</div>
 
             <template v-if="currentStep === 1">
               <div class="creator-grid creation-identity-fields">
                 <CInput label="Имя персонажа" :model-value="name" :disabled="disabled" autocomplete="off" @update:model-value="name = String($event ?? ''); completed = false" />
+                <label class="compact-field creation-ruleset-field">Редакция правил
+                  <select class="select-control" :value="ruleset" :disabled="disabled" @change="updateRuleset(($event.target as HTMLSelectElement).value as CharacterRuleset)"><option value="2024">D&amp;D 2024 / 5.5</option><option value="2014">D&amp;D 2014</option></select>
+                </label>
                 <CInput label="Мировоззрение (необязательно)" :model-value="alignment" :disabled="disabled" @update:model-value="alignment = String($event ?? '')" />
                 <CInput label="Подкласс (позже)" :model-value="subclass" :disabled="disabled" @update:model-value="subclass = String($event ?? '')" />
               </div>
@@ -208,14 +319,22 @@ function applyCreation() {
             </template>
 
             <template v-else-if="currentStep === 2">
-              <div class="selection-grid race-selection-grid" role="group" aria-label="Выберите расу">
-                <button v-for="race in DND5E_RACES" :key="race.id" type="button" class="selection-card" :class="{ selected: raceId === race.id }" :aria-pressed="raceId === race.id" :disabled="disabled" @click="updateRace(race.id)">
+              <div class="selection-grid race-selection-grid" role="group" :aria-label="ruleset === '2024' ? 'Выберите вид' : 'Выберите расу'">
+                <button v-for="race in raceOptions" :key="race.id" type="button" class="selection-card" :class="{ selected: raceId === race.id }" :aria-pressed="raceId === race.id" :disabled="disabled" @click="updateRace(race.id)">
                   <span class="selection-card-top"><span class="selection-sigil" aria-hidden="true">{{ race.label.slice(0, 1) }}</span><span v-if="raceId === race.id" class="selection-check" aria-label="Выбрано">✓</span></span>
-                  <strong>{{ race.label }}</strong><span class="selection-description">{{ race.profile.size }} · скорость {{ race.profile.speed }} фт.</span>
+                  <strong>{{ race.label }}</strong><span class="selection-description">{{ race.profile.size }} · скорость {{ race.profile.speed }} фт.</span><span v-if="ruleset === '2024' && race.id === selected2024Species.id" class="selection-description">{{ selected2024Species.description }}</span>
                   <span class="selection-bonuses"><span v-for="bonus in raceBonusLines(race.id)" :key="bonus">{{ bonus }}</span></span>
-                  <span class="selection-traits">{{ race.profile.traits.slice(0, 3).join(' · ') }}</span>
+                  <span class="selection-traits">Особенности: {{ race.profile.traits.join(' · ') }}</span>
+                  <span v-if="ruleset === '2024' && race.id === selected2024Species.id" class="selection-origin">Языки: {{ selected2024Species.languages.join(', ') || 'не указаны' }}</span>
                   <span v-if="race.skillProficiencies?.length" class="selection-origin">Владение: {{ race.skillProficiencies.map((id) => skillLabels[id] ?? id).join(', ') }}</span>
                 </button>
+              </div>
+              <div v-if="ruleset === '2024' && selected2024Species.choices.length" class="species-choice-panel">
+                <div class="creation-panel-heading"><div><p class="eyebrow">Наследие вида</p><h3>Выберите особенность</h3><p class="section-note">Выбор сохраняется как источник «Вид»; механика будет подключена отдельным rules layer.</p></div><span class="creation-rune" aria-hidden="true">✧</span></div>
+                <div v-for="choice in selected2024Species.choices" :key="choice.id" class="species-choice-row">
+                  <div><strong>{{ choice.label }}</strong><p class="section-note">{{ choice.description }}</p></div>
+                  <label class="compact-field"><span class="sr-only">{{ choice.label }}</span><select class="select-control" :value="speciesChoices[choice.id]?.[0] ?? ''" :disabled="disabled" @change="selectSpeciesChoice(choice.id, ($event.target as HTMLSelectElement).value)"><option value="" disabled>Выберите вариант</option><option v-for="option in choice.options" :key="option" :value="option">{{ option }}</option></select></label>
+                </div>
               </div>
             </template>
 
@@ -225,33 +344,40 @@ function applyCreation() {
                   <span class="selection-card-top"><span class="selection-sigil" aria-hidden="true">✧</span><span v-if="subraceId === subrace.id" class="selection-check" aria-label="Выбрано">✓</span></span><strong>{{ subrace.label }}</strong><span class="selection-description">{{ subrace.description }}</span><span class="selection-bonuses"><span v-for="bonus in subraceBonusLines(subrace.id)" :key="bonus">{{ bonus }}</span></span><span class="selection-traits">{{ subrace.traits.join(' · ') }}</span><span v-if="subrace.languages?.length" class="selection-origin">Языки: {{ subrace.languages.join(', ') }}</span>
                 </button>
               </div>
-              <div v-else class="creation-callout"><span aria-hidden="true">✧</span><p>Для расы «{{ selectedRace.label }}» отдельные подрасы в текущем наборе правил не заданы. Можно перейти дальше.</p></div>
+              <div v-else class="creation-callout"><span aria-hidden="true">✧</span><p v-if="ruleset === '2024'">В D&amp;D 2024 отдельный подвид на этом шаге не выбирается. Вид и предыстория уже определяют происхождение героя.</p><p v-else>Для расы «{{ selectedRace.label }}» отдельные подрасы в текущем наборе правил не заданы. Можно перейти дальше.</p></div>
             </template>
 
             <template v-else-if="currentStep === 4">
               <div class="selection-grid class-selection-grid" role="group" aria-label="Выберите класс">
-                <button v-for="item in DND5E_CLASSES" :key="item.id" type="button" class="selection-card" :class="{ selected: classId === item.id }" :aria-pressed="classId === item.id" :disabled="disabled" @click="updateClass(item.id)">
-                  <span class="selection-card-top"><span class="selection-sigil" aria-hidden="true">{{ item.hitDie }}</span><span v-if="classId === item.id" class="selection-check" aria-label="Выбрано">✓</span></span><strong>{{ item.label }}</strong><span class="selection-description">Основная характеристика: {{ ABILITY_FIELDS.find((field) => field.key === item.primaryAbility)?.label }} · Хиты {{ item.hitDie }}</span><span class="selection-traits">{{ item.features.join(' · ') }}</span><span class="selection-origin">{{ item.spellcastingAbility ? `Магия: ${ABILITY_FIELDS.find((field) => field.key === item.spellcastingAbility)?.label}` : 'Без заклинаний на этом шаге' }}</span>
+                <button v-for="item in classOptions" :key="item.id" type="button" class="selection-card" :class="{ selected: classId === item.id }" :aria-pressed="classId === item.id" :disabled="disabled" @click="updateClass(item.id)">
+                  <span class="selection-card-top"><span class="selection-sigil" aria-hidden="true">{{ item.hitDie }}</span><span v-if="classId === item.id" class="selection-check" aria-label="Выбрано">✓</span></span><strong>{{ item.label }}</strong><span class="selection-description">{{ item.description ? `${item.description} Основная характеристика: ${ABILITY_FIELDS.find((field) => field.key === item.primaryAbility)?.label} · Хиты ${item.hitDie}` : `Основная характеристика: ${ABILITY_FIELDS.find((field) => field.key === item.primaryAbility)?.label} · Хиты ${item.hitDie}` }}</span><span class="selection-traits">Особенности: {{ item.features.join(' · ') }}</span><span class="selection-origin">Спасброски: {{ item.savingThrowKeys.map((key) => ABILITY_FIELDS.find((field) => field.key === key)?.label ?? key).join(' · ') }}</span><span class="selection-origin">Навыки: {{ item.skillOptions.map((id) => skillLabels[id] ?? id).join(' · ') }} · выбрать {{ item.skillChoiceCount }}</span><span v-if="item.weaponProficiencies?.length" class="selection-origin">Оружие: {{ item.weaponProficiencies.join(' · ') }}</span><span v-if="item.armorProficiencies?.length" class="selection-origin">Броня: {{ item.armorProficiencies.join(' · ') }}</span><span v-if="item.startingEquipment?.length" class="selection-origin">Снаряжение: {{ item.startingEquipment.map((kit) => kit.label).join(' · ') }}</span><span class="selection-origin">{{ item.spellcastingAbility ? `Магия: ${ABILITY_FIELDS.find((field) => field.key === item.spellcastingAbility)?.label} · ${item.spellProgressionType}` : 'Без заклинаний на этом шаге' }}</span>
                 </button>
               </div>
             </template>
 
             <template v-else-if="currentStep === 5">
               <div class="selection-grid background-selection-grid" role="group" aria-label="Выберите предысторию">
-                <button v-for="background in DND5E_BACKGROUNDS" :key="background.id" type="button" class="selection-card selection-card-wide" :class="{ selected: backgroundId === background.id }" :aria-pressed="backgroundId === background.id" :disabled="disabled" @click="updateBackground(background.id)">
-                  <span class="selection-card-top"><span class="selection-sigil" aria-hidden="true">❖</span><span v-if="backgroundId === background.id" class="selection-check" aria-label="Выбрано">✓</span></span><strong>{{ background.label }}</strong><span class="selection-description">{{ background.description }}</span><span class="selection-bonuses">Навыки: {{ background.skillProficiencies.map((id) => skillLabels[id] ?? id).join(' · ') }}</span><span class="selection-traits">{{ background.feature }}</span><span class="selection-origin">{{ [...background.toolProficiencies, ...background.languages].join(' · ') || 'Особые владения не заданы' }}</span>
+                <button v-for="background in backgroundOptions" :key="background.id" type="button" class="selection-card selection-card-wide" :class="{ selected: backgroundId === background.id }" :aria-pressed="backgroundId === background.id" :disabled="disabled" @click="updateBackground(background.id)">
+                  <span class="selection-card-top"><span class="selection-sigil" aria-hidden="true">❖</span><span v-if="backgroundId === background.id" class="selection-check" aria-label="Выбрано">✓</span></span><strong>{{ background.label }}</strong><span class="selection-description">{{ background.description }}</span><span class="selection-bonuses">Навыки: {{ background.skillProficiencies.map((id) => skillLabels[id] ?? id).join(' · ') }}</span><span v-if="ruleset === '2024'" class="selection-bonuses">Характеристики: {{ backgroundAbilityLabels(background.id) }}</span><span class="selection-traits">{{ background.feature }}</span><span v-if="ruleset === '2024'" class="selection-origin">Происхожденческая черта: {{ backgroundOriginFeatLabel(background.id) }}</span><span v-if="ruleset === '2024'" class="selection-description">{{ backgroundOriginFeatDescription(background.id) }}</span><span class="selection-origin">{{ [...background.toolProficiencies, ...background.languages].join(' · ') || 'Особые владения не заданы' }}</span>
                 </button>
               </div>
             </template>
 
             <template v-else-if="currentStep === 6">
-              <div class="creation-source-hint"><span class="source-dot race-dot"></span><span>Золотая рамка показывает итог с бонусами расы и подрасы; исходный score не меняется автоматически.</span></div>
-              <div class="creator-abilities creation-ability-grid"><article v-for="field in ABILITY_FIELDS" :key="field.key" class="creation-ability-card" :class="{ 'has-racial-bonus': finalAbility(field.key) !== baseAbilities[field.key] }"><CInput type="number" min="1" max="30" step="1" :label="field.label" :disabled="disabled" :model-value="baseAbilities[field.key]" @update:model-value="updateAbility(field.key, $event)" /><div class="ability-result"><span>Итог <b>{{ finalAbility(field.key) }}</b></span><strong>{{ signedModifier(abilityModifier(finalAbility(field.key))) }}</strong></div><span v-if="finalAbility(field.key) !== baseAbilities[field.key]" class="ability-source">Раса / подраса {{ signedModifier(finalAbility(field.key) - baseAbilities[field.key]) }}</span><span v-else class="ability-source">Без бонуса происхождения</span></article></div>
+              <div class="creation-source-hint"><span class="source-dot race-dot"></span><span v-if="ruleset === '2024'">Характеристики вида не получают автоматических бонусов. Предыстория даёт три доступные характеристики: выберите одну для +2, две остальные получат +1.</span><span v-else>Золотая рамка показывает итог с бонусами расы и подрасы; исходный score не меняется автоматически.</span></div>
+              <div v-if="ruleset === '2024'" class="origin-ability-choice" role="group" aria-label="Бонусы характеристик предыстории">
+                <div><strong>Бонусы предыстории</strong><small>+2 к одной характеристике или +1 ко всем трём</small></div>
+                <div class="origin-ability-options">
+                  <button v-for="key in originAbilityChoices" :key="key" type="button" class="origin-ability-option" :class="{ selected: originAbilityFocus === key }" :disabled="disabled" :aria-pressed="originAbilityFocus === key" @click="originAbilityFocus = key; completed = false">+2 {{ ABILITY_FIELDS.find((field) => field.key === key)?.label }}</button>
+                  <button type="button" class="origin-ability-option" :class="{ selected: originAbilityFocus === undefined }" :disabled="disabled" :aria-pressed="originAbilityFocus === undefined" @click="originAbilityFocus = undefined; completed = false">+1 к каждой</button>
+                </div>
+              </div>
+              <div class="creator-abilities creation-ability-grid"><article v-for="field in ABILITY_FIELDS" :key="field.key" class="creation-ability-card" :class="{ 'has-racial-bonus': finalAbility(field.key) !== baseAbilities[field.key] }"><CInput type="number" min="1" max="30" step="1" :label="field.label" :disabled="disabled" :model-value="baseAbilities[field.key]" @update:model-value="updateAbility(field.key, $event)" /><div class="ability-result"><span>Итог <b>{{ finalAbility(field.key) }}</b></span><strong>{{ signedModifier(abilityModifier(finalAbility(field.key))) }}</strong></div><span v-if="finalAbility(field.key) !== baseAbilities[field.key]" class="ability-source">{{ ruleset === '2024' ? 'Предыстория' : 'Раса / подраса' }} {{ signedModifier(finalAbility(field.key) - baseAbilities[field.key]) }}</span><span v-else class="ability-source">Без бонуса происхождения</span></article></div>
             </template>
 
             <template v-else-if="currentStep === 7">
               <div class="skill-step-summary"><span :class="{ 'selection-complete': classSkillsRemaining === 0 }">Класс: <b>{{ selectedCount }} / {{ selectedClass.skillChoiceCount }}</b><small>{{ classSkillsRemaining ? `Осталось выбрать: ${classSkillsRemaining}` : 'Выбор завершён' }}</small></span><span :class="{ 'selection-complete': raceSkillsRemaining === 0 }">Раса: <b>{{ raceSelectedCount }} / {{ selectedRace.skillChoices?.count ?? 0 }}</b><small>{{ (selectedRace.skillChoices?.count ?? 0) === 0 ? 'Нет выбора' : raceSkillsRemaining ? `Осталось выбрать: ${raceSkillsRemaining}` : 'Выбор завершён' }}</small></span><span>Предыстория: <b>{{ selectedBackground.skillProficiencies.length }}</b><small>Задано правилами</small></span></div>
-              <div class="creation-skills-list"><article v-for="skill in props.character.skills" :key="skill.id" class="creation-skill-row" :class="{ 'skill-is-owned': currentOwnedSkills.some((entry) => entry.id === skill.id) }"><div class="creation-skill-name"><strong>{{ skill.name }}</strong><span>{{ ABILITY_FIELDS.find((field) => field.key === skill.ability)?.label ?? 'Характеристика не задана' }} · итог {{ currentOwnedSkills.find((entry) => entry.id === skill.id)?.bonus ?? signedModifier(abilityModifier(skill.ability ? finalAbility(skill.ability) : 10)) }}</span></div><div class="creation-skill-sources"><span v-for="source in currentOwnedSkills.find((entry) => entry.id === skill.id)?.sources ?? []" :key="source" class="source-badge" :class="`source-${source}`">{{ sourceLabel(source) }}</span><span v-if="!currentOwnedSkills.some((entry) => entry.id === skill.id)" class="source-none">Нет владения</span></div><div class="creation-skill-actions"><label v-if="selectedClass.skillOptions.includes(skill.id)" class="skill-choice-control"><input type="checkbox" :checked="selectedSkillIds.includes(skill.id)" :disabled="disabled || (!selectedSkillIds.includes(skill.id) && selectedCount >= selectedClass.skillChoiceCount)" @change="toggleClassSkill(skill.id)" />Класс</label><label v-if="selectedRace.skillChoices?.options.includes(skill.id)" class="skill-choice-control"><input type="checkbox" :checked="raceSkillChoices.includes(skill.id)" :disabled="disabled || (!raceSkillChoices.includes(skill.id) && raceSelectedCount >= selectedRace.skillChoices.count)" @change="toggleRaceSkill(skill.id)" />Раса</label><span v-if="selectedBackground.skillProficiencies.includes(skill.id)" class="fixed-source-label">Предыстория</span></div></article></div>
+              <div class="creation-skills-list"><article v-for="skill in props.character.skills" :key="skill.id" class="creation-skill-row" :class="{ 'skill-is-owned': currentOwnedSkills.some((entry) => entry.id === skill.id) }"><div class="creation-skill-name"><strong>{{ skill.name }}</strong><span>{{ ABILITY_FIELDS.find((field) => field.key === skill.ability)?.label ?? 'Характеристика не задана' }} · итог {{ currentOwnedSkills.find((entry) => entry.id === skill.id)?.bonus ?? signedModifier(abilityModifier(skill.ability ? finalAbility(skill.ability) : 10)) }}</span></div><div class="creation-skill-sources"><span v-for="source in currentOwnedSkills.find((entry) => entry.id === skill.id)?.sources ?? []" :key="source" class="source-badge" :class="`source-${source}`">{{ sourceLabel(source) }}</span><span v-if="!currentOwnedSkills.some((entry) => entry.id === skill.id)" class="source-none">Нет владения</span></div><div class="creation-skill-actions"><label v-if="selectedClass.skillOptions.includes(skill.id)" class="skill-choice-control"><input type="checkbox" :checked="selectedSkillIds.includes(skill.id)" :disabled="disabled || (!selectedSkillIds.includes(skill.id) && selectedCount >= selectedClass.skillChoiceCount)" @change="toggleClassSkill(skill.id)" />Класс</label><label v-if="selectedRace.skillChoices?.options.includes(skill.id)" class="skill-choice-control"><input type="checkbox" :checked="raceSkillChoices.includes(skill.id)" :disabled="disabled || (!raceSkillChoices.includes(skill.id) && raceSelectedCount >= selectedRace.skillChoices.count)" @change="toggleRaceSkill(skill.id)" />Раса</label><span v-if="selectedBackground.skillProficiencies.includes(skill.id)" class="fixed-source-label">Получено от предыстории</span></div></article></div>
               <p class="creation-source-explainer">Выберите ровно указанное количество навыков класса и расы. После достижения лимита остальные варианты блокируются. Владения складываются по источникам: один навык может одновременно происходить от класса, расы и предыстории.</p>
             </template>
 
@@ -262,7 +388,7 @@ function applyCreation() {
             </template>
 
             <template v-else>
-              <div v-if="!completed" class="creation-review"><div class="review-medallion" aria-hidden="true">✦</div><p class="eyebrow">Последняя проверка</p><h3>{{ name.trim() || 'Безымянный герой' }}</h3><p class="review-identity">{{ selectedRace.label }}<span v-if="selectedSubrace"> · {{ selectedSubrace.label }}</span> · {{ selectedClass.label }} · {{ selectedBackground.label }}</p><div class="review-abilities"><span v-for="field in ABILITY_FIELDS" :key="field.key"><small>{{ field.label.slice(0, 3) }}</small><b>{{ finalAbility(field.key) }}</b><em>{{ signedModifier(abilityModifier(finalAbility(field.key))) }}</em></span></div><div class="review-bottom"><div><strong>Особенности</strong><p>{{ previewFeatures.slice(0, 5).join(' · ') }}</p></div><div><strong>Снаряжение</strong><p>{{ previewEquipment.map((item) => `${item.name} × ${item.quantity}`).join(' · ') }}</p></div></div><div class="creation-callout"><span aria-hidden="true">✧</span><p>После создания изменения останутся черновиком. Используйте общую кнопку «Сохранить» на листе, чтобы записать персонажа.</p></div></div>
+              <div v-if="!completed" class="creation-review"><div class="review-medallion" aria-hidden="true">✦</div><p class="eyebrow">Последняя проверка</p><h3>{{ name.trim() || 'Безымянный герой' }}</h3><p class="review-identity">{{ selectedRace.label }}<span v-if="selectedSubrace"> · {{ selectedSubrace.label }}</span> · {{ selectedClass.label }} · {{ selectedBackground.label }}</p><div class="review-abilities"><span v-for="field in ABILITY_FIELDS" :key="field.key"><small>{{ field.label.slice(0, 3) }}</small><b>{{ finalAbility(field.key) }}</b><em>{{ signedModifier(abilityModifier(finalAbility(field.key))) }}</em></span></div><div class="review-bottom"><div><strong>Особенности</strong><p>{{ previewFeatures.slice(0, 5).join(' · ') }}</p></div><div v-if="previewOriginFeat"><strong>Черта происхождения</strong><p>{{ previewOriginFeat.label }} — {{ previewOriginFeat.description }}</p></div><div><strong>Снаряжение</strong><p>{{ previewEquipment.map((item) => `${item.name} × ${item.quantity}`).join(' · ') }}</p></div></div><div class="creation-callout"><span aria-hidden="true">✧</span><p>После создания изменения останутся черновиком. Используйте общую кнопку «Сохранить» на листе, чтобы записать персонажа.</p></div></div>
               <div v-else class="creation-finished"><div class="finished-seal" aria-hidden="true">✦</div><p class="eyebrow">Путь начинается</p><h3>Персонаж готов</h3><p>{{ name }} — {{ selectedRace.label }}<span v-if="selectedSubrace"> · {{ selectedSubrace.label }}</span>, {{ selectedClass.label }}.</p><div class="finished-actions"><CBtn color-type="primary" @click="emit('back-to-sheet')">Открыть лист персонажа</CBtn><CBtn @click="completed = false">Изменить</CBtn></div></div>
             </template>
 
@@ -278,7 +404,7 @@ function applyCreation() {
         <div class="preview-divider"><span>Характеристики</span></div>
         <div class="preview-ability-grid"><div v-for="field in ABILITY_FIELDS" :key="field.key"><small>{{ field.label }}</small><b>{{ finalAbility(field.key) }}</b><span>{{ signedModifier(abilityModifier(finalAbility(field.key))) }}</span></div></div>
         <div class="preview-section"><h3>Владения</h3><div v-if="currentOwnedSkills.length" class="preview-badges"><span v-for="skill in currentOwnedSkills.slice(0, 8)" :key="skill.id" class="preview-skill"><b>{{ skillLabels[skill.id] ?? skill.name }}</b><small>{{ skill.sources.map(sourceLabel).join(' + ') }}</small></span></div><p v-else class="preview-muted">Выберите навыки, чтобы увидеть владения.</p></div>
-        <div class="preview-section"><h3>Особенности</h3><ul class="preview-feature-list"><li v-for="feature in previewFeatures.slice(0, currentStep === 9 ? 8 : 3)" :key="feature">{{ feature }}</li></ul></div>
+        <div class="preview-section"><h3>Особенности</h3><ul class="preview-feature-list"><li v-for="feature in previewFeatures.slice(0, currentStep === 9 ? 8 : 3)" :key="feature">{{ feature }}</li><li v-if="previewOriginFeat"><strong>Черта происхождения:</strong> {{ previewOriginFeat.label }}</li></ul></div>
         <div class="preview-section"><h3>Стартовое снаряжение</h3><ul v-if="previewEquipment.length" class="preview-equipment-list"><li v-for="(item, index) in previewEquipment.slice(0, currentStep === 9 ? 8 : 4)" :key="`${item.source}-${item.name}-${index}`">{{ item.name }} <span>× {{ item.quantity }}</span></li></ul><p v-else class="preview-muted">Пока не выбрано</p></div>
         <p class="preview-draft-note">Изменения пока не сохранены</p>
       </aside>

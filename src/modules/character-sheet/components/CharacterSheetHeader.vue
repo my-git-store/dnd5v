@@ -2,6 +2,7 @@
 import { CBtn, CInput } from '@/ui/components'
 import { proficiencyBonus } from '../domain/proficiencyBonus'
 import { signedModifier } from '../domain/abilityModifier'
+import type { CharacterRuleset } from '../types/characterV3'
 
 defineProps<{
   dirty: boolean
@@ -10,6 +11,7 @@ defineProps<{
   saveError: string | null
   race: string
   className: string
+  ruleset: CharacterRuleset
   level: number
   experience: number
 }>()
@@ -27,12 +29,13 @@ const emit = defineEmits<{ save: [] }>()
         <div><dt>Уровень</dt><dd>{{ level }}</dd></div>
         <div><dt>Опыт</dt><dd>{{ experience }}</dd></div>
         <div><dt>Бонус владения</dt><dd>{{ proficiencyBonus(level) === null ? '—' : signedModifier(proficiencyBonus(level)!) }}</dd></div>
+        <div><dt>Редакция</dt><dd>{{ ruleset === '2024' ? 'D&D 2024 / 5.5' : 'D&D 2014' }}</dd></div>
       </dl>
       <p v-if="saveError" class="status-text error" role="alert">{{ saveError }}</p>
       <p v-else-if="saving" class="status-text pending" role="status" aria-live="polite">Сохраняется…</p>
       <p v-else-if="dirty" class="status-text warning" role="status" aria-live="polite">Есть несохранённые изменения</p>
       <p v-else-if="saved" class="status-text success" role="status" aria-live="polite">Сохранено</p>
     </div>
-    <CBtn color-type="primary" :loading="saving" :disabled="!dirty" @click="emit('save')">Сохранить</CBtn>
+    <CBtn color-type="primary" :loading="saving" :disabled="!dirty" @click="emit('save')">{{ saved ? 'Сохранено' : 'Сохранить' }}</CBtn>
   </header>
 </template>

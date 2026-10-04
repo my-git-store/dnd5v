@@ -1,8 +1,11 @@
 import type { AbilityKey, AttackBonusSource, CharacterAbilities, CharacterMoney, SkillProficiency } from './character.ts'
+import type { CharacterProgressionV3, RuleSourceRef, SpellProgressionType } from './rules.ts'
 
 export type CharacterSchemaV3 = 3
+export type CharacterRuleset = '2014' | '2024'
 export type CharacterCalculationMode = 'manual' | 'computed'
-export type SkillProficiencySource = 'race' | 'class' | 'background' | 'manual'
+export type SkillProficiencySource = 'race' | 'class' | 'background' | 'manual' | 'feat'
+export type CharacterAbilityBonusSource = 'species' | 'background' | 'manual' | 'feat' | 'class'
 export type CharacterV3SpellLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 export interface RaceProfileV3 {
@@ -24,6 +27,17 @@ export interface BackgroundProfileV3 {
   notes: string
 }
 
+/** 2024 origin data. Legacy race/background fields remain the compatibility view. */
+export interface CharacterOriginV3 {
+  species: string
+  background: string
+  /** Canonical catalog reference; originFeat remains a legacy display label. */
+  featId?: string
+  originFeat: string
+  languages: string[]
+  tools: string[]
+}
+
 export interface CharacterIdentityV3 {
   name: string
   race: RaceProfileV3
@@ -38,6 +52,8 @@ export interface CharacterIdentityV3 {
 export interface CharacterProficiencyV3 {
   toolProficiencies: string[]
   languageProficiencies: string[]
+  /** Optional attribution for selected languages; does not apply any feat effects. */
+  languageSources?: Record<string, RuleSourceRef[]>
 }
 
 export interface CharacterSavingThrowV3 {
@@ -88,6 +104,10 @@ export interface CharacterAttackV3 {
   damage: string
   damageType: string
   properties: string[]
+  weaponMastery?: string
+  /** Canonical catalog link; legacy free-text weaponMastery remains supported. */
+  weaponId?: string
+  masteryId?: string
   range: string
   description: string
 }
@@ -104,6 +124,9 @@ export interface CharacterSpellV3 {
   duration: string
   concentration: boolean
   ritual: boolean
+  /** Optional catalog metadata; embedded legacy/custom spells remain valid without it. */
+  classes?: string[]
+  metadata?: Record<string, unknown>
 }
 
 export interface CharacterSpellSlotV3 {
@@ -114,7 +137,13 @@ export interface CharacterSpellSlotV3 {
 export type CharacterSpellSlotsV3 = Record<CharacterV3SpellLevel, CharacterSpellSlotV3>
 
 export interface CharacterSpellcastingV3 {
+  spellRuleset?: CharacterRuleset
+  /** Metadata only: full slot/level progression is intentionally out of scope. */
+  spellProgressionType?: SpellProgressionType
   spellcastingAbility: AbilityKey | null
+  /** Canonical 2024 catalog references. Embedded knownSpells remain the compatibility view. */
+  spellIds?: string[]
+  cantripIds?: string[]
   knownSpells: CharacterSpellV3[]
   preparedSpellIds: string[]
   cantrips: CharacterSpellV3[]
@@ -129,6 +158,8 @@ export interface CharacterInventoryItemV3 {
   description: string
   equipped: boolean
   properties: string[]
+  /** Optional link to a canonical weapon definition. Existing items remain unlinked. */
+  weaponId?: string
   /** Optional marker for items created by the character creation flow. */
   source?: 'creation' | 'user'
 }
@@ -148,8 +179,14 @@ export interface CharacterPersonalityV3 {
 }
 
 export interface CharacterCreationV3 {
+  ruleset?: CharacterRuleset
+  speciesId?: string
   raceId: string
   classId: string
+  /** Optional class foundation metadata; old v3 records omit these safely. */
+  classLevel?: number
+  classSources?: RuleSourceRef[]
+  spellProgressionType?: SpellProgressionType
   baseAbilityScores: CharacterAbilities
   raceSkillIds?: string[]
   raceAbilityChoices?: AbilityKey[]
@@ -165,17 +202,25 @@ export interface CharacterCreationV3 {
   subraceSkillIds?: string[]
   subraceLanguages?: string[]
   backgroundId?: string
+  originFeatId?: string
+  originAbilityChoices?: AbilityKey[]
+  originAbilityFocus?: AbilityKey
+  abilityBonusSources?: Partial<Record<AbilityKey, Array<{ source: CharacterAbilityBonusSource; amount: number }>>>
+  /** Selected 2024 species choices; mechanics remain data-only until a rules layer handles them. */
+  speciesChoices?: Record<string, string[]>
   backgroundSkillIds?: string[]
   backgroundToolProficiencies?: string[]
   backgroundLanguages?: string[]
   classEquipmentId?: string
   backgroundEquipmentId?: string
   startingEquipmentIds?: string[]
+  startingGold?: number
 }
 
 export interface CharacterV3 {
   id: string
   schemaVersion: CharacterSchemaV3
+  ruleset: CharacterRuleset
   identity: CharacterIdentityV3
   abilities: CharacterAbilities
   proficiency: CharacterProficiencyV3
@@ -186,6 +231,11 @@ export interface CharacterV3 {
   spellcasting: CharacterSpellcastingV3
   inventory: CharacterInventoryV3
   personality: CharacterPersonalityV3
+  origin: CharacterOriginV3
+  /** Canonical feature references; descriptions and levels resolve from the rules catalog. */
+  features?: string[]
+  /** Optional additive foundation; absent on older v3 records and filled with safe defaults at runtime. */
+  progression?: CharacterProgressionV3
   extensions: Record<string, unknown>
 }
 

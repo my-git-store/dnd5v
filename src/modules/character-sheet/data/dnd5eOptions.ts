@@ -1,5 +1,6 @@
 import type { AbilityKey } from '../types/character.ts'
 import type { BackgroundProfileV3, CharacterProficiencyV3, RaceProfileV3 } from '../types/characterV3.ts'
+import type { SpellProgressionType } from '../types/rules.ts'
 
 export interface Dnd5eRaceOption {
   id: string
@@ -41,15 +42,24 @@ export interface Dnd5eBackgroundOption {
 export interface Dnd5eClassOption {
   id: string
   label: string
+  /** Optional canonical 2024 metadata; legacy class options keep the old shape. */
+  description?: string
   hitDie: string
   primaryAbility: AbilityKey
+  primaryAbilities?: AbilityKey[]
   spellcastingAbility: AbilityKey | null
+  spellProgressionType?: SpellProgressionType
   savingThrowKeys: AbilityKey[]
+  savingThrowProficiencies?: AbilityKey[]
   skillChoiceCount: number
   skillOptions: string[]
+  skillChoices?: { count: number; options: string[] }
   features: string[]
   proficiencies: string[]
+  weaponProficiencies?: string[]
+  armorProficiencies?: string[]
   equipmentOptions?: Dnd5eEquipmentOption[]
+  startingEquipment?: Dnd5eEquipmentOption[]
 }
 
 const ALL_SKILLS = ['acrobatics', 'animal-handling', 'arcana', 'athletics', 'deception', 'history', 'insight', 'intimidation', 'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion', 'religion', 'sleight-of-hand', 'stealth', 'survival']

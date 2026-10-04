@@ -5,6 +5,7 @@ import { cloneCharacterView, type CharacterIdentityPatch, type CharacterSavingTh
 import type { CharacterCombatV3, CharacterInventoryItemV3, CharacterPersonalityV3, CharacterSpellcastingV3 } from '../types/characterV3'
 import { validateCharacter } from '../validation/characterValidation'
 import { applyCharacterCreation, type CharacterCreationPayload } from '../domain/characterCreation'
+import { progressionAtLevel } from '../domain/characterProgression'
 
 export function useCharacterSheet(id = 'demo-character') {
   const adapter = createCharacterSheetAdapter()
@@ -63,7 +64,10 @@ export function useCharacterSheet(id = 'demo-character') {
     if (patch.subclass !== undefined) character.value.subclass = patch.subclass
     if (patch.backgroundName !== undefined) character.value.background.name = patch.backgroundName
     if (patch.alignment !== undefined) character.value.alignment = patch.alignment
-    if (patch.level !== undefined) character.value.level = patch.level
+    if (patch.level !== undefined) {
+      character.value.level = patch.level
+      if (character.value.progression) character.value.progression = progressionAtLevel(character.value.progression, patch.level)
+    }
     if (patch.experience !== undefined) character.value.experience = patch.experience
     savedNotice.value = false
   }

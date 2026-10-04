@@ -15,26 +15,34 @@ export const CHARACTER_DETAIL_DEFAULTS = {
   armorClass: 10,
 } as const
 
+/** Checks that a value can be inspected as a plain record. */
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
+/** Checks that a value is a finite number. */
 const isFiniteNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value)
+/** Checks that a value is a string. */
 const isString = (value: unknown): value is string => typeof value === 'string'
 const ABILITY_KEYS: AbilityKey[] = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']
 const PROFICIENCY_VALUES: SkillProficiency[] = ['none', 'proficient', 'expertise']
+/** Checks that a value names one of the six ability scores. */
 const isAbilityKey = (value: unknown): value is AbilityKey => typeof value === 'string' && ABILITY_KEYS.includes(value as AbilityKey)
 
+/** Adds safe defaults to a legacy v1 payload before adapter processing. */
 export function withCharacterDefaults(value: unknown): unknown {
   if (!isRecord(value) || value.schemaVersion !== 1) return value
   return { ...CHARACTER_DETAIL_DEFAULTS, ...value }
 }
 
+/** Validates a legacy spell entry. */
 function validSpell(value: unknown): value is CharacterSpell {
   return isRecord(value) && isString(value.id) && isString(value.name) && isFiniteNumber(value.level) && isString(value.description)
 }
 
+/** Validates a legacy inventory item. */
 function validItem(value: unknown): value is InventoryItem {
   return isRecord(value) && isString(value.id) && isString(value.name) && Number.isInteger(value.quantity) && Number(value.quantity) >= 0 && isString(value.description)
 }
 
+/** Validates a skill entry for the requested legacy schema version. */
 function validSkill(value: unknown, version: 1 | 2): value is CharacterSkill {
   if (!isRecord(value) || !isString(value.id) || !isString(value.name) || !isFiniteNumber(value.value)) return false
   if (version === 1) return true
@@ -43,6 +51,7 @@ function validSkill(value: unknown, version: 1 | 2): value is CharacterSkill {
     && PROFICIENCY_VALUES.includes(value.proficiency as SkillProficiency)
 }
 
+/** Validates an attack entry for the requested legacy schema version. */
 function validAttack(value: unknown, version: 1 | 2): value is CharacterAttack {
   return isRecord(value)
     && isString(value.id)
@@ -54,6 +63,7 @@ function validAttack(value: unknown, version: 1 | 2): value is CharacterAttack {
     && (version === 1 ? !('additionalBonus' in value) || (isFiniteNumber(value.additionalBonus) && Number.isInteger(value.additionalBonus)) : isFiniteNumber(value.additionalBonus) && Number.isInteger(value.additionalBonus))
 }
 
+/** Returns validation messages for a legacy v1 or v2 character payload. */
 function validateVersion(value: unknown, version: 1 | 2): string[] {
   if (!isRecord(value)) return ['Персонаж должен быть объектом.']
   const errors: string[] = []
@@ -81,15 +91,18 @@ function validateVersion(value: unknown, version: 1 | 2): string[] {
   return errors
 }
 
+/** Validates a current legacy character payload. */
 export function validateCharacter(value: unknown): string[] {
   return validateVersion(value, 2)
 }
 
+/** Throws a typed error when a current legacy character is invalid. */
 export function assertValidCharacter(value: unknown): asserts value is Character {
   const errors = validateCharacter(value)
   if (errors.length) throw new InvalidCharacterError(errors[0] ?? 'Некорректный персонаж.')
 }
 
+/** Throws a typed error when a legacy v1 character is invalid. */
 export function assertValidCharacterV1(value: unknown): asserts value is CharacterV1 {
   const errors = validateVersion(value, 1)
   if (errors.length) throw new InvalidCharacterError(errors[0] ?? 'Некорректный персонаж v1.')

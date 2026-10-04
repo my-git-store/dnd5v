@@ -39,7 +39,7 @@ test('migrates a v2 character into a valid v3 envelope', () => {
   assert.equal(migrated.combat.armorClass.mode, 'manual')
   assert.equal(migrated.combat.armorClass.value, source.armorClass)
   assert.equal(migrated.skills[0]?.value, source.skills[0]?.value)
-  assert.equal(migrated.skills[0]?.calculationMode, 'manual')
+  assert.equal(migrated.skills[0]?.calculationMode, 'computed')
   assert.equal(migrated.attacks[0]?.attackBonus, source.attacks[0]?.attackBonus)
   assert.equal(migrated.attacks[0]?.abilitySource, source.attacks[0]?.bonusSource)
   assert.equal(migrated.spellcasting.knownSpells[0]?.name, source.spells[0]?.name)

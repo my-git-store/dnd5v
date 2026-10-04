@@ -1,8 +1,11 @@
 import { SKILL_ABILITIES } from '../data/characterFields.ts'
 import { isAttackBonusSource } from '../domain/attackBonus.ts'
+import { DEFAULT_CHARACTER_RULESET, isCharacterRuleset } from '../domain/ruleset.ts'
 import { migrateCharacterV1 } from './characterMigration.ts'
 import { assertValidCharacterV3 } from '../validation/characterV3Validation.ts'
 import { assertValidCharacter, assertValidCharacterV1, withCharacterDefaults } from '../validation/characterValidation.ts'
+import { defaultProgressionForCharacter, normalizeProgression } from '../domain/characterProgression.ts'
+import { getRules2024Spell, isRules2024SpellId } from '../data/rules2024/index.ts'
 import { cloneCharacterV3, type CharacterAttackV3, type CharacterInventoryItemV3, type CharacterSkillV3, type CharacterSpellV3, type CharacterSpellSlotsV3, type CharacterV3 } from '../types/characterV3.ts'
 import type { AbilityKey, Character, CharacterAttack, CharacterSkill, CharacterSpell, InventoryItem } from '../types/character.ts'
 
@@ -61,7 +64,7 @@ function migrateSkill(skill: CharacterSkill): CharacterSkillV3 {
     value: skill.value,
     ability: (ability as AbilityKey | null) ?? null,
     proficiency,
-    calculationMode: source.calculationMode === 'computed' ? 'computed' : 'manual',
+    calculationMode: source.calculationMode === 'manual' ? 'manual' : 'computed',
     additionalBonus: isInteger(source.additionalBonus) ? source.additionalBonus : 0,
   } as CharacterSkillV3
 }
@@ -82,13 +85,17 @@ function migrateAttack(attack: CharacterAttack): CharacterAttackV3 {
     damage: attack.damage,
     damageType: isString(source.damageType) ? source.damageType : '',
     properties: isStringArray(source.properties) ? source.properties : [],
+    weaponMastery: isString(source.weaponMastery) ? source.weaponMastery : '',
+    ...(isString(source.weaponId) && source.weaponId ? { weaponId: source.weaponId } : {}),
+    ...(isString(source.masteryId) && source.masteryId ? { masteryId: source.masteryId } : {}),
     range: isString(source.range) ? source.range : '',
     description: attack.description,
   } as CharacterAttackV3
 }
 
 function migrateSpell(spell: CharacterSpell): CharacterSpellV3 {
-  const source = cloneJson(spell) as unknown as Record<string, unknown>
+  const raw = cloneJson(spell) as unknown as Record<string, unknown>
+  const source = omitKeys(raw, ['classes', 'metadata'])
   return {
     ...source,
     id: spell.id,
@@ -102,7 +109,63 @@ function migrateSpell(spell: CharacterSpell): CharacterSpellV3 {
     duration: isString(source.duration) ? source.duration : '',
     concentration: source.concentration === true,
     ritual: source.ritual === true,
+    ...(isStringArray(raw.classes) ? { classes: [...raw.classes] } : {}),
+    ...(isRecord(raw.metadata) ? { metadata: cloneJson(raw.metadata) } : {}),
   } as CharacterSpellV3
+}
+
+function spellFromDefinition(id: string): CharacterSpellV3 | undefined {
+  const definition = getRules2024Spell(id)
+  if (!definition) return undefined
+  return {
+    id: definition.id,
+    name: definition.name,
+    level: definition.level,
+    description: definition.description,
+    school: definition.school,
+    castingTime: definition.castingTime,
+    range: definition.range,
+    components: definition.components,
+    duration: definition.duration,
+    concentration: definition.duration.toLowerCase().includes('концентрация'),
+    ritual: false,
+    classes: [...definition.classes],
+    metadata: cloneJson(definition.metadata),
+  }
+}
+
+function canonicalSpellIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return [...new Set(value.flatMap((spell) => isRecord(spell) && isString(spell.id) && isRules2024SpellId(spell.id) ? [spell.id] : []))]
+}
+
+function hydrateCatalogSpells(value: unknown, ids: string[]): unknown[] {
+  const existing = Array.isArray(value) ? [...value] : []
+  for (const id of ids) {
+    if (existing.some((spell) => isRecord(spell) && spell.id === id)) continue
+    const catalogSpell = spellFromDefinition(id)
+    if (catalogSpell) existing.push(catalogSpell)
+  }
+  return existing
+}
+
+function normalizeSpellcasting(value: Record<string, unknown>, ruleset: unknown): void {
+  const spellcasting = value.spellcasting
+  if (!isRecord(spellcasting)) return
+  const knownSpells = spellcasting.knownSpells
+  const cantrips = spellcasting.cantrips
+  const spellIds = spellcasting.spellIds === undefined
+    ? (ruleset === '2024' ? canonicalSpellIds(knownSpells) : [])
+    : (isStringArray(spellcasting.spellIds) ? [...new Set(spellcasting.spellIds)] : spellcasting.spellIds)
+  const cantripIds = spellcasting.cantripIds === undefined
+    ? (ruleset === '2024' ? canonicalSpellIds(cantrips) : [])
+    : (isStringArray(spellcasting.cantripIds) ? [...new Set(spellcasting.cantripIds)] : spellcasting.cantripIds)
+  spellcasting.spellIds = spellIds
+  spellcasting.cantripIds = cantripIds
+  if (ruleset === '2024') {
+    if (isStringArray(spellIds)) spellcasting.knownSpells = hydrateCatalogSpells(knownSpells, spellIds)
+    if (isStringArray(cantripIds)) spellcasting.cantrips = hydrateCatalogSpells(cantrips, cantripIds)
+  }
 }
 
 function migrateInventoryItem(item: InventoryItem): CharacterInventoryItemV3 {
@@ -116,15 +179,17 @@ function migrateInventoryItem(item: InventoryItem): CharacterInventoryItemV3 {
     description: item.description,
     equipped: source.equipped === true,
     properties: isStringArray(source.properties) ? source.properties : [],
+    ...(isString(source.weaponId) && source.weaponId ? { weaponId: source.weaponId } : {}),
   } as CharacterInventoryItemV3
 }
 
 export function migrateCharacterV2ToV3(value: Character): CharacterV3 {
   assertValidCharacter(value)
   const source = value as unknown as Record<string, unknown>
-  return {
+  const migrated: CharacterV3 = {
     id: value.id,
     schemaVersion: 3,
+    ruleset: '2014',
     identity: {
       name: value.name,
       race: { name: '', subrace: '', size: '', speed: 0, abilityBonuses: {}, traits: [], languages: [] },
@@ -148,18 +213,69 @@ export function migrateCharacterV2ToV3(value: Character): CharacterV3 {
     },
     skills: value.skills.map(migrateSkill),
     attacks: value.attacks.map(migrateAttack),
-    spellcasting: { spellcastingAbility: null, knownSpells: value.spells.map(migrateSpell), preparedSpellIds: [], cantrips: value.cantrips.map(migrateSpell), spellSlots: createSpellSlots() },
+    spellcasting: { spellRuleset: '2014', spellcastingAbility: null, spellIds: [], cantripIds: [], knownSpells: value.spells.map(migrateSpell), preparedSpellIds: [], cantrips: value.cantrips.map(migrateSpell), spellSlots: createSpellSlots() },
     inventory: { items: value.inventory.map(migrateInventoryItem), money: cloneJson(value.money) },
     personality: { traits: value.bio.traits, ideals: '', bonds: '', flaws: '', biography: value.bio.biography, features: value.bio.features },
+    origin: { species: '', background: '', originFeat: '', languages: [], tools: [] },
     extensions: collectExtensions(source),
   }
+  migrated.progression = defaultProgressionForCharacter(migrated)
+  migrated.features = [...migrated.progression.features]
+  return migrated
+}
+
+/** Adds safe defaults for fields introduced after the first v3 release. */
+function normalizeCharacterV3(value: Record<string, unknown>): CharacterV3 {
+  const next = cloneJson(value) as unknown as CharacterV3
+  next.ruleset = isCharacterRuleset(value.ruleset) ? value.ruleset : DEFAULT_CHARACTER_RULESET
+  if (isRecord(value.spellcasting) && (value.spellcasting.spellRuleset === undefined || value.spellcasting.spellRuleset === null)) {
+    next.spellcasting.spellRuleset = next.ruleset
+  }
+  normalizeSpellcasting(next as unknown as Record<string, unknown>, next.ruleset)
+  const origin = isRecord(value.origin) ? value.origin : {}
+  const legacyRace = isRecord(value.identity) && isRecord(value.identity.race) ? value.identity.race : {}
+  const legacyBackground = isRecord(value.identity) && isRecord(value.identity.background) ? value.identity.background : {}
+  const creation = isRecord(value.extensions) && isRecord(value.extensions.characterCreation) ? value.extensions.characterCreation : {}
+  const featId = typeof origin.featId === 'string' && origin.featId ? origin.featId : (typeof creation.originFeatId === 'string' && creation.originFeatId ? creation.originFeatId : undefined)
+  next.origin = {
+    species: typeof origin.species === 'string' ? origin.species : (typeof legacyRace.name === 'string' ? legacyRace.name : ''),
+    background: typeof origin.background === 'string' ? origin.background : (typeof legacyBackground.name === 'string' ? legacyBackground.name : ''),
+    ...(featId ? { featId } : {}),
+    originFeat: typeof origin.originFeat === 'string' ? origin.originFeat : '',
+    languages: isStringArray(origin.languages) ? [...origin.languages] : (isStringArray(legacyRace.languages) ? [...legacyRace.languages] : []),
+    tools: isStringArray(origin.tools) ? [...origin.tools] : (isStringArray(legacyBackground.toolProficiencies) ? [...legacyBackground.toolProficiencies] : []),
+  }
+  if (value.progression === undefined) {
+    next.progression = defaultProgressionForCharacter(next)
+  } else if (isRecord(value.progression)) {
+    const progression = next.progression as unknown as Record<string, unknown>
+    if (progression.features === undefined && isStringArray(progression.featureIds)) {
+      progression.features = [...progression.featureIds]
+      delete progression.featureIds
+    }
+    if (isStringArray(progression.features) && Array.isArray(progression.classLevels) && isRecord(progression.choices)) {
+      next.progression = normalizeProgression(next.progression!, next.ruleset)
+    }
+  }
+  if (value.features === undefined) {
+    next.features = isStringArray(next.progression?.features) ? [...next.progression.features] : []
+  } else if (isStringArray(value.features)) {
+    next.features = [...value.features]
+  }
+  // The top-level list is the public character envelope; keep the progression
+  // view synchronized when an older v3 record already contains that list.
+  if (next.progression && isStringArray(next.features)) {
+    next.progression = normalizeProgression({ ...next.progression, features: [...next.features] }, next.ruleset)
+  }
+  return next
 }
 
 export function migrateCharacterToV3(value: unknown): CharacterV3 {
   if (!isRecord(value) || typeof value.schemaVersion !== 'number') throw new Error('Невозможно определить версию персонажа.')
   if (value.schemaVersion === 3) {
-    assertValidCharacterV3(value)
-    return cloneCharacterV3(value)
+    const normalized = normalizeCharacterV3(value)
+    assertValidCharacterV3(normalized)
+    return cloneCharacterV3(normalized)
   }
   if (value.schemaVersion === 2) {
     assertValidCharacter(value)

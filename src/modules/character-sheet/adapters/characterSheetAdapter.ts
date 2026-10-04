@@ -1,5 +1,7 @@
 import { readStoredCharacterV3WithSource, writeStoredCharacterV3, type CharacterStorageLike } from '../api/characterV3Storage.ts'
 import { migrateCharacterV2ToV3 } from '../migration/characterMigrationV3.ts'
+import { defaultProgressionForCharacter, normalizeProgression, progressionAtLevel } from '../domain/characterProgression.ts'
+import { getRules2024Spell, isRules2024SpellId } from '../data/rules2024/index.ts'
 import type { Character, CharacterSpell } from '../types/character.ts'
 import { cloneCharacterV3, type CharacterAttackV3, type CharacterCreationV3, type CharacterSkillV3, type CharacterSpellV3, type CharacterV3, type SkillProficiencySource } from '../types/characterV3.ts'
 import type { CharacterSheetView } from '../types/characterView.ts'
@@ -24,7 +26,16 @@ function clone<T>(value: T): T {
 }
 
 function toUiSpell(spell: CharacterSpellV3): CharacterSpell {
-  return { id: spell.id, name: spell.name, level: spell.level, description: spell.description }
+  const definition = getRules2024Spell(spell.id)
+  return {
+    id: spell.id,
+    name: spell.name,
+    level: spell.level,
+    description: spell.description,
+    school: spell.school || definition?.school || '',
+    classes: spell.classes ? [...spell.classes] : definition ? [...definition.classes] : undefined,
+    metadata: spell.metadata ? clone(spell.metadata) : definition ? clone(definition.metadata) : undefined,
+  }
 }
 
 function toUiCreation(value: CharacterV3): CharacterCreationV3 | undefined {
@@ -36,8 +47,11 @@ function toUiCreation(value: CharacterV3): CharacterCreationV3 | undefined {
     || !Object.values(source.baseAbilityScores).every((score) => typeof score === 'number' && Number.isFinite(score))) return undefined
   return {
     ...source,
+    classLevel: source.classLevel ?? value.identity.level,
+    classSources: source.classSources ?? [{ kind: 'class', id: source.classId, label: value.identity.class }],
     raceSkillIds: source.raceSkillIds ?? [],
     raceAbilityChoices: source.raceAbilityChoices ?? [],
+    speciesChoices: source.speciesChoices ?? {},
     manualSavingThrowKeys: source.manualSavingThrowKeys ?? [],
     raceLanguages: source.raceLanguages ?? [],
     subraceSkillIds: source.subraceSkillIds ?? [],
@@ -65,6 +79,7 @@ function toUiCharacter(value: CharacterV3): CharacterSheetView {
   return {
     id: value.id,
     schemaVersion: 2,
+    ruleset: value.ruleset,
     name: value.identity.name,
     class: value.identity.class,
     level: value.identity.level,
@@ -74,7 +89,7 @@ function toUiCharacter(value: CharacterV3): CharacterSheetView {
     spellcasting: clone(value.spellcasting),
     abilities: clone(value.abilities),
     skills: value.skills.map((skill) => ({ id: skill.id, name: skill.name, value: skill.value, ability: skill.ability, proficiency: skill.proficiency, calculationMode: skill.calculationMode, additionalBonus: skill.additionalBonus, proficiencySources: skillSources(skill, value) })),
-    attacks: value.attacks.map((attack) => ({ id: attack.id, name: attack.name, kind: attack.kind, attackBonus: attack.attackBonus, bonusSource: attack.abilitySource, proficient: attack.proficient, calculationMode: attack.calculationMode, additionalBonus: attack.additionalBonus, damage: attack.damage, damageType: attack.damageType, properties: clone(attack.properties), range: attack.range, description: attack.description })),
+    attacks: value.attacks.map((attack) => ({ id: attack.id, name: attack.name, kind: attack.kind, attackBonus: attack.attackBonus, bonusSource: attack.abilitySource, proficient: attack.proficient, calculationMode: attack.calculationMode, additionalBonus: attack.additionalBonus, damage: attack.damage, damageType: attack.damageType, properties: clone(attack.properties), weaponMastery: attack.weaponMastery ?? '', weaponId: attack.weaponId, masteryId: attack.masteryId, range: attack.range, description: attack.description })),
     spells: value.spellcasting.knownSpells.map(toUiSpell),
     cantrips: value.spellcasting.cantrips.map(toUiSpell),
     inventory: value.inventory.items.map((item) => ({ id: item.id, name: item.name, quantity: item.quantity, description: item.description })),
@@ -82,12 +97,15 @@ function toUiCharacter(value: CharacterV3): CharacterSheetView {
     money: clone(value.inventory.money),
     bio: { biography: value.personality.biography, traits: value.personality.traits, features: value.personality.features },
     personality: clone(value.personality),
+    origin: clone(value.origin),
+    features: clone(value.features ?? value.progression?.features ?? []),
     race: clone(value.identity.race),
     subclass: value.identity.subclass,
     background: clone(value.identity.background),
     alignment: value.identity.alignment,
     savingThrows: clone(value.savingThrows),
     proficiency: clone(value.proficiency),
+    progression: clone(value.progression ?? defaultProgressionForCharacter(value)),
     creation: toUiCreation(value),
   }
 }
@@ -105,9 +123,19 @@ function mergeAttack(attack: CharacterSheetView['attacks'][number], stored: Char
 }
 
 function mergeSpell(spell: CharacterSpell, stored: CharacterSpellV3 | undefined): CharacterSpellV3 {
+  const metadata = spell.metadata ? clone(spell.metadata) : undefined
+  const catalogFields = {
+    ...(spell.school !== undefined ? { school: spell.school } : {}),
+    ...(spell.classes !== undefined ? { classes: [...spell.classes] } : {}),
+    ...(metadata !== undefined ? { metadata } : {}),
+  }
   return stored
-    ? { ...clone(stored), id: spell.id, name: spell.name, level: spell.level, description: spell.description }
-    : { id: spell.id, name: spell.name, level: spell.level, description: spell.description, school: '', castingTime: '', range: '', components: '', duration: '', concentration: false, ritual: false }
+    ? { ...clone(stored), id: spell.id, name: spell.name, level: spell.level, description: spell.description, ...catalogFields }
+    : { id: spell.id, name: spell.name, level: spell.level, description: spell.description, school: '', castingTime: '', range: '', components: '', duration: '', concentration: false, ritual: false, ...catalogFields }
+}
+
+function canonicalSpellIds(spells: CharacterSpellV3[]): string[] {
+  return [...new Set(spells.map((spell) => spell.id).filter(isRules2024SpellId))]
 }
 
 function mergeItem(item: CharacterSheetView['inventoryData']['items'][number], stored: CharacterV3['inventory']['items'][number] | undefined): CharacterV3['inventory']['items'][number] {
@@ -138,8 +166,21 @@ function mergeMoney(value: CharacterSheetView, base: CharacterV3): CharacterV3['
   return next
 }
 
+function progressionFeaturesForSave(value: CharacterSheetView, progression: NonNullable<CharacterSheetView['progression']>, base: CharacterV3): string[] {
+  const viewFeatures = value.features ? [...value.features] : [...progression.features]
+  const baseFeatures = base.features ?? base.progression?.features ?? []
+  const baseProgressionFeatures = base.progression?.features ?? base.features ?? []
+  const progressionChanged = JSON.stringify(progression.features) !== JSON.stringify(baseProgressionFeatures)
+  const viewChanged = JSON.stringify(viewFeatures) !== JSON.stringify(baseFeatures)
+  // An explicit progression operation (for example level-up) wins if both
+  // projections were edited independently; otherwise preserve the projection
+  // that the caller actually changed.
+  return progressionChanged ? [...progression.features] : viewChanged ? viewFeatures : [...progression.features]
+}
+
 function toV3(value: CharacterSheetView, base: CharacterV3): CharacterV3 {
   const next = cloneCharacterV3(base)
+  next.ruleset = value.ruleset
   next.identity.name = value.name
   next.identity.class = value.class
   next.identity.race = clone(value.race)
@@ -156,13 +197,24 @@ function toV3(value: CharacterSheetView, base: CharacterV3): CharacterV3 {
   next.attacks = value.attacks.map((attack) => mergeAttack(attack, base.attacks.find((item) => item.id === attack.id)))
   next.spellcasting.knownSpells = value.spells.map((spell) => mergeSpell(spell, base.spellcasting.knownSpells.find((item) => item.id === spell.id)))
   next.spellcasting.cantrips = value.cantrips.map((spell) => mergeSpell(spell, base.spellcasting.cantrips.find((item) => item.id === spell.id)))
+  if (value.ruleset === '2024') {
+    next.spellcasting.spellIds = canonicalSpellIds(next.spellcasting.knownSpells)
+    next.spellcasting.cantripIds = canonicalSpellIds(next.spellcasting.cantrips)
+  } else {
+    next.spellcasting.spellIds = value.spellcasting.spellIds ? [...value.spellcasting.spellIds] : []
+    next.spellcasting.cantripIds = value.spellcasting.cantripIds ? [...value.spellcasting.cantripIds] : []
+  }
   const knownSpellIds = new Set(next.spellcasting.knownSpells.map((spell) => spell.id))
   next.spellcasting.preparedSpellIds = next.spellcasting.preparedSpellIds.filter((id) => knownSpellIds.has(id))
   next.inventory = clone(value.inventoryData)
   next.inventory.items = value.inventoryData.items.map((item) => mergeItem(item, base.inventory.items.find((stored) => stored.id === item.id)))
   next.inventory.money = mergeMoney(value, base)
   next.personality = mergePersonality(value, base)
+  next.origin = clone(value.origin)
   next.savingThrows = clone(value.savingThrows)
+  next.progression = normalizeProgression(progressionAtLevel(clone(value.progression ?? defaultProgressionForCharacter(base)), value.level), next.ruleset)
+  next.features = progressionFeaturesForSave(value, next.progression, base)
+  next.progression = normalizeProgression({ ...next.progression, features: [...next.features] }, next.ruleset)
   if (value.creation) next.extensions.characterCreation = clone(value.creation)
   return next
 }

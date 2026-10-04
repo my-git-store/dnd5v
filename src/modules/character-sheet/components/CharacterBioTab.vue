@@ -16,7 +16,7 @@ function update(key: keyof CharacterPersonalityV3, value: unknown) {
       <CTextarea label="Идеалы" rows="4" :model-value="personality.ideals" :disabled="disabled" @update:model-value="update('ideals', $event)" />
       <CTextarea label="Привязанности" rows="4" :model-value="personality.bonds" :disabled="disabled" @update:model-value="update('bonds', $event)" />
       <CTextarea label="Слабости" rows="4" :model-value="personality.flaws" :disabled="disabled" @update:model-value="update('flaws', $event)" />
-      <CTextarea class="bio-wide" label="Биография" rows="7" :model-value="personality.biography" :disabled="disabled" @update:model-value="update('biography', $event)" />
+      <CTextarea class="bio-wide bio-biography-field" label="Биография" rows="10" :model-value="personality.biography" :disabled="disabled" @update:model-value="update('biography', $event)" />
       <CTextarea class="bio-wide" label="Особенности и дополнительные заметки" rows="5" :model-value="personality.features" :disabled="disabled" @update:model-value="update('features', $event)" />
     </section>
   </div>

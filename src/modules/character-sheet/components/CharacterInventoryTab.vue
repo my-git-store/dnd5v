@@ -13,7 +13,7 @@ const emit = defineEmits<{ 'update:inventory': [items: CharacterInventoryItemV3[
   <div class="tab-content inventory-tab">
     <section class="sheet-section inventory-intro-panel">
       <div class="inventory-intro-mark" aria-hidden="true">◆</div>
-      <div><p class="eyebrow">СНАРЯЖЕНИЕ ГЕРОЯ</p><h1>Инвентарь</h1><p class="section-note">Соберите здесь всё, что герой носит с собой: предметы, снаряжение и деньги.</p></div>
+      <div><h1>Инвентарь</h1><p class="section-note">Соберите здесь всё, что герой носит с собой: предметы, снаряжение и деньги.</p></div>
     </section>
     <InventoryList :items="character.inventoryData.items" :disabled="disabled" @update="emit('update:inventory', $event)" />
     <MoneyFields :money="character.inventoryData.money" :disabled="disabled" @update="emit('update:money', $event)" />

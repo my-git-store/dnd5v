@@ -13,7 +13,7 @@ const abilityLabels = Object.fromEntries(ABILITY_FIELDS.map((field) => [field.ke
 const proficiencyOptions: Array<{ value: SkillProficiency; label: string }> = [
   { value: 'none', label: 'Без владения' }, { value: 'proficient', label: 'Владение (+бонус)' }, { value: 'expertise', label: 'Экспертиза (×2)' },
 ]
-const sourceLabels: Record<SkillProficiencySource, string> = { race: 'Раса', class: 'Класс', background: 'Предыстория', manual: 'Вручную' }
+const sourceLabels: Record<SkillProficiencySource, string> = { race: 'Вид', class: 'Класс', background: 'Предыстория', feat: 'Черта', manual: 'Вручную' }
 const abilityShortLabels: Record<AbilityKey, string> = { strength: 'СИЛ', dexterity: 'ЛОВ', constitution: 'ТЕЛ', intelligence: 'ИНТ', wisdom: 'МДР', charisma: 'ХАР' }
 
 function updateValue(id: string, value: unknown) {
@@ -76,8 +76,8 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
               </label>
               <label class="compact-field">Как считать бонус
                 <select class="select-control" :value="getSkillCalculationMode(skill)" :disabled="disabled" @change="updateMode(skill.id, ($event.target as HTMLSelectElement).value)">
-                  <option value="manual">Вручную</option>
                   <option value="computed">По характеристике</option>
+                  <option value="manual">Вручную</option>
                 </select>
               </label>
               <CInput v-if="getSkillCalculationMode(skill) === 'manual'" type="number" :aria-label="`${skill.name}: бонус вручную`" label="Бонус вручную" :disabled="disabled" :model-value="skill.value" @update:model-value="updateValue(skill.id, $event)" />

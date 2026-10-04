@@ -15,7 +15,6 @@ export const useDialog = () => {
     const modalRef = ref()
     function close() {
         if(modalRef.value) {
-            console.log('!')
             if(modalRef.value && modalRef.value?.isBlock === true)
                 return
             else 
