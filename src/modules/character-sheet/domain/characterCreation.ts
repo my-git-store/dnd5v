@@ -57,7 +57,8 @@ export function applyCharacterCreation(character: CharacterSheetView, payload: C
     const preservedFeatSources = (previousCreation?.abilityBonusSources?.[key] ?? []).filter((entry) => entry.source === 'feat')
     return [key, [...preservedFeatSources, ...((raceBonuses[key] ?? 0) === 0 ? [] : [{ source: 'species' as const, amount: raceBonuses[key] ?? 0 }])]]
   })) as CharacterCreationV3['abilityBonusSources']
-  const backgroundId = payload.backgroundId ?? previousCreation?.backgroundId
+  const hasBackgroundSelection = payload.backgroundId !== undefined
+  const backgroundId = hasBackgroundSelection ? payload.backgroundId : previousCreation?.backgroundId
   const background = backgroundId ? findBackground(backgroundId) : undefined
   const previousClassSavingThrowKeys = previousCreation?.classSavingThrowKeys ?? []
   const previousManualSavingThrowKeys = previousCreation?.manualSavingThrowKeys ?? []
@@ -65,7 +66,9 @@ export function applyCharacterCreation(character: CharacterSheetView, payload: C
   const raceSkillChoices = unique((payload.raceSkillChoices ?? []).filter((id) => race.skillChoices?.options.includes(id))).slice(0, race.skillChoices?.count ?? 0)
   const raceSkillIds = unique([...(race.skillProficiencies ?? []), ...raceSkillChoices])
   const subraceSkillIds = unique(subrace?.skillProficiencies ?? [])
-  const backgroundSkillIds = unique(background?.skillProficiencies ?? previousCreation?.backgroundSkillIds ?? next.background.skillProficiencies)
+  const backgroundSkillIds = hasBackgroundSelection
+    ? unique(background?.skillProficiencies ?? [])
+    : unique(background?.skillProficiencies ?? previousCreation?.backgroundSkillIds ?? next.background.skillProficiencies)
   const oldRaceLanguages = unique([...(previousCreation?.raceLanguages ?? []), ...(previousCreation?.subraceLanguages ?? [])])
   const oldBackgroundLanguages = previousCreation?.backgroundLanguages ?? next.background.languages
   const oldClassProficiencies = previousCreation?.classProficiencies ?? []
@@ -78,6 +81,7 @@ export function applyCharacterCreation(character: CharacterSheetView, payload: C
   next.alignment = payload.alignment.trim()
   next.race = raceProfile(race, raceBonuses, subrace)
   if (background) next.background = { name: background.label, feature: background.feature, skillProficiencies: [...background.skillProficiencies], toolProficiencies: [...background.toolProficiencies], languages: [...background.languages], notes: background.description }
+  else if (hasBackgroundSelection) next.background = { name: '', feature: '', skillProficiencies: [], toolProficiencies: [], languages: [], notes: '' }
   next.abilities = Object.fromEntries(ABILITY_KEYS.map((key) => [key, payload.baseAbilities[key] + (raceBonuses[key] ?? 0)])) as CharacterAbilities
 
   next.skills = next.skills.map((skill) => {
@@ -101,8 +105,8 @@ export function applyCharacterCreation(character: CharacterSheetView, payload: C
   const manualTools = next.proficiency.toolProficiencies.filter((tool) => !oldClassProficiencies.includes(tool) && !oldBackgroundTools.includes(tool))
   next.proficiency = {
     ...next.proficiency,
-    toolProficiencies: unique([...manualTools, ...classOption.proficiencies, ...(background?.toolProficiencies ?? oldBackgroundTools)]),
-    languageProficiencies: unique([...manualLanguages, ...race.profile.languages, ...(subrace?.languages ?? []), ...(background?.languages ?? oldBackgroundLanguages)]),
+    toolProficiencies: unique([...manualTools, ...classOption.proficiencies, ...(background?.toolProficiencies ?? (hasBackgroundSelection ? [] : oldBackgroundTools))]),
+    languageProficiencies: unique([...manualLanguages, ...race.profile.languages, ...(subrace?.languages ?? []), ...(background?.languages ?? (hasBackgroundSelection ? [] : oldBackgroundLanguages))]),
   }
   next.origin = {
     species: next.race.name,
@@ -133,7 +137,7 @@ export function applyCharacterCreation(character: CharacterSheetView, payload: C
     classLevel: next.level,
     classSources: [{ kind: 'class', id: classOption.id, label: classOption.label }],
     spellProgressionType: classOption.spellProgressionType ?? (classOption.spellcastingAbility ? 'prepared' : 'none'),
-    backgroundId: background?.id ?? previousCreation?.backgroundId,
+    backgroundId: background?.id ?? (hasBackgroundSelection ? undefined : previousCreation?.backgroundId),
     baseAbilityScores: { ...payload.baseAbilities },
     raceSkillIds,
     raceAbilityChoices: [...payload.raceAbilityChoices],
@@ -146,11 +150,11 @@ export function applyCharacterCreation(character: CharacterSheetView, payload: C
     raceFeatures: [...race.profile.traits, ...(subrace?.traits ?? [])],
     subraceFeatures: [...(subrace?.traits ?? [])],
     classProficiencies: [...classOption.proficiencies],
-    backgroundToolProficiencies: [...(background?.toolProficiencies ?? oldBackgroundTools)],
+    backgroundToolProficiencies: [...(background?.toolProficiencies ?? (hasBackgroundSelection ? [] : oldBackgroundTools))],
     abilityBonusSources,
     raceLanguages: [...race.profile.languages],
     subraceLanguages: [...(subrace?.languages ?? [])],
-    backgroundLanguages: [...(background?.languages ?? oldBackgroundLanguages)],
+    backgroundLanguages: [...(background?.languages ?? (hasBackgroundSelection ? [] : oldBackgroundLanguages))],
     classEquipmentId: equipmentWasSelected ? classEquipment?.id : previousCreation?.classEquipmentId,
     backgroundEquipmentId: equipmentWasSelected ? backgroundEquipment?.id : previousCreation?.backgroundEquipmentId,
     startingEquipmentIds: equipmentWasSelected ? generatedItems.map((item) => item.id) : previousCreation?.startingEquipmentIds,

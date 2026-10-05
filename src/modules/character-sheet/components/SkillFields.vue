@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { CInput } from '@/ui/components'
 import { ABILITY_FIELDS } from '../data/characterFields'
 import { calculateSkillBonus, getSkillCalculationMode } from '../domain/skillBonus'
@@ -15,6 +16,7 @@ const proficiencyOptions: Array<{ value: SkillProficiency; label: string }> = [
 ]
 const sourceLabels: Record<SkillProficiencySource, string> = { race: 'Вид', class: 'Класс', background: 'Предыстория', feat: 'Черта', manual: 'Вручную' }
 const abilityShortLabels: Record<AbilityKey, string> = { strength: 'СИЛ', dexterity: 'ЛОВ', constitution: 'ТЕЛ', intelligence: 'ИНТ', wisdom: 'МДР', charisma: 'ХАР' }
+const skillColumns = computed(() => [props.skills.filter((_, index) => index % 2 === 0), props.skills.filter((_, index) => index % 2 === 1)])
 
 function updateValue(id: string, value: unknown) {
   const parsed = Number(value)
@@ -50,7 +52,8 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
       </div>
     </div>
     <div class="skills-grid">
-      <div v-for="skill in skills" :key="skill.id" class="skill-row">
+      <div v-for="(column, columnIndex) in skillColumns" :key="columnIndex" class="skills-column">
+      <div v-for="skill in column" :key="skill.id" class="skill-row">
         <div class="skill-row-summary">
           <span class="skill-proficiency-dot" :class="{ active: skill.proficiency !== 'none' }" aria-hidden="true"></span>
           <strong class="skill-name">{{ skill.name }}</strong>
@@ -85,6 +88,7 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
             </div>
           </details>
         </div>
+      </div>
       </div>
     </div>
   </section>

@@ -47,21 +47,19 @@ function masteryLabel(attack: CharacterAttackView): string {
     <div class="section-heading"><h2>Атаки</h2><CBtn color-type="accent" :disabled="disabled" @click="add">Добавить</CBtn></div>
     <EmptyCollection v-if="attacks.length === 0" text="Атак пока нет." />
     <div v-for="attack in attacks" :key="attack.id" class="entry-card attack-entry-card">
-      <template>
-        <div class="attack-entry-content">
-          <div class="attack-entry-head">
-            <div class="attack-title">
-              <span class="attack-kind-mark" aria-hidden="true">{{ attack.kind === 'ranged' ? '➶' : attack.kind === 'spell' ? '✦' : '⚔' }}</span>
-              <div><h3>{{ attack.name || 'Без названия' }}</h3><div class="attack-tags"><span class="attack-kind-tag">{{ kindLabels[attack.kind] }}</span><span class="attack-mode-tag" :class="getAttackCalculationMode(attack) === 'manual' ? 'manual' : 'computed'">{{ getAttackCalculationMode(attack) === 'manual' ? 'Вручную' : 'Расчёт' }}</span><span class="attack-prof-tag">{{ attack.proficient ? 'Владение' : 'Без владения' }}</span><span v-if="weaponLabel(attack)" class="attack-kind-tag">{{ weaponLabel(attack) }}</span><span v-if="masteryLabel(attack)" class="attack-kind-tag">Мастерство: {{ masteryLabel(attack) }}</span></div></div>
-            </div>
-            <div class="attack-stat"><span>Атака</span><strong>{{ attackSummary(attack).bonus }}</strong></div>
-            <div class="attack-stat"><span>Урон</span><strong>{{ attack.damage || '—' }}</strong><small>{{ attack.damageType || 'Тип не указан' }}</small></div>
-            <div class="attack-stat"><span>Дальность</span><strong>{{ attack.range || '—' }}</strong></div>
+      <div class="attack-entry-content">
+        <div class="attack-entry-head">
+          <div class="attack-title">
+            <span class="attack-kind-mark" aria-hidden="true">{{ attack.kind === 'ranged' ? '➶' : attack.kind === 'spell' ? '✦' : '⚔' }}</span>
+            <div><h3>{{ attack.name || 'Без названия' }}</h3><div class="attack-tags"><span class="attack-kind-tag">{{ kindLabels[attack.kind] }}</span><span class="attack-mode-tag" :class="getAttackCalculationMode(attack) === 'manual' ? 'manual' : 'computed'">{{ getAttackCalculationMode(attack) === 'manual' ? 'Вручную' : 'Расчёт' }}</span><span class="attack-prof-tag">{{ attack.proficient ? 'Владение' : 'Без владения' }}</span><span v-if="weaponLabel(attack)" class="attack-kind-tag">{{ weaponLabel(attack) }}</span><span v-if="masteryLabel(attack)" class="attack-kind-tag">Мастерство: {{ masteryLabel(attack) }}</span></div></div>
           </div>
-          <div class="attack-entry-details"><span>{{ attackSummary(attack).source }}</span><span v-if="attack.properties.length">{{ attack.properties.join(' · ') }}</span><span v-if="attack.description">{{ attack.description }}</span></div>
+          <div class="attack-stat"><span>Атака</span><strong>{{ attackSummary(attack).bonus }}</strong></div>
+          <div class="attack-stat"><span>Урон</span><strong>{{ attack.damage || '—' }}</strong><small>{{ attack.damageType || 'Тип не указан' }}</small></div>
+          <div class="attack-stat"><span>Дальность</span><strong>{{ attack.range || '—' }}</strong></div>
         </div>
-        <EntryActions :disabled="disabled" @edit="openEditor(attack)" @remove="remove(attack.id, attack.name)" />
-      </template>
+        <div class="attack-entry-details"><span>{{ attackSummary(attack).source }}</span><span v-if="attack.properties.length">{{ attack.properties.join(' · ') }}</span><span v-if="attack.description">{{ attack.description }}</span></div>
+      </div>
+      <EntryActions :disabled="disabled" @edit="openEditor(attack)" @remove="remove(attack.id, attack.name)" />
     </div>
   </section>
 </template>

@@ -563,8 +563,8 @@ body {
 .section-heading-stack h2 { margin-bottom: 0; }
 .main-sheet-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .main-sheet-grid > .skills-panel { grid-column: 1 / -1; }
-.skills-grid { display: block; column-count: 2; column-gap: 22px; }
-.skills-grid .skill-row { break-inside: avoid; page-break-inside: avoid; }
+.skills-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.skills-column { min-width: 0; }
 .ability-panel, .saving-throws-panel, .skills-panel { box-shadow: 0 8px 22px rgba(83, 59, 38, .06), inset 0 1px 0 rgba(255,255,255,.72); }
 .ability-panel .section-note, .saving-throws-panel .section-note, .skills-panel .section-note { max-width: 34rem; }
 .saving-throw-row { grid-template-columns: minmax(145px, 1.35fr) minmax(92px, auto) minmax(102px, 112px) minmax(62px, 72px); padding-right: 4px; }
@@ -691,7 +691,7 @@ body {
   .saving-throw-row { grid-template-columns: minmax(130px, 1.2fr) minmax(90px, auto) minmax(96px, 110px) minmax(62px, 72px); }
 }
 @media (max-width: 800px) {
-  .skills-grid { column-count: 2; }
+  .skills-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .saving-throw-row { grid-template-columns: minmax(130px, 1fr) auto minmax(92px, 104px) minmax(60px, 68px); gap: 8px; }
   .inventory-tab > .sheet-section:nth-child(3) .money-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .skill-settings[open] .skill-controls { grid-template-columns: minmax(0, 1fr); }
@@ -701,7 +701,7 @@ body {
   .sheet-tabs-row { align-items: stretch; flex-wrap: wrap; gap: 7px; }
   .sheet-tabs { width: 100%; flex-basis: 100%; }
   .creation-launch-button { width: 100%; margin: 0; }
-  .skills-grid { column-count: 1; }
+  .skills-grid { grid-template-columns: minmax(0, 1fr); }
   .saving-throw-row { grid-template-columns: minmax(0, 1fr) auto; padding-right: 0; }
   .saving-throw-row .c-input-wrapper { grid-column: 1 / 2; }
   .saving-result { grid-column: 2; grid-row: 2; padding-right: 5px; }
@@ -880,4 +880,43 @@ body {
   }
   .saving-throw-row .c-input-wrapper { min-width: 0; max-width: 100%; }
   .saving-result { justify-self: end; }
+}
+
+/* Keep compact numeric fields aligned when labels wrap at tablet widths. */
+.spell-slot-card,
+.spell-slot-fields,
+.spell-slot-fields > .c-flex-col,
+.spell-slot-fields .c-input {
+  min-width: 0;
+}
+.spell-slots-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.spell-slot-fields { align-items: start; }
+.spell-slot-fields > .c-flex-col > label {
+  display: block;
+  min-height: 2.4em;
+  line-height: 1.2;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+@media (max-width: 900px) {
+  .spell-slots-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .spell-slots-grid { grid-template-columns: minmax(0, 1fr); }
+  .spell-slot-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* The save throw controls move to clear rows before they can collide. */
+@media (max-width: 1100px) {
+  .saving-throw-row {
+    grid-template-columns: minmax(0, 1fr) minmax(120px, auto);
+    grid-template-areas: "title title" "check bonus" "result result";
+    gap: 8px;
+    padding-right: 0;
+  }
+  .saving-throw-row > div:first-child { grid-area: title; }
+  .saving-throw-row > .check-control { grid-area: check; justify-self: start; }
+  .saving-throw-row > div:nth-child(3) { grid-area: bonus; min-width: 0; }
+  .saving-throw-row > .saving-result { grid-area: result; justify-self: start; }
+  .saving-result-label { display: inline; }
 }

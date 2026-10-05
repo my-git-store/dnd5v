@@ -25,7 +25,9 @@ function proficiencyContribution(value: SkillProficiency, level: unknown): numbe
 }
 
 export function getSkillCalculationMode(skill: Pick<SkillBonusInput, 'calculationMode'>): CalculationMode {
-  return skill.calculationMode === 'computed' ? 'computed' : 'manual'
+  // New and migrated skills calculate from their linked ability by default.
+  // Manual mode remains explicit so existing custom bonuses keep working.
+  return skill.calculationMode === 'manual' ? 'manual' : 'computed'
 }
 
 export function calculateSkillBonus(

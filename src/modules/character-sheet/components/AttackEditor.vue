@@ -42,7 +42,7 @@ function submit() {
     <label class="compact-field">Оружие из справочника
       <select class="select-control" :value="draft.weaponId ?? ''" :disabled="disabled" @change="updateWeapon"><option value="">Без связи</option><option v-for="weapon in RULES_2024_WEAPONS" :key="weapon.id" :value="weapon.id">{{ weapon.name }} ({{ weapon.category === 'melee' ? 'ближнее' : 'дальнее' }})</option></select>
     </label>
-    <label class="compact-field">Мастерство (metadata)
+    <label class="compact-field">Мастерство (данные)
       <select class="select-control" :value="draft.masteryId ?? ''" :disabled="disabled" @change="updateMastery"><option value="">Не указано</option><option v-for="mastery in RULES_2024_WEAPON_MASTERIES" :key="mastery.id" :value="mastery.id">{{ mastery.name }}</option></select>
     </label>
     <CInput v-model="draft.attackBonus" label="Ручной бонус атаки" :disabled="disabled || draft.calculationMode !== 'manual'" />

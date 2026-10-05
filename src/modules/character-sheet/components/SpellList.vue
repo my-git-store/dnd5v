@@ -70,14 +70,12 @@ function togglePrepared(id: string, event: Event) {
     <EmptyCollection v-if="spells.length === 0" :text="`${title} пока нет.`" />
     <EmptyCollection v-else-if="visibleSpells.length === 0" text="Совпадений не найдено." />
     <div v-for="spell in visibleSpells" :key="spell.id" class="entry-card spell-entry-card">
-      <template>
-        <div class="spell-entry-content">
-          <div class="spell-title"><div><h3>{{ spell.name || 'Без названия' }}</h3><span class="spell-kind-badge">{{ cantrip ? 'Заговор' : `Уровень ${spell.level}` }}</span></div><label v-if="showPreparedFilter" class="prepared-toggle"><input type="checkbox" :checked="(preparedIds ?? []).includes(spell.id)" :disabled="disabled" @change="togglePrepared(spell.id, $event)"><span>Подготовлено</span></label></div>
-          <div class="spell-meta-line"><span v-if="schoolLabel(spell)">Школа: {{ schoolLabel(spell) }}</span><span v-if="classLabel(spell)">Классы: {{ classLabel(spell) }}</span><span v-if="metadataLabel(spell)">{{ metadataLabel(spell) }}</span></div>
-          <p v-if="spell.description">{{ spell.description }}</p>
-        </div>
-        <EntryActions :disabled="disabled" @edit="openEditor(spell)" @remove="remove(spell.id, spell.name)" />
-      </template>
+      <div class="spell-entry-content">
+        <div class="spell-title"><div><h3>{{ spell.name || 'Без названия' }}</h3><span class="spell-kind-badge">{{ cantrip ? 'Заговор' : `Уровень ${spell.level}` }}</span></div><label v-if="showPreparedFilter" class="prepared-toggle"><input type="checkbox" :checked="(preparedIds ?? []).includes(spell.id)" :disabled="disabled" @change="togglePrepared(spell.id, $event)"><span>Подготовлено</span></label></div>
+        <div class="spell-meta-line"><span v-if="schoolLabel(spell)">Школа: {{ schoolLabel(spell) }}</span><span v-if="classLabel(spell)">Классы: {{ classLabel(spell) }}</span><span v-if="metadataLabel(spell)">{{ metadataLabel(spell) }}</span></div>
+        <p v-if="spell.description">{{ spell.description }}</p>
+      </div>
+      <EntryActions :disabled="disabled" @edit="openEditor(spell)" @remove="remove(spell.id, spell.name)" />
     </div>
   </section>
 </template>
