@@ -104,6 +104,10 @@ body {
 .header-summary div { display: grid; gap: 2px; min-width: 72px; }
 .header-summary dt { color: var(--sheet-faded); font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
 .header-summary dd { margin: 0; font-size: .9rem; font-weight: 700; overflow-wrap: anywhere; }
+.header-class-entry { min-width: 120px !important; }
+.header-class-value { display: inline-flex !important; align-items: center; gap: 8px; }
+.class-avatar { display: inline-grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; overflow: hidden; border: 1px solid #b99967; border-radius: 50%; background: #f5e5c4; color: #704b25; font-family: var(--font-serif); font-size: 1.1rem; font-weight: 800; }
+.class-avatar-image { display: block; width: 100%; height: 100%; object-fit: contain; }
 .eyebrow { margin: 0 0 9px; color: var(--sheet-gold); font-size: .72rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .status-text { display: inline-flex; align-items: center; gap: 6px; margin: 12px 0 0; padding: 5px 10px; border: 1px solid var(--sheet-line-soft); border-radius: 999px; background: rgba(255, 248, 231, .76); color: var(--sheet-muted); font-size: .78rem; }
 .status-text.success { border-color: rgba(63,112,73,.28); background: #edf5eb; color: var(--sheet-success); }
@@ -392,6 +396,11 @@ body {
 .selection-card:disabled { opacity: .54; cursor: not-allowed; filter: saturate(.6); }
 .selection-card:focus-visible, .creation-step-nav button:focus-visible { outline: 3px solid rgba(127, 60, 67, .44); outline-offset: 2px; }
 .selection-card-top { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 9px; }
+.class-icon { display: grid; place-items: center; width: 128px; height: 128px; overflow: hidden; border: 1px solid #d5c19b; border-radius: 50%; background: #f8efd9; color: #75552e; box-shadow: inset 0 0 0 3px rgba(255,255,255,.55); transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.selection-card:hover:not(:disabled) .class-icon { border-color: #b18a53; box-shadow: inset 0 0 0 3px rgba(255,255,255,.55), 0 3px 8px rgba(78,53,26,.12); transform: scale(1.02); }
+.selection-card.selected .class-icon { border-color: #8b5b39; box-shadow: inset 0 0 0 3px rgba(255,255,255,.55), 0 0 0 3px rgba(155,106,47,.13); }
+.class-card-image { display: block; width: 100%; height: 100%; object-fit: contain; }
+.class-icon-fallback { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 800; }
 .selection-sigil { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #d5c19b; border-radius: 10px 10px 10px 2px; background: #f8efd9; color: #75552e; font-family: var(--font-serif); font-size: 1.15rem; font-weight: 800; }
 .selection-check { display: grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; background: #718355; color: white; font-size: .8rem; font-weight: 900; }
 .selection-card > strong { color: #452f20; font-family: var(--font-serif); font-size: 1rem; }
@@ -933,4 +942,17 @@ body {
 @media (max-width: 560px) {
   .spell-slots-grid { grid-template-columns: minmax(0, 1fr); }
   .spell-slot-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Keep class portraits consistent across the responsive character builder. */
+@media (max-width: 600px) {
+  .class-icon { width: 96px; height: 96px; }
+}
+@media (max-width: 560px) {
+  .class-avatar {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+    font-size: .9rem;
+  }
 }

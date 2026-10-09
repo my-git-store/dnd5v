@@ -191,6 +191,8 @@ export interface RuleFeatureMetadata {
 /** Canonical class definition shared by future ruleset catalogues. */
 export interface ClassDefinition extends RulesetTaggedDefinition {
   name: string
+  /** Optional portrait asset. Older class records can omit it safely. */
+  icon?: string
   description: string
   hitDie: string
   primaryAbilities: AbilityKey[]

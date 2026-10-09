@@ -1,6 +1,7 @@
 import type { AbilityKey } from '../types/character.ts'
 import type { BackgroundProfileV3, CharacterProficiencyV3, RaceProfileV3 } from '../types/characterV3.ts'
 import type { SpellProgressionType } from '../types/rules.ts'
+import { classIconFor } from './classIcons.ts'
 
 export interface Dnd5eRaceOption {
   id: string
@@ -42,6 +43,7 @@ export interface Dnd5eBackgroundOption {
 export interface Dnd5eClassOption {
   id: string
   label: string
+  icon?: string
   /** Optional canonical 2024 metadata; legacy class options keep the old shape. */
   description?: string
   hitDie: string
@@ -149,7 +151,10 @@ const CLASS_EQUIPMENT: Record<string, Dnd5eEquipmentOption[]> = {
   wizard: [equipment('wizard-focus', 'Набор волшебника', [{ name: 'Боевой посох', quantity: 1, description: '' }, { name: 'Книга заклинаний', quantity: 1, description: '' }, { name: 'Компонентная сумка', quantity: 1, description: '' }])],
 }
 
-for (const classOption of DND5E_CLASSES) classOption.equipmentOptions = CLASS_EQUIPMENT[classOption.id]
+for (const classOption of DND5E_CLASSES) {
+  classOption.equipmentOptions = CLASS_EQUIPMENT[classOption.id]
+  classOption.icon = classIconFor(classOption.id)
+}
 
 export const DND5E_BACKGROUNDS: Dnd5eBackgroundOption[] = [
   { id: 'acolyte', label: 'Прислужник', description: 'Служитель храма и хранитель обрядов.', skillProficiencies: ['insight', 'religion'], toolProficiencies: [], languages: ['Дополнительный язык 1', 'Дополнительный язык 2'], feature: 'Приют верующих', equipmentOptions: [equipment('acolyte-kit', 'Храмовый набор', [{ name: 'Священный символ', quantity: 1, description: '' }, { name: 'Молитвенник', quantity: 1, description: '' }])] },

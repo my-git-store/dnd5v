@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
 import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { CLASS_ICON_PATHS, classIconFor } from '../../src/modules/character-sheet/data/classIcons.ts'
 import { RULES_2024_BACKGROUNDS, RULES_2024_CLASSES, getRules2024Class, isRules2024ClassId } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
@@ -46,6 +47,16 @@ test('publishes twelve tagged class definitions with canonical foundation metada
   assert.equal(isRules2024ClassId('wizard'), true)
   assert.equal(isRules2024ClassId('missing-class'), false)
   assert.equal(getRules2024Class('missing-class'), undefined)
+})
+
+test('maps every modern class to its explicit icon asset and supports legacy labels', () => {
+  assert.deepEqual(
+    RULES_2024_CLASSES.map((item) => [item.id, item.icon]),
+    Object.entries(CLASS_ICON_PATHS),
+  )
+  assert.equal(classIconFor('wizard'), '/images/classes/wizard.png')
+  assert.equal(classIconFor('Волшебник'), '/images/classes/wizard.png')
+  assert.equal(classIconFor('missing-class'), undefined)
 })
 
 test('rejects unknown modern class IDs instead of silently selecting a fallback', async () => {
@@ -127,4 +138,20 @@ test('creation metadata receives safe class defaults when an older v3 creation o
   const view = await adapter.load(old.id)
   assert.equal(view.creation?.classLevel, old.identity.level)
   assert.deepEqual(view.creation?.classSources, [{ kind: 'class', id: 'wizard', label: old.identity.class }])
+})
+
+test('class selection persists through the adapter while icon metadata stays presentation-only', async () => {
+  const storage = new MemoryStorage()
+  const { adapter, view } = await loadView(storage)
+  const created = applyCharacterCreation(view, modernPayload(view, 'wizard'))
+  await adapter.save(created)
+
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${created.id}`)!) as CharacterV3
+  assert.equal(saved.extensions.characterCreation?.classId, 'wizard')
+  assert.equal((saved.extensions.characterCreation as { icon?: string } | undefined)?.icon, undefined)
+  assert.deepEqual(validateCharacterV3(saved), [])
+
+  const reloaded = await adapter.load(created.id)
+  assert.equal(reloaded.creation?.classId, 'wizard')
+  assert.equal(getRules2024Class(reloaded.creation?.classId ?? '')?.icon, CLASS_ICON_PATHS.wizard)
 })

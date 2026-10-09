@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { CBtn, CTabs, useDialog } from '@/ui/components'
 import CharacterSheetHeader from './components/CharacterSheetHeader.vue'
 import CharacterLoadState from './components/CharacterLoadState.vue'
@@ -13,6 +13,7 @@ import CharacterIdentityModal from './components/CharacterIdentityModal.vue'
 import { useCharacterSheet } from './composables/useCharacterSheet'
 import type { AbilityKey } from './types/character'
 import type { CharacterIdentityPatch } from './types/characterView'
+import { classIconFor } from './data/classIcons.ts'
 import './styles/character-sheet.css'
 
 const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }] as const
@@ -37,6 +38,7 @@ function openIdentityModal() {
   if (!sheet.character.value) return
   open({ component: CharacterIdentityModal, componentProps: { character: sheet.character.value, disabled: sheet.isSaving.value, onUpdate: updateIdentity } })
 }
+const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.creation?.classId ?? sheet.character.value?.class ?? ''))
 </script>
 <template>
   <main class="character-sheet" :class="{ 'character-sheet-creation-mode': creationOpen }">
@@ -48,7 +50,7 @@ function openIdentityModal() {
       </section>
       <template v-else>
         <CharacterSheetHeader :name="sheet.character.value.name" @update:name="sheet.updateName"
-          :race="sheet.character.value.race.name" :class-name="sheet.character.value.class"
+          :race="sheet.character.value.race.name" :class-name="sheet.character.value.class" :class-icon="selectedClassIcon"
           :ruleset="sheet.character.value.ruleset"
           :level="sheet.character.value.level" :experience="sheet.character.value.experience"
           :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"

@@ -11,6 +11,7 @@ defineProps<{
   saveError: string | null
   race: string
   className: string
+  classIcon?: string
   ruleset: CharacterRuleset
   level: number
   experience: number
@@ -25,7 +26,7 @@ const emit = defineEmits<{ save: []; 'open-details': [] }>()
       <CInput v-model="name" :disabled="saving" aria-label="Имя персонажа" placeholder="Имя персонажа" />
       <dl class="header-summary">
         <div><dt>Раса</dt><dd>{{ race || 'Не заполнено' }}</dd></div>
-        <div><dt>Класс</dt><dd>{{ className || 'Не заполнено' }}</dd></div>
+        <div class="header-class-entry"><dt>Класс</dt><dd class="header-class-value"><span class="class-avatar" aria-hidden="true"><img v-if="classIcon" :src="classIcon" class="class-avatar-image" alt="" /><span v-else>{{ className?.slice(0, 1) || '✦' }}</span></span><span>{{ className || 'Не заполнено' }}</span></dd></div>
         <div><dt>Уровень</dt><dd>{{ level }}</dd></div>
         <div><dt>Опыт</dt><dd>{{ experience }}</dd></div>
         <div><dt>Бонус владения</dt><dd>{{ proficiencyBonus(level) === null ? '—' : signedModifier(proficiencyBonus(level)!) }}</dd></div>
