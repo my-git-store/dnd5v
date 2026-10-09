@@ -242,7 +242,8 @@ body {
 .saving-throw-row { display: grid; grid-template-columns: minmax(100px, 1fr) auto 84px auto; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--sheet-line-soft); }
 .saving-throw-row:first-child { border-top: 0; }
 .field-caption, .skill-meta { display: block; margin: 3px 0 0; color: var(--sheet-muted); font-size: .75rem; }
-.check-control { display: inline-flex; align-items: center; gap: 6px; color: var(--sheet-muted); font-size: .78rem; white-space: nowrap; }
+.check-control { display: inline-flex; align-items: center; gap: 8px; color: var(--sheet-muted); font-size: .9rem; white-space: nowrap; }
+.check-control input { width: 16px; height: 16px; }
 .derived-value { min-width: 34px; text-align: right; }
 .character-details-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .modifier-caption { margin: 6px 0 0; color: var(--sheet-muted); font-size: .78rem; }
@@ -920,19 +921,4 @@ body {
 @media (max-width: 560px) {
   .spell-slots-grid { grid-template-columns: minmax(0, 1fr); }
   .spell-slot-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-/* The save throw controls move to clear rows before they can collide. */
-@media (max-width: 1100px) {
-  .saving-throw-row {
-    grid-template-columns: minmax(0, 1fr) minmax(120px, auto);
-    grid-template-areas: "title title" "check bonus" "result result";
-    gap: 8px;
-    padding-right: 0;
-  }
-  .saving-throw-row > div:first-child { grid-area: title; }
-  .saving-throw-row > .check-control { grid-area: check; justify-self: start; }
-  .saving-throw-row > div:nth-child(3) { grid-area: bonus; min-width: 0; }
-  .saving-throw-row > .saving-result { grid-area: result; justify-self: start; }
-  .saving-result-label { display: inline; }
 }
