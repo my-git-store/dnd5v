@@ -34,11 +34,10 @@ const emit = defineEmits<{ save: []; 'open-details': [] }>()
       <p v-if="saveError" class="status-text error" role="alert">{{ saveError }}</p>
       <p v-else-if="saving" class="status-text pending" role="status" aria-live="polite">Сохраняется…</p>
       <p v-else-if="dirty" class="status-text warning" role="status" aria-live="polite">Есть несохранённые изменения</p>
-      <p v-else-if="saved" class="status-text success" role="status" aria-live="polite">Сохранено</p>
     </div>
     <div class="sheet-header-actions">
       <CBtn class="header-details-button" color-type="accent" :disabled="saving" @click="emit('open-details')">Сведения</CBtn>
-      <CBtn color-type="primary" :loading="saving" :disabled="!dirty" @click="emit('save')">{{ saved ? 'Сохранено' : 'Сохранить' }}</CBtn>
+      <CBtn class="sheet-save-button" color-type="primary" :loading="saving" :disabled="!dirty" @click="emit('save')">{{ saved ? 'Сохранено' : 'Сохранить' }}</CBtn>
     </div>
   </header>
 </template>

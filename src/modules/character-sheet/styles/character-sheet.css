@@ -807,6 +807,8 @@ body {
 
 .character-sheet .c-btn-primary { background: linear-gradient(180deg, #8b4a4e, var(--sheet-burgundy-dark)); border-color: #5d2e34; box-shadow: 0 4px 10px rgba(95, 48, 54, .2); }
 .character-sheet .c-btn-accent { border-color: #b89255; background: linear-gradient(180deg, #f2d39a, #dfb979); color: #573b1f; }
+.character-sheet .sheet-save-button { border-color: rgba(63,112,73,.28); background: #edf5eb; color: var(--sheet-success); box-shadow: 0 4px 10px rgba(63,112,73,.16); }
+.character-sheet .sheet-save-button.c-disabled { opacity: 1; }
 .character-sheet .c-btn-primary:hover:not(:disabled), .character-sheet .c-btn-accent:hover:not(:disabled) { filter: brightness(1.04); }
 .status-text.success::before { content: "✓"; font-weight: 900; }
 .status-text.warning::before { content: "✦"; font-weight: 900; }
