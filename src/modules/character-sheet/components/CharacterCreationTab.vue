@@ -86,6 +86,7 @@ const selectedCount = computed(() => selectedSkillIds.value.filter((id) => selec
 const raceSelectedCount = computed(() => raceSkillChoices.value.filter((id) => selectedRace.value.skillChoices?.options.includes(id)).length)
 const classSkillsRemaining = computed(() => Math.max(0, selectedClass.value.skillChoiceCount - selectedCount.value))
 const raceSkillsRemaining = computed(() => Math.max(0, (selectedRace.value.skillChoices?.count ?? 0) - raceSelectedCount.value))
+const selectableSkills = computed(() => props.character.skills.filter((skill) => selectedClass.value.skillOptions.includes(skill.id) || selectedRace.value.skillChoices?.options.includes(skill.id)))
 function spellProgressionLabel(value: Dnd5eClassOption['spellProgressionType']): string {
   return ({ none: 'Нет', prepared: 'Подготовка', known: 'Известные заклинания', pact: 'Магия договора' } as Record<string, string>)[value ?? ''] ?? 'Не указано'
 }
@@ -173,6 +174,29 @@ function toggleRaceSkill(id: string) {
   if (raceSkillChoices.value.includes(id)) raceSkillChoices.value = raceSkillChoices.value.filter((item) => item !== id)
   else if (raceSelectedCount.value < limit) raceSkillChoices.value = [...new Set([...raceSkillChoices.value, id])]
   completed.value = false
+}
+function isSkillChoiceSelected(id: string) {
+  return selectedSkillIds.value.includes(id) || raceSkillChoices.value.includes(id)
+}
+function canSelectSkill(id: string) {
+  const classAvailable = selectedClass.value.skillOptions.includes(id) && selectedCount.value < selectedClass.value.skillChoiceCount
+  const raceAvailable = selectedRace.value.skillChoices?.options.includes(id) && raceSelectedCount.value < (selectedRace.value.skillChoices?.count ?? 0)
+  return classAvailable || raceAvailable
+}
+function toggleSelectableSkill(id: string) {
+  const classOption = selectedClass.value.skillOptions.includes(id)
+  const raceOption = selectedRace.value.skillChoices?.options.includes(id) ?? false
+  if (classOption && (selectedSkillIds.value.includes(id) || !raceOption || selectedCount.value < selectedClass.value.skillChoiceCount)) {
+    toggleClassSkill(id)
+    return
+  }
+  if (raceOption) toggleRaceSkill(id)
+}
+function selectableSkillSource(id: string) {
+  const sources: string[] = []
+  if (selectedClass.value.skillOptions.includes(id)) sources.push('Класс')
+  if (selectedRace.value.skillChoices?.options.includes(id)) sources.push('Вид')
+  return sources.join(' · ')
 }
 function selectSubrace(id: string) { subraceId.value = id; completed.value = false }
 function selectClassKit(id: string) { classEquipmentId.value = id; completed.value = false }
@@ -318,7 +342,7 @@ function applyCreation() {
 
             <template v-else-if="currentStep === 6">
               <div class="skill-step-summary"><span :class="{ 'selection-complete': classSkillsRemaining === 0 }">Выбор навыков: <b>{{ selectedCount }} / {{ selectedClass.skillChoiceCount }}</b><small>{{ classSkillsRemaining ? `Осталось выбрать: ${classSkillsRemaining}` : 'Выбор завершён' }}</small></span><span v-if="selectedRace.skillChoices?.count" :class="{ 'selection-complete': raceSkillsRemaining === 0 }">Навыки вида: <b>{{ raceSelectedCount }} / {{ selectedRace.skillChoices.count }}</b><small>{{ raceSkillsRemaining ? `Осталось выбрать: ${raceSkillsRemaining}` : 'Выбор завершён' }}</small></span></div>
-              <div class="creation-skills-list"><article v-for="skill in props.character.skills" :key="skill.id" class="creation-skill-row" :class="{ 'skill-is-owned': currentOwnedSkills.some((entry) => entry.id === skill.id) }"><div class="creation-skill-name"><strong>{{ skill.name }}</strong><span>{{ ABILITY_FIELDS.find((field) => field.key === skill.ability)?.label ?? 'Характеристика не задана' }} · итог {{ currentOwnedSkills.find((entry) => entry.id === skill.id)?.bonus ?? signedModifier(abilityModifier(skill.ability ? finalAbility(skill.ability) : 10)) }}</span></div><div class="creation-skill-sources"><span v-for="source in currentOwnedSkills.find((entry) => entry.id === skill.id)?.sources ?? []" :key="source" class="source-badge" :class="`source-${source}`">{{ sourceLabel(source) }}</span><span v-if="!currentOwnedSkills.some((entry) => entry.id === skill.id)" class="source-none">Нет владения</span></div><div class="creation-skill-actions"><label v-if="selectedClass.skillOptions.includes(skill.id)" class="skill-choice-control"><input type="checkbox" :checked="selectedSkillIds.includes(skill.id)" :disabled="disabled || (!selectedSkillIds.includes(skill.id) && selectedCount >= selectedClass.skillChoiceCount)" @change="toggleClassSkill(skill.id)" />Выбрать</label><label v-if="selectedRace.skillChoices?.options.includes(skill.id)" class="skill-choice-control"><input type="checkbox" :checked="raceSkillChoices.includes(skill.id)" :disabled="disabled || (!raceSkillChoices.includes(skill.id) && raceSelectedCount >= selectedRace.skillChoices.count)" @change="toggleRaceSkill(skill.id)" />Вид</label></div></article></div>
+              <div class="creation-skills-list"><button v-for="skill in selectableSkills" :key="skill.id" type="button" class="creation-skill-row creation-skill-choice" :class="{ selected: isSkillChoiceSelected(skill.id) }" :aria-pressed="isSkillChoiceSelected(skill.id)" :disabled="disabled || (!isSkillChoiceSelected(skill.id) && !canSelectSkill(skill.id))" @click="toggleSelectableSkill(skill.id)"><span class="creation-skill-name"><strong>{{ skill.name }}</strong><span>{{ ABILITY_FIELDS.find((field) => field.key === skill.ability)?.label ?? 'Характеристика не задана' }} · итог {{ currentOwnedSkills.find((entry) => entry.id === skill.id)?.bonus ?? signedModifier(abilityModifier(skill.ability ? finalAbility(skill.ability) : 10)) }}</span></span><span class="creation-skill-choice-source">{{ selectableSkillSource(skill.id) }}</span><span class="creation-skill-selection-check" :class="{ visible: isSkillChoiceSelected(skill.id) }" :aria-label="isSkillChoiceSelected(skill.id) ? 'Выбрано' : undefined">{{ isSkillChoiceSelected(skill.id) ? '✓' : '' }}</span></button></div>
               <p class="creation-source-explainer">Выберите ровно указанное количество навыков класса и вида. После достижения лимита остальные варианты блокируются. Владения складываются по источникам: один навык может одновременно происходить от вида, класса и ручной настройки.</p>
             </template>
 
