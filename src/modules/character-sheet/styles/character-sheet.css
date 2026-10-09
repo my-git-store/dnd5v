@@ -98,7 +98,8 @@ body {
 .sheet-header::before { top: 10px; }
 .sheet-header::after { bottom: 10px; }
 .sheet-header > div:first-child { flex: 1; max-width: 680px; min-width: 0; }
-.sheet-header > .c-btn { flex: 0 0 auto; margin-top: 4px; }
+.sheet-header-actions { display: flex; align-items: flex-start; flex: 0 0 auto; gap: 8px; margin-top: 4px; }
+.sheet-header-actions .c-btn { flex: 0 0 auto; }
 .header-summary { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 14px 0 0; }
 .header-summary div { display: grid; gap: 2px; min-width: 72px; }
 .header-summary dt { color: var(--sheet-faded); font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
@@ -305,7 +306,8 @@ body {
   .character-sheet { padding: 28px 12px 48px; border-inline: 0; }
   .character-sheet::before { inset: 7px; border-radius: 12px; }
   .sheet-header { flex-direction: column; gap: 16px; padding: 20px 17px 18px; border-radius: 14px; }
-  .sheet-header > .c-btn { width: 100%; }
+  .sheet-header-actions { width: 100%; }
+  .sheet-header-actions .c-btn { flex: 1 1 0; }
   .sheet-tabs { margin-inline: 0; padding-inline: 0; overflow-x: auto; }
   .character-sheet .tabs-list { min-width: max-content; justify-content: flex-start; }
   .character-sheet .tabs-list button { padding-inline: 11px; font-size: .78rem; }
@@ -627,6 +629,10 @@ body {
 .skill-settings[open] .skill-controls { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .skill-settings[open] summary { margin-bottom: 8px; }
 .character-editor-modal.c-modal { width: min(760px, calc(100vw - 24px)); max-width: none; max-height: calc(100vh - 24px); overflow: auto; }
+.character-identity-modal.c-modal { width: min(900px, calc(100vw - 24px)); max-width: none; max-height: calc(100vh - 24px); overflow: auto; }
+.character-identity-modal-card .sheet-section { margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.character-identity-modal-card .section-heading { padding-bottom: 13px; }
+.character-identity-modal-actions { display: flex; justify-content: flex-end; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--sheet-line-soft); }
 .character-creation-modal.c-modal { width: min(1180px, calc(100vw - 24px)); max-width: none; max-height: calc(100vh - 24px); overflow: auto; }
 .character-editor-card { width: 100%; max-height: none; padding: 22px; border: 1px solid #c8ae80; border-radius: 12px; background: linear-gradient(145deg, rgba(255, 250, 239, .98), rgba(249, 235, 207, .94)); color: #49331f; box-shadow: 0 16px 36px rgba(62, 44, 28, .2), inset 0 1px 0 rgba(255,255,255,.75); }
 .character-editor-card .c-card-title { margin-bottom: 16px; color: #7a3e43; font-family: var(--font-serif); font-size: 1.3rem; }

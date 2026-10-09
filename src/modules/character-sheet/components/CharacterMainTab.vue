@@ -2,19 +2,16 @@
 import AbilityFields from './AbilityFields.vue'
 import SkillFields from './SkillFields.vue'
 import SavingThrowFields from './SavingThrowFields.vue'
-import IdentityFields from './IdentityFields.vue'
 import type { AbilityKey } from '../types/character'
-import type { CharacterIdentityPatch, CharacterSavingThrowPatch, CharacterSheetView, CharacterSkillPatch } from '../types/characterView'
+import type { CharacterSavingThrowPatch, CharacterSheetView, CharacterSkillPatch } from '../types/characterView'
 import { getRules2024Class, getRules2024Feat, getRules2024Feature } from '../data/rules2024/index.ts'
 
 defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
 const emit = defineEmits<{
-  'update:identity': [patch: CharacterIdentityPatch]
   'update:saving-throw': [key: AbilityKey, patch: CharacterSavingThrowPatch]
   'update:ability': [key: AbilityKey, value: number]
   'update:skill': [id: string, patch: CharacterSkillPatch]
 }>()
-function updateIdentity(patch: CharacterIdentityPatch) { emit('update:identity', patch) }
 function updateSavingThrow(key: AbilityKey, patch: CharacterSavingThrowPatch) { emit('update:saving-throw', key, patch) }
 function updateAbility(key: AbilityKey, value: number) { emit('update:ability', key, value) }
 function updateSkill(id: string, patch: CharacterSkillPatch) { emit('update:skill', id, patch) }
@@ -35,7 +32,6 @@ function progressionFeatureSource(id: string) {
 
 <template>
   <div class="tab-content">
-    <IdentityFields :character="character" :disabled="disabled" @update="updateIdentity" />
     <section v-if="character.ruleset === '2024'" class="sheet-section origin-summary" aria-labelledby="origin-summary-title">
       <div class="section-heading section-heading-stack">
         <div>

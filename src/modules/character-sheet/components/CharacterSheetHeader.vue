@@ -16,7 +16,7 @@ defineProps<{
   experience: number
 }>()
 const name = defineModel<string>('name', { required: true })
-const emit = defineEmits<{ save: [] }>()
+const emit = defineEmits<{ save: []; 'open-details': [] }>()
 </script>
 <template>
   <header class="sheet-header">
@@ -36,6 +36,9 @@ const emit = defineEmits<{ save: [] }>()
       <p v-else-if="dirty" class="status-text warning" role="status" aria-live="polite">Есть несохранённые изменения</p>
       <p v-else-if="saved" class="status-text success" role="status" aria-live="polite">Сохранено</p>
     </div>
-    <CBtn color-type="primary" :loading="saving" :disabled="!dirty" @click="emit('save')">{{ saved ? 'Сохранено' : 'Сохранить' }}</CBtn>
+    <div class="sheet-header-actions">
+      <CBtn class="header-details-button" color-type="accent" :disabled="saving" @click="emit('open-details')">Сведения</CBtn>
+      <CBtn color-type="primary" :loading="saving" :disabled="!dirty" @click="emit('save')">{{ saved ? 'Сохранено' : 'Сохранить' }}</CBtn>
+    </div>
   </header>
 </template>
