@@ -6,7 +6,6 @@ import IdentityFields from './IdentityFields.vue'
 import type { AbilityKey } from '../types/character'
 import type { CharacterIdentityPatch, CharacterSavingThrowPatch, CharacterSheetView, CharacterSkillPatch } from '../types/characterView'
 import { getRules2024Class, getRules2024Feat, getRules2024Feature } from '../data/rules2024/index.ts'
-import { availableChoicesForProgression } from '../domain/characterProgression.ts'
 
 defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
 const emit = defineEmits<{
@@ -32,9 +31,6 @@ function progressionFeatureSource(id: string) {
   const feature = getRules2024Feature(id)
   return feature ? getRules2024Class(feature.classId)?.label ?? feature.source : 'Неизвестный источник'
 }
-function availableProgressionChoices(character: CharacterSheetView) {
-  return character.progression ? availableChoicesForProgression(character.progression, character.level, character.ruleset) : []
-}
 </script>
 
 <template>
@@ -54,22 +50,6 @@ function availableProgressionChoices(character: CharacterSheetView) {
         <div><span class="field-caption">Происхожденческая черта</span><strong>{{ character.origin.originFeat || 'Не выбрана' }}</strong><small v-if="originFeatDetails(character)">{{ originFeatDetails(character)?.description }}</small></div>
         <div><span class="field-caption">Языки</span><strong>{{ character.origin.languages.join(', ') || 'Не указаны' }}</strong></div>
         <div><span class="field-caption">Инструменты</span><strong>{{ character.origin.tools.join(', ') || 'Не указаны' }}</strong></div>
-      </div>
-    </section>
-    <section v-if="character.progression" class="sheet-section progression-summary" aria-labelledby="progression-summary-title">
-      <div class="section-heading section-heading-stack">
-        <div>
-          <h2 id="progression-summary-title">Прогресс персонажа</h2>
-          <p class="section-note">Текущий уровень и ссылки на особенности. Эффекты пока не применяются автоматически.</p>
-        </div>
-        <span class="mode-tag mode-ready">Уровень {{ character.progression.level }}</span>
-      </div>
-      <div class="progression-summary-grid">
-        <div><span class="field-caption">Класс</span><strong>{{ character.class || 'Не указан' }}</strong></div>
-        <div><span class="field-caption">Уровень класса</span><strong>{{ character.progression.classLevels[0]?.level ?? character.level }}</strong></div>
-        <div><span class="field-caption">Особенности</span><strong>{{ character.progression.features.length || 'Нет ссылок' }}</strong><small v-if="character.progression.features.length">{{ character.progression.features.map(progressionFeatureName).join(', ') }}</small></div>
-        <div><span class="field-caption">Доступные выборы</span><strong>{{ availableProgressionChoices(character).length || 'Нет выборов' }}</strong><small v-if="availableProgressionChoices(character).length">{{ availableProgressionChoices(character).map((choice) => choice.name).join(', ') }}</small></div>
-        <div><span class="field-caption">Сохранённые выборы</span><strong>{{ Object.keys(character.progression.choices).length || 'Нет выборов' }}</strong></div>
       </div>
     </section>
     <div class="main-sheet-grid">
