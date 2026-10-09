@@ -614,8 +614,11 @@ body {
 .skill-source-badge:nth-child(3) { border-color: #c9abb0; background: #f7eaec; color: #78474d; }
 .skill-controls { gap: 9px; }
 .skill-controls .compact-field { min-width: 0; }
-.skill-settings { min-width: 0; justify-self: end; }
+.skill-settings { display: contents; min-width: 0; }
 .skill-settings summary {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
   padding: 3px 0;
   color: #805921;
   cursor: pointer;
@@ -626,9 +629,17 @@ body {
 }
 .skill-settings summary::before { content: "▸"; display: inline-block; margin-right: 5px; transition: transform .18s ease; }
 .skill-settings[open] summary::before { transform: rotate(90deg); }
-.skill-settings[open] { width: 100%; margin-top: 0; padding-top: 8px; border-top: 1px dashed var(--sheet-line-soft); }
-.skill-settings[open] .skill-controls { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.skill-settings[open] summary { margin-bottom: 8px; }
+.skill-settings .skill-controls { display: none; }
+.skill-settings[open] .skill-controls {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--sheet-line-soft);
+}
 .character-editor-modal.c-modal { width: min(760px, calc(100vw - 24px)); max-width: none; max-height: calc(100vh - 24px); overflow: auto; }
 .character-identity-modal.c-modal { width: min(900px, calc(100vw - 24px)); max-width: none; max-height: calc(100vh - 24px); overflow: auto; }
 .character-identity-modal-card .sheet-section { margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
