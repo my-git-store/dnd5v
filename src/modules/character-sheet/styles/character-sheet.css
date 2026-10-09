@@ -59,6 +59,20 @@ body {
   pointer-events: none;
 }
 .character-sheet > * { position: relative; z-index: 1; }
+.character-creation-root {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 14px;
+  border: 1px solid #c4a474;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255, 250, 239, .94), rgba(239, 220, 185, .72));
+  box-shadow: 0 10px 26px rgba(83, 59, 38, .1), inset 0 1px 0 rgba(255,255,255,.7);
+}
+.character-creation-root .creation-hero { margin-top: 0; }
+.character-sheet-creation-mode { padding-top: 24px; }
+.character-sheet-creation-mode .creation-workspace { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.character-sheet-creation-mode .creation-main-column { width: 100%; }
 
 .sheet-header {
   display: flex;

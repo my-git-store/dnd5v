@@ -11,7 +11,7 @@ import type { CharacterRuleset } from '../types/characterV3.ts'
 import type { CharacterCreationPayload } from '../domain/characterCreation.ts'
 import type { CharacterSheetView } from '../types/characterView.ts'
 
-const props = defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
+const props = defineProps<{ character: CharacterSheetView; disabled?: boolean; hidePreview?: boolean }>()
 const emit = defineEmits<{ create: [payload: CharacterCreationPayload]; 'back-to-sheet': [] }>()
 const creation = props.character.creation
 const stepNames = ['Имя', 'Раса', 'Подраса', 'Класс', 'Характеристики', 'Навыки', 'Снаряжение', 'Готово']
@@ -337,7 +337,7 @@ function applyCreation() {
         </Transition>
       </div>
 
-      <aside class="character-preview" :class="{ compact: currentStep !== 8 }" aria-label="Предпросмотр персонажа" aria-live="polite">
+      <aside v-if="!props.hidePreview" class="character-preview" :class="{ compact: currentStep !== 8 }" aria-label="Предпросмотр персонажа" aria-live="polite">
         <div class="preview-bookmark">Лист героя · предпросмотр</div>
         <div class="preview-portrait"><span class="portrait-frame"><span>{{ initials }}</span></span><span class="portrait-caption">Портрет появится позже</span></div>
         <div class="preview-identity"><p class="eyebrow">Новый искатель приключений</p><h2>{{ name.trim() || 'Имя героя' }}</h2><p>{{ selectedRace.label }}<span v-if="selectedSubrace"> · {{ selectedSubrace.label }}</span></p><div class="preview-class-row"><span>{{ selectedClass.label }}</span><span>Уровень {{ props.character.level }}</span></div></div>
