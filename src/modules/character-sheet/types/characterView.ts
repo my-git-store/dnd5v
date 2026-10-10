@@ -1,4 +1,4 @@
-import type { AbilityKey, Character, CharacterAttack, CharacterSkill } from './character.ts'
+import type { AbilityKey, Character, CharacterAttack, CharacterGender, CharacterSkill } from './character.ts'
 import type { BackgroundProfileV3, CharacterCalculationMode, CharacterCombatV3, CharacterCreationV3, CharacterInventoryV3, CharacterOriginV3, CharacterPersonalityV3, CharacterProficiencyV3, CharacterRuleset, CharacterSavingThrowsV3, CharacterSpellcastingV3, RaceProfileV3, SkillProficiencySource } from './characterV3.ts'
 import type { CharacterProgressionV3 } from './rules.ts'
 
@@ -49,6 +49,7 @@ export interface CharacterIdentityPatch {
   alignment?: string
   level?: number
   experience?: number
+  gender?: CharacterGender
 }
 
 export type CharacterSkillPatch = Partial<Pick<CharacterSkillView, 'value' | 'ability' | 'proficiency' | 'calculationMode' | 'additionalBonus'>>

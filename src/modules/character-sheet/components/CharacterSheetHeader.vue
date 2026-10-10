@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CBtn, CInput } from '@/ui/components'
+import { CBtn } from '@/ui/components'
 import { proficiencyBonus } from '../domain/proficiencyBonus'
 import { signedModifier } from '../domain/abilityModifier'
 import type { CharacterRuleset } from '../types/characterV3'
@@ -9,6 +9,7 @@ defineProps<{
   saving: boolean
   saved: boolean
   saveError: string | null
+  name: string
   race: string
   className: string
   classIcon?: string
@@ -16,14 +17,13 @@ defineProps<{
   level: number
   experience: number
 }>()
-const name = defineModel<string>('name', { required: true })
 const emit = defineEmits<{ save: []; 'open-details': [] }>()
 </script>
 <template>
   <header class="sheet-header">
     <div>
       <p class="eyebrow">Nastolka · Лист персонажа D&amp;D 5e</p>
-      <CInput v-model="name" :disabled="saving" aria-label="Имя персонажа" placeholder="Имя персонажа" />
+      <h1 class="sheet-character-name">{{ name || 'Безымянный герой' }}</h1>
       <dl class="header-summary">
         <div><dt>Раса</dt><dd>{{ race || 'Не заполнено' }}</dd></div>
         <div class="header-class-entry"><dt>Класс</dt><dd class="header-class-value"><span class="class-avatar" aria-hidden="true"><img v-if="classIcon" :src="classIcon" class="class-avatar-image" alt="" /><span v-else>{{ className?.slice(0, 1) || '✦' }}</span></span><span>{{ className || 'Не заполнено' }}</span></dd></div>

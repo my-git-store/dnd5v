@@ -58,7 +58,7 @@ const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.cre
           @create="applyCreation" @back-to-sheet="closeCreation" />
       </section>
       <template v-else>
-        <CharacterSheetHeader :name="sheet.character.value.name" @update:name="sheet.updateName"
+        <CharacterSheetHeader :name="sheet.character.value.name"
           :race="sheet.character.value.race.name" :class-name="sheet.character.value.class" :class-icon="selectedClassIcon"
           :ruleset="sheet.character.value.ruleset"
           :level="sheet.character.value.level" :experience="sheet.character.value.experience"

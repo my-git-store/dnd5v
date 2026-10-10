@@ -55,7 +55,6 @@ export function useCharacterSheet(id = 'demo-character') {
     }
   }
 
-  function updateName(name: string) { if (character.value) character.value.name = name; savedNotice.value = false }
   function updateIdentity(patch: CharacterIdentityPatch) {
     if (!character.value) return
     if (patch.name !== undefined) character.value.name = patch.name
@@ -69,6 +68,7 @@ export function useCharacterSheet(id = 'demo-character') {
       if (character.value.progression) character.value.progression = progressionAtLevel(character.value.progression, patch.level)
     }
     if (patch.experience !== undefined) character.value.experience = patch.experience
+    if (patch.gender !== undefined && character.value.creation) character.value.creation.gender = patch.gender
     savedNotice.value = false
   }
   function updateDetails(details: CharacterDetails) { if (character.value) Object.assign(character.value, details); savedNotice.value = false }
@@ -141,5 +141,5 @@ export function useCharacterSheet(id = 'demo-character') {
   })
   onBeforeUnmount(() => { if (unloadHandler) window.removeEventListener('beforeunload', unloadHandler) })
 
-  return { character, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, updateName, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, updateInventory, updateMoney, updatePersonality, updateBio, applyCreation }
+  return { character, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, updateInventory, updateMoney, updatePersonality, updateBio, applyCreation }
 }
