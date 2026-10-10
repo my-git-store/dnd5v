@@ -135,7 +135,9 @@ function validSourceMap(value: unknown): boolean {
 
 /** Validates additive character-creation extensions for the selected ruleset. */
 function validCreationExtension(value: unknown, ruleset: unknown): boolean {
-  if (!isRecord(value) || ruleset !== '2024') return true
+  if (!isRecord(value)) return true
+  if (value.gender !== undefined && value.gender !== 'female' && value.gender !== 'male') return false
+  if (ruleset !== '2024') return true
   if (value.speciesId !== undefined && (!isString(value.speciesId) || !isSpecies2024Id(value.speciesId))) return false
   if (value.classId !== undefined && (!isString(value.classId) || !isRules2024ClassId(value.classId))) return false
   if (value.backgroundId !== undefined && (!isString(value.backgroundId) || !isBackground2024Id(value.backgroundId))) return false

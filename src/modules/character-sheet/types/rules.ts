@@ -1,4 +1,4 @@
-import type { AbilityKey } from './character.ts'
+import type { AbilityKey, CharacterGender } from './character.ts'
 import type { CharacterRuleset } from './characterV3.ts'
 
 /** Shared vocabulary for future rule data. Existing v3 source fields stay compatible. */
@@ -193,6 +193,8 @@ export interface ClassDefinition extends RulesetTaggedDefinition {
   name: string
   /** Optional portrait asset. Older class records can omit it safely. */
   icon?: string
+  /** Portrait variants keyed by the builder's presentation gender. */
+  iconByGender?: Partial<Record<CharacterGender, string>>
   description: string
   hitDie: string
   primaryAbilities: AbilityKey[]

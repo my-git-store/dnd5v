@@ -1,7 +1,7 @@
 import type { AbilityKey } from '../../types/character.ts'
 import type { ClassDefinition, FeatureDefinition, FeatDefinition, RuleChoice, RuleFeatureMetadata, RulesetTaggedDefinition, SpellProgressionType } from '../../types/rules.ts'
 import type { Dnd5eEquipmentOption } from '../dnd5eOptions.ts'
-import { classIconFor } from '../classIcons.ts'
+import { classIconFor, classIconVariantsFor } from '../classIcons.ts'
 
 export interface Rules2024Species extends RulesetTaggedDefinition {
   ruleset: '2024'
@@ -192,7 +192,7 @@ const classData = (id: string, label: string, hitDie: string, primaryAbility: Ab
   const split = splitProficiencies(proficiencies)
   const levelFeaturesMetadata: RuleFeatureMetadata[] = features.map((feature, index) => ({ id: `${id}.level-1.${index + 1}`, level: 1, label: feature }))
   return {
-    id, ruleset: '2024', name: label, label, icon: classIconFor(id), description: classDescriptions[id] ?? `${label}: класс первого уровня D&D 2024.`, hitDie,
+    id, ruleset: '2024', name: label, label, icon: classIconFor(id), iconByGender: classIconVariantsFor(id), description: classDescriptions[id] ?? `${label}: класс первого уровня D&D 2024.`, hitDie,
     primaryAbility, primaryAbilities: [primaryAbility], spellcastingAbility, spellProgressionType: spellProgressionFor(id, spellcastingAbility),
     savingThrowKeys, savingThrowProficiencies: [...savingThrowKeys], skillChoiceCount, skillOptions, skillChoices: { count: skillChoiceCount, options: [...skillOptions] },
     features, proficiencies, weaponProficiencies: split.weapon, armorProficiencies: split.armor, equipmentOptions,

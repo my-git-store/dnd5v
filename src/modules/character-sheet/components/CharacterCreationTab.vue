@@ -6,10 +6,11 @@ import { DND5E_CLASSES, DND5E_RACES, findClass, findRace, findSubrace, subracesF
 import { RULES_2024_CLASSES, RULES_2024_SPECIES, findRules2024Class, findSpecies2024, getRules2024ClassFeatures } from '../data/rules2024/index.ts'
 import { abilityModifier, signedModifier } from '../domain/abilityModifier.ts'
 import { calculateSkillBonus } from '../domain/skillBonus.ts'
-import type { AbilityKey, CharacterAbilities } from '../types/character.ts'
+import type { AbilityKey, CharacterAbilities, CharacterGender } from '../types/character.ts'
 import type { CharacterRuleset } from '../types/characterV3.ts'
 import type { CharacterCreationPayload } from '../domain/characterCreation.ts'
 import type { CharacterSheetView } from '../types/characterView.ts'
+import { classIconFor } from '../data/classIcons.ts'
 
 const props = defineProps<{ character: CharacterSheetView; disabled?: boolean; hidePreview?: boolean }>()
 const emit = defineEmits<{ create: [payload: CharacterCreationPayload]; 'back-to-sheet': [] }>()
@@ -50,6 +51,7 @@ const classId = ref(creation?.classId ?? (initialRuleset === '2024' ? RULES_2024
 const backgroundId = ref('')
 const speciesChoices = ref<Record<string, string[]>>(creation?.speciesChoices ? JSON.parse(JSON.stringify(creation.speciesChoices)) as Record<string, string[]> : {})
 const name = ref(props.character.name)
+const gender = ref<CharacterGender>(creation?.gender ?? 'female')
 const subclass = ref(props.character.subclass)
 const alignment = ref(props.character.alignment)
 const initialClass = initialRuleset === '2024' ? classAsLegacy(classId.value) : findClass(classId.value)
@@ -67,7 +69,7 @@ function speciesAsLegacy(id: string): Dnd5eRaceOption {
 function classAsLegacy(id: string): Dnd5eClassOption {
   const option = findRules2024Class(id)
   return {
-    id: option.id, label: option.label, description: option.description, hitDie: option.hitDie, primaryAbility: option.primaryAbility, primaryAbilities: [...option.primaryAbilities], icon: option.icon,
+    id: option.id, label: option.label, description: option.description, hitDie: option.hitDie, primaryAbility: option.primaryAbility, primaryAbilities: [...option.primaryAbilities], icon: option.icon, iconByGender: option.iconByGender,
     spellcastingAbility: option.spellcastingAbility, spellProgressionType: option.spellProgressionType, savingThrowKeys: [...option.savingThrowKeys], savingThrowProficiencies: [...option.savingThrowProficiencies],
     skillChoiceCount: option.skillChoiceCount, skillOptions: [...option.skillOptions], skillChoices: { count: option.skillChoices.count, options: [...option.skillChoices.options] }, features: [...option.features], proficiencies: [...option.proficiencies],
     weaponProficiencies: [...option.weaponProficiencies], armorProficiencies: [...option.armorProficiencies], equipmentOptions: option.equipmentOptions, startingEquipment: option.startingEquipment,
@@ -236,6 +238,7 @@ function applyCreation() {
   if (stepIssue.value || !name.value.trim()) return
   const payload: CharacterCreationPayload = {
     ruleset: ruleset.value,
+    gender: gender.value,
     speciesId: ruleset.value === '2024' ? raceId.value : undefined,
     speciesChoices: ruleset.value === '2024' ? JSON.parse(JSON.stringify(speciesChoices.value)) as Record<string, string[]> : undefined,
     name: name.value,
@@ -294,6 +297,13 @@ function applyCreation() {
                 </label>
                 <CInput label="Мировоззрение (необязательно)" :model-value="alignment" :disabled="disabled" @update:model-value="alignment = String($event ?? '')" />
                 <CInput label="Подкласс (позже)" :model-value="subclass" :disabled="disabled" @update:model-value="subclass = String($event ?? '')" />
+                <fieldset class="gender-choice">
+                  <legend>Пол персонажа</legend>
+                  <div class="gender-choice-options" role="radiogroup" aria-label="Пол персонажа">
+                    <button type="button" class="gender-choice-button" :class="{ selected: gender === 'female' }" :aria-pressed="gender === 'female'" :disabled="disabled" @click="gender = 'female'; completed = false">Женский</button>
+                    <button type="button" class="gender-choice-button" :class="{ selected: gender === 'male' }" :aria-pressed="gender === 'male'" :disabled="disabled" @click="gender = 'male'; completed = false">Мужской</button>
+                  </div>
+                </fieldset>
               </div>
               <div class="creation-callout"><span aria-hidden="true">✧</span><p>Имя можно изменить позднее. Ваш выбор пока остаётся в черновике листа.</p></div>
             </template>
@@ -330,7 +340,7 @@ function applyCreation() {
             <template v-else-if="currentStep === 4">
               <div class="selection-grid class-selection-grid" role="group" aria-label="Выберите класс">
                 <button v-for="item in classOptions" :key="item.id" type="button" class="selection-card" :class="{ selected: classId === item.id }" :aria-pressed="classId === item.id" :disabled="disabled" @click="updateClass(item.id)">
-                  <span class="selection-card-top"><span class="class-icon" aria-hidden="true"><img v-if="item.icon" :src="item.icon" class="class-card-image" :alt="`Иллюстрация класса «${item.label}»`" loading="lazy" /><span v-else class="class-icon-fallback">{{ item.hitDie }}</span></span><span v-if="classId === item.id" class="selection-check" aria-label="Выбрано">✓</span></span><strong>{{ item.label }}</strong><span class="selection-description">{{ item.description ? `${item.description} Основная характеристика: ${ABILITY_FIELDS.find((field) => field.key === item.primaryAbility)?.label} · Хиты ${item.hitDie}` : `Основная характеристика: ${ABILITY_FIELDS.find((field) => field.key === item.primaryAbility)?.label} · Хиты ${item.hitDie}` }}</span><span class="selection-traits">Особенности: {{ item.features.join(' · ') }}</span><span class="selection-origin">Спасброски: {{ item.savingThrowKeys.map((key) => ABILITY_FIELDS.find((field) => field.key === key)?.label ?? key).join(' · ') }}</span><span class="selection-origin">Навыки: {{ item.skillOptions.map((id) => skillLabels[id] ?? id).join(' · ') }} · выбрать {{ item.skillChoiceCount }}</span><span v-if="item.weaponProficiencies?.length" class="selection-origin">Оружие: {{ item.weaponProficiencies.join(' · ') }}</span><span v-if="item.armorProficiencies?.length" class="selection-origin">Броня: {{ item.armorProficiencies.join(' · ') }}</span><span v-if="item.startingEquipment?.length" class="selection-origin">Снаряжение: {{ item.startingEquipment.map((kit) => kit.label).join(' · ') }}</span><span class="selection-origin">{{ item.spellcastingAbility ? `Магия: ${ABILITY_FIELDS.find((field) => field.key === item.spellcastingAbility)?.label} · ${spellProgressionLabel(item.spellProgressionType)}` : 'Без заклинаний на этом шаге' }}</span>
+                  <span class="selection-card-top"><span class="class-icon" aria-hidden="true"><img v-if="classIconFor(item.id, gender)" :src="classIconFor(item.id, gender)" class="class-card-image" :alt="`Иллюстрация класса «${item.label}» (${gender === 'male' ? 'мужской' : 'женский'} вариант)`" loading="lazy" /><span v-else class="class-icon-fallback">{{ item.hitDie }}</span></span><span v-if="classId === item.id" class="selection-check" aria-label="Выбрано">✓</span></span><strong>{{ item.label }}</strong><span class="selection-description">{{ item.description ? `${item.description} Основная характеристика: ${ABILITY_FIELDS.find((field) => field.key === item.primaryAbility)?.label} · Хиты ${item.hitDie}` : `Основная характеристика: ${ABILITY_FIELDS.find((field) => field.key === item.primaryAbility)?.label} · Хиты ${item.hitDie}` }}</span><span class="selection-traits">Особенности: {{ item.features.join(' · ') }}</span><span class="selection-origin">Спасброски: {{ item.savingThrowKeys.map((key) => ABILITY_FIELDS.find((field) => field.key === key)?.label ?? key).join(' · ') }}</span><span class="selection-origin">Навыки: {{ item.skillOptions.map((id) => skillLabels[id] ?? id).join(' · ') }} · выбрать {{ item.skillChoiceCount }}</span><span v-if="item.weaponProficiencies?.length" class="selection-origin">Оружие: {{ item.weaponProficiencies.join(' · ') }}</span><span v-if="item.armorProficiencies?.length" class="selection-origin">Броня: {{ item.armorProficiencies.join(' · ') }}</span><span v-if="item.startingEquipment?.length" class="selection-origin">Снаряжение: {{ item.startingEquipment.map((kit) => kit.label).join(' · ') }}</span><span class="selection-origin">{{ item.spellcastingAbility ? `Магия: ${ABILITY_FIELDS.find((field) => field.key === item.spellcastingAbility)?.label} · ${spellProgressionLabel(item.spellProgressionType)}` : 'Без заклинаний на этом шаге' }}</span>
                 </button>
               </div>
             </template>

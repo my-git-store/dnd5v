@@ -9,6 +9,8 @@ export type AbilityKey =
 export type CharacterAbilities = Record<AbilityKey, number>
 export type AttackBonusSource = AbilityKey | 'manual'
 export type SkillProficiency = 'none' | 'proficient' | 'expertise'
+/** Presentation choice used by the character builder for class portraits. */
+export type CharacterGender = 'female' | 'male'
 
 export interface CharacterSkill {
   id: string

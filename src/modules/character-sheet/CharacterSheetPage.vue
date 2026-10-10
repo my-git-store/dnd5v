@@ -38,7 +38,7 @@ function openIdentityModal() {
   if (!sheet.character.value) return
   open({ component: CharacterIdentityModal, componentProps: { character: sheet.character.value, disabled: sheet.isSaving.value, onUpdate: updateIdentity } })
 }
-const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.creation?.classId ?? sheet.character.value?.class ?? ''))
+const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.creation?.classId ?? sheet.character.value?.class ?? '', sheet.character.value?.creation?.gender ?? 'female'))
 </script>
 <template>
   <main class="character-sheet" :class="{ 'character-sheet-creation-mode': creationOpen }">

@@ -1,4 +1,4 @@
-import type { AbilityKey, AttackBonusSource, CharacterAbilities, CharacterMoney, SkillProficiency } from './character.ts'
+import type { AbilityKey, AttackBonusSource, CharacterAbilities, CharacterGender, CharacterMoney, SkillProficiency } from './character.ts'
 import type { CharacterProgressionV3, RuleSourceRef, SpellProgressionType } from './rules.ts'
 
 export type CharacterSchemaV3 = 3
@@ -180,6 +180,8 @@ export interface CharacterPersonalityV3 {
 
 export interface CharacterCreationV3 {
   ruleset?: CharacterRuleset
+  /** Optional presentation choice; omitted by old records and treated as female. */
+  gender?: CharacterGender
   speciesId?: string
   raceId: string
   classId: string

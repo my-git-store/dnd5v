@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
 import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
-import { CLASS_ICON_PATHS, classIconFor } from '../../src/modules/character-sheet/data/classIcons.ts'
+import { CLASS_ICON_PATHS, CLASS_ICON_PATHS_MALE, classIconFor } from '../../src/modules/character-sheet/data/classIcons.ts'
 import { RULES_2024_BACKGROUNDS, RULES_2024_CLASSES, getRules2024Class, isRules2024ClassId } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
@@ -55,7 +55,9 @@ test('maps every modern class to its explicit icon asset and supports legacy lab
     Object.entries(CLASS_ICON_PATHS),
   )
   assert.equal(classIconFor('wizard'), '/images/classes/wizard.png')
+  assert.equal(classIconFor('wizard', 'male'), CLASS_ICON_PATHS_MALE.wizard)
   assert.equal(classIconFor('Волшебник'), '/images/classes/wizard.png')
+  assert.equal(classIconFor('Волшебник', 'male'), CLASS_ICON_PATHS_MALE.wizard)
   assert.equal(classIconFor('missing-class'), undefined)
 })
 
@@ -143,15 +145,17 @@ test('creation metadata receives safe class defaults when an older v3 creation o
 test('class selection persists through the adapter while icon metadata stays presentation-only', async () => {
   const storage = new MemoryStorage()
   const { adapter, view } = await loadView(storage)
-  const created = applyCharacterCreation(view, modernPayload(view, 'wizard'))
+  const created = applyCharacterCreation(view, modernPayload(view, 'wizard', 'sage-2024', { gender: 'male' }))
   await adapter.save(created)
 
   const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${created.id}`)!) as CharacterV3
   assert.equal(saved.extensions.characterCreation?.classId, 'wizard')
+  assert.equal(saved.extensions.characterCreation?.gender, 'male')
   assert.equal((saved.extensions.characterCreation as { icon?: string } | undefined)?.icon, undefined)
   assert.deepEqual(validateCharacterV3(saved), [])
 
   const reloaded = await adapter.load(created.id)
   assert.equal(reloaded.creation?.classId, 'wizard')
+  assert.equal(reloaded.creation?.gender, 'male')
   assert.equal(getRules2024Class(reloaded.creation?.classId ?? '')?.icon, CLASS_ICON_PATHS.wizard)
 })

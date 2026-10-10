@@ -1,5 +1,5 @@
 import { cloneCharacterView, type CharacterSheetView } from '../types/characterView.ts'
-import type { AbilityKey, CharacterAbilities } from '../types/character.ts'
+import type { AbilityKey, CharacterAbilities, CharacterGender } from '../types/character.ts'
 import type { CharacterCreationV3, CharacterInventoryItemV3, CharacterRuleset, SkillProficiencySource } from '../types/characterV3.ts'
 import { combinedRaceBonuses, findBackground, findClass, findRace, findSubrace, raceProfile } from '../data/dnd5eOptions.ts'
 import { applyCharacterCreation2024 } from './characterCreation2024.ts'
@@ -9,6 +9,7 @@ const ABILITY_KEYS: readonly AbilityKey[] = ['strength', 'dexterity', 'constitut
 
 export interface CharacterCreationPayload {
   ruleset?: CharacterRuleset
+  gender?: CharacterGender
   speciesId?: string
   originFeatId?: string
   originAbilityChoices?: AbilityKey[]
@@ -131,6 +132,7 @@ export function applyCharacterCreation(character: CharacterSheetView, payload: C
   next.inventoryData.items = [...preservedItems, ...generatedItems]
   const creation: CharacterCreationV3 = {
     ruleset: '2014',
+    gender: payload.gender ?? previousCreation?.gender ?? 'female',
     raceId: race.id,
     subraceId: subrace?.id,
     classId: classOption.id,

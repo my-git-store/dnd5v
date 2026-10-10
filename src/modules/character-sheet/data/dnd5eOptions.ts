@@ -1,7 +1,7 @@
-import type { AbilityKey } from '../types/character.ts'
+import type { AbilityKey, CharacterGender } from '../types/character.ts'
 import type { BackgroundProfileV3, CharacterProficiencyV3, RaceProfileV3 } from '../types/characterV3.ts'
 import type { SpellProgressionType } from '../types/rules.ts'
-import { classIconFor } from './classIcons.ts'
+import { classIconFor, classIconVariantsFor } from './classIcons.ts'
 
 export interface Dnd5eRaceOption {
   id: string
@@ -44,6 +44,7 @@ export interface Dnd5eClassOption {
   id: string
   label: string
   icon?: string
+  iconByGender?: Partial<Record<CharacterGender, string>>
   /** Optional canonical 2024 metadata; legacy class options keep the old shape. */
   description?: string
   hitDie: string
@@ -154,6 +155,7 @@ const CLASS_EQUIPMENT: Record<string, Dnd5eEquipmentOption[]> = {
 for (const classOption of DND5E_CLASSES) {
   classOption.equipmentOptions = CLASS_EQUIPMENT[classOption.id]
   classOption.icon = classIconFor(classOption.id)
+  classOption.iconByGender = classIconVariantsFor(classOption.id)
 }
 
 export const DND5E_BACKGROUNDS: Dnd5eBackgroundOption[] = [
