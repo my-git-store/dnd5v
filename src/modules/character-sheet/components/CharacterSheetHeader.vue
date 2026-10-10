@@ -38,7 +38,7 @@ const emit = defineEmits<{ save: []; 'open-details': [] }>()
     </div>
     <div class="sheet-header-actions">
       <CBtn class="header-details-button" color-type="accent" :disabled="saving" @click="emit('open-details')">Сведения</CBtn>
-      <CBtn class="sheet-save-button" color-type="primary" :loading="saving" :disabled="!dirty" @click="emit('save')">{{ saved ? 'Сохранено' : 'Сохранить' }}</CBtn>
+      <CBtn class="sheet-save-button" :class="{ 'sheet-save-button-saved': saved }" color-type="primary" :loading="saving" :disabled="!dirty" @click="emit('save')">{{ saved ? 'Сохранено' : 'Сохранить' }}</CBtn>
     </div>
   </header>
 </template>
