@@ -416,6 +416,7 @@ body {
 .selection-origin { margin-top: auto; padding-top: 9px; color: #78464a; font-weight: 700; }
 .selection-bonuses { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
 .selection-bonuses > span { padding: 4px 7px; border: 1px solid #dbc49b; border-radius: 999px; background: #f7ead0; color: #714c25; font-size: .7rem; font-weight: 800; }
+.creation-race-bonus-note { margin: 10px 0 13px; }
 .selection-card-wide { min-height: 175px; }
 .subrace-selection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .species-choice-panel { margin-top: 1rem; padding: 1rem; border: 1px solid var(--sheet-line, #d5ba8a); border-radius: 0.75rem; background: rgba(255, 250, 238, 0.72); }
@@ -426,6 +427,9 @@ body {
 .creation-ability-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
 .creation-ability-card { display: grid; gap: 9px; min-width: 0; padding: 13px; border: 1px solid #dfd0b5; border-radius: 12px; background: rgba(255,249,236,.78); transition: border-color .2s ease, box-shadow .2s ease; }
 .creation-ability-card.has-racial-bonus { border-color: #bc975d; box-shadow: inset 0 0 0 1px rgba(188,151,93,.2); }
+.creation-ability-input-row { display: flex; align-items: flex-end; gap: 8px; min-width: 0; }
+.creation-ability-input-row > .c-flex-col { flex: 1 1 auto; min-width: 0; }
+.ability-modifier-inline { display: grid; flex: 0 0 auto; place-items: center; min-width: 38px; min-height: 34px; border: 1px solid #d6c39e; border-radius: 9px; background: #fff7e6; color: #714d28; font-size: 1rem; }
 .creation-ability-card .c-input { text-align: center; font-size: 1.25rem; font-weight: 800; }
 .ability-result { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #796448; font-size: .75rem; }
 .ability-result b { margin-left: 5px; color: #4c3723; font-size: 1rem; }

@@ -20,6 +20,7 @@ const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', val
 const activeTab = ref<string>('main')
 const tabDirection = ref<'forward' | 'backward'>('forward')
 const creationOpen = ref(false)
+const creationSession = ref(0)
 const sheet = useCharacterSheet()
 const { open } = useDialog()
 const tabIndexes = new Map<string, number>(tabs.map((tab, index) => [tab.value, index]))
@@ -32,7 +33,7 @@ function tabPanelClass(tab: string) {
 function updateAbility(key: AbilityKey, value: number) { sheet.updateAbility(key, value) }
 function applyCreation(payload: Parameters<typeof sheet.applyCreation>[0]) { sheet.applyCreation(payload) }
 function closeCreation() { creationOpen.value = false; activeTab.value = 'main' }
-function openCreationModal() { if (sheet.character.value) creationOpen.value = true }
+function openCreationModal() { if (sheet.character.value) { creationSession.value += 1; creationOpen.value = true } }
 function updateIdentity(patch: CharacterIdentityPatch) { sheet.updateIdentity(patch) }
 function openIdentityModal() {
   if (!sheet.character.value) return
@@ -45,7 +46,7 @@ const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.cre
     <CharacterLoadState :loading="sheet.isLoading.value" :error="sheet.loadError.value" @retry="sheet.load" />
     <template v-if="sheet.character.value && !sheet.isLoading.value && !sheet.loadError.value">
       <section v-if="creationOpen" class="character-creation-root" aria-label="Создание персонажа">
-        <CharacterCreationTab :character="sheet.character.value" :disabled="sheet.isSaving.value" hide-preview
+        <CharacterCreationTab :key="creationSession" :character="sheet.character.value" :disabled="sheet.isSaving.value" hide-preview
           @create="applyCreation" @back-to-sheet="closeCreation" />
       </section>
       <template v-else>

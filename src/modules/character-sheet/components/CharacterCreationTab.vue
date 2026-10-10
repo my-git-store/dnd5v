@@ -14,7 +14,6 @@ import { classIconFor } from '../data/classIcons.ts'
 
 const props = defineProps<{ character: CharacterSheetView; disabled?: boolean; hidePreview?: boolean }>()
 const emit = defineEmits<{ create: [payload: CharacterCreationPayload]; 'back-to-sheet': [] }>()
-const creation = props.character.creation
 const stepNames = ['Имя', 'Раса', 'Подраса', 'Класс', 'Характеристики', 'Навыки', 'Снаряжение', 'Готово']
 const stepDescriptions = [
   'Дайте герою имя и задайте его первое впечатление.',
@@ -40,27 +39,28 @@ const modernStepDescriptions = [
 function stepLabel(index: number) { return ruleset.value === '2024' ? modernStepNames[index] ?? '' : stepNames[index] ?? '' }
 function stepDescription(index: number) { return ruleset.value === '2024' ? modernStepDescriptions[index] ?? '' : stepDescriptions[index] ?? '' }
 const currentStep = ref(1)
-const ruleset = ref<CharacterRuleset>(creation?.ruleset ?? (props.character.creation ? props.character.ruleset : '2024'))
+// Character creation is always a new draft. The sheet remains available for
+// preview and skill metadata, but its saved choices must never prefill this flow.
+const ruleset = ref<CharacterRuleset>('2024')
 const highestUnlockedStep = ref(1)
 const completed = ref(false)
 const initialRuleset = ruleset.value
-const raceId = ref(creation?.speciesId ?? creation?.raceId ?? (initialRuleset === '2024' ? RULES_2024_SPECIES[0]!.id : DND5E_RACES[0]!.id))
-const subraceId = ref(creation?.subraceId ?? subracesForRace(raceId.value)[0]?.id ?? '')
-const classId = ref(creation?.classId ?? (initialRuleset === '2024' ? RULES_2024_CLASSES[0]!.id : DND5E_CLASSES[DND5E_CLASSES.length - 1]!.id))
+const raceId = ref(RULES_2024_SPECIES[0]!.id)
+const subraceId = ref('')
+const classId = ref(RULES_2024_CLASSES[0]!.id)
 // Background remains part of the saved model for old sheets, but the new wizard lets players choose skills directly.
 const backgroundId = ref('')
-const speciesChoices = ref<Record<string, string[]>>(creation?.speciesChoices ? JSON.parse(JSON.stringify(creation.speciesChoices)) as Record<string, string[]> : {})
-const name = ref(props.character.name)
-const gender = ref<CharacterGender>(creation?.gender ?? 'female')
-const subclass = ref(props.character.subclass)
-const alignment = ref(props.character.alignment)
+const speciesChoices = ref<Record<string, string[]>>({})
+const name = ref('')
+const gender = ref<CharacterGender>('female')
+const subclass = ref('')
+const alignment = ref('')
 const initialClass = initialRuleset === '2024' ? classAsLegacy(classId.value) : findClass(classId.value)
-const initialRace = initialRuleset === '2024' ? speciesAsLegacy(raceId.value) : findRace(raceId.value)
-const selectedSkillIds = ref<string[]>([...new Set(creation?.classSkillIds ?? [])].filter((id) => initialClass.skillOptions.includes(id)).slice(0, initialClass.skillChoiceCount))
-const raceSkillChoices = ref<string[]>([...new Set(creation?.raceSkillIds ?? [])].filter((id) => initialRace.skillChoices?.options.includes(id)).slice(0, initialRace.skillChoices?.count ?? 0))
-const raceAbilityChoices = ref<AbilityKey[]>(creation?.raceAbilityChoices ? [...creation.raceAbilityChoices] : [])
-const baseAbilities = reactive<CharacterAbilities>({ ...(creation?.baseAbilityScores ?? props.character.abilities) })
-const classEquipmentId = ref(creation?.classEquipmentId ?? initialClass.equipmentOptions?.[0]?.id ?? '')
+const selectedSkillIds = ref<string[]>([])
+const raceSkillChoices = ref<string[]>([])
+const raceAbilityChoices = ref<AbilityKey[]>([])
+const baseAbilities = reactive<CharacterAbilities>({ strength: 10, dexterity: 10, constitution: 10, intelligence: 10, wisdom: 10, charisma: 10 })
+const classEquipmentId = ref(initialClass.equipmentOptions?.[0]?.id ?? '')
 
 function speciesAsLegacy(id: string): Dnd5eRaceOption {
   const species = findSpecies2024(id)
@@ -309,11 +309,12 @@ function applyCreation() {
             </template>
 
             <template v-else-if="currentStep === 2">
+              <p v-if="ruleset === '2024'" class="creation-source-explainer creation-race-bonus-note">Бонусы характеристик задаются исходными значениями.</p>
               <div class="selection-grid race-selection-grid" role="group" :aria-label="ruleset === '2024' ? 'Выберите вид' : 'Выберите расу'">
                 <button v-for="race in raceOptions" :key="race.id" type="button" class="selection-card" :class="{ selected: raceId === race.id }" :aria-pressed="raceId === race.id" :disabled="disabled" @click="updateRace(race.id)">
                   <span class="selection-card-top"><span class="selection-sigil" aria-hidden="true">{{ race.label.slice(0, 1) }}</span><span v-if="raceId === race.id" class="selection-check" aria-label="Выбрано">✓</span></span>
                   <strong>{{ race.label }}</strong><span class="selection-description">{{ race.profile.size }} · скорость {{ race.profile.speed }} фт.</span><span v-if="ruleset === '2024' && race.id === selected2024Species.id" class="selection-description">{{ selected2024Species.description }}</span>
-                  <span class="selection-bonuses"><span v-for="bonus in raceBonusLines(race.id)" :key="bonus">{{ bonus }}</span></span>
+                  <span v-if="ruleset !== '2024'" class="selection-bonuses"><span v-for="bonus in raceBonusLines(race.id)" :key="bonus">{{ bonus }}</span></span>
                   <span class="selection-traits">Особенности: {{ race.profile.traits.join(' · ') }}</span>
                   <span v-if="ruleset === '2024' && race.id === selected2024Species.id" class="selection-origin">Языки: {{ selected2024Species.languages.join(', ') || 'не указаны' }}</span>
                   <span v-if="race.skillProficiencies?.length" class="selection-origin">Владение: {{ race.skillProficiencies.map((id) => skillLabels[id] ?? id).join(', ') }}</span>
@@ -347,7 +348,7 @@ function applyCreation() {
 
             <template v-else-if="currentStep === 5">
               <div class="creation-source-hint"><span class="source-dot race-dot"></span><span>Выберите исходные значения характеристик. Навыки выбираются напрямую на следующем шаге.</span></div>
-              <div class="creator-abilities creation-ability-grid"><article v-for="field in ABILITY_FIELDS" :key="field.key" class="creation-ability-card" :class="{ 'has-racial-bonus': finalAbility(field.key) !== baseAbilities[field.key] }"><CInput type="number" min="1" max="30" step="1" :label="field.label" :disabled="disabled" :model-value="baseAbilities[field.key]" @update:model-value="updateAbility(field.key, $event)" /><div class="ability-result"><span>Итог <b>{{ finalAbility(field.key) }}</b></span><strong>{{ signedModifier(abilityModifier(finalAbility(field.key))) }}</strong></div><span v-if="finalAbility(field.key) !== baseAbilities[field.key]" class="ability-source">{{ ruleset === '2024' ? 'Предыстория' : 'Раса / подраса' }} {{ signedModifier(finalAbility(field.key) - baseAbilities[field.key]) }}</span><span v-else class="ability-source">Без бонуса происхождения</span></article></div>
+              <div class="creator-abilities creation-ability-grid"><article v-for="field in ABILITY_FIELDS" :key="field.key" class="creation-ability-card" :class="{ 'has-racial-bonus': finalAbility(field.key) !== baseAbilities[field.key], 'creation-ability-card-modern': ruleset === '2024' }"><div class="creation-ability-input-row"><CInput type="number" min="1" max="30" step="1" :label="field.label" :disabled="disabled" :model-value="baseAbilities[field.key]" @update:model-value="updateAbility(field.key, $event)" /><strong v-if="ruleset === '2024'" class="ability-modifier-inline">{{ signedModifier(abilityModifier(finalAbility(field.key))) }}</strong></div><div v-if="ruleset !== '2024'" class="ability-result"><span>Итог <b>{{ finalAbility(field.key) }}</b></span><strong>{{ signedModifier(abilityModifier(finalAbility(field.key))) }}</strong></div><span v-if="ruleset !== '2024' && finalAbility(field.key) !== baseAbilities[field.key]" class="ability-source">Раса / подраса {{ signedModifier(finalAbility(field.key) - baseAbilities[field.key]) }}</span><span v-else-if="ruleset !== '2024'" class="ability-source">Без бонуса происхождения</span></article></div>
             </template>
 
             <template v-else-if="currentStep === 6">
