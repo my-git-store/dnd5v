@@ -12,7 +12,7 @@ import type { CharacterCreationPayload } from '../domain/characterCreation.ts'
 import type { CharacterSheetView } from '../types/characterView.ts'
 import { classIconFor } from '../data/classIcons.ts'
 
-const props = defineProps<{ character: CharacterSheetView; disabled?: boolean; hidePreview?: boolean }>()
+const props = defineProps<{ character: CharacterSheetView; disabled?: boolean; hidePreview?: boolean; creationError?: string | null }>()
 const emit = defineEmits<{ create: [payload: CharacterCreationPayload]; 'back-to-sheet': [] }>()
 const stepNames = ['Имя', 'Раса', 'Подраса', 'Класс', 'Характеристики', 'Навыки', 'Снаряжение', 'Готово']
 const stepDescriptions = [
@@ -149,6 +149,7 @@ function updateRace(id: string) {
   raceAbilityChoices.value = selectedRace.value.abilityChoices?.options.slice(0, selectedRace.value.abilityChoices.count) ?? []
   raceSkillChoices.value = []
   speciesChoices.value = {}
+  highestUnlockedStep.value = Math.min(highestUnlockedStep.value, ruleset.value === '2024' && speciesChoiceIssue.value ? 2 : 3)
   completed.value = false
 }
 function updateClass(id: string) {
@@ -218,10 +219,12 @@ function updateRuleset(value: CharacterRuleset) {
   selectedSkillIds.value = []
   raceSkillChoices.value = []
   speciesChoices.value = {}
+  highestUnlockedStep.value = 1
   completed.value = false
 }
 function selectSpeciesChoice(choiceId: string, value: string) {
   speciesChoices.value = { ...speciesChoices.value, [choiceId]: [value] }
+  if (!speciesChoiceIssue.value) highestUnlockedStep.value = Math.max(highestUnlockedStep.value, 3)
   completed.value = false
 }
 function raceBonusLines(raceIdValue: string) {
@@ -287,7 +290,7 @@ function applyCreation() {
           <section :key="currentStep" class="sheet-section creation-step-panel" :aria-labelledby="`creation-step-title-${currentStep}`">
             <div class="creation-panel-heading"><div><p class="eyebrow">Этап {{ String(currentStep).padStart(2, '0') }}</p><h2 :id="`creation-step-title-${currentStep}`">{{ stepLabel(currentStep - 1) }}</h2><p class="section-note">{{ stepDescription(currentStep - 1) }}</p></div><span class="creation-rune" aria-hidden="true">{{ currentStep === 8 ? '✧' : '✦' }}</span></div>
 
-            <div v-if="stepIssue" class="creation-error" role="alert">{{ stepIssue }}</div>
+            <div v-if="stepIssue || props.creationError" class="creation-error" role="alert">{{ props.creationError || stepIssue }}</div>
 
             <template v-if="currentStep === 1">
               <div class="creator-grid creation-identity-fields">

@@ -440,6 +440,7 @@ body {
 .race-dot { background: #a67536; }
 .skill-step-summary { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
 .skill-step-summary span { padding: 6px 9px; border: 1px solid #ddceb1; border-radius: 999px; background: #fbf4e5; color: #796449; font-size: .72rem; }
+.skill-step-summary small { display: inline-block; margin-left: 5px; }
 .skill-step-summary b { color: #573d24; }
 .creation-skills-list { display: grid; gap: 6px; }
 .creation-skill-row { display: grid; grid-template-columns: minmax(120px, .8fr) minmax(120px, .9fr) minmax(110px, .8fr); align-items: center; gap: 9px; padding: 9px 10px; border: 1px solid transparent; border-bottom-color: #eadcc3; border-radius: 8px; transition: background .16s ease, border-color .16s ease; }
