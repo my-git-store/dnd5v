@@ -2,6 +2,8 @@ import type { AbilityKey } from '../../types/character.ts'
 import type { ClassDefinition, FeatureDefinition, FeatDefinition, RuleChoice, RuleFeatureMetadata, RulesetTaggedDefinition, SpellProgressionType } from '../../types/rules.ts'
 import type { Dnd5eEquipmentOption } from '../dnd5eOptions.ts'
 import { classIconFor, classIconVariantsFor } from '../classIcons.ts'
+import { BACKGROUND_ICON_PATHS } from '../backgroundIcons.ts'
+import { SPECIES_ICON_PATHS } from '../speciesIcons.ts'
 
 export interface Rules2024Species extends RulesetTaggedDefinition {
   ruleset: '2024'
@@ -12,6 +14,7 @@ export interface Rules2024Species extends RulesetTaggedDefinition {
   traits: string[]
   languages: string[]
   description: string
+  icon?: string
   choices: RuleChoice[]
 }
 
@@ -21,6 +24,7 @@ export interface Rules2024Background {
   name: string
   label: string
   description: string
+  icon?: string
   abilityOptions: AbilityKey[]
   skillProficiencies: string[]
   toolProficiencies: string[]
@@ -73,7 +77,7 @@ const backgroundAbilityChoice = (options: AbilityKey[]): RuleChoice => ({
 })
 
 function species(value: Omit<Rules2024Species, 'ruleset' | 'name' | 'choices'> & { choices?: RuleChoice[] }): Rules2024Species {
-  return { ...value, ruleset: '2024', name: value.label, choices: value.choices ?? [] }
+  return { ...value, icon: value.icon ?? SPECIES_ICON_PATHS[value.id as keyof typeof SPECIES_ICON_PATHS], ruleset: '2024', name: value.label, choices: value.choices ?? [] }
 }
 
 const kit = (id: string, label: string, items: Dnd5eEquipmentOption['items']): Dnd5eEquipmentOption => ({ id, label, items })
@@ -153,7 +157,11 @@ const RULES_2024_BACKGROUND_RECORDS: Rules2024BackgroundRecord[] = [
   { id: 'charlatan-2024', label: 'Шарлатан', description: 'Вы научились наживаться на доверчивых людях.', abilityOptions: ['dexterity', 'constitution', 'charisma'], skillProficiencies: ['deception', 'sleight-of-hand'], toolProficiencies: ['Набор для фальсификации'], languages: [], originFeatId: 'skilled', feature: 'Одарённый', equipmentOptions: backgroundEquipment('charlatan-kit-2024', 'Набор шарлатана', 'Набор для фальсификации') },
 ]
 
-export const RULES_2024_BACKGROUNDS: Rules2024Background[] = RULES_2024_BACKGROUND_RECORDS.map((value): Rules2024Background => ({ ...value, ruleset: '2024', name: value.label, choices: [backgroundAbilityChoice(value.abilityOptions)] }))
+function background(value: Rules2024BackgroundRecord): Rules2024Background {
+  return { ...value, icon: value.icon ?? BACKGROUND_ICON_PATHS[value.id as keyof typeof BACKGROUND_ICON_PATHS], ruleset: '2024', name: value.label, choices: [backgroundAbilityChoice(value.abilityOptions)] }
+}
+
+export const RULES_2024_BACKGROUNDS: Rules2024Background[] = RULES_2024_BACKGROUND_RECORDS.map(background)
 
 const allSkills = ['acrobatics', 'animal-handling', 'arcana', 'athletics', 'deception', 'history', 'insight', 'intimidation', 'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion', 'religion', 'sleight-of-hand', 'stealth', 'survival']
 const classDescriptions: Record<string, string> = {

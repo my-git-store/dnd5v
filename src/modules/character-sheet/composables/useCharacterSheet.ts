@@ -5,7 +5,7 @@ import { cloneCharacterView, type CharacterIdentityPatch, type CharacterSavingTh
 import type { CharacterCombatV3, CharacterInventoryItemV3, CharacterPersonalityV3, CharacterSpellcastingV3 } from '../types/characterV3'
 import { validateCharacter } from '../validation/characterValidation'
 import { applyCharacterCreation, type CharacterCreationPayload } from '../domain/characterCreation'
-import { progressionAtLevel } from '../domain/characterProgression'
+import { levelUpProgression, progressionAtLevel } from '../domain/characterProgression'
 
 export function useCharacterSheet(id = 'demo-character') {
   const adapter = createCharacterSheetAdapter()
@@ -123,6 +123,14 @@ export function useCharacterSheet(id = 'demo-character') {
     character.value.personality = { ...character.value.personality, biography: bio.biography, traits: bio.traits, features: bio.features }
     savedNotice.value = false
   }
+  function levelUp() {
+    if (!character.value?.progression) return
+    const nextLevel = character.value.level + 1
+    character.value.progression = levelUpProgression(character.value.progression, nextLevel, character.value.ruleset)
+    character.value.level = nextLevel
+    savedNotice.value = false
+    saveError.value = null
+  }
   function applyCreation(payload: CharacterCreationPayload) {
     if (!character.value) return
     character.value = applyCharacterCreation(character.value, payload)
@@ -141,5 +149,5 @@ export function useCharacterSheet(id = 'demo-character') {
   })
   onBeforeUnmount(() => { if (unloadHandler) window.removeEventListener('beforeunload', unloadHandler) })
 
-  return { character, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, updateInventory, updateMoney, updatePersonality, updateBio, applyCreation }
+  return { character, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, updateInventory, updateMoney, updatePersonality, updateBio, levelUp, applyCreation }
 }

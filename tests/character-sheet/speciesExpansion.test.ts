@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
 import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
 import { RULES_2024_SPECIES, isSpecies2024Id } from '../../src/modules/character-sheet/data/rules2024/index.ts'
+import { SPECIES_ICON_PATHS, speciesIconFor } from '../../src/modules/character-sheet/data/speciesIcons.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
 import { migrateCharacterToV3, migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
@@ -34,6 +35,16 @@ test('ships the ten 2024 species in one tagged format with fixed traits and choi
   }
   assert.equal(isSpecies2024Id('dragonborn'), true)
   assert.equal(isSpecies2024Id('not-a-species'), false)
+})
+
+test('resolves stable species icon paths while keeping unknown and legacy values safe', () => {
+  assert.deepEqual(Object.keys(SPECIES_ICON_PATHS), ['aasimar', 'dragonborn', 'dwarf', 'elf', 'gnome', 'goliath', 'halfling', 'human', 'orc', 'tiefling'])
+  for (const [id, path] of Object.entries(SPECIES_ICON_PATHS)) {
+    assert.equal(speciesIconFor(id), path)
+  }
+  assert.equal(speciesIconFor('Эльф'), SPECIES_ICON_PATHS.elf)
+  assert.equal(speciesIconFor('legacy-race'), undefined)
+  assert.ok(RULES_2024_SPECIES.every((species) => species.icon === SPECIES_ICON_PATHS[species.id as keyof typeof SPECIES_ICON_PATHS]))
 })
 
 test('applies a species choice and replaces it when the species changes', async () => {
@@ -93,7 +104,15 @@ test('keeps species, class and background source metadata through v3 adapter rou
   assert.deepEqual(validateCharacterV3(raw), [])
 
   const reloaded = await adapter.load(base.id)
+  assert.equal(reloaded.creation?.speciesId, 'elf')
   assert.deepEqual(reloaded.creation?.speciesChoices, { 'elven-lineage': ['Лесной эльф'] })
+})
+
+test('keeps a v3 character without presentation icon metadata valid', () => {
+  const legacy = migrateCharacterV2ToV3(createMockCharacter())
+  assert.equal(legacy.ruleset, '2014')
+  assert.equal((legacy.extensions.characterCreation as { icon?: string } | undefined)?.icon, undefined)
+  assert.deepEqual(validateCharacterV3(legacy), [])
 })
 
 test('rejects an unknown 2024 species id without changing the storage model', () => {

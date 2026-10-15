@@ -35,13 +35,15 @@ test('proficiency bonus follows the PHB level bands', () => {
   assert.equal(proficiencyBonus(21), null)
 })
 
-test('skill bonus preserves legacy manual value and computes proficiency modes', () => {
+test('skill bonus follows explicit manual mode and computed proficiency modes', () => {
   const legacySkill = { ability: 'strength' as const, proficiency: 'none' as const, value: 7 }
-  assert.equal(calculateSkillBonus(legacySkill, abilities, 1), 7)
-  assert.equal(calculateSkillBonus({ ...legacySkill, calculationMode: 'computed' }, abilities, 1), 3)
-  assert.equal(calculateSkillBonus({ ...legacySkill, proficiency: 'proficient', calculationMode: 'computed' }, abilities, 5), 6)
-  assert.equal(calculateSkillBonus({ ...legacySkill, proficiency: 'expertise', calculationMode: 'computed' }, abilities, 5), 9)
-  assert.equal(calculateSkillBonus({ ...legacySkill, ability: null, calculationMode: 'computed' }, abilities, 1), null)
+  assert.equal(calculateSkillBonus(legacySkill, abilities, 1), 3)
+  const manualSkill = { ...legacySkill, calculationMode: 'manual' as const }
+  assert.equal(calculateSkillBonus(manualSkill, abilities, 1), 7)
+  assert.equal(calculateSkillBonus({ ...manualSkill, calculationMode: 'computed' }, abilities, 1), 3)
+  assert.equal(calculateSkillBonus({ ...manualSkill, proficiency: 'proficient', calculationMode: 'computed' }, abilities, 5), 6)
+  assert.equal(calculateSkillBonus({ ...manualSkill, proficiency: 'expertise', calculationMode: 'computed' }, abilities, 5), 9)
+  assert.equal(calculateSkillBonus({ ...manualSkill, ability: null, calculationMode: 'computed' }, abilities, 1), null)
 })
 
 test('saving throw bonus adds proficiency only when enabled', () => {

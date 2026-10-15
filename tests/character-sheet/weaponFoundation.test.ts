@@ -22,7 +22,7 @@ test('publishes both weapon categories and the eight 2024 mastery definitions', 
   assert.ok(RULES_2024_WEAPONS.some((item) => item.category === 'ranged'))
   assert.ok(RULES_2024_WEAPONS.every((item) => item.ruleset === '2024' && item.name && item.damage && item.damageType && Array.isArray(item.properties) && item.mastery && getRules2024WeaponMastery(item.mastery)))
   assert.equal(getRules2024Weapon('longsword')?.mastery, 'sap')
-  assert.equal(getRules2024WeaponMastery('topple')?.name, 'Topple')
+  assert.equal(getRules2024WeaponMastery('topple')?.id, 'topple')
 })
 
 test('class metadata exposes weapon proficiencies without adding mastery choices', () => {

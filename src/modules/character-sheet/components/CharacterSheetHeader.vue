@@ -11,6 +11,7 @@ defineProps<{
   saveError: string | null
   name: string
   race: string
+  speciesIcon?: string
   className: string
   classIcon?: string
   ruleset: CharacterRuleset
@@ -18,6 +19,10 @@ defineProps<{
   experience: number
 }>()
 const emit = defineEmits<{ save: []; 'open-details': [] }>()
+function hideBrokenAsset(event: Event) {
+  const image = event.currentTarget as HTMLImageElement | null
+  if (image) image.hidden = true
+}
 </script>
 <template>
   <header class="sheet-header">
@@ -25,7 +30,7 @@ const emit = defineEmits<{ save: []; 'open-details': [] }>()
       <p class="eyebrow">Nastolka · Лист персонажа D&amp;D 5e</p>
       <h1 class="sheet-character-name">{{ name || 'Безымянный герой' }}</h1>
       <dl class="header-summary">
-        <div><dt>Раса</dt><dd>{{ race || 'Не заполнено' }}</dd></div>
+        <div class="header-species-entry"><dt>Раса</dt><dd class="header-species-value"><span class="species-avatar" aria-hidden="true"><span>{{ race?.slice(0, 1) || '✦' }}</span><img v-if="speciesIcon" :src="speciesIcon" class="species-avatar-image" alt="" @error="hideBrokenAsset" /></span><span>{{ race || 'Не заполнено' }}</span></dd></div>
         <div class="header-class-entry"><dt>Класс</dt><dd class="header-class-value"><span class="class-avatar" aria-hidden="true"><img v-if="classIcon" :src="classIcon" class="class-avatar-image" alt="" /><span v-else>{{ className?.slice(0, 1) || '✦' }}</span></span><span>{{ className || 'Не заполнено' }}</span></dd></div>
         <div><dt>Уровень</dt><dd>{{ level }}</dd></div>
         <div><dt>Опыт</dt><dd>{{ experience }}</dd></div>

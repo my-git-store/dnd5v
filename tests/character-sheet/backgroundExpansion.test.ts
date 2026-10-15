@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
 import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { BACKGROUND_ICON_PATHS, backgroundIconFor } from '../../src/modules/character-sheet/data/backgroundIcons.ts'
 import { RULES_2024_BACKGROUNDS, findRules2024Background, findRules2024Feat, isBackground2024Id } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
@@ -48,6 +49,17 @@ test('provides tagged 2024 backgrounds with choices, feat previews and equipment
     assert.equal(background.choices[0]?.maxSelections, 3)
   }
   assert.equal(isBackground2024Id('missing-background'), false)
+})
+
+test('resolves stable background icon paths and keeps missing assets on the fallback path', () => {
+  assert.equal(Object.keys(BACKGROUND_ICON_PATHS).length, RULES_2024_BACKGROUNDS.length)
+  for (const background of RULES_2024_BACKGROUNDS) {
+    assert.equal(background.icon, BACKGROUND_ICON_PATHS[background.id as keyof typeof BACKGROUND_ICON_PATHS])
+    assert.equal(backgroundIconFor(background.id), background.icon)
+  }
+  assert.equal(backgroundIconFor('sage'), BACKGROUND_ICON_PATHS['sage-2024'])
+  assert.equal(backgroundIconFor('Мудрец'), BACKGROUND_ICON_PATHS['sage-2024'])
+  assert.equal(backgroundIconFor('legacy-background'), undefined)
 })
 
 test('switches background bonuses and skill sources without stacking or losing class proficiency', async () => {

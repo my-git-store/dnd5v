@@ -14,6 +14,7 @@ import { useCharacterSheet } from './composables/useCharacterSheet'
 import type { AbilityKey } from './types/character'
 import type { CharacterIdentityPatch } from './types/characterView'
 import { classIconFor } from './data/classIcons.ts'
+import { speciesIconFor } from './data/speciesIcons.ts'
 import './styles/character-sheet.css'
 
 const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }] as const
@@ -48,6 +49,7 @@ function openIdentityModal() {
   open({ component: CharacterIdentityModal, componentProps: { character: sheet.character.value, disabled: sheet.isSaving.value, onUpdate: updateIdentity } })
 }
 const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.creation?.classId ?? sheet.character.value?.class ?? '', sheet.character.value?.creation?.gender ?? 'female'))
+const selectedSpeciesIcon = computed(() => sheet.character.value?.ruleset === '2024' ? speciesIconFor(sheet.character.value.creation?.speciesId ?? sheet.character.value.race.name) : undefined)
 </script>
 <template>
   <main class="character-sheet" :class="{ 'character-sheet-creation-mode': creationOpen }">
@@ -59,7 +61,7 @@ const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.cre
       </section>
       <template v-else>
         <CharacterSheetHeader :name="sheet.character.value.name"
-          :race="sheet.character.value.race.name" :class-name="sheet.character.value.class" :class-icon="selectedClassIcon"
+          :race="sheet.character.value.race.name" :species-icon="selectedSpeciesIcon" :class-name="sheet.character.value.class" :class-icon="selectedClassIcon"
           :ruleset="sheet.character.value.ruleset"
           :level="sheet.character.value.level" :experience="sheet.character.value.experience"
           :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"
@@ -72,7 +74,7 @@ const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.cre
           <div v-show="activeTab === 'main'" class="sheet-tab-panel" :class="tabPanelClass('main')">
             <CharacterMainTab :character="sheet.character.value"
               :disabled="sheet.isSaving.value" @update:saving-throw="sheet.updateSavingThrow"
-              @update:ability="updateAbility" @update:skill="sheet.updateSkill" />
+              @update:ability="updateAbility" @update:skill="sheet.updateSkill" @level-up="sheet.levelUp" />
           </div>
           <div v-show="activeTab === 'combat'" class="sheet-tab-panel" :class="tabPanelClass('combat')">
             <CharacterCombatTab :character="sheet.character.value" :disabled="sheet.isSaving.value"

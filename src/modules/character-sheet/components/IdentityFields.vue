@@ -7,6 +7,7 @@ import type { CharacterIdentityPatch, CharacterSheetView } from '../types/charac
 const props = defineProps<{ character: CharacterSheetView; disabled?: boolean; gender?: CharacterGender }>()
 const emit = defineEmits<{ update: [patch: CharacterIdentityPatch] }>()
 const selectedGender = computed(() => props.gender ?? props.character.creation?.gender ?? 'female')
+const genderLocked = computed(() => Boolean(props.character.creation))
 
 function update(key: keyof CharacterIdentityPatch, value: unknown) {
   if (key === 'gender') {
@@ -37,8 +38,8 @@ function update(key: keyof CharacterIdentityPatch, value: unknown) {
       <fieldset class="gender-choice identity-gender">
         <legend>Пол персонажа</legend>
         <div class="gender-choice-options" role="radiogroup" aria-label="Пол персонажа">
-          <button type="button" class="gender-choice-button" :class="{ selected: selectedGender === 'female' }" :aria-pressed="selectedGender === 'female'" :disabled="disabled" @click="update('gender', 'female')">Женский</button>
-          <button type="button" class="gender-choice-button" :class="{ selected: selectedGender === 'male' }" :aria-pressed="selectedGender === 'male'" :disabled="disabled" @click="update('gender', 'male')">Мужской</button>
+          <button type="button" class="gender-choice-button" :class="{ selected: selectedGender === 'female' }" :aria-pressed="selectedGender === 'female'" :disabled="disabled || genderLocked" :title="genderLocked ? 'Пол фиксируется после создания персонажа.' : undefined" @click="update('gender', 'female')">Женский</button>
+          <button type="button" class="gender-choice-button" :class="{ selected: selectedGender === 'male' }" :aria-pressed="selectedGender === 'male'" :disabled="disabled || genderLocked" :title="genderLocked ? 'Пол фиксируется после создания персонажа.' : undefined" @click="update('gender', 'male')">Мужской</button>
         </div>
       </fieldset>
     </div>
