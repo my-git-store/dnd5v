@@ -11,6 +11,7 @@ import CharacterBioTab from './components/CharacterBioTab.vue'
 import CharacterCreationTab from './components/CharacterCreationTab.vue'
 import CharacterIdentityModal from './components/CharacterIdentityModal.vue'
 import LevelUpModal from './components/LevelUpModal.vue'
+import TableComponentsShowcase from '../table-components/TableComponentsShowcase.vue'
 import { useCharacterSheet } from './composables/useCharacterSheet'
 import type { AbilityKey } from './types/character'
 import type { CharacterIdentityPatch } from './types/characterView'
@@ -19,7 +20,7 @@ import { speciesIconFor } from './data/speciesIcons.ts'
 import { backgroundIconFor } from './data/backgroundIcons.ts'
 import './styles/character-sheet.css'
 
-const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }] as const
+const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }, { name: 'Игровые компоненты', value: 'table-components' }] as const
 const activeTab = ref<string>('main')
 const tabDirection = ref<'forward' | 'backward'>('forward')
 const creationOpen = ref(false)
@@ -99,6 +100,9 @@ const selectedBackgroundIcon = computed(() => backgroundIconFor(sheet.character.
           <div v-show="activeTab === 'bio'" class="sheet-tab-panel" :class="tabPanelClass('bio')">
             <CharacterBioTab :personality="sheet.character.value.personality" :disabled="sheet.isSaving.value"
               @update="sheet.updatePersonality" />
+          </div>
+          <div v-show="activeTab === 'table-components'" class="sheet-tab-panel" :class="tabPanelClass('table-components')">
+            <TableComponentsShowcase />
           </div>
         </div>
       </template>
