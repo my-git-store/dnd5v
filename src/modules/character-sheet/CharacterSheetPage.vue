@@ -10,6 +10,7 @@ import CharacterInventoryTab from './components/CharacterInventoryTab.vue'
 import CharacterBioTab from './components/CharacterBioTab.vue'
 import CharacterCreationTab from './components/CharacterCreationTab.vue'
 import CharacterIdentityModal from './components/CharacterIdentityModal.vue'
+import LevelUpModal from './components/LevelUpModal.vue'
 import { useCharacterSheet } from './composables/useCharacterSheet'
 import type { AbilityKey } from './types/character'
 import type { CharacterIdentityPatch } from './types/characterView'
@@ -48,6 +49,10 @@ function openIdentityModal() {
   if (!sheet.character.value) return
   open({ component: CharacterIdentityModal, componentProps: { character: sheet.character.value, disabled: sheet.isSaving.value, onUpdate: updateIdentity } })
 }
+function openLevelUpModal() {
+  if (!sheet.character.value || sheet.character.value.level >= 20 || !sheet.character.value.progression?.classLevels.length) return
+  open({ component: LevelUpModal, componentProps: { character: sheet.character.value, disabled: sheet.isSaving.value, onConfirm: sheet.levelUp } })
+}
 const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.creation?.classId ?? sheet.character.value?.class ?? '', sheet.character.value?.creation?.gender ?? 'female'))
 const selectedSpeciesIcon = computed(() => sheet.character.value?.ruleset === '2024' ? speciesIconFor(sheet.character.value.creation?.speciesId ?? sheet.character.value.race.name) : undefined)
 </script>
@@ -74,7 +79,7 @@ const selectedSpeciesIcon = computed(() => sheet.character.value?.ruleset === '2
           <div v-show="activeTab === 'main'" class="sheet-tab-panel" :class="tabPanelClass('main')">
             <CharacterMainTab :character="sheet.character.value"
               :disabled="sheet.isSaving.value" @update:saving-throw="sheet.updateSavingThrow"
-              @update:ability="updateAbility" @update:skill="sheet.updateSkill" @level-up="sheet.levelUp" />
+              @update:ability="updateAbility" @update:skill="sheet.updateSkill" @level-up="openLevelUpModal" />
           </div>
           <div v-show="activeTab === 'combat'" class="sheet-tab-panel" :class="tabPanelClass('combat')">
             <CharacterCombatTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
