@@ -44,4 +44,3 @@ test('d100 face matches the exact domain result', () => {
   assert.equal(dieFaceLabel(100, 100), '100')
   assert.equal(dieFaceLabel(20, 20), '20')
 })
-

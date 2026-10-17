@@ -35,4 +35,3 @@ test('empty and removal flows remain safe', () => {
   assert.deepEqual(sortInitiative([]), [])
   assert.deepEqual(nextTurnIndex(0, 0), { index: -1, roundAdvanced: false })
 })
-
