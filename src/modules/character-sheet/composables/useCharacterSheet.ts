@@ -127,6 +127,7 @@ export function useCharacterSheet(id = 'demo-character') {
     if (!character.value?.progression) return
     const nextLevel = character.value.level + 1
     character.value.progression = levelUpProgression(character.value.progression, nextLevel, character.value.ruleset)
+    character.value.features = [...character.value.progression.features]
     character.value.level = nextLevel
     savedNotice.value = false
     saveError.value = null

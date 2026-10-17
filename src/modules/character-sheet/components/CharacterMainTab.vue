@@ -8,6 +8,8 @@ import type { CharacterSavingThrowPatch, CharacterSheetView, CharacterSkillPatch
 import { backgroundIconFor } from '../data/backgroundIcons.ts'
 import { getRules2024Class, getRules2024Feat, getRules2024Feature } from '../data/rules2024/index.ts'
 import { speciesIconFor } from '../data/speciesIcons.ts'
+import { availableChoicesForProgression } from '../domain/characterProgression.ts'
+import type { ChoiceDefinition } from '../types/rules.ts'
 
 defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
 const emit = defineEmits<{
@@ -49,6 +51,20 @@ function lastProgressionHistory(character: CharacterSheetView) {
   const history = character.progression?.history ?? []
   return history.length ? history[history.length - 1] : undefined
 }
+function nextProgressionChoices(character: CharacterSheetView): ChoiceDefinition[] {
+  if (!character.progression || !canLevelUp(character)) return []
+  return availableChoicesForProgression(character.progression, character.level + 1, character.ruleset)
+}
+function choiceOptionLabel(option: string) {
+  const labels: Record<string, string> = {
+    'ability-score-improvement': 'Улучшение характеристики',
+    feat: 'Черта',
+  }
+  return labels[option] ?? option
+}
+function choiceSource(choice: ChoiceDefinition) {
+  return choice.source.label ?? choice.source.id
+}
 </script>
 
 <template>
@@ -88,6 +104,15 @@ function lastProgressionHistory(character: CharacterSheetView) {
         <strong>Последнее повышение: {{ lastProgressionHistory(character)?.fromLevel }} → {{ lastProgressionHistory(character)?.toLevel }}</strong>
         <span v-if="lastProgressionHistory(character)?.gainedFeatures.length">Новые особенности добавлены в список ниже.</span>
         <span v-else>На этом уровне особенностей класса не добавлено.</span>
+      </div>
+      <div v-if="nextProgressionChoices(character).length" class="progression-choices" aria-labelledby="progression-choices-title">
+        <h3 id="progression-choices-title">Доступные choices на уровне {{ character.level + 1 }}</h3>
+        <article v-for="choice in nextProgressionChoices(character)" :key="choice.id" class="progression-choice-card">
+          <strong>{{ choice.name }}</strong>
+          <small>Источник: {{ choiceSource(choice) }}</small>
+          <p>Варианты: {{ choice.options.map(choiceOptionLabel).join(', ') }}</p>
+          <p class="progression-choice-warning">Информационное описание: текущая модель не поддерживает безопасное сохранение выбора, поэтому он не применяется автоматически.</p>
+        </article>
       </div>
     </section>
     <section v-if="character.creation || character.features?.length" class="sheet-section feature-summary">

@@ -54,6 +54,22 @@ test('ASI and feat choice metadata is available only at configured milestones', 
   assert.equal(availableChoicesForProgression(progression, 2, '2024').length, 0)
 })
 
+test('level-up preview exposes new choices without mutating the draft', () => {
+  const progression = fighterProgression(3)
+  const before = JSON.stringify(progression)
+  const preview = levelUpProgression({
+    ...progression,
+    classLevels: progression.classLevels.map((entry) => ({ ...entry })),
+    features: [...progression.features],
+    choices: Object.fromEntries(Object.entries(progression.choices).map(([key, values]) => [key, [...values]])),
+  }, 4, '2024')
+
+  assert.equal(JSON.stringify(progression), before)
+  assert.equal(preview.level, 4)
+  assert.deepEqual(availableChoicesForProgression(progression, 4, '2024')[0]?.options, ['ability-score-improvement', 'feat'])
+  assert.equal(preview.history?.at(-1)?.toLevel, 4)
+})
+
 test('duplicate feature references and invalid choice levels fail validation', () => {
   const duplicate = migrateCharacterV2ToV3(createMockCharacter())
   duplicate.ruleset = '2024'
