@@ -4,9 +4,9 @@ import { Icon } from '@iconify/vue';
 
 <template>
     <div class="relative h-full w-full flex items-center justify-center">
-        <div class="w-24 h-24 border-4 border-[#f5e6d3] rounded-full"></div>
-        <div class="w-24 h-24 border-t-4 border-[#8b7355] rounded-full absolute animate-spin-slow"></div>
-        <Icon icon="fa6-solid:chess-knight" class="text-2xl text-[#8b7355] absolute" />
+        <div class="w-32 h-32 border-4 border-[#f5e6d3] rounded-full"></div>
+        <div class="w-32 h-32 border-t-4 border-[#8b7355] rounded-full absolute animate-spin-slow"></div>
+        <Icon icon="fa6-solid:chess-knight" class="text-4xl text-[#8b7355] absolute" />
     </div>
 </template>
 

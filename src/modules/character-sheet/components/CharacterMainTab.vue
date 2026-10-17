@@ -42,7 +42,10 @@ function characterBackgroundIcon(character: CharacterSheetView) {
 }
 function hideBrokenAsset(event: Event) {
   const image = event.currentTarget as HTMLImageElement | null
-  if (image) image.hidden = true
+  if (image) {
+    image.hidden = true
+    image.parentElement?.querySelector<HTMLElement>('[data-asset-fallback]')?.removeAttribute('hidden')
+  }
 }
 function canLevelUp(character: CharacterSheetView) {
   return Boolean(character.progression && character.level < 20 && character.progression.classLevels.length)
@@ -78,8 +81,8 @@ function choiceSource(choice: ChoiceDefinition) {
         <span class="mode-tag mode-ready">D&amp;D 2024</span>
       </div>
       <div class="origin-summary-grid">
-        <div class="origin-species-entry"><span class="field-caption">Вид</span><strong class="origin-species-value"><span class="species-summary-icon" aria-hidden="true"><span>{{ (character.origin.species || character.race.name || '✦').slice(0, 1) }}</span><img v-if="characterSpeciesIcon(character)" :src="characterSpeciesIcon(character)" :alt="`Иконка вида «${character.origin.species || character.race.name}»`" @error="hideBrokenAsset" /></span><span>{{ character.origin.species || character.race.name || 'Не указан' }}</span></strong></div>
-        <div><span class="field-caption">Предыстория</span><strong class="origin-background-value"><span class="background-summary-icon" aria-hidden="true"><span>{{ (character.origin.background || character.background.name || '✦').slice(0, 1) }}</span><img v-if="characterBackgroundIcon(character)" :src="characterBackgroundIcon(character)" :alt="`Иконка предыстории «${character.origin.background || character.background.name}»`" @error="hideBrokenAsset" /></span><span>{{ character.origin.background || character.background.name || 'Не указана' }}</span></strong></div>
+        <div class="origin-species-entry"><span class="field-caption">Вид</span><strong class="origin-species-value"><span class="species-summary-icon" aria-hidden="true"><span data-asset-fallback :hidden="Boolean(characterSpeciesIcon(character))">{{ (character.origin.species || character.race.name || '✦').slice(0, 1) }}</span><img v-if="characterSpeciesIcon(character)" :src="characterSpeciesIcon(character)" :alt="`Иконка вида «${character.origin.species || character.race.name}»`" @error="hideBrokenAsset" /></span><span>{{ character.origin.species || character.race.name || 'Не указан' }}</span></strong></div>
+        <div><span class="field-caption">Предыстория</span><strong class="origin-background-value"><span class="background-summary-icon" aria-hidden="true"><span data-asset-fallback :hidden="Boolean(characterBackgroundIcon(character))">{{ (character.origin.background || character.background.name || '✦').slice(0, 1) }}</span><img v-if="characterBackgroundIcon(character)" :src="characterBackgroundIcon(character)" :alt="`Иконка предыстории «${character.origin.background || character.background.name}»`" @error="hideBrokenAsset" /></span><span>{{ character.origin.background || character.background.name || 'Не указана' }}</span></strong></div>
         <div><span class="field-caption">Происхожденческая черта</span><strong>{{ character.origin.originFeat || 'Не выбрана' }}</strong><small v-if="originFeatDetails(character)">{{ originFeatDetails(character)?.description }}</small></div>
         <div><span class="field-caption">Языки</span><strong>{{ character.origin.languages.join(', ') || 'Не указаны' }}</strong></div>
         <div><span class="field-caption">Инструменты</span><strong>{{ character.origin.tools.join(', ') || 'Не указаны' }}</strong></div>
@@ -90,7 +93,7 @@ function choiceSource(choice: ChoiceDefinition) {
       <SavingThrowFields :abilities="character.abilities" :saving-throws="character.savingThrows" :level="character.level" :disabled="disabled" @update="updateSavingThrow" />
       <SkillFields :skills="character.skills" :abilities="character.abilities" :level="character.level" :class-skill-ids="character.creation?.classSkillIds ?? []" :race-skill-ids="character.creation?.raceSkillIds ?? []" :background-skill-ids="character.creation?.backgroundSkillIds ?? character.background.skillProficiencies" :disabled="disabled" @update="updateSkill" />
     </div>
-    <section v-if="character.progression" class="sheet-section progression-summary" aria-labelledby="progression-summary-title">
+    <section v-if="character.progression?.classLevels?.length" class="sheet-section progression-summary" aria-labelledby="progression-summary-title">
       <div class="section-heading section-heading-stack">
         <div>
           <h2 id="progression-summary-title">Прогрессия</h2>

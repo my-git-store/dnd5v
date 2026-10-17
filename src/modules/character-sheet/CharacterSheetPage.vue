@@ -16,6 +16,7 @@ import type { AbilityKey } from './types/character'
 import type { CharacterIdentityPatch } from './types/characterView'
 import { classIconFor } from './data/classIcons.ts'
 import { speciesIconFor } from './data/speciesIcons.ts'
+import { backgroundIconFor } from './data/backgroundIcons.ts'
 import './styles/character-sheet.css'
 
 const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }] as const
@@ -55,6 +56,7 @@ function openLevelUpModal() {
 }
 const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.creation?.classId ?? sheet.character.value?.class ?? '', sheet.character.value?.creation?.gender ?? 'female'))
 const selectedSpeciesIcon = computed(() => sheet.character.value?.ruleset === '2024' ? speciesIconFor(sheet.character.value.creation?.speciesId ?? sheet.character.value.race.name) : undefined)
+const selectedBackgroundIcon = computed(() => backgroundIconFor(sheet.character.value?.creation?.backgroundId ?? sheet.character.value?.origin.background ?? sheet.character.value?.background.name))
 </script>
 <template>
   <main class="character-sheet" :class="{ 'character-sheet-creation-mode': creationOpen }">
@@ -67,6 +69,7 @@ const selectedSpeciesIcon = computed(() => sheet.character.value?.ruleset === '2
       <template v-else>
         <CharacterSheetHeader :name="sheet.character.value.name"
           :race="sheet.character.value.race.name" :species-icon="selectedSpeciesIcon" :class-name="sheet.character.value.class" :class-icon="selectedClassIcon"
+          :background-name="sheet.character.value.background.name || sheet.character.value.origin.background" :background-icon="selectedBackgroundIcon"
           :ruleset="sheet.character.value.ruleset"
           :level="sheet.character.value.level" :experience="sheet.character.value.experience"
           :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"

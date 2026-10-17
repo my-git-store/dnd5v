@@ -1,4 +1,4 @@
-import { createMockCharacter } from '../data/character.mock'
+import { createEmptyCharacter } from '../data/character.mock'
 import { cloneCharacter, type Character } from '../types/character'
 import { readStoredCharacter, writeStoredCharacter } from './characterStorage'
 import { assertValidCharacter } from '../validation/characterValidation'
@@ -18,7 +18,7 @@ export async function getMockCharacter(id: string): Promise<Character> {
   await delay(500)
   if (shouldFailFirstLoad()) throw new Error('Тестовая ошибка загрузки. Нажмите «Повторить».')
   const stored = readStoredCharacter(id)
-  return stored ? cloneCharacter(stored) : createMockCharacter()
+  return stored ? cloneCharacter(stored) : createEmptyCharacter()
 }
 
 export async function saveMockCharacter(character: Character): Promise<Character> {

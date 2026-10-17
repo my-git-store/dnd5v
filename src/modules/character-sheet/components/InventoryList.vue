@@ -53,7 +53,10 @@ function remove(id: string, name: string) {
         <div class="inventory-title"><div><h3>{{ item.name || 'Без названия' }}</h3><span v-if="item.source === 'creation'" class="inventory-source-badge">Стартовый набор</span><span v-if="item.weaponId && getRules2024Weapon(item.weaponId)" class="inventory-source-badge">Оружие: {{ getRules2024Weapon(item.weaponId)?.name }}</span></div><span v-if="item.equipped" class="mode-tag mode-equipped">Экипировано</span></div>
         <div class="inventory-facts"><span>Количество: {{ item.quantity }}</span><span v-if="item.weight !== null">Вес: {{ item.weight }}</span></div>
         <p v-if="item.properties.length" class="inventory-meta">{{ item.properties.join(' · ') }}</p>
-        <p v-if="item.description">{{ item.description }}</p>
+        <details v-if="item.description" class="inventory-description">
+          <summary>{{ item.description }}</summary>
+          <p>{{ item.description }}</p>
+        </details>
       </div>
       <EntryActions :disabled="disabled" @edit="openEditor(item)" @remove="remove(item.id, item.name)" />
     </div>

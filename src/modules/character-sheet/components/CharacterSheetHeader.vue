@@ -14,6 +14,8 @@ defineProps<{
   speciesIcon?: string
   className: string
   classIcon?: string
+  backgroundName: string
+  backgroundIcon?: string
   ruleset: CharacterRuleset
   level: number
   experience: number
@@ -21,17 +23,20 @@ defineProps<{
 const emit = defineEmits<{ save: []; 'open-details': [] }>()
 function hideBrokenAsset(event: Event) {
   const image = event.currentTarget as HTMLImageElement | null
-  if (image) image.hidden = true
+  if (image) {
+    image.hidden = true
+    image.parentElement?.querySelector<HTMLElement>('[data-asset-fallback]')?.removeAttribute('hidden')
+  }
 }
 </script>
 <template>
   <header class="sheet-header">
     <div>
-      <p class="eyebrow">Nastolka · Лист персонажа D&amp;D 5e</p>
       <h1 class="sheet-character-name">{{ name || 'Безымянный герой' }}</h1>
       <dl class="header-summary">
-        <div class="header-species-entry"><dt>Раса</dt><dd class="header-species-value"><span class="species-avatar" aria-hidden="true"><span>{{ race?.slice(0, 1) || '✦' }}</span><img v-if="speciesIcon" :src="speciesIcon" class="species-avatar-image" alt="" @error="hideBrokenAsset" /></span><span>{{ race || 'Не заполнено' }}</span></dd></div>
-        <div class="header-class-entry"><dt>Класс</dt><dd class="header-class-value"><span class="class-avatar" aria-hidden="true"><img v-if="classIcon" :src="classIcon" class="class-avatar-image" alt="" /><span v-else>{{ className?.slice(0, 1) || '✦' }}</span></span><span>{{ className || 'Не заполнено' }}</span></dd></div>
+        <div class="header-species-entry"><dt>Раса</dt><dd class="header-species-value"><span class="species-avatar" aria-hidden="true"><span data-asset-fallback :hidden="Boolean(speciesIcon)">{{ race?.slice(0, 1) || '✦' }}</span><img v-if="speciesIcon" :src="speciesIcon" class="species-avatar-image" alt="" @error="hideBrokenAsset" /></span><span>{{ race || 'Не заполнено' }}</span></dd></div>
+        <div class="header-class-entry"><dt>Класс</dt><dd class="header-class-value"><span class="class-avatar" aria-hidden="true"><span data-asset-fallback :hidden="Boolean(classIcon)">{{ className?.slice(0, 1) || '✦' }}</span><img v-if="classIcon" :src="classIcon" class="class-avatar-image" alt="" @error="hideBrokenAsset" /></span><span>{{ className || 'Не выбран' }}</span></dd></div>
+        <div class="header-background-entry"><dt>Предыстория</dt><dd class="header-background-value"><span class="background-avatar" aria-hidden="true"><span data-asset-fallback :hidden="Boolean(backgroundIcon)">{{ backgroundName?.slice(0, 1) || '✦' }}</span><img v-if="backgroundIcon" :src="backgroundIcon" class="background-avatar-image" alt="" @error="hideBrokenAsset" /></span><span>{{ backgroundName || 'Не выбрана' }}</span></dd></div>
         <div><dt>Уровень</dt><dd>{{ level }}</dd></div>
         <div><dt>Опыт</dt><dd>{{ experience }}</dd></div>
         <div><dt>Бонус владения</dt><dd>{{ proficiencyBonus(level) === null ? '—' : signedModifier(proficiencyBonus(level)!) }}</dd></div>

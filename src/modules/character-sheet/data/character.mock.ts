@@ -20,3 +20,24 @@ export function createMockCharacter(): Character {
     bio: { biography: 'Ученица академии, ищущая забытые руины.', traits: 'Любит задавать вопросы.', features: 'Тёмное зрение; владение простым оружием.' },
   }
 }
+
+/** Empty valid legacy payload used for a first visit before character creation. */
+export function createEmptyCharacter(): Character {
+  return {
+    id: 'demo-character',
+    schemaVersion: 2,
+    name: 'Новый персонаж',
+    class: '',
+    level: 1,
+    experience: 0,
+    armorClass: 10,
+    abilities: { strength: 10, dexterity: 10, constitution: 10, intelligence: 10, wisdom: 10, charisma: 10 },
+    skills: DEFAULT_SKILLS.map((skill) => ({ ...skill })),
+    attacks: [],
+    cantrips: [],
+    spells: [],
+    inventory: [],
+    money: { copper: 0, silver: 0, electrum: 0, gold: 0, platinum: 0 },
+    bio: { biography: '', traits: '', features: '' },
+  }
+}
