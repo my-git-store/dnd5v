@@ -23,7 +23,7 @@ function remove(id: string, name: string) { openConfirmModal({ text: `удали
     <div class="section-heading"><div><h2>Черты персонажа</h2><p class="section-note">Пользовательские записи без автоматического применения эффектов.</p></div><CBtn color-type="accent" :disabled="disabled" @click="add">Добавить</CBtn></div>
     <EmptyCollection v-if="feats.length === 0" text="Черты пока не добавлены." />
     <div v-for="feat in feats" :key="feat.id" class="entry-card feat-entry-card">
-      <div class="feat-entry-content"><h3>{{ feat.name || 'Без названия' }}</h3><p v-if="feat.description">{{ feat.description }}</p></div>
+      <div class="feat-entry-content"><h3>{{ feat.name || 'Без названия' }}</h3></div>
       <EntryActions :disabled="disabled" @edit="openEditor(feat)" @remove="remove(feat.id, feat.name)" />
     </div>
   </section>
