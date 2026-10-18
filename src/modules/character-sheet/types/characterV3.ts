@@ -178,6 +178,13 @@ export interface CharacterPersonalityV3 {
   features: string
 }
 
+/** User-authored character feats. These entries are descriptive only and never apply rules effects. */
+export interface CharacterFeatV3 {
+  id: string
+  name: string
+  description: string
+}
+
 export interface CharacterCreationV3 {
   ruleset?: CharacterRuleset
   /** Optional presentation choice; omitted by old records and treated as female. */
@@ -234,6 +241,8 @@ export interface CharacterV3 {
   inventory: CharacterInventoryV3
   personality: CharacterPersonalityV3
   origin: CharacterOriginV3
+  /** Optional user-authored feats; absent on older records and treated as an empty list. */
+  feats?: CharacterFeatV3[]
   /** Canonical feature references; descriptions and levels resolve from the rules catalog. */
   features?: string[]
   /** Optional additive foundation; absent on older v3 records and filled with safe defaults at runtime. */

@@ -267,6 +267,9 @@ function normalizeCharacterV3(value: Record<string, unknown>): CharacterV3 {
   if (next.progression && isStringArray(next.features)) {
     next.progression = normalizeProgression({ ...next.progression, features: [...next.features] }, next.ruleset)
   }
+  if (Array.isArray(value.feats)) {
+    next.feats = value.feats.filter((feat): feat is { id: string; name: string; description: string } => isRecord(feat) && isString(feat.id) && isString(feat.name) && isString(feat.description)).map((feat) => ({ id: feat.id, name: feat.name, description: feat.description }))
+  }
   return next
 }
 

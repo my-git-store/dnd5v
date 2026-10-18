@@ -306,6 +306,7 @@ export function validateCharacterV3(value: unknown): string[] {
   if (!validInventory(value.inventory, value.ruleset)) errors.push('Некорректный инвентарь.')
   if (value.progression !== undefined && !validProgression(value.progression, value.ruleset)) errors.push('Некорректная progression-секция.')
   if (value.features !== undefined && (!isStringArray(value.features) || new Set(value.features).size !== value.features.length || (value.ruleset === '2024' && !value.features.every((id) => isRules2024FeatureId(id))))) errors.push('Некорректные ссылки на особенности.')
+  if (value.feats !== undefined && (!Array.isArray(value.feats) || new Set(value.feats.map((feat) => isRecord(feat) ? feat.id : '')).size !== value.feats.length || !value.feats.every((feat) => isRecord(feat) && isString(feat.id) && feat.id.length > 0 && isString(feat.name) && isString(feat.description)))) errors.push('Некорректные черты персонажа.')
   const personality = value.personality
   if (!isRecord(personality) || !['traits', 'ideals', 'bonds', 'flaws', 'biography', 'features'].every((key) => isString(personality[key]))) errors.push('Некорректная personality-секция.')
   if (!isRecord(value.extensions)) errors.push('Некорректные extension-данные.')

@@ -3,6 +3,7 @@ import { CBtn } from '@/ui/components'
 import AbilityFields from './AbilityFields.vue'
 import SkillFields from './SkillFields.vue'
 import SavingThrowFields from './SavingThrowFields.vue'
+import CharacterFeatList from './CharacterFeatList.vue'
 import type { AbilityKey } from '../types/character'
 import type { CharacterSavingThrowPatch, CharacterSheetView, CharacterSkillPatch } from '../types/characterView'
 import { backgroundIconFor } from '../data/backgroundIcons.ts'
@@ -16,6 +17,7 @@ const emit = defineEmits<{
   'update:saving-throw': [key: AbilityKey, patch: CharacterSavingThrowPatch]
   'update:ability': [key: AbilityKey, value: number]
   'update:skill': [id: string, patch: CharacterSkillPatch]
+  'update:feats': [feats: CharacterSheetView['feats']]
   'level-up': []
 }>()
 function updateSavingThrow(key: AbilityKey, patch: CharacterSavingThrowPatch) { emit('update:saving-throw', key, patch) }
@@ -125,5 +127,6 @@ function choiceSource(choice: ChoiceDefinition) {
         <div><h3>{{ character.class || 'Класс' }}</h3><div v-if="character.features?.length" class="feature-reference-list"><article v-for="featureId in character.features" :key="featureId" class="feature-reference-card"><h4>{{ progressionFeatureName(featureId) }}</h4><p v-if="progressionFeature(featureId)">{{ progressionFeature(featureId)?.description }}</p><small v-if="progressionFeature(featureId)">Источник: {{ progressionFeatureSource(featureId) }} · Получено на {{ progressionFeature(featureId)?.level }} уровне</small></article></div><ul v-else class="feature-list"><li v-for="feature in character.creation?.classFeatures ?? []" :key="feature">{{ feature }}</li></ul></div>
       </div>
     </section>
+    <CharacterFeatList :feats="character.feats" :disabled="disabled" @update="emit('update:feats', $event)" />
   </div>
 </template>

@@ -2,7 +2,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { createCharacterSheetAdapter } from '../adapters/characterSheetAdapter'
 import { type AbilityKey, type CharacterBio, type CharacterDetails, type CharacterMoney, type CharacterSpell } from '../types/character'
 import { cloneCharacterView, type CharacterIdentityPatch, type CharacterSavingThrowPatch, type CharacterSheetView, type CharacterSkillPatch } from '../types/characterView'
-import type { CharacterCombatV3, CharacterInventoryItemV3, CharacterPersonalityV3, CharacterSpellcastingV3 } from '../types/characterV3'
+import type { CharacterCombatV3, CharacterFeatV3, CharacterInventoryItemV3, CharacterPersonalityV3, CharacterSpellcastingV3 } from '../types/characterV3'
 import { validateCharacter } from '../validation/characterValidation'
 import { applyCharacterCreation, type CharacterCreationPayload } from '../domain/characterCreation'
 import { levelUpProgression, progressionAtLevel } from '../domain/characterProgression'
@@ -117,6 +117,11 @@ export function useCharacterSheet(id = 'demo-character') {
     character.value.bio = { biography: personality.biography, traits: personality.traits, features: personality.features }
     savedNotice.value = false
   }
+  function updateFeats(feats: CharacterFeatV3[]) {
+    if (!character.value) return
+    character.value.feats = JSON.parse(JSON.stringify(feats)) as CharacterFeatV3[]
+    savedNotice.value = false
+  }
   function updateBio(bio: CharacterBio) {
     if (!character.value) return
     character.value.bio = { ...bio }
@@ -150,5 +155,5 @@ export function useCharacterSheet(id = 'demo-character') {
   })
   onBeforeUnmount(() => { if (unloadHandler) window.removeEventListener('beforeunload', unloadHandler) })
 
-  return { character, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, updateInventory, updateMoney, updatePersonality, updateBio, levelUp, applyCreation }
+  return { character, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
 }

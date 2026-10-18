@@ -83,7 +83,7 @@ const selectedBackgroundIcon = computed(() => backgroundIconFor(sheet.character.
           <div v-show="activeTab === 'main'" class="sheet-tab-panel" :class="tabPanelClass('main')">
             <CharacterMainTab :character="sheet.character.value"
               :disabled="sheet.isSaving.value" @update:saving-throw="sheet.updateSavingThrow"
-              @update:ability="updateAbility" @update:skill="sheet.updateSkill" @level-up="openLevelUpModal" />
+              @update:ability="updateAbility" @update:skill="sheet.updateSkill" @update:feats="sheet.updateFeats" @level-up="openLevelUpModal" />
           </div>
           <div v-show="activeTab === 'combat'" class="sheet-tab-panel" :class="tabPanelClass('combat')">
             <CharacterCombatTab :character="sheet.character.value" :disabled="sheet.isSaving.value"

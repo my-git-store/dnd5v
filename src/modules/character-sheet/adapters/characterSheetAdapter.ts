@@ -97,6 +97,7 @@ function toUiCharacter(value: CharacterV3): CharacterSheetView {
     money: clone(value.inventory.money),
     bio: { biography: value.personality.biography, traits: value.personality.traits, features: value.personality.features },
     personality: clone(value.personality),
+    feats: clone(value.feats ?? []),
     origin: clone(value.origin),
     features: clone(value.features ?? value.progression?.features ?? []),
     race: clone(value.identity.race),
@@ -210,6 +211,7 @@ function toV3(value: CharacterSheetView, base: CharacterV3): CharacterV3 {
   next.inventory.items = value.inventoryData.items.map((item) => mergeItem(item, base.inventory.items.find((stored) => stored.id === item.id)))
   next.inventory.money = mergeMoney(value, base)
   next.personality = mergePersonality(value, base)
+  next.feats = clone(value.feats ?? [])
   next.origin = clone(value.origin)
   next.savingThrows = clone(value.savingThrows)
   next.progression = normalizeProgression(progressionAtLevel(clone(value.progression ?? defaultProgressionForCharacter(base)), value.level), next.ruleset)

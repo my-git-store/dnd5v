@@ -222,6 +222,11 @@ body {
 .background-summary-icon { display: inline-grid; place-items: center; position: relative; flex: 0 0 36px; width: 36px; height: 36px; overflow: hidden; border: 1px solid #c4a474; border-radius: 50%; background: #f5e5c4; color: #704b25; font-family: var(--font-serif); font-size: .9rem; font-weight: 800; }
 .background-summary-icon img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center 38%; transform: translateY(-4%); }
 .feature-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.feats-section { margin-top: 18px; }
+.feat-entry-card { display: flex; align-items: flex-start; gap: 14px; }
+.feat-entry-content { min-width: 0; flex: 1; }
+.feat-entry-content h3 { margin: 0; color: var(--sheet-ink); font-size: 1rem; }
+.feat-entry-content p { max-width: 72ch; }
 .feature-summary-grid h3 { margin: 0 0 8px; }
 .choice-box { display: grid; gap: 7px; margin-top: 16px; padding: 12px; border: 1px dashed var(--sheet-line); border-radius: 10px; background: rgba(255,248,233,.55); }
 .choice-box strong { font-size: .85rem; }

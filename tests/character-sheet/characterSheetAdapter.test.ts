@@ -214,3 +214,24 @@ test('round-trips full inventory item metadata and personality fields', async ()
   assert.equal(saved.personality.flaws, 'Слишком любопытна.')
   assert.equal(saved.personality.features, 'Тёмное зрение.')
 })
+
+test('round-trips user-authored feats and keeps old records empty', async () => {
+  const storage = new MemoryStorage()
+  const source = createMockCharacter()
+  const v3 = migrateCharacterV2ToV3(source)
+  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(v3))
+  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
+  const empty = await adapter.load(source.id)
+  assert.deepEqual(empty.feats, [])
+  empty.feats.push({ id: 'feat-test', name: 'Наблюдатель', description: 'Замечает детали.' })
+  await adapter.save(empty)
+  const reloaded = await adapter.load(source.id)
+  assert.deepEqual(reloaded.feats, [{ id: 'feat-test', name: 'Наблюдатель', description: 'Замечает детали.' }])
+
+  reloaded.feats[0]!.description = 'Обновлённое описание.'
+  reloaded.feats = reloaded.feats.filter((feat) => feat.id !== 'missing')
+  await adapter.save(reloaded)
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as CharacterV3
+  assert.deepEqual(saved.feats, [{ id: 'feat-test', name: 'Наблюдатель', description: 'Обновлённое описание.' }])
+})
