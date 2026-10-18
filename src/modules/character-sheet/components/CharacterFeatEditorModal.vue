@@ -10,7 +10,7 @@ function cancel() { close() }
 </script>
 
 <template>
-  <CModal class="character-editor-modal" @close="cancel">
+  <CModal class="character-editor-modal character-feat-editor-modal" @close="cancel">
     <CCard class="character-editor-card">
       <template #title>Черта персонажа</template>
       <CharacterFeatEditor :feat="feat" :disabled="disabled" @save="save" @cancel="cancel" />

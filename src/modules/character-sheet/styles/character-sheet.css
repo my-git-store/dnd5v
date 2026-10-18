@@ -264,7 +264,7 @@ body {
 .combat-grid .field-card > .combat-result { display: flex; align-items: center; min-height: 1.8em; }
 .combat-grid .field-card > .c-input-wrapper,
 .combat-grid .field-card > .combat-subgrid { margin-top: auto; }
-.combat-result { margin: 0; color: var(--sheet-ink); font-size: 1.5rem; }
+.combat-result { margin: 0; color: var(--sheet-ink); font-size: 1.5rem; font-variant-numeric: tabular-nums; font-weight: 800; line-height: 1.15; }
 .combat-subgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .mode-tag { display: inline-block; width: fit-content; margin: 0; padding: 4px 8px; border: 1px solid var(--sheet-line); border-radius: 999px; background: #f7ead2; color: #6d4f31; font-size: .7rem; font-weight: 700; line-height: 1.2; }
 .mode-tag.mode-manual { border-color: #d6b173; background: #fff2d9; color: #78521d; }
@@ -288,10 +288,10 @@ body {
 .bio-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .bio-wide { grid-column: 1 / -1; }
 .saving-throws-grid { display: grid; gap: 10px; }
-.saving-throws-header { display: grid; grid-template-columns: minmax(145px, 1.35fr) minmax(92px, auto) minmax(102px, 112px) minmax(62px, 72px); gap: 10px; align-items: end; padding: 0 4px; color: var(--sheet-faded); font-size: .66rem; font-weight: 800; letter-spacing: .06em; text-align: right; text-transform: uppercase; }
+.saving-throws-header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(82px, auto) minmax(84px, 96px) minmax(72px, 96px); gap: 10px; align-items: end; padding: 0 4px; color: var(--sheet-faded); font-size: .66rem; font-weight: 800; letter-spacing: .06em; text-align: right; text-transform: uppercase; }
 .saving-throws-header span:nth-child(3), .saving-throws-header span:nth-child(4) { white-space: nowrap; }
 .skill-additional-bonus-field label { color: var(--sheet-muted); font-family: inherit; font-size: .72rem; font-weight: 600; line-height: 1.2; }
-.saving-throw-row { display: grid; grid-template-columns: minmax(100px, 1fr) auto 84px auto; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--sheet-line-soft); }
+.saving-throw-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(82px, auto) minmax(84px, 96px) minmax(72px, 96px); align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--sheet-line-soft); }
 .saving-throw-row:first-child { border-top: 0; }
 .field-caption, .skill-meta { display: block; margin: 3px 0 0; color: var(--sheet-muted); font-size: .75rem; }
 .check-control { display: inline-flex; align-items: center; gap: 8px; color: var(--sheet-muted); font-size: .9rem; white-space: nowrap; }
@@ -330,6 +330,8 @@ body {
 .editor-actions { justify-content: flex-end; grid-column: 1 / -1; }
 .empty-collection { margin: 6px 0 0; padding: 18px 14px; border: 1px dashed var(--sheet-line); border-radius: 10px; background: rgba(255, 248, 233, .52); color: var(--sheet-faded); font-size: .9rem; text-align: center; }
 .load-state { min-height: 460px; display: grid; place-items: center; padding: 24px; text-align: center; }
+.load-state-spinner { display: grid; place-items: center; width: clamp(136px, 18vw, 184px); height: clamp(136px, 18vw, 184px); }
+.load-state-spinner > * { width: 100%; height: 100%; }
 .error-state { gap: 12px; }
 
 .character-sheet .c-btn { min-height: 38px; padding: 9px 15px; border: 1px solid transparent; border-radius: 9px; font-weight: 700; box-shadow: 0 3px 8px rgba(83, 59, 38, .12); transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease; }
@@ -694,8 +696,9 @@ body {
   color: #806c53;
   font-size: .68rem;
   line-height: 1.35;
-  overflow-wrap: normal;
-  word-break: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .skill-source-inline.muted { color: #a08e76; }
 .skill-source-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
@@ -772,9 +775,10 @@ body {
 .attack-prof-tag { border-color: #c9abb0; background: #f7eaec; color: #78474d; }
 .attack-stat { display: grid; align-content: start; align-self: start; gap: 3px; min-width: 0; }
 .attack-stat > span { color: var(--sheet-faded); font-size: .65rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
-.attack-stat > strong { color: var(--sheet-ink); font-size: 1.06rem; overflow-wrap: anywhere; }
+.attack-stat > strong { color: var(--sheet-ink); font-size: 1.18rem; font-variant-numeric: tabular-nums; font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; }
 .attack-stat > small { color: var(--sheet-muted); font-size: .68rem; overflow-wrap: anywhere; }
 .attack-entry-details { display: flex; flex-wrap: wrap; gap: 5px 13px; margin: 10px 0 0 48px; color: var(--sheet-muted); font-size: .72rem; line-height: 1.4; }
+.attack-description-preview { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .attack-entry-details span + span::before { content: "·"; margin-right: 13px; color: #b39564; }
 .magic-intro-panel, .inventory-intro-panel { display: flex; align-items: center; gap: 14px; grid-column: 1 / -1; padding: 16px 19px; background: linear-gradient(135deg, rgba(255, 250, 239, .96), rgba(244, 226, 194, .76)); }
 .magic-intro-mark, .inventory-intro-mark { display: grid; place-items: center; flex: 0 0 42px; width: 42px; height: 42px; border: 1px solid #c6a56c; border-radius: 12px 12px 12px 3px; background: #fff3d8; color: #8c5e2b; font-size: 1.25rem; box-shadow: inset 0 0 0 3px rgba(255,255,255,.48); }
@@ -791,6 +795,7 @@ body {
 .spell-title h3, .inventory-title h3 { overflow-wrap: anywhere; }
 .spell-kind-badge, .inventory-source-badge { margin-top: 5px; border-color: #d7c39f; background: #fbf0d8; color: #805921; }
 .spell-entry-card p, .inventory-entry-card p { max-width: 72ch; }
+.spell-description-preview { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .spell-meta-line { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 7px; color: var(--sheet-muted); font-size: .74rem; }
 .spell-meta-line span { display: inline-flex; align-items: center; }
 .magic-spellbook-shell { grid-column: 1 / -1; }
@@ -1007,6 +1012,12 @@ body {
 .saving-throw-row > .c-flex-col { min-width: 0; max-width: 100%; }
 .saving-throw-row > .c-flex-col .c-input { width: 100%; min-width: 0; box-sizing: border-box; }
 
+/* Keep the shared headers and data rows on the same compact grid. */
+.saving-throws-header,
+.saving-throw-row { grid-template-columns: minmax(0, 1fr) minmax(82px, auto) minmax(84px, 96px) minmax(72px, 96px); }
+.saving-throws-header span:nth-child(3),
+.saving-throws-header span:nth-child(4) { justify-self: center; text-align: center; }
+
 @media (max-width: 560px) {
   .saving-throws-header { grid-template-columns: minmax(0, 1fr) minmax(64px, auto); grid-template-areas: "bonus result"; gap: 8px; padding: 0; text-align: left; }
   .saving-throws-header span:nth-child(1), .saving-throws-header span:nth-child(2) { display: none; }
@@ -1037,12 +1048,16 @@ body {
   white-space: nowrap;
 }
 
+/* The feat editor keeps its description readable without changing other editors. */
+.character-feat-editor-modal.c-modal { width: min(760px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto; }
+.character-feat-editor-modal .character-editor-card { max-width: 100%; box-sizing: border-box; }
+.character-feat-editor-modal .editor-actions { flex-wrap: wrap; }
+.character-feat-editor-modal .c-input-textarea { min-height: 180px; height: auto; line-height: 1.5; resize: vertical; white-space: pre-wrap; overflow-wrap: anywhere; }
+
 /* Keep the result badge inside the compact two-column sheet before the mobile layout takes over. */
 @media (min-width: 801px) and (max-width: 1100px) {
-  .saving-throw-row {
-    grid-template-columns: minmax(120px, 1fr) minmax(80px, auto) minmax(88px, 96px) minmax(96px, 104px);
-    gap: 6px;
-  }
+  .saving-throws-header,
+  .saving-throw-row { grid-template-columns: minmax(0, 1fr) minmax(82px, auto) minmax(84px, 96px) minmax(72px, 96px); gap: 6px; }
 }
 
 /* Keep compact numeric fields aligned when labels wrap at tablet widths. */

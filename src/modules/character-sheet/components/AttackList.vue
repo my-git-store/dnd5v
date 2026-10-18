@@ -57,7 +57,7 @@ function masteryLabel(attack: CharacterAttackView): string {
           <div class="attack-stat"><span>Урон</span><strong>{{ attack.damage || '—' }}</strong><small>{{ attack.damageType || 'Тип не указан' }}</small></div>
           <div class="attack-stat"><span>Дальность</span><strong>{{ attack.range || '—' }}</strong></div>
         </div>
-        <div class="attack-entry-details"><span>{{ attackSummary(attack).source }}</span><span v-if="attack.properties.length">{{ attack.properties.join(' · ') }}</span><span v-if="attack.description">{{ attack.description }}</span></div>
+        <div class="attack-entry-details"><span>{{ attackSummary(attack).source }}</span><span v-if="attack.properties.length">{{ attack.properties.join(' · ') }}</span><span v-if="attack.description" class="attack-description-preview" :title="attack.description">{{ attack.description }}</span></div>
       </div>
       <EntryActions :disabled="disabled" @edit="openEditor(attack)" @remove="remove(attack.id, attack.name)" />
     </div>

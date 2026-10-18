@@ -73,7 +73,7 @@ function togglePrepared(id: string, event: Event) {
       <div class="spell-entry-content">
         <div class="spell-title"><div><h3>{{ spell.name || 'Без названия' }}</h3><span class="spell-kind-badge">{{ cantrip ? 'Заговор' : `Уровень ${spell.level}` }}</span></div><label v-if="showPreparedFilter" class="prepared-toggle"><input type="checkbox" :checked="(preparedIds ?? []).includes(spell.id)" :disabled="disabled" @change="togglePrepared(spell.id, $event)"><span>Подготовлено</span></label></div>
         <div class="spell-meta-line"><span v-if="schoolLabel(spell)">Школа: {{ schoolLabel(spell) }}</span><span v-if="classLabel(spell)">Классы: {{ classLabel(spell) }}</span><span v-if="metadataLabel(spell)">{{ metadataLabel(spell) }}</span></div>
-        <p v-if="spell.description">{{ spell.description }}</p>
+        <p v-if="spell.description" class="spell-description-preview" :title="spell.description">{{ spell.description }}</p>
       </div>
       <EntryActions :disabled="disabled" @edit="openEditor(spell)" @remove="remove(spell.id, spell.name)" />
     </div>
