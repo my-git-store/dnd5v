@@ -81,10 +81,10 @@ onBeforeUnmount(cancelRoll)
   <section class="panel component-card dice-card" aria-labelledby="dice-title">
     <div class="section-heading">
       <div>
-        <p class="eyebrow">Local component</p>
-        <h2 id="dice-title">Dice Roller</h2>
+        <p class="eyebrow">Локальный компонент</p>
+        <h2 id="dice-title">Бросок кубиков</h2>
       </div>
-      <span class="state-chip" :class="{ 'state-chip-active': isRolling }">{{ isRolling ? 'Rolling' : 'Ready' }}</span>
+      <span class="state-chip" :class="{ 'state-chip-active': isRolling }">{{ isRolling ? 'Бросок…' : 'Готово' }}</span>
     </div>
 
     <div class="dice-visual-stage" :class="{ 'is-rolling-stage': isRolling }" aria-label="Визуальный бросок кости">

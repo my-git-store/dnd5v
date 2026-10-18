@@ -652,7 +652,9 @@ body {
 .ability-panel, .saving-throws-panel, .skills-panel { box-shadow: 0 8px 22px rgba(83, 59, 38, .06), inset 0 1px 0 rgba(255,255,255,.72); }
 .ability-panel .section-note, .saving-throws-panel .section-note, .skills-panel .section-note { max-width: 34rem; }
 .saving-throw-row { grid-template-columns: minmax(145px, 1.35fr) minmax(92px, auto) minmax(102px, 112px) minmax(62px, 72px); padding-right: 4px; }
-.saving-result { display: flex; align-items: center; justify-content: flex-end; gap: 7px; min-width: 0; padding: 0 7px 0 4px; }
+.saving-throw-row > .c-flex-col,
+.saving-result { align-self: end; }
+.saving-result { display: flex; align-items: center; justify-content: flex-end; gap: 7px; min-width: 0; min-height: 42px; padding: 0 7px 0 4px; }
 .saving-result-label { color: var(--sheet-faded); font-size: .66rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .saving-result .derived-value { min-width: 35px; color: var(--sheet-ink); font-size: 1rem; }
 .saving-result { min-width: 78px; padding: 6px 10px; border: 1px solid var(--sheet-line-soft); border-radius: 8px; background: rgba(255, 248, 231, .72); }
@@ -750,7 +752,7 @@ body {
 .combat-tab .sheet-section:not(.combat-intro-panel) { min-width: 0; }
 .attack-entry-card { display: flex; align-items: center; gap: 14px; }
 .attack-entry-content { min-width: 0; flex: 1; }
-.attack-entry-head { display: grid; grid-template-columns: minmax(220px, 1.6fr) minmax(70px, .55fr) minmax(100px, .8fr) minmax(90px, .7fr); align-items: center; gap: 14px; }
+.attack-entry-head { display: grid; grid-template-columns: minmax(220px, 1.6fr) minmax(70px, .55fr) minmax(100px, .8fr) minmax(90px, .7fr); align-items: start; gap: 14px; }
 .attack-title { align-items: center; flex-wrap: nowrap; gap: 10px; }
 .attack-kind-mark { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border: 1px solid #d3ba8c; border-radius: 10px 10px 10px 3px; background: #fff2d8; color: #7b4e27; font-size: 1.2rem; }
 .attack-title h3 { overflow-wrap: anywhere; }
@@ -759,7 +761,7 @@ body {
 .attack-mode-tag.manual { border-color: #d6b173; background: #fff2d9; color: #78521d; }
 .attack-mode-tag.computed { border-color: #a8c7a4; background: #edf5eb; color: #3f7049; }
 .attack-prof-tag { border-color: #c9abb0; background: #f7eaec; color: #78474d; }
-.attack-stat { display: grid; gap: 3px; min-width: 0; }
+.attack-stat { display: grid; align-content: start; align-self: start; gap: 3px; min-width: 0; }
 .attack-stat > span { color: var(--sheet-faded); font-size: .65rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
 .attack-stat > strong { color: var(--sheet-ink); font-size: 1.06rem; overflow-wrap: anywhere; }
 .attack-stat > small { color: var(--sheet-muted); font-size: .68rem; overflow-wrap: anywhere; }

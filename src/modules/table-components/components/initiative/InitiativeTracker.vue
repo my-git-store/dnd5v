@@ -50,8 +50,8 @@ function nextTurn() {
   <section class="panel component-card initiative-card" aria-labelledby="initiative-title">
     <div class="section-heading">
       <div>
-        <p class="eyebrow">Local component</p>
-        <h2 id="initiative-title">Initiative Tracker</h2>
+        <p class="eyebrow">Локальный компонент</p>
+        <h2 id="initiative-title">Трекер инициативы</h2>
       </div>
       <span class="round-chip">Раунд {{ round }}</span>
     </div>
