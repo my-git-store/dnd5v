@@ -84,7 +84,7 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
                 </select>
               </label>
               <CInput v-if="getSkillCalculationMode(skill) === 'manual'" type="number" :aria-label="`${skill.name}: бонус вручную`" label="Бонус вручную" :disabled="disabled" :model-value="skill.value" @update:model-value="updateValue(skill.id, $event)" />
-              <CInput v-else type="number" label="Дополнительная поправка" :disabled="disabled" :model-value="skill.additionalBonus" @update:model-value="updateAdditional(skill.id, $event)" />
+              <CInput v-else class="skill-additional-bonus-field" type="number" label="Дополнительная поправка" :disabled="disabled" :model-value="skill.additionalBonus" @update:model-value="updateAdditional(skill.id, $event)" />
             </div>
           </details>
         </div>

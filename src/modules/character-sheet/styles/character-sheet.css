@@ -272,6 +272,7 @@ body {
 .attack-meta, .inventory-meta { font-size: .78rem !important; }
 .attack-check, .inventory-check { align-self: end; min-height: 38px; }
 .spellcasting-grid { display: grid; grid-template-columns: 1.2fr repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.spellcasting-ability-field { gap: 8px; }
 .derived-card { display: grid; align-content: center; gap: 6px; }
 .spell-slots-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .spell-slot-card { display: grid; gap: 8px; }
@@ -283,6 +284,9 @@ body {
 .bio-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .bio-wide { grid-column: 1 / -1; }
 .saving-throws-grid { display: grid; gap: 10px; }
+.saving-throws-header { display: grid; grid-template-columns: minmax(145px, 1.35fr) minmax(92px, auto) minmax(102px, 112px) minmax(62px, 72px); gap: 10px; align-items: end; padding: 0 4px; color: var(--sheet-faded); font-size: .66rem; font-weight: 800; letter-spacing: .06em; text-align: right; text-transform: uppercase; }
+.saving-throws-header span:nth-child(3), .saving-throws-header span:nth-child(4) { white-space: nowrap; }
+.skill-additional-bonus-field label { color: var(--sheet-muted); font-family: inherit; font-size: .72rem; font-weight: 600; line-height: 1.2; }
 .saving-throw-row { display: grid; grid-template-columns: minmax(100px, 1fr) auto 84px auto; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--sheet-line-soft); }
 .saving-throw-row:first-child { border-top: 0; }
 .field-caption, .skill-meta { display: block; margin: 3px 0 0; color: var(--sheet-muted); font-size: .75rem; }
@@ -998,6 +1002,10 @@ body {
 .saving-throw-row > .c-flex-col .c-input { width: 100%; min-width: 0; box-sizing: border-box; }
 
 @media (max-width: 560px) {
+  .saving-throws-header { grid-template-columns: minmax(0, 1fr) minmax(64px, auto); grid-template-areas: "bonus result"; gap: 8px; padding: 0; text-align: left; }
+  .saving-throws-header span:nth-child(1), .saving-throws-header span:nth-child(2) { display: none; }
+  .saving-throws-header span:nth-child(3) { grid-area: bonus; }
+  .saving-throws-header span:nth-child(4) { grid-area: result; justify-self: end; }
   .saving-throw-row {
     grid-template-columns: minmax(0, 1fr) minmax(64px, auto);
     grid-template-areas: "title title" "check check" "bonus result";

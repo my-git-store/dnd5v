@@ -20,7 +20,7 @@ function updateAbility(value: string) {
   <section class="sheet-section spellcasting-summary">
     <div class="section-heading"><div><h2>Параметры заклинаний</h2><p class="section-note">Выберите характеристику — остальные значения будут рассчитаны автоматически.</p></div><div class="section-heading-badges"><span class="mode-tag mode-ready">{{ spellcasting.spellRuleset === '2024' ? 'D&amp;D 2024' : 'D&amp;D 2014' }}</span><span class="mode-tag" :class="spellcasting.spellcastingAbility ? 'mode-ready' : 'mode-unset'">{{ spellcasting.spellcastingAbility ? 'Настроено' : 'Не настроено' }}</span></div></div>
     <div class="spellcasting-grid">
-      <label class="compact-field">Характеристика заклинаний
+      <label class="compact-field spellcasting-ability-field">Характеристика заклинаний
         <select class="select-control" :value="spellcasting.spellcastingAbility ?? ''" :disabled="disabled" @change="updateAbility(($event.target as HTMLSelectElement).value)">
           <option value="">Не настроено</option><option v-for="field in ABILITY_FIELDS" :key="field.key" :value="field.key">{{ field.label }}</option>
         </select>

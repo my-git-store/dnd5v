@@ -33,10 +33,16 @@ function result(key: AbilityKey) {
       </div>
     </div>
     <div class="saving-throws-grid">
+      <div class="saving-throws-header" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span>Добавка</span>
+        <span>Итог</span>
+      </div>
       <div v-for="field in ABILITY_FIELDS" :key="field.key" class="saving-throw-row">
         <div><strong>{{ field.label }}</strong><span class="field-caption">Модификатор + владение + добавка</span></div>
         <label class="check-control"><input type="checkbox" :checked="savingThrows[field.key].proficient" :disabled="disabled" :aria-label="`${field.label}: владение`" @change="updateProficiency(field.key, $event)"><span>Владение</span></label>
-        <CInput type="number" step="1" label="Добавка" :disabled="disabled" :model-value="savingThrows[field.key].additionalBonus" @update:model-value="updateBonus(field.key, $event)" />
+        <CInput type="number" step="1" aria-label="Добавка" :disabled="disabled" :model-value="savingThrows[field.key].additionalBonus" @update:model-value="updateBonus(field.key, $event)" />
         <div class="saving-result"><span class="saving-result-label">Итог</span><strong class="derived-value">{{ result(field.key) === null ? '—' : signedModifier(result(field.key)!) }}</strong></div>
       </div>
     </div>
