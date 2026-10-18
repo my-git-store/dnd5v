@@ -64,7 +64,7 @@ The progression summary is hidden behind the existing feature flag while progres
 
 ## Browser smoke
 
-The available local tab at `http://127.0.0.1:5173/` was checked for the existing 2024 character. The accessible UI showed the identity summary, origin summary, aligned saving throws, skills and sources, class/species features, the empty feats section, combat values and attack headers, magic settings and spell slots, and inventory. The feat editor opened with draft fields and was cancelled; no feat was persisted by the smoke check. The progression summary was absent while the rest of the main sheet remained available.
+The available local tab at `http://127.0.0.1:5173/` was checked for the existing 2024 character. The accessible UI showed the identity summary, origin summary, aligned saving throws, skills and sources, class/species features, the empty feats section, combat values and attack headers, magic settings and spell slots, and inventory. The feat editor opened with draft fields and was cancelled; no feat was persisted by the smoke check. The progression summary was absent while the rest of the main sheet remained available. The demo components tab showed the Dice Roller and Initiative Tracker; selecting d4 changed the visual state, the roll entered its disabled rolling state, then landed with result `1` and a matching `d4 → 1` history entry. The tracker showed its current participant and next-turn action.
 
 Exact 1440/1024/800/430/375 viewport overrides and browser console capture were unavailable in this environment, so those checks are not claimed as completed. No browser runtime failure was observed in the accessible tab.
 
