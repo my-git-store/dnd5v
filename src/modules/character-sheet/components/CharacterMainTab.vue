@@ -10,6 +10,7 @@ import { backgroundIconFor } from '../data/backgroundIcons.ts'
 import { getRules2024Class, getRules2024Feat, getRules2024Feature } from '../data/rules2024/index.ts'
 import { speciesIconFor } from '../data/speciesIcons.ts'
 import { availableChoicesForProgression } from '../domain/characterProgression.ts'
+import { PROGRESSION_UI_ENABLED } from '../domain/progressionVisibility.ts'
 import type { ChoiceDefinition } from '../types/rules.ts'
 
 defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
@@ -95,7 +96,7 @@ function choiceSource(choice: ChoiceDefinition) {
       <SavingThrowFields :abilities="character.abilities" :saving-throws="character.savingThrows" :level="character.level" :disabled="disabled" @update="updateSavingThrow" />
       <SkillFields :skills="character.skills" :abilities="character.abilities" :level="character.level" :class-skill-ids="character.creation?.classSkillIds ?? []" :race-skill-ids="character.creation?.raceSkillIds ?? []" :background-skill-ids="character.creation?.backgroundSkillIds ?? character.background.skillProficiencies" :disabled="disabled" @update="updateSkill" />
     </div>
-    <section v-if="character.progression?.classLevels?.length" class="sheet-section progression-summary" aria-labelledby="progression-summary-title">
+    <section v-if="PROGRESSION_UI_ENABLED && character.progression?.classLevels?.length" class="sheet-section progression-summary" aria-labelledby="progression-summary-title">
       <div class="section-heading section-heading-stack">
         <div>
           <h2 id="progression-summary-title">Прогрессия</h2>

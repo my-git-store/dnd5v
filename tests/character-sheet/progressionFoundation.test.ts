@@ -9,6 +9,7 @@ import { createMockCharacter } from '../../src/modules/character-sheet/data/char
 import type { CharacterSheetView } from '../../src/modules/character-sheet/types/characterView.ts'
 import type { CharacterV3 } from '../../src/modules/character-sheet/types/characterV3.ts'
 import { validateCharacterV3 } from '../../src/modules/character-sheet/validation/characterV3Validation.ts'
+import { PROGRESSION_UI_ENABLED } from '../../src/modules/character-sheet/domain/progressionVisibility.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -39,6 +40,21 @@ test('old v3 characters receive a safe progression default without a schema bump
   assert.deepEqual(migrated.progression?.classLevels, [])
   assert.deepEqual(migrated.progression?.features, [])
   assert.deepEqual(validateCharacterV3(migrated), [])
+})
+
+test('progression UI is hidden without removing persisted progression data', async () => {
+  assert.equal(PROGRESSION_UI_ENABLED, false)
+  const storage = new MemoryStorage()
+  const character = migrateCharacterV2ToV3(createMockCharacter())
+  character.identity.level = 2
+  character.progression = { level: 2, classLevels: [{ classId: 'wizard', level: 2 }], features: ['wizard.level-1.1'], choices: {}, history: [{ fromLevel: 1, toLevel: 2, gainedFeatures: [], choices: {} }] }
+  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`, JSON.stringify(character))
+  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const view = await adapter.load(character.id)
+  await adapter.save(view)
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`)!) as CharacterV3
+  assert.deepEqual(saved.progression?.history, character.progression.history)
+  assert.equal(saved.progression?.level, 2)
 })
 
 test('2024 class selection stores references and choices without duplicating feature content', async () => {
