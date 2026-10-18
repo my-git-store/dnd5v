@@ -18,7 +18,7 @@ function onInput(key: AbilityKey, value: unknown) { const numberValue = Number(v
     <div class="ability-grid">
     <div v-for="field in ABILITY_FIELDS" :key="field.key" class="field-card">
       <CInput type="number" :label="field.label" :disabled="disabled" :model-value="abilities[field.key]" @update:model-value="onInput(field.key, $event)" />
-      <p class="modifier-caption" :title="'Модификатор = floor((значение - 10) / 2)'">Модификатор (расчёт): {{ signedModifier(abilityModifier(abilities[field.key])) }}</p>
+      <p class="modifier-caption" :title="'Модификатор = ⌊(значение − 10) / 2⌋'">Модификатор (расчёт): {{ signedModifier(abilityModifier(abilities[field.key])) }}</p>
     </div>
     </div>
   </section>

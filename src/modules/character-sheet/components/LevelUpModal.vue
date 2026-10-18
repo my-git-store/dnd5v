@@ -111,12 +111,12 @@ function confirmLevelUp() {
       </section>
 
       <section v-if="previewChoices.length" class="level-up-preview-section" aria-labelledby="level-up-choices-title">
-        <h3 id="level-up-choices-title">Доступные choices</h3>
+        <h3 id="level-up-choices-title">Доступные выборы</h3>
         <article v-for="choice in previewChoices" :key="choice.id" class="progression-choice-card">
           <strong>{{ choice.name }}</strong>
           <small>Источник: {{ choiceSource(choice) }}</small>
           <p>Варианты: {{ choice.options.map(choiceOptionLabel).join(', ') }}</p>
-          <p class="progression-choice-warning">Выбор пока не применяется: текущая модель хранит только metadata и не поддерживает безопасное сохранение этого выбора.</p>
+          <p class="progression-choice-warning">Выбор пока не применяется: текущая модель хранит только метаданные и не поддерживает безопасное сохранение этого выбора.</p>
         </article>
       </section>
 

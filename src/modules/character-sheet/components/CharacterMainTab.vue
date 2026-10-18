@@ -112,7 +112,7 @@ function choiceSource(choice: ChoiceDefinition) {
         <span v-else>На этом уровне особенностей класса не добавлено.</span>
       </div>
       <div v-if="nextProgressionChoices(character).length" class="progression-choices" aria-labelledby="progression-choices-title">
-        <h3 id="progression-choices-title">Доступные choices на уровне {{ character.level + 1 }}</h3>
+        <h3 id="progression-choices-title">Доступные выборы на уровне {{ character.level + 1 }}</h3>
         <article v-for="choice in nextProgressionChoices(character)" :key="choice.id" class="progression-choice-card">
           <strong>{{ choice.name }}</strong>
           <small>Источник: {{ choiceSource(choice) }}</small>

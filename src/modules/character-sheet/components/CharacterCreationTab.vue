@@ -407,7 +407,7 @@ function applyCreation() {
                 </button>
               </div>
               <div v-if="ruleset === '2024' && selected2024Species.choices.length" class="species-choice-panel">
-                <div class="creation-panel-heading"><div><p class="eyebrow">Наследие вида</p><h3>Выберите особенность</h3><p class="section-note">Выбор сохраняется как источник «Вид»; механика будет подключена отдельным rules layer.</p></div><span class="creation-rune" aria-hidden="true">✧</span></div>
+                <div class="creation-panel-heading"><div><p class="eyebrow">Наследие вида</p><h3>Выберите особенность</h3><p class="section-note">Выбор сохраняется как источник «Вид»; правила будут подключены отдельным слоем правил.</p></div><span class="creation-rune" aria-hidden="true">✧</span></div>
                 <div v-for="choice in selected2024Species.choices" :key="choice.id" class="species-choice-row">
                   <div><strong>{{ choice.label }}</strong><p class="section-note">{{ choice.description }}</p></div>
                   <label class="compact-field"><span class="sr-only">{{ choice.label }}</span><select class="select-control" :value="speciesChoices[choice.id]?.[0] ?? ''" :disabled="disabled" @change="selectSpeciesChoice(choice.id, ($event.target as HTMLSelectElement).value)"><option value="" disabled>Выберите вариант</option><option v-for="option in choice.options" :key="option" :value="option">{{ option }}</option></select></label>
