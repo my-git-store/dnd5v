@@ -59,7 +59,7 @@
 .table-components-showcase .rolling-die--rolling{ animation: table-components-die-tumble .78s cubic-bezier(.18,.75,.28,1) both; }
 .table-components-showcase .rolling-die--rolling .rolling-die-image{ animation: table-components-die-image-shimmer .78s ease-in-out both; }
 .table-components-showcase .rolling-die--rolling .rolling-die-type{ opacity: .62; }
-.table-components-showcase .die-stage-caption{ position: absolute; bottom: 14px; color: #806543; font-size: .76rem; font-weight: 700; }
+.table-components-showcase .die-stage-caption{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .table-components-showcase .dice-controls{ display: grid; grid-template-columns: auto minmax(90px, 1fr) auto; align-items: center; gap: 9px; margin-bottom: 16px; }
 .table-components-showcase .dice-controls label, .table-components-showcase .add-participant label span{ color: #6f5a42; font-size: .78rem; font-weight: 700; }
 .table-components-showcase select, .table-components-showcase input{ min-width: 0; padding: 9px 10px; color: #3f2c1d; background: #fffaf0; }
