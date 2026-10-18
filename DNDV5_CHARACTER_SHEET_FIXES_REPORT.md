@@ -77,7 +77,7 @@ The implementation is split into these commits:
 - `73ffb85 fix(dndv5): initialize hit points and spell slots`
 - `559638e chore(dndv5): hide progression ui`
 
-The branch was clean before this report. Initial push attempts from the restricted environment were blocked by its proxy connection to `github.com:443`; a final retry from the permitted network environment succeeded. `origin/feature/nastolka-demo-modules` now points to the report commit `ddaa5c9`. No force push or history rewrite was used.
+The branch was clean before this report. Initial push attempts from the restricted environment were blocked by its proxy connection to `github.com:443`; a final retry from the permitted network environment succeeded, and the remote branch was verified with `git ls-remote`. No force push or history rewrite was used.
 
 ## Remaining limitations
 
