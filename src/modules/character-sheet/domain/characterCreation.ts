@@ -4,6 +4,7 @@ import type { CharacterCreationV3, CharacterInventoryItemV3, CharacterRuleset, S
 import { combinedRaceBonuses, findBackground, findClass, findRace, findSubrace, raceProfile } from '../data/dnd5eOptions.ts'
 import { applyCharacterCreation2024 } from './characterCreation2024.ts'
 import { progressionAfterCreation, progressionForClass } from './characterProgression.ts'
+import { initializeCharacterVitals } from './characterVitals.ts'
 
 const ABILITY_KEYS: readonly AbilityKey[] = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']
 
@@ -120,6 +121,7 @@ export function applyCharacterCreation(character: CharacterSheetView, payload: C
   next.spellcasting.spellRuleset = '2014'
   next.spellcasting.spellcastingAbility = classOption.spellcastingAbility
   next.spellcasting.spellProgressionType = classOption.spellProgressionType ?? (classOption.spellcastingAbility ? 'prepared' : 'none')
+  initializeCharacterVitals(next, classOption, previousCreation === undefined)
 
   // Older callers did not provide equipment choices; keep that path side-effect free.
   const classEquipment = payload.classEquipmentId ? classOption.equipmentOptions?.find((item) => item.id === payload.classEquipmentId) : undefined

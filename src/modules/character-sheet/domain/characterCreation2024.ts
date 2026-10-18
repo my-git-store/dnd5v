@@ -4,6 +4,7 @@ import type { CharacterCreationV3, CharacterInventoryItemV3, SkillProficiencySou
 import { getRules2024Background, getRules2024Class, getRules2024Feat, getSpecies2024 } from '../data/rules2024/index.ts'
 import type { CharacterCreationPayload } from './characterCreation.ts'
 import { progressionAfterCreation, progressionForClass } from './characterProgression.ts'
+import { initializeCharacterVitals } from './characterVitals.ts'
 
 const ABILITY_KEYS: readonly AbilityKey[] = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']
 const unique = (values: string[]) => [...new Set(values)]
@@ -124,6 +125,7 @@ export function applyCharacterCreation2024(character: CharacterSheetView, payloa
   next.spellcasting.spellRuleset = '2024'
   next.spellcasting.spellcastingAbility = classOption.spellcastingAbility
   next.spellcasting.spellProgressionType = classOption.spellProgressionType
+  initializeCharacterVitals(next, classOption, previousCreation === undefined)
   next.inventoryData.items = [...preservedItems, ...generatedItems]
   const previousGeneratedGold = previousCreation?.ruleset === '2024' ? (previousCreation.startingGold ?? 0) : 0
   next.inventoryData.money = { ...next.inventoryData.money, gold: Math.max(0, next.inventoryData.money.gold - previousGeneratedGold + generatedGold) }

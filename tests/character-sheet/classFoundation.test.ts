@@ -158,4 +158,7 @@ test('class selection persists through the adapter while icon metadata stays pre
   assert.equal(reloaded.creation?.classId, 'wizard')
   assert.equal(reloaded.creation?.gender, 'male')
   assert.equal(getRules2024Class(reloaded.creation?.classId ?? '')?.icon, CLASS_ICON_PATHS.wizard)
+  assert.equal(reloaded.combat.hitPoints.max > 0, true)
+  assert.equal(reloaded.combat.hitDice.size, 'd6')
+  assert.deepEqual(reloaded.spellcasting.spellSlots[1], { max: 2, used: 0 })
 })

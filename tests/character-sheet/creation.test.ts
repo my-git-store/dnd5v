@@ -33,6 +33,56 @@ test('applies PHB race/class selections without discarding existing collections'
   })
 })
 
+test('initializes level-one hit points and hit dice from the selected class', async () => {
+  const source = createMockCharacter()
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const loaded = await adapter.load(source.id)
+  const fighter = applyCharacterCreation(loaded, {
+    name: loaded.name, raceId: 'human', classId: 'fighter', subclass: '', alignment: '',
+    baseAbilities: { ...loaded.abilities, constitution: 14 }, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [],
+  })
+  assert.equal(fighter.combat.hitPoints.max, 12)
+  assert.equal(fighter.combat.hitPoints.current, 12)
+  assert.deepEqual(fighter.combat.hitDice, { size: 'd10', total: 1, spent: 0 })
+})
+
+test('initializes first-level caster slots and leaves non-caster slots empty', async () => {
+  const source = createMockCharacter()
+  const wizardAdapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const loaded = await wizardAdapter.load(source.id)
+  const wizard = applyCharacterCreation(loaded, {
+    name: loaded.name, raceId: 'human', classId: 'wizard', subclass: '', alignment: '',
+    baseAbilities: loaded.abilities, classSkillIds: ['arcana', 'history'], raceAbilityChoices: [],
+  })
+  assert.deepEqual(wizard.spellcasting.spellSlots[1], { max: 2, used: 0 })
+  assert.equal(wizard.spellcasting.spellSlots[2]?.max, 0)
+
+  const fighter = applyCharacterCreation(loaded, {
+    name: loaded.name, raceId: 'human', classId: 'fighter', subclass: '', alignment: '',
+    baseAbilities: loaded.abilities, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [],
+  })
+  assert.equal(Object.values(fighter.spellcasting.spellSlots).every((slot) => slot.max === 0), true)
+})
+
+test('does not overwrite existing manual hit points or slots during re-creation', async () => {
+  const source = createMockCharacter()
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const loaded = await adapter.load(source.id)
+  const created = applyCharacterCreation(loaded, {
+    name: loaded.name, raceId: 'human', classId: 'fighter', subclass: '', alignment: '',
+    baseAbilities: loaded.abilities, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [],
+  })
+  created.combat.hitPoints.max = 99
+  created.combat.hitPoints.current = 77
+  created.spellcasting.spellSlots[1] = { max: 4, used: 1 }
+  const repeated = applyCharacterCreation(created, {
+    name: created.name, raceId: 'human', classId: 'wizard', subclass: '', alignment: '',
+    baseAbilities: created.creation!.baseAbilityScores, classSkillIds: ['arcana', 'history'], raceAbilityChoices: [],
+  })
+  assert.equal(repeated.combat.hitPoints.max, 99)
+  assert.deepEqual(repeated.spellcasting.spellSlots[1], { max: 4, used: 1 })
+})
+
 test('caps class skill selections at the class rule limit', async () => {
   const source = createMockCharacter()
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
