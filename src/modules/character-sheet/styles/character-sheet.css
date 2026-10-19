@@ -225,7 +225,7 @@ body {
 .feats-section { margin-top: 18px; }
 .feat-entry-card { display: flex; align-items: center; gap: 14px; }
 .feat-entry-content { min-width: 0; flex: 1; }
-.feat-entry-content h3 { margin: 0; color: var(--sheet-ink); font-size: 1rem; overflow-wrap: anywhere; }
+.feat-entry-content h3 { margin: 0; color: var(--sheet-ink); font-size: 1rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .feature-summary-grid h3 { margin: 0 0 8px; }
 .choice-box { display: grid; gap: 7px; margin-top: 16px; padding: 12px; border: 1px dashed var(--sheet-line); border-radius: 10px; background: rgba(255,248,233,.55); }
 .choice-box strong { font-size: .85rem; }
@@ -260,6 +260,9 @@ body {
 .combat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .combat-grid .field-card { display: grid; align-content: start; gap: 8px; }
 .combat-grid .field-card > h3 { min-height: 2.4em; display: flex; align-items: flex-start; }
+.combat-card-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; min-width: 0; }
+.combat-card-heading h3 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.combat-card-heading .combat-result { flex: 0 0 auto; white-space: nowrap; }
 .combat-grid .field-card > .field-caption { min-height: 2.5em; }
 .combat-grid .field-card > .combat-result { display: flex; align-items: center; min-height: 1.8em; }
 .combat-grid .field-card > .c-input-wrapper,
@@ -329,7 +332,7 @@ body {
 .editor-grid > :nth-last-child(1) { grid-column: 1 / -1; }
 .editor-actions { justify-content: flex-end; grid-column: 1 / -1; }
 .empty-collection { margin: 6px 0 0; padding: 18px 14px; border: 1px dashed var(--sheet-line); border-radius: 10px; background: rgba(255, 248, 233, .52); color: var(--sheet-faded); font-size: .9rem; text-align: center; }
-.load-state { min-height: 460px; display: grid; place-items: center; padding: 24px; text-align: center; }
+.load-state { min-height: clamp(320px, calc(100dvh - 110px), 720px); box-sizing: border-box; display: grid; place-items: center; padding: 24px; text-align: center; }
 .load-state-spinner { display: grid; place-items: center; width: clamp(136px, 18vw, 184px); height: clamp(136px, 18vw, 184px); }
 .load-state-spinner > * { width: 100%; height: 100%; }
 .error-state { gap: 12px; }
@@ -673,7 +676,7 @@ body {
 .skill-row-summary { display: grid; grid-template-columns: 16px minmax(0, 1fr) 38px 46px; align-items: center; gap: 8px; min-width: 0; }
 .skill-proficiency-dot { display: block; width: 12px; height: 12px; border: 2px solid #b9ad98; border-radius: 50%; background: transparent; box-sizing: border-box; }
 .skill-proficiency-dot.active { border-color: #54705b; background: #54705b; box-shadow: inset 0 0 0 3px #f8efdc; }
-.skill-name { min-width: 0; color: var(--sheet-ink); overflow-wrap: anywhere; }
+.skill-name { min-width: 0; color: var(--sheet-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .skill-ability-code { color: var(--sheet-muted); font-size: .68rem; font-weight: 800; text-align: center; }
 .skill-bonus-pill { display: inline-grid; place-items: center; min-width: 38px; min-height: 28px; padding: 0 7px; border: 1px solid #d6bd91; border-radius: 8px; background: #fff5de; color: #704b25; font-weight: 800; }
 .creation-skill-choice { grid-template-columns: minmax(0, 1fr) auto 38px; width: 100%; min-height: 62px; color: inherit; text-align: left; font: inherit; background: transparent; cursor: pointer; }
@@ -767,7 +770,8 @@ body {
 .attack-entry-head { display: grid; grid-template-columns: minmax(220px, 1.6fr) minmax(70px, .55fr) minmax(100px, .8fr) minmax(90px, .7fr); align-items: start; gap: 14px; }
 .attack-title { align-items: center; flex-wrap: nowrap; gap: 10px; }
 .attack-kind-mark { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border: 1px solid #d3ba8c; border-radius: 10px 10px 10px 3px; background: #fff2d8; color: #7b4e27; font-size: 1.2rem; }
-.attack-title h3 { overflow-wrap: anywhere; }
+.attack-title > div:last-child { min-width: 0; }
+.attack-title h3, .spell-title h3, .inventory-title h3, .feature-reference-card h4 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .attack-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
 .attack-kind-tag, .attack-mode-tag, .attack-prof-tag { display: inline-flex; align-items: center; padding: 3px 6px; border: 1px solid var(--sheet-line-soft); border-radius: 5px; color: var(--sheet-muted); font-size: .62rem; font-weight: 800; }
 .attack-mode-tag.manual { border-color: #d6b173; background: #fff2d9; color: #78521d; }
@@ -792,7 +796,7 @@ body {
 .spell-entry-card:hover, .inventory-entry-card:hover { margin-inline: -8px; padding-inline: 8px; border-radius: 10px; background: rgba(255, 248, 231, .55); }
 .spell-entry-content, .inventory-entry-content { min-width: 0; flex: 1; }
 .spell-title > div:first-child, .inventory-title > div:first-child { min-width: 0; }
-.spell-title h3, .inventory-title h3 { overflow-wrap: anywhere; }
+.spell-title h3, .inventory-title h3 { display: block; max-width: 100%; }
 .spell-kind-badge, .inventory-source-badge { margin-top: 5px; border-color: #d7c39f; background: #fbf0d8; color: #805921; }
 .spell-entry-card p, .inventory-entry-card p { max-width: 72ch; }
 .spell-description-preview { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -810,7 +814,7 @@ body {
 .bio-biography-field .c-input-textarea { min-height: 240px; resize: vertical; }
 .feature-reference-list { display: grid; gap: 8px; }
 .feature-reference-card { padding: 10px 12px; border: 1px solid var(--sheet-line-soft); border-radius: 8px; background: rgba(255, 248, 231, .72); }
-.feature-reference-card h4 { margin: 0; color: var(--sheet-ink); font-family: var(--font-serif); font-size: .98rem; }
+.feature-reference-card h4 { display: block; margin: 0; color: var(--sheet-ink); font-family: var(--font-serif); font-size: .98rem; }
 .feature-reference-card p { margin: 5px 0 0; color: var(--sheet-muted); font-size: .78rem; line-height: 1.45; }
 .feature-reference-card small { display: block; margin-top: 6px; color: var(--sheet-muted); font-size: .7rem; }
 .inventory-facts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }

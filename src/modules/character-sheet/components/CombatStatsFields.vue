@@ -57,18 +57,17 @@ function updateDeathSave(key: keyof CharacterCombatV3['deathSaves'], value: unkn
     <h2>Бой</h2>
     <div class="combat-grid">
       <div class="field-card combat-armor">
-        <h3>Класс доспеха</h3>
-        <p class="derived-value combat-result">{{ armorClass }}</p>
+        <div class="combat-card-heading"><h3>Класс доспеха</h3><p class="derived-value combat-result">{{ armorClass }}</p></div>
         <p class="field-caption">Расчёт КД не настроен — укажите итоговое значение вручную.</p>
         <CInput type="number" min="0" step="1" label="КД" :model-value="armorClass" :disabled="disabled" @update:model-value="updateArmorValue" />
       </div>
       <div class="field-card">
-        <h3>Инициатива</h3><p class="derived-value combat-result">{{ signedModifier(initiative) }}</p>
+        <div class="combat-card-heading"><h3>Инициатива</h3><p class="derived-value combat-result">{{ signedModifier(initiative) }}</p></div>
         <p class="field-caption">Модификатор Ловкости + добавка</p>
         <CInput type="number" step="1" label="Доп. бонус инициативы" :model-value="combat.initiative.additionalBonus" :disabled="disabled" @update:model-value="updateInitiative" />
       </div>
       <div class="field-card">
-        <h3>Скорость</h3><p class="derived-value combat-result">{{ speed }}</p>
+        <div class="combat-card-heading"><h3>Скорость</h3><p class="derived-value combat-result">{{ speed }}</p></div>
         <div class="combat-subgrid">
           <CInput type="number" min="0" label="Базовая" :model-value="combat.speed.base" :disabled="disabled" @update:model-value="updateSpeed('base', $event)" />
           <CInput type="number" min="0" label="Переопределение" :model-value="combat.speed.override ?? ''" :disabled="disabled" @update:model-value="updateSpeed('override', $event)" />
@@ -77,7 +76,7 @@ function updateDeathSave(key: keyof CharacterCombatV3['deathSaves'], value: unkn
         </div>
       </div>
       <div class="field-card">
-        <h3>Хиты</h3>
+        <div class="combat-card-heading"><h3>Хиты</h3><p class="derived-value combat-result">{{ combat.hitPoints.current }} / {{ combat.hitPoints.max }}</p></div>
         <div class="combat-subgrid">
           <CInput type="number" min="0" step="1" label="Максимум" :model-value="combat.hitPoints.max" :disabled="disabled" @update:model-value="updateHitPoints('max', $event)" />
           <CInput type="number" min="0" step="1" label="Текущие" :model-value="combat.hitPoints.current" :disabled="disabled" @update:model-value="updateHitPoints('current', $event)" />
@@ -85,7 +84,7 @@ function updateDeathSave(key: keyof CharacterCombatV3['deathSaves'], value: unkn
         </div>
       </div>
       <div class="field-card">
-        <h3>Кости хитов</h3>
+        <div class="combat-card-heading"><h3>Кости хитов</h3><p class="derived-value combat-result">{{ combat.hitDice.spent }} / {{ combat.hitDice.total }}</p></div>
         <div class="combat-subgrid">
           <CInput label="Размер (например, d8)" :model-value="combat.hitDice.size" :disabled="disabled" @update:model-value="updateHitDice('size', $event)" />
           <CInput type="number" min="0" step="1" label="Всего" :model-value="combat.hitDice.total" :disabled="disabled" @update:model-value="updateHitDice('total', $event)" />
@@ -93,7 +92,7 @@ function updateDeathSave(key: keyof CharacterCombatV3['deathSaves'], value: unkn
         </div>
       </div>
       <div class="field-card">
-        <h3>Спасброски от смерти</h3>
+        <div class="combat-card-heading"><h3>Спасброски от смерти</h3><p class="derived-value combat-result">{{ combat.deathSaves.successes }} / 3 · {{ combat.deathSaves.failures }} / 3</p></div>
         <div class="combat-subgrid">
           <CInput type="number" min="0" max="3" step="1" label="Успехи" :model-value="combat.deathSaves.successes" :disabled="disabled" @update:model-value="updateDeathSave('successes', $event)" />
           <CInput type="number" min="0" max="3" step="1" label="Провалы" :model-value="combat.deathSaves.failures" :disabled="disabled" @update:model-value="updateDeathSave('failures', $event)" />
