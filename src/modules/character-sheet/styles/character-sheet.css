@@ -59,6 +59,31 @@ body {
   pointer-events: none;
 }
 .character-sheet > * { position: relative; z-index: 1; }
+.character-manager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 12px 15px;
+  border: 1px solid var(--sheet-line);
+  border-radius: 12px;
+  background: rgba(255, 249, 235, .78);
+  box-shadow: 0 4px 14px rgba(83, 59, 38, .06);
+}
+.character-manager-copy { display: grid; gap: 2px; min-width: 0; }
+.character-manager-copy .eyebrow { margin: 0; font-size: .62rem; }
+.character-manager-copy strong { color: var(--sheet-ink); font-family: var(--font-serif); }
+.character-manager-copy small { color: var(--sheet-muted); font-size: .74rem; }
+.character-manager-controls { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 7px; min-width: 0; }
+.character-manager-select-label { min-width: min(300px, 38vw); flex: 1 1 220px; }
+.character-manager-controls .select-control { min-height: 38px; }
+.character-empty-state { display: grid; justify-items: center; gap: 9px; min-height: 300px; align-content: center; text-align: center; }
+.character-empty-state h1 { margin: 0; font-family: var(--font-serif); }
+.character-empty-state p { margin: 0 0 8px; color: var(--sheet-muted); }
+.character-action-confirm { width: min(520px, calc(100vw - 28px)); box-sizing: border-box; }
+.character-action-confirm h2 { margin-top: 0; }
+.character-action-confirm p { color: var(--sheet-muted); line-height: 1.5; }
 .character-creation-root {
   width: 100%;
   min-width: 0;
@@ -395,6 +420,10 @@ body {
   .entry-card { flex-direction: column; }
   .entry-actions { align-self: stretch; justify-content: flex-end; }
   .origin-summary-grid { grid-template-columns: minmax(0, 1fr); }
+  .character-manager { align-items: stretch; flex-direction: column; padding: 12px; }
+  .character-manager-controls { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, auto); justify-content: stretch; }
+  .character-manager-select-label { min-width: 0; grid-column: 1 / -1; }
+  .character-manager-controls .c-btn { min-width: 0; padding-inline: 10px; }
 }
 
 /* CR-03 creation wizard */

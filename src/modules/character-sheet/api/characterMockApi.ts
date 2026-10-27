@@ -18,7 +18,7 @@ export async function getMockCharacter(id: string): Promise<Character> {
   await delay(500)
   if (shouldFailFirstLoad()) throw new Error('Тестовая ошибка загрузки. Нажмите «Повторить».')
   const stored = readStoredCharacter(id)
-  return stored ? cloneCharacter(stored) : createEmptyCharacter()
+  return stored ? cloneCharacter(stored) : createEmptyCharacter(id)
 }
 
 export async function saveMockCharacter(character: Character): Promise<Character> {

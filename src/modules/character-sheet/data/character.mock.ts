@@ -22,9 +22,9 @@ export function createMockCharacter(): Character {
 }
 
 /** Empty valid legacy payload used for a first visit before character creation. */
-export function createEmptyCharacter(): Character {
+export function createEmptyCharacter(id = 'demo-character'): Character {
   return {
-    id: 'demo-character',
+    id,
     schemaVersion: 2,
     name: 'Новый персонаж',
     class: '',

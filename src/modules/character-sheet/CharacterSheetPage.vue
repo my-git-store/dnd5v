@@ -10,6 +10,8 @@ import CharacterInventoryTab from './components/CharacterInventoryTab.vue'
 import CharacterBioTab from './components/CharacterBioTab.vue'
 import CharacterCreationTab from './components/CharacterCreationTab.vue'
 import CharacterIdentityModal from './components/CharacterIdentityModal.vue'
+import CharacterManagerBar from './components/CharacterManagerBar.vue'
+import CharacterActionConfirmModal from './components/CharacterActionConfirmModal.vue'
 import LevelUpModal from './components/LevelUpModal.vue'
 import TableComponentsShowcase from '../table-components/TableComponentsShowcase.vue'
 import { useCharacterSheet } from './composables/useCharacterSheet'
@@ -55,6 +57,37 @@ function openLevelUpModal() {
   if (!sheet.character.value || sheet.character.value.level >= 20 || !sheet.character.value.progression?.classLevels.length) return
   open({ component: LevelUpModal, componentProps: { character: sheet.character.value, disabled: sheet.isSaving.value, onConfirm: sheet.levelUp } })
 }
+function openActionConfirm(title: string, message: string, confirmLabel: string, action: () => void | Promise<void>, danger = false) {
+  open({ component: CharacterActionConfirmModal, componentProps: { title, message, confirmLabel, danger, onConfirm: action } })
+}
+function selectCharacter(id: string) {
+  if (id === sheet.activeId.value) return
+  if (sheet.isDirty.value) {
+    openActionConfirm('Переключить персонажа?', 'Есть несохранённые изменения. При переключении они будут отменены.', 'Переключить', () => sheet.selectCharacter(id))
+    return
+  }
+  void sheet.selectCharacter(id)
+}
+function createCharacter() {
+  if (sheet.isDirty.value) {
+    openActionConfirm('Создать нового персонажа?', 'Есть несохранённые изменения. При создании нового персонажа они будут отменены.', 'Создать', async () => { await sheet.createCharacter() })
+    return
+  }
+  void sheet.createCharacter()
+}
+function copyCharacter() {
+  if (sheet.isDirty.value) {
+    openActionConfirm('Скопировать персонажа?', 'Есть несохранённые изменения. При копировании они будут сохранены в новой копии.', 'Копировать', async () => { await sheet.copyCharacter() })
+    return
+  }
+  void sheet.copyCharacter()
+}
+function deleteCharacter() {
+  const message = sheet.isDirty.value
+    ? 'Есть несохранённые изменения. Удаление персонажа отменит их и удалит сохранённые данные.'
+    : 'Персонаж и его сохранённые данные будут удалены без возможности восстановления.'
+  openActionConfirm('Удалить персонажа?', message, 'Удалить', () => sheet.deleteCharacter(), true)
+}
 const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.creation?.classId ?? sheet.character.value?.class ?? '', sheet.character.value?.creation?.gender ?? 'female'))
 const selectedSpeciesIcon = computed(() => sheet.character.value?.ruleset === '2024' ? speciesIconFor(sheet.character.value.creation?.speciesId ?? sheet.character.value.race.name) : undefined)
 const selectedBackgroundIcon = computed(() => backgroundIconFor(sheet.character.value?.creation?.backgroundId ?? sheet.character.value?.origin.background ?? sheet.character.value?.background.name))
@@ -62,6 +95,14 @@ const selectedBackgroundIcon = computed(() => backgroundIconFor(sheet.character.
 <template>
   <main class="character-sheet" :class="{ 'character-sheet-creation-mode': creationOpen }">
     <CharacterLoadState :loading="sheet.isLoading.value" :error="sheet.loadError.value" @retry="sheet.load" />
+    <template v-if="!sheet.isLoading.value && !sheet.loadError.value">
+      <CharacterManagerBar :characters="sheet.characters.value" :active-id="sheet.activeId.value" :dirty="sheet.isDirty.value" :disabled="sheet.isSaving.value" @select="selectCharacter" @create="createCharacter" @copy="copyCharacter" @remove="deleteCharacter" />
+      <section v-if="!sheet.character.value" class="character-empty-state sheet-section" aria-live="polite">
+        <h1>Персонажи не найдены</h1>
+        <p>Создайте нового персонажа, чтобы начать работу с листом.</p>
+        <CBtn color-type="primary" @click="createCharacter">Создать персонажа</CBtn>
+      </section>
+    </template>
     <template v-if="sheet.character.value && !sheet.isLoading.value && !sheet.loadError.value">
       <section v-if="creationOpen" class="character-creation-root" aria-label="Создание персонажа">
         <CharacterCreationTab :key="creationSession" :character="sheet.character.value" :disabled="sheet.isSaving.value" :creation-error="creationError" hide-preview

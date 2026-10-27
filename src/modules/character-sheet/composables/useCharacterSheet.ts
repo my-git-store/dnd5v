@@ -6,9 +6,14 @@ import type { CharacterCombatV3, CharacterFeatV3, CharacterInventoryItemV3, Char
 import { validateCharacter } from '../validation/characterValidation'
 import { applyCharacterCreation, type CharacterCreationPayload } from '../domain/characterCreation'
 import { levelUpProgression, progressionAtLevel } from '../domain/characterProgression'
+import { listStoredCharacterSummaries, readStoredActiveCharacterId, removeStoredCharacter, writeStoredActiveCharacterId, type StoredCharacterSummary } from '../api/characterV3Storage'
 
 export function useCharacterSheet(id = 'demo-character') {
   const adapter = createCharacterSheetAdapter()
+  const storedActiveId = readStoredActiveCharacterId()
+  const activeId = ref<string | null>(storedActiveId === undefined ? id : storedActiveId)
+  const characters = ref<StoredCharacterSummary[]>([])
+  const suppressVirtualCharacter = ref(false)
   const character = ref<CharacterSheetView | null>(null)
   const savedCharacter = ref<CharacterSheetView | null>(null)
   const isLoading = ref(true)
@@ -20,14 +25,27 @@ export function useCharacterSheet(id = 'demo-character') {
 
   let unloadHandler: ((event: BeforeUnloadEvent) => void) | undefined
 
-  async function load() {
+  function refreshCharacters() {
+    const stored = listStoredCharacterSummaries()
+    if (!suppressVirtualCharacter.value && character.value && !stored.some((entry) => entry.id === character.value?.id)) {
+      stored.unshift({ id: character.value.id, name: character.value.name, className: character.value.class, ruleset: character.value.ruleset })
+    }
+    characters.value = stored
+  }
+
+  async function load(nextId = activeId.value ?? id) {
+    activeId.value = nextId
     isLoading.value = true
     loadError.value = null
     savedNotice.value = false
     try {
-      const result = await adapter.load(id)
+      const result = await adapter.load(nextId)
       character.value = cloneCharacterView(result)
       savedCharacter.value = cloneCharacterView(result)
+      savedNotice.value = true
+      writeStoredActiveCharacterId(nextId)
+      suppressVirtualCharacter.value = false
+      refreshCharacters()
     } catch (error) {
       loadError.value = error instanceof Error ? error.message : 'Не удалось загрузить персонажа.'
     } finally {
@@ -48,11 +66,73 @@ export function useCharacterSheet(id = 'demo-character') {
       character.value = cloneCharacterView(result)
       savedCharacter.value = cloneCharacterView(result)
       savedNotice.value = true
+      suppressVirtualCharacter.value = false
+      refreshCharacters()
+      writeStoredActiveCharacterId(result.id)
     } catch (error) {
       saveError.value = error instanceof Error ? error.message : 'Не удалось сохранить персонажа.'
     } finally {
       isSaving.value = false
     }
+  }
+
+  function newCharacterId() {
+    const uuid = globalThis.crypto?.randomUUID?.()
+    return uuid ? `character-${uuid}` : `character-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  }
+
+  async function createCharacter() {
+    const nextId = newCharacterId()
+    suppressVirtualCharacter.value = false
+    await load(nextId)
+    await save()
+    return nextId
+  }
+
+  async function copyCharacter() {
+    if (!character.value) return null
+    // Persist the source first so copying the initial virtual demo character
+    // cannot silently replace it in the character list.
+    await save()
+    if (!character.value) return null
+    const copy = cloneCharacterView(character.value)
+    copy.id = newCharacterId()
+    copy.name = `${copy.name || 'Новый персонаж'} (копия)`
+    character.value = copy
+    activeId.value = copy.id
+    savedNotice.value = false
+    suppressVirtualCharacter.value = false
+    await save()
+    return copy.id
+  }
+
+  async function deleteCharacter(targetId = activeId.value) {
+    if (!targetId) return
+    removeStoredCharacter(targetId)
+    const remaining = listStoredCharacterSummaries().filter((entry) => entry.id !== targetId)
+    if (activeId.value === targetId) {
+      const next = remaining[0]
+      if (next) {
+        suppressVirtualCharacter.value = false
+        await load(next.id)
+      } else {
+        activeId.value = null
+        writeStoredActiveCharacterId(null)
+        character.value = null
+        savedCharacter.value = null
+        savedNotice.value = false
+        suppressVirtualCharacter.value = true
+        characters.value = []
+      }
+    } else {
+      refreshCharacters()
+    }
+  }
+
+  async function selectCharacter(targetId: string) {
+    if (!targetId || targetId === activeId.value) return
+    suppressVirtualCharacter.value = false
+    await load(targetId)
   }
 
   function updateIdentity(patch: CharacterIdentityPatch) {
@@ -145,7 +225,13 @@ export function useCharacterSheet(id = 'demo-character') {
   }
 
   onMounted(() => {
-    void load()
+    if (activeId.value === null) {
+      suppressVirtualCharacter.value = true
+      isLoading.value = false
+      refreshCharacters()
+    } else {
+      void load()
+    }
     unloadHandler = (event) => {
       if (!isDirty.value) return
       event.preventDefault()
@@ -155,5 +241,5 @@ export function useCharacterSheet(id = 'demo-character') {
   })
   onBeforeUnmount(() => { if (unloadHandler) window.removeEventListener('beforeunload', unloadHandler) })
 
-  return { character, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
+  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, copyCharacter, deleteCharacter, selectCharacter, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
 }

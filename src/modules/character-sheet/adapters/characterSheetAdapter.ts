@@ -181,6 +181,7 @@ function progressionFeaturesForSave(value: CharacterSheetView, progression: NonN
 
 function toV3(value: CharacterSheetView, base: CharacterV3): CharacterV3 {
   const next = cloneCharacterV3(base)
+  next.id = value.id
   next.ruleset = value.ruleset
   next.identity.name = value.name
   next.identity.class = value.class
