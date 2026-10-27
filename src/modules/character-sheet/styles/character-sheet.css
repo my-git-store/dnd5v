@@ -329,6 +329,10 @@ body {
 .check-control { display: inline-flex; align-items: center; gap: 8px; color: var(--sheet-muted); font-size: .9rem; white-space: nowrap; }
 .check-control input { width: 16px; height: 16px; }
 .derived-value { min-width: 34px; text-align: right; }
+
+.skill-calculation-mode { display: inline-flex; align-items: center; justify-content: center; padding: 2px 6px; border-radius: 999px; font-size: .68rem; font-weight: 700; white-space: nowrap; }
+.skill-calculation-mode.computed { color: #49633d; background: #e9f0df; }
+.skill-calculation-mode.manual { color: #7a4a36; background: #f5e5d4; }
 .character-details-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .modifier-caption { margin: 6px 0 0; color: var(--sheet-muted); font-size: .78rem; }
 .ability-grid .field-card { display: grid; align-content: start; gap: 8px; padding: 10px; }
@@ -706,7 +710,7 @@ body {
 .saving-result { min-width: 78px; padding: 6px 10px; border: 1px solid var(--sheet-line-soft); border-radius: 8px; background: rgba(255, 248, 231, .72); }
 .saving-result .derived-value { text-align: center; }
 .skill-row { display: block; padding: 11px 0 10px; }
-.skill-row-summary { display: grid; grid-template-columns: 16px minmax(0, 1fr) 38px 46px; align-items: center; gap: 8px; min-width: 0; }
+.skill-row-summary { display: grid; grid-template-columns: 16px minmax(0, 1fr) 38px 46px auto; align-items: center; gap: 8px; min-width: 0; }
 .skill-proficiency-dot { display: block; width: 12px; height: 12px; border: 2px solid #b9ad98; border-radius: 50%; background: transparent; box-sizing: border-box; }
 .skill-proficiency-dot.active { border-color: #54705b; background: #54705b; box-shadow: inset 0 0 0 3px #f8efdc; }
 .skill-name { min-width: 0; color: var(--sheet-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

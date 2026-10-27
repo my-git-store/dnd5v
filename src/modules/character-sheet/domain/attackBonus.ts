@@ -58,6 +58,22 @@ export function calculateAttackBonus(
   return total
 }
 
+/**
+ * Returns the ability modifier that should be added to weapon damage when an
+ * attack is explicitly in computed mode. Manual/legacy attacks keep their
+ * free-form damage text untouched and therefore return null here.
+ */
+export function calculateAttackDamageModifier(
+  attack: AttackBonusInput,
+  abilities: Partial<CharacterAbilities>,
+): number | null {
+  if (getAttackCalculationMode(attack) === 'manual') return null
+  const source = getAttackBonusSource(attack)
+  if (source === 'manual') return null
+  const value = abilities[source]
+  return typeof value === 'number' && Number.isFinite(value) ? abilityModifier(value) : null
+}
+
 export function formatAttackBonus(attack: CharacterAttack, abilities: CharacterAbilities, level = 1): string {
   const source = getAttackBonusSource(attack)
   const additionalBonus = getAdditionalAttackBonus(attack)

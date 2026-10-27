@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CBtn, openConfirmModal, useDialog } from '@/ui/components'
-import { formatAttackBonus, getAttackBonusSource, getAttackCalculationMode } from '../domain/attackBonus'
+import { calculateAttackDamageModifier, formatAttackBonus, getAttackBonusSource, getAttackCalculationMode } from '../domain/attackBonus'
+import { signedModifier } from '../domain/abilityModifier'
 import { getRules2024Weapon, getRules2024WeaponMastery } from '../data/rules2024/index.ts'
 import AttackEditorModal from './AttackEditorModal.vue'
 import EmptyCollection from './shared/EmptyCollection.vue'
@@ -32,7 +33,8 @@ function attackSummary(attack: CharacterAttackView) {
   const source = getAttackBonusSource(attack)
   const mode = getAttackCalculationMode(attack)
   const bonus = formatAttackBonus(attack, props.abilities, props.level)
-  return { source: sourceLabels[source] ?? 'Источник не настроен', mode: mode === 'manual' ? 'Ручной бонус' : 'Расчётный бонус', bonus }
+  const damageModifier = calculateAttackDamageModifier(attack, props.abilities)
+  return { source: sourceLabels[source] ?? 'Источник не настроен', mode: mode === 'manual' ? 'Ручной бонус' : 'Расчётный бонус', bonus, damageModifier }
 }
 function weaponLabel(attack: CharacterAttackView): string {
   return attack.weaponId ? (getRules2024Weapon(attack.weaponId)?.name ?? attack.weaponId) : ''
@@ -54,7 +56,7 @@ function masteryLabel(attack: CharacterAttackView): string {
             <div><h3>{{ attack.name || 'Без названия' }}</h3><div class="attack-tags"><span class="attack-kind-tag">{{ kindLabels[attack.kind] }}</span><span class="attack-mode-tag" :class="getAttackCalculationMode(attack) === 'manual' ? 'manual' : 'computed'">{{ getAttackCalculationMode(attack) === 'manual' ? 'Вручную' : 'Расчёт' }}</span><span class="attack-prof-tag">{{ attack.proficient ? 'Владение' : 'Без владения' }}</span><span v-if="weaponLabel(attack)" class="attack-kind-tag">{{ weaponLabel(attack) }}</span><span v-if="masteryLabel(attack)" class="attack-kind-tag">Мастерство: {{ masteryLabel(attack) }}</span></div></div>
           </div>
           <div class="attack-stat"><span>Атака</span><strong>{{ attackSummary(attack).bonus }}</strong></div>
-          <div class="attack-stat"><span>Урон</span><strong>{{ attack.damage || '—' }}</strong><small>{{ attack.damageType || 'Тип не указан' }}</small></div>
+          <div class="attack-stat"><span>Урон</span><strong>{{ attack.damage || '—' }}</strong><small>{{ attack.damageType || 'Тип не указан' }}</small><small v-if="attackSummary(attack).damageModifier !== null">Модификатор: {{ signedModifier(attackSummary(attack).damageModifier!) }}</small></div>
           <div class="attack-stat"><span>Дальность</span><strong>{{ attack.range || '—' }}</strong></div>
         </div>
         <div class="attack-entry-details"><span>{{ attackSummary(attack).source }}</span><span v-if="attack.properties.length">{{ attack.properties.join(' · ') }}</span><span v-if="attack.description" class="attack-description-preview" :title="attack.description">{{ attack.description }}</span></div>

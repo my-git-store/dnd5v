@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { CInput } from '@/ui/components'
-import { abilityModifier, signedModifier } from '../domain/abilityModifier'
+import { signedModifier } from '../domain/abilityModifier'
+import { calculateInitiative } from '../domain/combatCalculations'
 import type { CharacterAbilities } from '../types/character'
 import type { CharacterCombatV3 } from '../types/characterV3'
 
@@ -11,7 +12,7 @@ const emit = defineEmits<{ update: [combat: CharacterCombatV3] }>()
 const armorClass = computed(() => {
   return props.combat.armorClass.value
 })
-const initiative = computed(() => abilityModifier(props.abilities.dexterity) + props.combat.initiative.additionalBonus)
+const initiative = computed(() => calculateInitiative(props.abilities, props.combat.initiative.additionalBonus) ?? 0)
 const speed = computed(() => props.combat.speed.override ?? props.combat.speed.base)
 
 function numberValue(value: unknown): number {
@@ -57,12 +58,12 @@ function updateDeathSave(key: keyof CharacterCombatV3['deathSaves'], value: unkn
     <h2>Бой</h2>
     <div class="combat-grid">
       <div class="field-card combat-armor">
-        <div class="combat-card-heading"><h3>Класс доспеха</h3><p class="derived-value combat-result">{{ armorClass }}</p></div>
+        <div class="combat-card-heading"><h3>Класс доспеха</h3><p class="derived-value combat-result">{{ armorClass }}</p><span class="mode-tag mode-unset">Ручное значение</span></div>
         <p class="field-caption">Расчёт КД не настроен — укажите итоговое значение вручную.</p>
         <CInput type="number" min="0" step="1" label="КД" :model-value="armorClass" :disabled="disabled" @update:model-value="updateArmorValue" />
       </div>
       <div class="field-card">
-        <div class="combat-card-heading"><h3>Инициатива</h3><p class="derived-value combat-result">{{ signedModifier(initiative) }}</p></div>
+        <div class="combat-card-heading"><h3>Инициатива</h3><p class="derived-value combat-result">{{ signedModifier(initiative) }}</p><span class="mode-tag mode-ready">Расчёт</span></div>
         <p class="field-caption">Модификатор Ловкости + добавка</p>
         <CInput type="number" step="1" label="Доп. бонус инициативы" :model-value="combat.initiative.additionalBonus" :disabled="disabled" @update:model-value="updateInitiative" />
       </div>

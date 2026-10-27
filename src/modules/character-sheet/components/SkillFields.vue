@@ -59,6 +59,7 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
           <strong class="skill-name">{{ skill.name }}</strong>
           <span class="skill-ability-code" :title="skill.ability ? abilityLabels[skill.ability] : 'Характеристика не выбрана'">{{ skill.ability ? abilityShortLabels[skill.ability] : '—' }}</span>
           <span class="skill-bonus-pill">{{ displayBonus(skill) }}</span>
+          <span class="skill-calculation-mode" :class="getSkillCalculationMode(skill) === 'manual' ? 'manual' : 'computed'">{{ getSkillCalculationMode(skill) === 'manual' ? 'Вручную' : 'Расчёт' }}</span>
         </div>
         <div class="skill-row-meta">
           <span v-if="skillSources(skill).length" class="skill-source-inline">Источник: {{ skillSources(skill).map((source) => sourceLabels[source]).join(' · ') }}</span>
