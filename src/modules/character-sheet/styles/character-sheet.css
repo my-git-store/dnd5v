@@ -171,6 +171,10 @@ body {
 }
 .character-sheet button:focus-visible, .character-sheet select:focus-visible, .character-sheet input:focus-visible, .character-sheet textarea:focus-visible { outline: 2px solid #9b6a2f; outline-offset: 2px; }
 
+/* Keep labels and their controls visually separated across every sheet section. */
+.character-sheet .c-flex-col:has(> label) { gap: 8px !important; }
+.character-sheet .compact-field { gap: 8px; }
+
 .sheet-section {
   padding: 20px;
   background: linear-gradient(145deg, var(--sheet-paper), rgba(255, 247, 228, .82));
@@ -290,7 +294,7 @@ body {
 .prepared-filter input, .prepared-toggle input, .check-control input { accent-color: var(--sheet-gold); }
 .bio-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .bio-wide { grid-column: 1 / -1; }
-.saving-throws-grid { display: grid; gap: 10px; }
+.saving-throws-grid { display: grid; gap: 10px; margin-top: 9px; }
 .saving-throws-header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(82px, auto) minmax(84px, 96px) minmax(72px, 96px); gap: 10px; align-items: end; padding: 0 4px; color: var(--sheet-faded); font-size: .66rem; font-weight: 800; letter-spacing: .06em; text-align: right; text-transform: uppercase; }
 .saving-throws-header span:nth-child(3), .saving-throws-header span:nth-child(4) { white-space: nowrap; }
 .skill-additional-bonus-field label { color: var(--sheet-muted); font-family: inherit; font-size: .72rem; font-weight: 600; line-height: 1.2; }
@@ -302,7 +306,7 @@ body {
 .derived-value { min-width: 34px; text-align: right; }
 .character-details-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .modifier-caption { margin: 6px 0 0; color: var(--sheet-muted); font-size: .78rem; }
-.ability-grid .field-card { display: grid; align-content: start; gap: 5px; padding: 10px; }
+.ability-grid .field-card { display: grid; align-content: start; gap: 8px; padding: 10px; }
 .ability-grid .c-flex-col > label { font-size: .72rem !important; line-height: 1.2; text-align: center; }
 .ability-grid .c-input { padding-inline: 6px; border-radius: 10px; font-size: 1.15rem; font-weight: 800; text-align: center; }
 .ability-grid .modifier-caption { margin-top: 2px; font-size: .74rem; text-align: center; }
@@ -1056,7 +1060,7 @@ body {
 .character-feat-editor-modal.c-modal { width: min(760px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto; }
 .character-feat-editor-modal .character-editor-card { max-width: 100%; box-sizing: border-box; }
 .character-feat-editor-modal .editor-actions { flex-wrap: wrap; }
-.character-feat-editor-modal .c-input-textarea { min-height: 180px; height: auto; line-height: 1.5; resize: vertical; white-space: pre-wrap; overflow-wrap: anywhere; }
+.character-feat-editor-modal .c-input-textarea { min-height: 180px; height: auto; line-height: 1.55; resize: vertical; white-space: pre-wrap; overflow-wrap: anywhere; }
 
 /* Keep the result badge inside the compact two-column sheet before the mobile layout takes over. */
 @media (min-width: 801px) and (max-width: 1100px) {
