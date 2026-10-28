@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { CBtn, CTabs, useDialog } from '@/ui/components'
 import CharacterSheetHeader from './components/CharacterSheetHeader.vue'
 import CharacterLoadState from './components/CharacterLoadState.vue'
@@ -12,6 +12,7 @@ import CharacterCreationTab from './components/CharacterCreationTab.vue'
 import CharacterIdentityModal from './components/CharacterIdentityModal.vue'
 import CharacterManagerBar from './components/CharacterManagerBar.vue'
 import CharacterActionConfirmModal from './components/CharacterActionConfirmModal.vue'
+import CharacterImportModal from './components/CharacterImportModal.vue'
 import LevelUpModal from './components/LevelUpModal.vue'
 import TableComponentsShowcase from '../table-components/TableComponentsShowcase.vue'
 import { useCharacterSheet } from './composables/useCharacterSheet'
@@ -22,6 +23,8 @@ import type { CharacterV3SpellLevel } from './types/characterV3'
 import { classIconFor } from './data/classIcons.ts'
 import { speciesIconFor } from './data/speciesIcons.ts'
 import { backgroundIconFor } from './data/backgroundIcons.ts'
+import { CHARACTER_TRANSFER_MAX_BYTES, parseCharacterTransfer, readAllStoredCharacters, serializeCharacterTransfer, transferFilename } from './api/characterTransfer.ts'
+import { readStoredCharacterV3 } from './api/characterV3Storage.ts'
 import './styles/character-sheet.css'
 
 const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }, { name: 'Игровые компоненты', value: 'table-components' }] as const
@@ -30,6 +33,8 @@ const tabDirection = ref<'forward' | 'backward'>('forward')
 const creationOpen = ref(false)
 const creationSession = ref(0)
 const creationError = ref<string | null>(null)
+const transferStatus = ref<{ kind: 'success' | 'error'; text: string } | null>(null)
+const printMode = ref(false)
 const sheet = useCharacterSheet()
 const { open } = useDialog()
 const tabIndexes = new Map<string, number>(tabs.map((tab, index) => [tab.value, index]))
@@ -39,6 +44,68 @@ watch(activeTab, (next, previous) => {
 function tabPanelClass(tab: string) {
   return { 'sheet-tab-panel-active': activeTab.value === tab, [`sheet-tab-panel-${tabDirection.value}`]: activeTab.value === tab }
 }
+function downloadJson(filename: string, value: string) {
+  const blob = new Blob([value], { type: 'application/json;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
+}
+async function exportCharacters(all: boolean) {
+  transferStatus.value = null
+  const activeId = sheet.activeId.value
+  if (sheet.isDirty.value || (activeId && readStoredCharacterV3(activeId, window.localStorage) === null)) await sheet.save()
+  if (sheet.saveError.value) {
+    transferStatus.value = { kind: 'error', text: sheet.saveError.value }
+    return
+  }
+  const stored = all ? readAllStoredCharacters(window.localStorage) : activeId ? [readStoredCharacterV3(activeId, window.localStorage)].filter((value): value is NonNullable<typeof value> => value !== null) : []
+  if (!stored.length) {
+    transferStatus.value = { kind: 'error', text: 'Нет сохранённых персонажей для экспорта.' }
+    return
+  }
+  const name = all ? 'personazhi' : stored[0]?.identity.name ?? 'personazh'
+  downloadJson(transferFilename(name), serializeCharacterTransfer(stored))
+  transferStatus.value = { kind: 'success', text: all ? `Экспортировано персонажей: ${stored.length}.` : 'Персонаж экспортирован.' }
+}
+function openImportPreview(plan: ReturnType<typeof parseCharacterTransfer>) {
+  open({ component: CharacterImportModal, componentProps: {
+    characters: plan.characters,
+    currentAvailable: Boolean(sheet.character.value),
+    onImport: async (mode: 'add' | 'replace') => {
+      try {
+        await sheet.importCharacters(plan.characters, mode)
+        transferStatus.value = { kind: 'success', text: `Импортировано персонажей: ${plan.characters.length}.` }
+      } catch (error) {
+        transferStatus.value = { kind: 'error', text: error instanceof Error ? error.message : 'Не удалось импортировать персонажей.' }
+        throw error
+      }
+    },
+  } })
+}
+async function importFile(file: File) {
+  transferStatus.value = null
+  if (file.size > CHARACTER_TRANSFER_MAX_BYTES) {
+    transferStatus.value = { kind: 'error', text: 'Файл импорта слишком большой.' }
+    return
+  }
+  try {
+    const plan = parseCharacterTransfer(await file.text())
+    const showPreview = () => openImportPreview(plan)
+    if (sheet.isDirty.value) {
+      openActionConfirm('Импортировать персонажа?', 'Есть несохранённые изменения. Перед импортом они будут отменены, если вы продолжите.', 'Продолжить', showPreview)
+    } else showPreview()
+  } catch (error) {
+    transferStatus.value = { kind: 'error', text: error instanceof Error ? error.message : 'Не удалось прочитать файл импорта.' }
+  }
+}
+function startPrint() {
+  printMode.value = true
+  void nextTick(() => window.print())
+}
+function finishPrint() { printMode.value = false }
 function updateAbility(key: AbilityKey, value: number) { sheet.updateAbility(key, value) }
 function applyCreation(payload: Parameters<typeof sheet.applyCreation>[0]) {
   try {
@@ -109,12 +176,14 @@ function deleteCharacter() {
 const selectedClassIcon = computed(() => classIconFor(sheet.character.value?.creation?.classId ?? sheet.character.value?.class ?? '', sheet.character.value?.creation?.gender ?? 'female'))
 const selectedSpeciesIcon = computed(() => sheet.character.value?.ruleset === '2024' ? speciesIconFor(sheet.character.value.creation?.speciesId ?? sheet.character.value.race.name) : undefined)
 const selectedBackgroundIcon = computed(() => backgroundIconFor(sheet.character.value?.creation?.backgroundId ?? sheet.character.value?.origin.background ?? sheet.character.value?.background.name))
+onMounted(() => window.addEventListener('afterprint', finishPrint))
+onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
 </script>
 <template>
-  <main class="character-sheet" :class="{ 'character-sheet-creation-mode': creationOpen }">
+  <main class="character-sheet" :class="{ 'character-sheet-creation-mode': creationOpen, 'character-sheet-print-mode': printMode }">
     <CharacterLoadState :loading="sheet.isLoading.value" :error="sheet.loadError.value" @retry="sheet.load" />
     <template v-if="!sheet.isLoading.value && !sheet.loadError.value">
-      <CharacterManagerBar :characters="sheet.characters.value" :active-id="sheet.activeId.value" :dirty="sheet.isDirty.value" :disabled="sheet.isSaving.value" @select="selectCharacter" @create="createCharacter" @copy="copyCharacter" @remove="deleteCharacter" />
+      <CharacterManagerBar :characters="sheet.characters.value" :active-id="sheet.activeId.value" :dirty="sheet.isDirty.value" :disabled="sheet.isSaving.value" :status="transferStatus" @select="selectCharacter" @create="createCharacter" @copy="copyCharacter" @remove="deleteCharacter" @export-current="exportCharacters(false)" @export-all="exportCharacters(true)" @import-file="importFile" />
       <section v-if="!sheet.character.value" class="character-empty-state sheet-section" aria-live="polite">
         <h1>Персонажи не найдены</h1>
         <p>Создайте нового персонажа, чтобы начать работу с листом.</p>
@@ -133,35 +202,35 @@ const selectedBackgroundIcon = computed(() => backgroundIconFor(sheet.character.
           :ruleset="sheet.character.value.ruleset"
           :level="sheet.character.value.level" :experience="sheet.character.value.experience"
           :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"
-          :save-error="sheet.saveError.value" @save="sheet.save" @open-details="openIdentityModal" />
+          :save-error="sheet.saveError.value" @save="sheet.save" @open-details="openIdentityModal" @print="startPrint" />
         <div class="sheet-tabs-row">
           <div class="sheet-tabs"><CTabs v-model="activeTab" :tabs="tabs" /></div>
           <CBtn class="creation-launch-button" color-type="accent" :disabled="sheet.isSaving.value" @click="openCreationModal">Создание персонажа</CBtn>
         </div>
         <div class="sheet-tab-stage">
-          <div v-show="activeTab === 'main'" class="sheet-tab-panel" :class="tabPanelClass('main')">
+          <div v-show="printMode || activeTab === 'main'" class="sheet-tab-panel" :class="tabPanelClass('main')">
             <CharacterMainTab :character="sheet.character.value"
               :disabled="sheet.isSaving.value" @update:saving-throw="sheet.updateSavingThrow"
               @update:ability="updateAbility" @update:skill="sheet.updateSkill" @update:feats="sheet.updateFeats" @level-up="openLevelUpModal" />
           </div>
-          <div v-show="activeTab === 'combat'" class="sheet-tab-panel" :class="tabPanelClass('combat')">
+          <div v-show="printMode || activeTab === 'combat'" class="sheet-tab-panel" :class="tabPanelClass('combat')">
             <CharacterCombatTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
               :on-short-rest="takeShortRest" :on-long-rest="takeLongRest"
               @update:combat="sheet.updateCombat" @update:attacks="sheet.updateAttacks" />
           </div>
-          <div v-show="activeTab === 'magic'" class="sheet-tab-panel" :class="tabPanelClass('magic')">
+          <div v-show="printMode || activeTab === 'magic'" class="sheet-tab-panel" :class="tabPanelClass('magic')">
             <CharacterMagicTab :character="sheet.character.value"
               :disabled="sheet.isSaving.value" @update:spells="sheet.updateSpells" @update:cantrips="sheet.updateCantrips" @update:spellcasting="sheet.updateSpellcasting" @use-slot="useSpellSlot" />
           </div>
-          <div v-show="activeTab === 'inventory'" class="sheet-tab-panel" :class="tabPanelClass('inventory')">
+          <div v-show="printMode || activeTab === 'inventory'" class="sheet-tab-panel" :class="tabPanelClass('inventory')">
             <CharacterInventoryTab :character="sheet.character.value"
               :disabled="sheet.isSaving.value" @update:inventory="sheet.updateInventory" @update:money="sheet.updateMoney" @use-item="useInventoryItem" />
           </div>
-          <div v-show="activeTab === 'bio'" class="sheet-tab-panel" :class="tabPanelClass('bio')">
+          <div v-show="printMode || activeTab === 'bio'" class="sheet-tab-panel" :class="tabPanelClass('bio')">
             <CharacterBioTab :personality="sheet.character.value.personality" :disabled="sheet.isSaving.value"
               @update="sheet.updatePersonality" />
           </div>
-          <div v-show="activeTab === 'table-components'" class="sheet-tab-panel" :class="tabPanelClass('table-components')">
+          <div v-show="!printMode && activeTab === 'table-components'" class="sheet-tab-panel table-components-panel" :class="tabPanelClass('table-components')">
             <TableComponentsShowcase />
           </div>
         </div>

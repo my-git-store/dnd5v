@@ -2,11 +2,12 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { createCharacterSheetAdapter } from '../adapters/characterSheetAdapter'
 import { type AbilityKey, type CharacterBio, type CharacterDetails, type CharacterMoney, type CharacterSpell } from '../types/character'
 import { cloneCharacterView, type CharacterIdentityPatch, type CharacterSavingThrowPatch, type CharacterSheetView, type CharacterSkillPatch } from '../types/characterView'
-import type { CharacterCombatV3, CharacterFeatV3, CharacterInventoryItemV3, CharacterPersonalityV3, CharacterSpellcastingV3 } from '../types/characterV3'
+import type { CharacterCombatV3, CharacterFeatV3, CharacterInventoryItemV3, CharacterPersonalityV3, CharacterSpellcastingV3, CharacterV3 } from '../types/characterV3'
 import { validateCharacter } from '../validation/characterValidation'
 import { applyCharacterCreation, type CharacterCreationPayload } from '../domain/characterCreation'
 import { levelUpProgression, progressionAtLevel } from '../domain/characterProgression'
-import { listStoredCharacterSummaries, readStoredActiveCharacterId, removeStoredCharacter, writeStoredActiveCharacterId, type StoredCharacterSummary } from '../api/characterV3Storage'
+import { listStoredCharacterIds, listStoredCharacterSummaries, readStoredActiveCharacterId, removeStoredCharacter, writeStoredActiveCharacterId, writeStoredCharacterV3, type StoredCharacterSummary } from '../api/characterV3Storage'
+import { uniqueCharacterId } from '../api/characterTransfer'
 import { changeSpellSlot, restoreSpellSlots, takeLongRest, takeShortRest, type ShortRestResult } from '../domain/rest'
 import type { CharacterV3SpellLevel } from '../types/characterV3'
 
@@ -135,6 +136,22 @@ export function useCharacterSheet(id = 'demo-character') {
     if (!targetId || targetId === activeId.value) return
     suppressVirtualCharacter.value = false
     await load(targetId)
+  }
+
+  async function importCharacters(imported: CharacterV3[], mode: 'add' | 'replace'): Promise<string[]> {
+    const usedIds = new Set(listStoredCharacterIds())
+    const ids: string[] = []
+    for (const [index, importedCharacter] of imported.entries()) {
+      const next = JSON.parse(JSON.stringify(importedCharacter)) as CharacterV3
+      const targetId = mode === 'replace' && index === 0 && activeId.value ? activeId.value : uniqueCharacterId(next.id, usedIds)
+      next.id = targetId
+      writeStoredCharacterV3(next)
+      usedIds.add(targetId)
+      ids.push(targetId)
+    }
+    const active = ids[0]
+    if (active) await load(active)
+    return ids
   }
 
   function updateIdentity(patch: CharacterIdentityPatch) {
@@ -273,5 +290,5 @@ export function useCharacterSheet(id = 'demo-character') {
   })
   onBeforeUnmount(() => { if (unloadHandler) window.removeEventListener('beforeunload', unloadHandler) })
 
-  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, copyCharacter, deleteCharacter, selectCharacter, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, shortRest, longRest, adjustSpellSlot, useInventoryItem, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
+  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, copyCharacter, deleteCharacter, selectCharacter, importCharacters, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, shortRest, longRest, adjustSpellSlot, useInventoryItem, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
 }

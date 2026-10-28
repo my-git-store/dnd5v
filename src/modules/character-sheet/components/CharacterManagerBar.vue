@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { CBtn } from '@/ui/components'
 import type { StoredCharacterSummary } from '../api/characterV3Storage'
 
@@ -7,6 +8,7 @@ defineProps<{
   activeId: string | null
   dirty: boolean
   disabled: boolean
+  status?: { kind: 'success' | 'error'; text: string } | null
 }>()
 
 const emit = defineEmits<{
@@ -14,7 +16,18 @@ const emit = defineEmits<{
   create: []
   copy: []
   remove: []
+  'export-current': []
+  'export-all': []
+  'import-file': [file: File]
 }>()
+const fileInput = ref<HTMLInputElement | null>(null)
+function chooseImport() { fileInput.value?.click() }
+function onFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (file) emit('import-file', file)
+}
 </script>
 
 <template>
@@ -36,6 +49,11 @@ const emit = defineEmits<{
       <CBtn color-type="accent" :disabled="disabled" @click="emit('create')">Новый</CBtn>
       <CBtn color-type="accent" :disabled="disabled || !activeId" @click="emit('copy')">Копировать</CBtn>
       <CBtn color-type="delete" :disabled="disabled || !activeId" @click="emit('remove')">Удалить</CBtn>
+      <CBtn color-type="accent" :disabled="disabled || !activeId" @click="emit('export-current')">Экспорт</CBtn>
+      <CBtn color-type="accent" :disabled="disabled || !characters.length" @click="emit('export-all')">Экспорт всех</CBtn>
+      <CBtn color-type="accent" :disabled="disabled" @click="chooseImport">Импорт</CBtn>
+      <input ref="fileInput" class="character-import-input" type="file" accept="application/json,.json" @change="onFileChange">
     </div>
+    <p v-if="status" class="character-manager-status" :class="status.kind" role="status" aria-live="polite">{{ status.text }}</p>
   </section>
 </template>

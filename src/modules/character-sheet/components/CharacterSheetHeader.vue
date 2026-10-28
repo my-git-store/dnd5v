@@ -20,7 +20,7 @@ defineProps<{
   level: number
   experience: number
 }>()
-const emit = defineEmits<{ save: []; 'open-details': [] }>()
+const emit = defineEmits<{ save: []; 'open-details': []; print: [] }>()
 function hideBrokenAsset(event: Event) {
   const image = event.currentTarget as HTMLImageElement | null
   if (image) {
@@ -49,6 +49,7 @@ function hideBrokenAsset(event: Event) {
     </div>
     <div class="sheet-header-actions">
       <CBtn class="header-details-button" color-type="accent" :disabled="saving" @click="emit('open-details')">Сведения</CBtn>
+      <CBtn class="header-print-button" color-type="accent" :disabled="saving" @click="emit('print')">Печать листа</CBtn>
       <CBtn class="sheet-save-button" :class="{ 'sheet-save-button-saved': saved }" color-type="primary" :loading="saving" :disabled="!dirty" @click="emit('save')">{{ saved ? 'Сохранено' : 'Сохранить' }}</CBtn>
     </div>
   </header>

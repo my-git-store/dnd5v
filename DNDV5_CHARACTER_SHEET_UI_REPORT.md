@@ -145,3 +145,40 @@ Dev-сервер проверен через временный Playwright 1.52.
 На тестовом v3-персонаже реально проверены короткий отдых с тратой кости и лечением, длительный отдых с восстановлением HP/ячейки/спасбросков, бросок атаки, бросок урона, использование расходуемого предмета, использование ячейки, reload и сохранение изменённых значений. Browser diagnostics: `console.error` — 0, `console.warn` — 0, page errors — 0, failed requests — 0.
 
 История бросков атаки отображается в текущей вкладке, как и существующая история общего Dice Roller; отдельная история атак не добавлялась в schema v3.
+
+## Этап 4: переносимость данных и печать
+
+### Изменения
+
+- Добавлен JSON export текущего персонажа и всех сохранённых персонажей. Пакет содержит `schemaVersion`, `exportVersion`, дату экспорта и только данные персонажей; неизвестные служебные `extensions` и потенциальные секреты исключаются.
+- Имя файла формируется из имени персонажа и даты. Для пакетного экспорта используется безопасное имя `personazhi-YYYY-MM-DD.json`.
+- Добавлен импорт JSON с ограничением размера 2 МБ, проверкой структуры, миграцией v1/v2 через существующий `migrateCharacterToV3`, валидацией и preview имени/уровня/количества персонажей.
+- Импорт поддерживает «Добавить как новых» и «Заменить текущего». При совпадении ID создаётся новый безопасный ID; текущий draft не записывается до подтверждения.
+- Добавлены понятные success/error-состояния для экспорта и импорта, включая повреждённый JSON и oversized-файл.
+- Добавлена кнопка «Печать листа». Перед browser print flow включается print-режим со всеми пятью разделами листа; служебная навигация, менеджер, кнопки и игровой стол скрываются через `@media print`.
+
+### Изменённые файлы
+
+- `src/modules/character-sheet/api/characterTransfer.ts`
+- `src/modules/character-sheet/composables/useCharacterSheet.ts`
+- `src/modules/character-sheet/components/CharacterManagerBar.vue`
+- `src/modules/character-sheet/components/CharacterImportModal.vue`
+- `src/modules/character-sheet/components/CharacterSheetHeader.vue`
+- `src/modules/character-sheet/CharacterSheetPage.vue`
+- `src/modules/character-sheet/styles/character-sheet.css`
+- `tests/character-sheet/characterTransfer.test.ts`
+
+### Проверки
+
+- `npm run typecheck` — PASS.
+- `npm test` — PASS, 142 теста.
+- `npm run build` — PASS после фиксации print-селектора. Остались только известные предупреждения Rollup о размере чанков и аннотациях `@vueuse/core`.
+- `git diff --check` — PASS перед commit.
+
+### Browser smoke
+
+Через временный Playwright 1.52.0 с Microsoft Edge проверены viewport `1440×900`, `1024×768`, `800×800`, `430×932` и `375×812`: export текущего персонажа, export всех персонажей, import как нового с обновлением списка, ошибка повреждённого JSON, имя экспортного файла, overflow и диагностика.
+
+Print CSS дополнительно проверен через `emulateMedia('print')`: менеджер и вкладки скрыты, игровая вкладка скрыта, все пять листовых панелей остаются видимыми, overflow отсутствует. Нативное системное окно print preview автоматизация не открывала; проверен DOM/CSS print flow без имитации результата диалога.
+
+На smoke viewport: `console.error` — 0, `console.warn` — 0, page errors — 0, failed requests — 0.
