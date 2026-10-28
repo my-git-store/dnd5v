@@ -2,7 +2,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { createCharacterSheetAdapter } from '../adapters/characterSheetAdapter'
 import { type AbilityKey, type CharacterBio, type CharacterDetails, type CharacterMoney, type CharacterSpell } from '../types/character'
 import { cloneCharacterView, type CharacterIdentityPatch, type CharacterSavingThrowPatch, type CharacterSheetView, type CharacterSkillPatch } from '../types/characterView'
-import type { CharacterCombatV3, CharacterFeatV3, CharacterInventoryItemV3, CharacterPersonalityV3, CharacterSpellcastingV3, CharacterV3 } from '../types/characterV3'
+import type { CharacterCombatV3, CharacterEncounterV3, CharacterFeatV3, CharacterInventoryItemV3, CharacterPersonalityV3, CharacterSpellcastingV3, CharacterV3 } from '../types/characterV3'
 import { validateCharacter } from '../validation/characterValidation'
 import { applyCharacterCreation, type CharacterCreationPayload } from '../domain/characterCreation'
 import { levelUpProgression, progressionAtLevel } from '../domain/characterProgression'
@@ -204,6 +204,11 @@ export function useCharacterSheet(id = 'demo-character') {
     character.value.npc = JSON.parse(JSON.stringify(npc)) as NonNullable<CharacterSheetView['npc']>
     savedNotice.value = false
   }
+  function updateEncounters(encounters: CharacterEncounterV3[]) {
+    if (!character.value) return
+    character.value.encounters = JSON.parse(JSON.stringify(encounters)) as CharacterEncounterV3[]
+    savedNotice.value = false
+  }
   function updateDetails(details: CharacterDetails) { if (character.value) Object.assign(character.value, details); savedNotice.value = false }
   function updateAbility(key: AbilityKey, value: number) { if (character.value) character.value.abilities[key] = value; savedNotice.value = false }
   function updateSkill(id: string, patch: CharacterSkillPatch) { const item = character.value?.skills.find((skill) => skill.id === id); if (item) Object.assign(item, patch); savedNotice.value = false }
@@ -324,5 +329,5 @@ export function useCharacterSheet(id = 'demo-character') {
   })
   onBeforeUnmount(() => { if (unloadHandler) window.removeEventListener('beforeunload', unloadHandler) })
 
-  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, createNpc, createNpcFromProfile, copyCharacter, deleteCharacter, selectCharacter, importCharacters, updateIdentity, updateNpc, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, shortRest, longRest, adjustSpellSlot, useInventoryItem, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
+  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, createNpc, createNpcFromProfile, copyCharacter, deleteCharacter, selectCharacter, importCharacters, updateIdentity, updateNpc, updateEncounters, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, shortRest, longRest, adjustSpellSlot, useInventoryItem, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
 }

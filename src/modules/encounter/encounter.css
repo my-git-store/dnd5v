@@ -1,0 +1,39 @@
+.encounter-planner { display: grid; gap: 15px; min-width: 0; }
+.encounter-heading, .encounter-toolbar, .encounter-battle-bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.encounter-heading h1 { margin: 0 0 5px; color: var(--sheet-ink); font-family: var(--font-serif); font-size: clamp(1.4rem, 3vw, 2rem); }
+.encounter-toolbar, .encounter-add-row, .encounter-battle-bar { padding: 13px; border: 1px solid var(--sheet-line-soft); border-radius: 10px; background: rgba(255, 248, 231, .58); }
+.encounter-toolbar label, .encounter-add-row label, .encounter-battle-bar > div { display: grid; min-width: 0; gap: 6px; color: var(--sheet-ink); font-size: .8rem; font-weight: 700; }
+.encounter-toolbar label { flex: 1 1 auto; }
+.encounter-toolbar-actions, .encounter-battle-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.encounter-add-row { display: grid; grid-template-columns: minmax(0, 1fr) 120px auto; align-items: end; gap: 10px; }
+.encounter-battle-bar { align-items: center; }
+.encounter-battle-bar > div { min-width: 100px; }
+.encounter-battle-bar strong { color: var(--sheet-burgundy); font-size: 1.15rem; }
+.encounter-participant-list { display: grid; gap: 9px; }
+.encounter-participant { display: grid; grid-template-columns: minmax(0, 1fr) 112px 112px auto auto; align-items: end; gap: 10px; min-width: 0; padding: 12px; border: 1px solid var(--sheet-line-soft); border-radius: 10px; background: rgba(255, 250, 239, .72); }
+.encounter-participant.current { border-color: #a9bb8f; background: #edf3e7; }
+.encounter-participant.defeated { opacity: .62; }
+.encounter-participant-name { display: grid; min-width: 0; gap: 3px; }
+.encounter-participant-name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.encounter-participant-name small { color: var(--sheet-muted); }
+.encounter-participant label { display: grid; min-width: 0; gap: 5px; color: var(--sheet-muted); font-size: .72rem; }
+.number-input { width: 100%; min-width: 0; box-sizing: border-box; padding: 8px; border: 1px solid #cdb687; border-radius: 8px; color: var(--sheet-ink); background: #fffaf0; }
+.encounter-defeated { display: flex !important; align-items: center; align-self: center; gap: 6px !important; white-space: nowrap; }
+@media (max-width: 800px) {
+  .encounter-add-row { grid-template-columns: minmax(0, 1fr) 100px; }
+  .encounter-add-row .c-btn { grid-column: 1 / -1; }
+  .encounter-participant { grid-template-columns: minmax(0, 1fr) 100px 100px; }
+  .encounter-participant .encounter-defeated { grid-column: 1 / 2; }
+  .encounter-participant > .c-btn { grid-column: 3; grid-row: 3; }
+}
+@media (max-width: 560px) {
+  .encounter-heading, .encounter-toolbar, .encounter-battle-bar { flex-direction: column; }
+  .encounter-heading > .c-btn, .encounter-toolbar-actions, .encounter-toolbar-actions .c-btn, .encounter-battle-actions, .encounter-battle-actions .c-btn { width: 100%; }
+  .encounter-add-row, .encounter-participant { grid-template-columns: minmax(0, 1fr); }
+  .encounter-add-row .c-btn, .encounter-participant .encounter-defeated, .encounter-participant > .c-btn { grid-column: auto; grid-row: auto; }
+  .encounter-participant > .c-btn { width: 100%; }
+}
+@media print {
+  .encounter-toolbar-actions, .encounter-add-row, .encounter-battle-actions { display: none !important; }
+  .encounter-participant { break-inside: avoid; }
+}

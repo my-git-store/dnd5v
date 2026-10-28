@@ -19,6 +19,7 @@ import LevelUpModal from './components/LevelUpModal.vue'
 import TableComponentsShowcase from '../table-components/TableComponentsShowcase.vue'
 import BestiaryPanel from '../bestiary/components/BestiaryPanel.vue'
 import { bestiaryToNpc, type BestiaryEntry } from '../bestiary/types.ts'
+import EncounterPlanner from '../encounter/EncounterPlanner.vue'
 import { useCharacterSheet } from './composables/useCharacterSheet'
 import type { AbilityKey } from './types/character'
 import type { CharacterIdentityPatch } from './types/characterView'
@@ -31,7 +32,7 @@ import { CHARACTER_TRANSFER_MAX_BYTES, parseCharacterTransfer, readAllStoredChar
 import { readStoredCharacterV3 } from './api/characterV3Storage.ts'
 import './styles/character-sheet.css'
 
-const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }, { name: 'Бестиарий', value: 'bestiary' }, { name: 'Игровые компоненты', value: 'table-components' }] as const
+const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }, { name: 'Бестиарий', value: 'bestiary' }, { name: 'Планировщик столкновения', value: 'encounter' }, { name: 'Игровые компоненты', value: 'table-components' }] as const
 const activeTab = ref<string>('main')
 const tabDirection = ref<'forward' | 'backward'>('forward')
 const creationOpen = ref(false)
@@ -280,6 +281,9 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
           </div>
           <div v-show="!printMode && activeTab === 'bestiary'" class="sheet-tab-panel bestiary-tab-panel" :class="tabPanelClass('bestiary')">
             <BestiaryPanel :on-create-npc="createNpcFromBestiary" @status="(message) => { transferStatus = { kind: 'success', text: message } }" />
+          </div>
+          <div v-show="!printMode && activeTab === 'encounter'" class="sheet-tab-panel encounter-tab-panel" :class="tabPanelClass('encounter')">
+            <EncounterPlanner :encounters="sheet.character.value.encounters" :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" @update="sheet.updateEncounters" @status="(message) => { transferStatus = { kind: 'success', text: message } }" />
           </div>
         </div>
         </template>

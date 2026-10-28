@@ -81,6 +81,7 @@ function toUiCharacter(value: CharacterV3): CharacterSheetView {
     schemaVersion: 2,
     kind: value.kind === 'npc' ? 'npc' : 'character',
     npc: value.npc ? clone(value.npc) : undefined,
+    encounters: value.encounters ? clone(value.encounters) : [],
     ruleset: value.ruleset,
     name: value.identity.name,
     class: value.identity.class,
@@ -187,6 +188,7 @@ function toV3(value: CharacterSheetView, base: CharacterV3): CharacterV3 {
   next.kind = value.kind === 'npc' ? 'npc' : 'character'
   if (value.npc) next.npc = clone(value.npc)
   else delete next.npc
+  if (value.encounters !== undefined) next.encounters = clone(value.encounters)
   next.ruleset = value.ruleset
   next.identity.name = value.name
   next.identity.class = value.class

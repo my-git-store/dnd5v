@@ -289,6 +289,16 @@ function validNpc(value: unknown): boolean {
   return value.skills.every(validBonus) && value.savingThrows.every(validBonus) && value.features.every(validNpcEntry) && value.actions.every(validNpcEntry)
 }
 
+function validEncounter(value: unknown): boolean {
+  if (!isRecord(value) || !isString(value.id) || !value.id || !isString(value.name) || !isInteger(value.round) || value.round < 1 || (value.currentParticipantId !== null && !isString(value.currentParticipantId)) || !Array.isArray(value.participants)) return false
+  const ids = new Set<string>()
+  return value.participants.every((participant) => {
+    if (!isRecord(participant) || !isString(participant.id) || !participant.id || ids.has(participant.id) || !isString(participant.name) || !isInteger(participant.maxHitPoints) || participant.maxHitPoints < 0 || !isInteger(participant.currentHitPoints) || participant.currentHitPoints < 0 || participant.currentHitPoints > participant.maxHitPoints || !isInteger(participant.armorClass) || !isInteger(participant.initiative) || typeof participant.defeated !== 'boolean') return false
+    ids.add(participant.id)
+    return participant.sourceId === undefined || isString(participant.sourceId)
+  })
+}
+
 /** Returns all validation messages for a v3 character payload. */
 export function validateCharacterV3(value: unknown): string[] {
   if (!isRecord(value)) return ['Персонаж v3 должен быть объектом.']
@@ -299,6 +309,7 @@ export function validateCharacterV3(value: unknown): string[] {
   if (!isString(value.id) || !value.id) errors.push('Не указан идентификатор персонажа.')
   if (value.kind !== undefined && value.kind !== 'character' && value.kind !== 'npc') errors.push('Неизвестный тип листа.')
   if (value.kind === 'npc' && !validNpc(value.npc)) errors.push('Некорректные данные НПС.')
+  if (value.encounters !== undefined && (!Array.isArray(value.encounters) || !value.encounters.every(validEncounter))) errors.push('Некорректные данные столкновений.')
   if (!isRecord(identity)
     || !isString(identity.name) || !identity.name.trim()
     || !validRace(identity.race)

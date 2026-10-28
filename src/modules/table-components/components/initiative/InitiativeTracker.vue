@@ -53,8 +53,35 @@ function addFromBestiary(event: Event) {
   participants.value = sortInitiative([...participants.value, detail])
   currentParticipantId.value = detail.id
 }
-onMounted(() => window.addEventListener('nastolka:add-initiative-participant', addFromBestiary))
-onUnmounted(() => window.removeEventListener('nastolka:add-initiative-participant', addFromBestiary))
+function syncParticipants(event: Event) {
+  const details = (event as CustomEvent<BestiaryInitiativeDetail[]>).detail
+  if (!Array.isArray(details)) return
+  const known = new Map(participants.value.map((participant) => [participant.id, participant]))
+  for (const detail of details) {
+    if (!detail || typeof detail.id !== 'string' || !detail.name || !Number.isFinite(detail.initiative)) continue
+    const current = known.get(detail.id)
+    if (current) { current.name = detail.name; current.initiative = detail.initiative; current.hitPoints = detail.hitPoints; current.armorClass = detail.armorClass }
+    else known.set(detail.id, detail)
+  }
+  participants.value = sortInitiative([...known.values()])
+}
+function setTrackerState(event: Event) {
+  const detail = (event as CustomEvent<{ currentId: string | null; round: number }>).detail
+  if (!detail) return
+  if (detail.currentId !== null && participants.value.some((participant) => participant.id === detail.currentId)) currentParticipantId.value = detail.currentId
+  if (Number.isInteger(detail.round) && detail.round > 0) round.value = detail.round
+}
+onMounted(() => {
+  window.addEventListener('nastolka:add-initiative-participant', addFromBestiary)
+  window.addEventListener('nastolka:sync-initiative-participants', syncParticipants)
+  window.addEventListener('nastolka:set-initiative-state', setTrackerState)
+  window.dispatchEvent(new CustomEvent('nastolka:initiative-tracker-ready'))
+})
+onUnmounted(() => {
+  window.removeEventListener('nastolka:add-initiative-participant', addFromBestiary)
+  window.removeEventListener('nastolka:sync-initiative-participants', syncParticipants)
+  window.removeEventListener('nastolka:set-initiative-state', setTrackerState)
+})
 </script>
 
 <template>

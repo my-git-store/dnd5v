@@ -43,6 +43,25 @@ export interface CharacterNpcV3 {
   actions: CharacterNpcEntryV3[]
 }
 
+export interface CharacterEncounterParticipantV3 {
+  id: string
+  sourceId?: string
+  name: string
+  maxHitPoints: number
+  currentHitPoints: number
+  armorClass: number
+  initiative: number
+  defeated: boolean
+}
+
+export interface CharacterEncounterV3 {
+  id: string
+  name: string
+  round: number
+  currentParticipantId: string | null
+  participants: CharacterEncounterParticipantV3[]
+}
+
 export interface RaceProfileV3 {
   name: string
   subrace: string
@@ -287,6 +306,8 @@ export interface CharacterV3 {
   extensions: Record<string, unknown>
   /** Optional NPC-specific data; character records do not need this field. */
   npc?: CharacterNpcV3
+  /** Optional encounter planner state; absent on older v3 records. */
+  encounters?: CharacterEncounterV3[]
 }
 
 export function cloneCharacterV3(character: CharacterV3): CharacterV3 {
