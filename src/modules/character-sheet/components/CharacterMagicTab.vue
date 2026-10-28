@@ -6,9 +6,10 @@ import SpellcastingSummary from './SpellcastingSummary.vue'
 import SpellSlotsFields from './SpellSlotsFields.vue'
 import type { CharacterSpell } from '../types/character'
 import type { CharacterSheetView } from '../types/characterView'
+import type { CharacterV3SpellLevel } from '../types/characterV3'
 
 const props = defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
-const emit = defineEmits<{ 'update:spells': [spells: CharacterSpell[]]; 'update:cantrips': [spells: CharacterSpell[]]; 'update:spellcasting': [spellcasting: CharacterSheetView['spellcasting']] }>()
+const emit = defineEmits<{ 'update:spells': [spells: CharacterSpell[]]; 'update:cantrips': [spells: CharacterSpell[]]; 'update:spellcasting': [spellcasting: CharacterSheetView['spellcasting']]; 'use-slot': [level: CharacterV3SpellLevel, delta: number] }>()
 const spellbookTabs = [{ name: 'Заговоры', value: 'cantrips' }, { name: 'Заклинания', value: 'spells' }] as const
 const activeSpellbookTab = ref<(typeof spellbookTabs)[number]['value']>('cantrips')
 function updateSlots(spellSlots: CharacterSheetView['spellcasting']['spellSlots']) {
@@ -16,6 +17,9 @@ function updateSlots(spellSlots: CharacterSheetView['spellcasting']['spellSlots'
 }
 function updatePrepared(preparedSpellIds: string[]) {
   emit('update:spellcasting', { ...props.character.spellcasting, preparedSpellIds })
+}
+function useSlot(level: CharacterV3SpellLevel, delta: number) {
+  emit('use-slot', level, delta)
 }
 </script>
 
@@ -26,7 +30,7 @@ function updatePrepared(preparedSpellIds: string[]) {
       <div><h1>Магия и заклинания</h1><p class="section-note">Настройте источник магии, следите за ячейками и храните заклинания в одном месте.</p></div>
     </section>
     <SpellcastingSummary :spellcasting="character.spellcasting" :abilities="character.abilities" :level="character.level" :disabled="disabled" @update="emit('update:spellcasting', $event)" />
-    <SpellSlotsFields :slots="character.spellcasting.spellSlots" :disabled="disabled" @update="updateSlots" />
+    <SpellSlotsFields :slots="character.spellcasting.spellSlots" :disabled="disabled" @update="updateSlots" @use-slot="useSlot" />
     <section class="sheet-section magic-spellbook-shell">
       <CTabs v-model="activeSpellbookTab" :tabs="spellbookTabs" />
       <div class="magic-spellbook-panels">

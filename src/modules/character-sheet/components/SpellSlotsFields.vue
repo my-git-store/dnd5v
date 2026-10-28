@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { CInput } from '@/ui/components'
+import { CBtn, CInput } from '@/ui/components'
 import type { CharacterSpellSlotV3, CharacterSpellSlotsV3 } from '../types/characterV3'
 
 const props = defineProps<{ slots: CharacterSpellSlotsV3; disabled?: boolean }>()
-const emit = defineEmits<{ update: [slots: CharacterSpellSlotsV3] }>()
+const emit = defineEmits<{ update: [slots: CharacterSpellSlotsV3]; 'use-slot': [level: typeof levels[number], delta: number] }>()
 const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const
 function copy(): CharacterSpellSlotsV3 { return JSON.parse(JSON.stringify(props.slots)) as CharacterSpellSlotsV3 }
 function integer(value: unknown) { const parsed = Number(value); return Number.isFinite(parsed) ? Math.max(0, Math.trunc(parsed)) : 0 }
@@ -29,6 +29,10 @@ const labels = computed(() => levels.map((level) => ({ level, label: `Урове
           <CInput type="number" min="0" step="1" label="Использовано" :model-value="slots[item.level].used" :disabled="disabled" @update:model-value="update(item.level, 'used', $event)" />
         </div>
         <p class="derived-value">Осталось: {{ remaining(item.level) }}</p>
+        <div class="spell-slot-actions">
+          <CBtn :disabled="disabled || slots[item.level].used >= slots[item.level].max" @click="emit('use-slot', item.level, 1)">Потратить</CBtn>
+          <CBtn :disabled="disabled || slots[item.level].used <= 0" @click="emit('use-slot', item.level, -1)">Вернуть</CBtn>
+        </div>
       </div>
     </div>
   </section>

@@ -7,6 +7,8 @@ import { validateCharacter } from '../validation/characterValidation'
 import { applyCharacterCreation, type CharacterCreationPayload } from '../domain/characterCreation'
 import { levelUpProgression, progressionAtLevel } from '../domain/characterProgression'
 import { listStoredCharacterSummaries, readStoredActiveCharacterId, removeStoredCharacter, writeStoredActiveCharacterId, type StoredCharacterSummary } from '../api/characterV3Storage'
+import { changeSpellSlot, restoreSpellSlots, takeLongRest, takeShortRest, type ShortRestResult } from '../domain/rest'
+import type { CharacterV3SpellLevel } from '../types/characterV3'
 
 export function useCharacterSheet(id = 'demo-character') {
   const adapter = createCharacterSheetAdapter()
@@ -179,6 +181,36 @@ export function useCharacterSheet(id = 'demo-character') {
     character.value.spellcasting = JSON.parse(JSON.stringify(spellcasting)) as CharacterSpellcastingV3
     savedNotice.value = false
   }
+  function shortRest(dice: number): ShortRestResult | null {
+    if (!character.value) return null
+    const result = takeShortRest(character.value.combat, character.value.abilities, dice)
+    character.value.combat = result.combat
+    savedNotice.value = false
+    saveError.value = null
+    return result
+  }
+  function longRest() {
+    if (!character.value) return
+    character.value.combat = takeLongRest(character.value.combat)
+    character.value.spellcasting = { ...character.value.spellcasting, spellSlots: restoreSpellSlots(character.value.spellcasting.spellSlots) }
+    savedNotice.value = false
+    saveError.value = null
+  }
+  function adjustSpellSlot(level: CharacterV3SpellLevel, delta: number) {
+    if (!character.value) return
+    character.value.spellcasting = { ...character.value.spellcasting, spellSlots: changeSpellSlot(character.value.spellcasting.spellSlots, level, delta) }
+    savedNotice.value = false
+    saveError.value = null
+  }
+  function useInventoryItem(id: string): boolean {
+    const item = character.value?.inventoryData.items.find((entry) => entry.id === id)
+    if (!item || item.quantity <= 0) return false
+    item.quantity -= 1
+    if (character.value) character.value.inventory = character.value.inventoryData.items.map(({ id: itemId, name, quantity, description }) => ({ id: itemId, name, quantity, description }))
+    savedNotice.value = false
+    saveError.value = null
+    return true
+  }
   function updateInventory(inventory: CharacterInventoryItemV3[]) {
     if (!character.value) return
     character.value.inventoryData.items = JSON.parse(JSON.stringify(inventory)) as CharacterInventoryItemV3[]
@@ -241,5 +273,5 @@ export function useCharacterSheet(id = 'demo-character') {
   })
   onBeforeUnmount(() => { if (unloadHandler) window.removeEventListener('beforeunload', unloadHandler) })
 
-  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, copyCharacter, deleteCharacter, selectCharacter, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
+  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, copyCharacter, deleteCharacter, selectCharacter, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, shortRest, longRest, adjustSpellSlot, useInventoryItem, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
 }

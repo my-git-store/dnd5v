@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { onBeforeUnmount, ref } from 'vue'
 import { CBtn, openConfirmModal, useDialog } from '@/ui/components'
 import { calculateAttackDamageModifier, formatAttackBonus, getAttackBonusSource, getAttackCalculationMode } from '../domain/attackBonus'
 import { signedModifier } from '../domain/abilityModifier'
+import { numericBonus, rollDiceFormula } from '../domain/rollFormula'
 import { getRules2024Weapon, getRules2024WeaponMastery } from '../data/rules2024/index.ts'
 import AttackEditorModal from './AttackEditorModal.vue'
 import EmptyCollection from './shared/EmptyCollection.vue'
@@ -14,6 +16,13 @@ const emit = defineEmits<{ update: [attacks: CharacterAttackView[]] }>()
 const { open } = useDialog()
 const kindLabels: Record<CharacterAttackView['kind'], string> = { melee: 'Ближняя', ranged: 'Дальняя', spell: 'Заклинание', other: 'Другое' }
 const sourceLabels: Record<string, string> = { manual: 'Ручной бонус', strength: 'Сила', dexterity: 'Ловкость', constitution: 'Телосложение', intelligence: 'Интеллект', wisdom: 'Мудрость', charisma: 'Харизма' }
+type RollKind = 'attack' | 'damage'
+interface AttackRollRecord { id: number; attackId: string; name: string; kind: RollKind; formula: string; result: number }
+const isRolling = ref(false)
+const rollHistory = ref<AttackRollRecord[]>([])
+const lastRoll = ref<AttackRollRecord | null>(null)
+let rollTimer: number | undefined
+let nextRollId = 1
 
 function save(attack: CharacterAttackView) {
   const exists = props.attacks.some((item) => item.id === attack.id)
@@ -42,6 +51,34 @@ function weaponLabel(attack: CharacterAttackView): string {
 function masteryLabel(attack: CharacterAttackView): string {
   return attack.masteryId ? (getRules2024WeaponMastery(attack.masteryId)?.name ?? attack.masteryId) : (attack.weaponMastery ?? '')
 }
+function damageFormula(attack: CharacterAttackView): string {
+  const base = attack.damage.trim() || 'd4'
+  const summary = attackSummary(attack)
+  if (summary.damageModifier === null || !/^[^+\-]+$/.test(base)) return base
+  return `${base} ${summary.damageModifier >= 0 ? '+' : '-'} ${Math.abs(summary.damageModifier)}`
+}
+function roll(attack: CharacterAttackView, kind: RollKind) {
+  if (isRolling.value) return
+  const summary = attackSummary(attack)
+  const bonus = numericBonus(summary.bonus)
+  const formula = kind === 'attack'
+    ? `d20${bonus === null || bonus === 0 ? '' : bonus > 0 ? `+${bonus}` : `${bonus}`}`
+    : damageFormula(attack)
+  const rolled = rollDiceFormula(formula)
+  if (!rolled) {
+    lastRoll.value = { id: nextRollId++, attackId: attack.id, name: attack.name || 'Без названия', kind, formula: 'Формула не распознана', result: 0 }
+    return
+  }
+  isRolling.value = true
+  rollTimer = window.setTimeout(() => {
+    const record = { id: nextRollId++, attackId: attack.id, name: attack.name || 'Без названия', kind, formula, result: rolled.result }
+    lastRoll.value = record
+    rollHistory.value = [record, ...rollHistory.value].slice(0, 20)
+    isRolling.value = false
+    rollTimer = undefined
+  }, 280)
+}
+onBeforeUnmount(() => { if (rollTimer !== undefined) window.clearTimeout(rollTimer) })
 </script>
 
 <template>
@@ -61,7 +98,18 @@ function masteryLabel(attack: CharacterAttackView): string {
         </div>
         <div class="attack-entry-details"><span>{{ attackSummary(attack).source }}</span><span v-if="attack.properties.length">{{ attack.properties.join(' · ') }}</span><span v-if="attack.description" class="attack-description-preview" :title="attack.description">{{ attack.description }}</span></div>
       </div>
-      <EntryActions :disabled="disabled" @edit="openEditor(attack)" @remove="remove(attack.id, attack.name)" />
+      <div class="attack-entry-actions">
+        <div class="attack-roll-actions">
+          <CBtn :disabled="disabled || isRolling" @click="roll(attack, 'attack')">Бросок атаки</CBtn>
+          <CBtn :disabled="disabled || isRolling" @click="roll(attack, 'damage')">Бросок урона</CBtn>
+        </div>
+        <EntryActions :disabled="disabled || isRolling" @edit="openEditor(attack)" @remove="remove(attack.id, attack.name)" />
+      </div>
     </div>
+    <p v-if="lastRoll" class="attack-roll-result" role="status" aria-live="polite">{{ lastRoll.kind === 'attack' ? 'Атака' : 'Урон' }}: {{ lastRoll.formula }} → <strong>{{ lastRoll.result }}</strong></p>
+    <details v-if="rollHistory.length" class="attack-roll-history">
+      <summary>История бросков ({{ rollHistory.length }})</summary>
+      <ul><li v-for="entry in rollHistory.slice(0, 5)" :key="entry.id">{{ entry.name }} · {{ entry.formula }} → <strong>{{ entry.result }}</strong></li></ul>
+    </details>
   </section>
 </template>

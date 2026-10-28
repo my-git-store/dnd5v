@@ -103,3 +103,45 @@ Diagnostics: `console.error` — 0, `console.warn` — 0, page errors — 0. Л�
 Dev-сервер `http://127.0.0.1:5173/` проверен через временный Playwright 1.52.0 с установленным Microsoft Edge; проектные зависимости не менялись. Фактически проверены `1440×900`, `1024×768`, `800×800`, `430×932` и `375×812`: первый рендер, изменение Силы с немедленным обновлением модификатора, переходы во вкладки «Бой» и «Магия / Заклинания», отсутствие горизонтального overflow и локального переполнения новых режимных меток.
 
 На всех размерах: `console.error` — 0, `console.warn` — 0, page errors — 0, failed requests — 0. Проверка реального ввода уровня/атаки/заклинания в браузере ограничена пустым персонажем без записей; формулы и сохранение их входов проверены unit/adapter-тестами.
+
+## Этап 3: игровые действия
+
+### Изменения
+
+- Добавлены чистые операции короткого и длительного отдыха поверх существующих v3-полей: кости хитов, HP, временные HP, спасброски от смерти и ячейки заклинаний. Короткий отдых бросает доступные кости с модификатором Телосложения и ограничивает лечение максимумом HP; длительный отдых восстанавливает HP/ячейки и половину общего запаса костей хитов.
+- В боевую вкладку добавлены подтверждение отдыха, выбор количества костей, disabled-состояния и сообщение о результате.
+- Для ячеек заклинаний добавлены действия «Потратить» и «Вернуть» с границами `0..максимум`; действия сохраняются через существующий Save flow.
+- Для атак добавлены броски атаки и урона на базе существующего dice-domain, отображение формулы/результата, защита от повторного клика и локальная история последних бросков. Ручные и legacy-бонусы не изменяются.
+- В инвентаре добавлены inline-кнопки изменения количества, отметка расходуемости по существующему свойству предмета и действие «Использовать» с автосохранением. Отрицательное количество невозможно.
+- Новых полей schema v3 и migration не потребовалось: используются существующие `combat`, `spellcasting.spellSlots` и `inventory.items`.
+
+### Изменённые файлы
+
+- `src/modules/character-sheet/domain/rest.ts`
+- `src/modules/character-sheet/domain/rollFormula.ts`
+- `src/modules/character-sheet/components/RestActions.vue`
+- `src/modules/character-sheet/components/CharacterCombatTab.vue`
+- `src/modules/character-sheet/components/AttackList.vue`
+- `src/modules/character-sheet/components/SpellSlotsFields.vue`
+- `src/modules/character-sheet/components/CharacterMagicTab.vue`
+- `src/modules/character-sheet/components/InventoryList.vue`
+- `src/modules/character-sheet/components/CharacterInventoryTab.vue`
+- `src/modules/character-sheet/composables/useCharacterSheet.ts`
+- `src/modules/character-sheet/CharacterSheetPage.vue`
+- `src/modules/character-sheet/styles/character-sheet.css`
+- `tests/character-sheet/restAndActions.test.ts`
+
+### Проверки
+
+- `npm run typecheck` — PASS.
+- `npm test` — PASS, 138 тестов.
+- `npm run build` — PASS. Сохранились только известные предупреждения Rollup о размере чанков и аннотациях `@vueuse/core`.
+- `git diff --check` — PASS.
+
+### Browser smoke
+
+Dev-сервер проверен через временный Playwright 1.52.0 с установленным Microsoft Edge. Проверены `1440×900`, `1024×768`, `800×800`, `430×932` и `375×812`; на всех размерах ширина документа совпала с viewport.
+
+На тестовом v3-персонаже реально проверены короткий отдых с тратой кости и лечением, длительный отдых с восстановлением HP/ячейки/спасбросков, бросок атаки, бросок урона, использование расходуемого предмета, использование ячейки, reload и сохранение изменённых значений. Browser diagnostics: `console.error` — 0, `console.warn` — 0, page errors — 0, failed requests — 0.
+
+История бросков атаки отображается в текущей вкладке, как и существующая история общего Dice Roller; отдельная история атак не добавлялась в schema v3.

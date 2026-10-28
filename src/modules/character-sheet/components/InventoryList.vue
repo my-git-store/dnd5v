@@ -10,7 +10,7 @@ import type { CharacterInventoryItemV3 } from '../types/characterV3'
 import { getRules2024Weapon } from '../data/rules2024/index.ts'
 
 const props = defineProps<{ items: CharacterInventoryItemV3[]; disabled?: boolean }>()
-const emit = defineEmits<{ update: [items: CharacterInventoryItemV3[]] }>()
+const emit = defineEmits<{ update: [items: CharacterInventoryItemV3[]]; 'use-item': [id: string] }>()
 const query = ref('')
 const showEquipped = ref(true)
 const showUnequipped = ref(true)
@@ -35,6 +35,12 @@ function add() { openEditor({ id: `item-${Date.now()}`, name: '', quantity: 1, w
 function remove(id: string, name: string) {
   openConfirmModal({ text: `удалить предмет «${name || 'без названия'}»?`, onOk: () => emit('update', props.items.filter((item) => item.id !== id)) })
 }
+function isConsumable(item: CharacterInventoryItemV3): boolean {
+  return item.properties.some((property) => /расход|однораз|consumable/i.test(property))
+}
+function changeQuantity(item: CharacterInventoryItemV3, delta: number) {
+  emit('update', props.items.map((current) => current.id === item.id ? { ...current, quantity: Math.max(0, current.quantity + delta) } : current))
+}
 </script>
 
 <template>
@@ -51,14 +57,17 @@ function remove(id: string, name: string) {
     <div v-for="item in visibleItems" :key="item.id" class="entry-card inventory-entry-card">
       <div class="inventory-entry-content">
         <div class="inventory-title"><div><h3>{{ item.name || 'Без названия' }}</h3><span v-if="item.source === 'creation'" class="inventory-source-badge">Стартовый набор</span><span v-if="item.weaponId && getRules2024Weapon(item.weaponId)" class="inventory-source-badge">Оружие: {{ getRules2024Weapon(item.weaponId)?.name }}</span></div><span v-if="item.equipped" class="mode-tag mode-equipped">Экипировано</span></div>
-        <div class="inventory-facts"><span>Количество: {{ item.quantity }}</span><span v-if="item.weight !== null">Вес: {{ item.weight }}</span></div>
+        <div class="inventory-facts"><span class="inventory-quantity-control"><span>Количество: {{ item.quantity }}</span><button type="button" :disabled="disabled || item.quantity <= 0" aria-label="Уменьшить количество" @click="changeQuantity(item, -1)">−</button><button type="button" :disabled="disabled" aria-label="Увеличить количество" @click="changeQuantity(item, 1)">+</button></span><span v-if="item.weight !== null">Вес: {{ item.weight }}</span></div>
         <p v-if="item.properties.length" class="inventory-meta">{{ item.properties.join(' · ') }}</p>
         <details v-if="item.description" class="inventory-description">
           <summary>{{ item.description }}</summary>
           <p>{{ item.description }}</p>
         </details>
       </div>
-      <EntryActions :disabled="disabled" @edit="openEditor(item)" @remove="remove(item.id, item.name)" />
+      <div class="inventory-entry-actions">
+        <CBtn v-if="isConsumable(item)" :disabled="disabled || item.quantity <= 0" @click="emit('use-item', item.id)">Использовать</CBtn>
+        <EntryActions :disabled="disabled" @edit="openEditor(item)" @remove="remove(item.id, item.name)" />
+      </div>
     </div>
   </section>
 </template>

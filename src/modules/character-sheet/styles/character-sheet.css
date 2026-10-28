@@ -399,6 +399,11 @@ body {
   .creation-skill-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 560px) {
+  .attack-entry-actions, .inventory-entry-actions { width: 100%; justify-items: stretch; }
+  .attack-roll-actions { justify-content: stretch; }
+  .attack-roll-actions .c-btn, .inventory-entry-actions .c-btn { flex: 1 1 auto; }
+  .rest-actions-controls { align-items: stretch; flex-direction: column; }
+  .rest-actions-controls .compact-field { min-width: 0; }
   .character-sheet { padding: 28px 12px 48px; border-inline: 0; }
   .character-sheet::before { inset: 7px; border-radius: 12px; }
   .sheet-header { flex-direction: column; gap: 16px; padding: 20px 17px 18px; border-radius: 14px; }
@@ -821,6 +826,22 @@ body {
 .attack-entry-details { display: flex; flex-wrap: wrap; gap: 5px 13px; margin: 10px 0 0 48px; color: var(--sheet-muted); font-size: .72rem; line-height: 1.4; }
 .attack-description-preview { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .attack-entry-details span + span::before { content: "·"; margin-right: 13px; color: #b39564; }
+.attack-entry-actions { display: grid; gap: 8px; justify-items: end; flex: 0 0 auto; }
+.attack-roll-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
+.attack-roll-result { margin: 12px 0 0; padding: 9px 12px; border: 1px solid #b8c89e; border-radius: 8px; background: #edf3e5; color: #49633d; }
+.attack-roll-history { margin-top: 9px; color: var(--sheet-muted); font-size: .78rem; }
+.attack-roll-history summary { cursor: pointer; font-weight: 700; }
+.attack-roll-history ul { margin: 7px 0 0; padding-left: 18px; }
+.attack-roll-history li + li { margin-top: 4px; }
+.rest-actions-panel { grid-column: 1 / -1; }
+.rest-actions-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 10px; }
+.rest-actions-controls .compact-field { min-width: 190px; }
+.action-status { margin: 12px 0 0; padding: 8px 10px; border: 1px solid #b8c89e; border-radius: 8px; background: #edf3e5; color: #49633d; }
+.spell-slot-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.inventory-entry-actions { display: grid; align-content: center; justify-items: end; gap: 8px; flex: 0 0 auto; }
+.inventory-quantity-control { display: inline-flex; align-items: center; gap: 6px; }
+.inventory-quantity-control button { width: 24px; height: 24px; padding: 0; border: 1px solid var(--sheet-line-soft); border-radius: 6px; background: #fff5de; color: var(--sheet-ink); cursor: pointer; }
+.inventory-quantity-control button:disabled { opacity: .5; cursor: not-allowed; }
 .magic-intro-panel, .inventory-intro-panel { display: flex; align-items: center; gap: 14px; grid-column: 1 / -1; padding: 16px 19px; background: linear-gradient(135deg, rgba(255, 250, 239, .96), rgba(244, 226, 194, .76)); }
 .magic-intro-mark, .inventory-intro-mark { display: grid; place-items: center; flex: 0 0 42px; width: 42px; height: 42px; border: 1px solid #c6a56c; border-radius: 12px 12px 12px 3px; background: #fff3d8; color: #8c5e2b; font-size: 1.25rem; box-shadow: inset 0 0 0 3px rgba(255,255,255,.48); }
 .inventory-intro-mark { color: #704b46; background: #f6e6d5; }

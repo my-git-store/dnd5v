@@ -17,6 +17,8 @@ import TableComponentsShowcase from '../table-components/TableComponentsShowcase
 import { useCharacterSheet } from './composables/useCharacterSheet'
 import type { AbilityKey } from './types/character'
 import type { CharacterIdentityPatch } from './types/characterView'
+import type { ShortRestResult } from './domain/rest'
+import type { CharacterV3SpellLevel } from './types/characterV3'
 import { classIconFor } from './data/classIcons.ts'
 import { speciesIconFor } from './data/speciesIcons.ts'
 import { backgroundIconFor } from './data/backgroundIcons.ts'
@@ -56,6 +58,22 @@ function openIdentityModal() {
 function openLevelUpModal() {
   if (!sheet.character.value || sheet.character.value.level >= 20 || !sheet.character.value.progression?.classLevels.length) return
   open({ component: LevelUpModal, componentProps: { character: sheet.character.value, disabled: sheet.isSaving.value, onConfirm: sheet.levelUp } })
+}
+async function takeShortRest(dice: number): Promise<ShortRestResult | null> {
+  const result = sheet.shortRest(dice)
+  if (result) await sheet.save()
+  return result
+}
+async function takeLongRest() {
+  sheet.longRest()
+  await sheet.save()
+}
+async function useSpellSlot(level: CharacterV3SpellLevel, delta: number) {
+  sheet.adjustSpellSlot(level, delta)
+  await sheet.save()
+}
+async function useInventoryItem(id: string) {
+  if (sheet.useInventoryItem(id)) await sheet.save()
 }
 function openActionConfirm(title: string, message: string, confirmLabel: string, action: () => void | Promise<void>, danger = false) {
   open({ component: CharacterActionConfirmModal, componentProps: { title, message, confirmLabel, danger, onConfirm: action } })
@@ -128,15 +146,16 @@ const selectedBackgroundIcon = computed(() => backgroundIconFor(sheet.character.
           </div>
           <div v-show="activeTab === 'combat'" class="sheet-tab-panel" :class="tabPanelClass('combat')">
             <CharacterCombatTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
+              :on-short-rest="takeShortRest" :on-long-rest="takeLongRest"
               @update:combat="sheet.updateCombat" @update:attacks="sheet.updateAttacks" />
           </div>
           <div v-show="activeTab === 'magic'" class="sheet-tab-panel" :class="tabPanelClass('magic')">
             <CharacterMagicTab :character="sheet.character.value"
-              :disabled="sheet.isSaving.value" @update:spells="sheet.updateSpells" @update:cantrips="sheet.updateCantrips" @update:spellcasting="sheet.updateSpellcasting" />
+              :disabled="sheet.isSaving.value" @update:spells="sheet.updateSpells" @update:cantrips="sheet.updateCantrips" @update:spellcasting="sheet.updateSpellcasting" @use-slot="useSpellSlot" />
           </div>
           <div v-show="activeTab === 'inventory'" class="sheet-tab-panel" :class="tabPanelClass('inventory')">
             <CharacterInventoryTab :character="sheet.character.value"
-              :disabled="sheet.isSaving.value" @update:inventory="sheet.updateInventory" @update:money="sheet.updateMoney" />
+              :disabled="sheet.isSaving.value" @update:inventory="sheet.updateInventory" @update:money="sheet.updateMoney" @use-item="useInventoryItem" />
           </div>
           <div v-show="activeTab === 'bio'" class="sheet-tab-panel" :class="tabPanelClass('bio')">
             <CharacterBioTab :personality="sheet.character.value.personality" :disabled="sheet.isSaving.value"

@@ -6,7 +6,7 @@ import type { CharacterSheetView } from '../types/characterView'
 import type { CharacterInventoryItemV3 } from '../types/characterV3'
 
 defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
-const emit = defineEmits<{ 'update:inventory': [items: CharacterInventoryItemV3[]]; 'update:money': [money: CharacterMoney] }>()
+const emit = defineEmits<{ 'update:inventory': [items: CharacterInventoryItemV3[]]; 'update:money': [money: CharacterMoney]; 'use-item': [id: string] }>()
 </script>
 
 <template>
@@ -15,7 +15,7 @@ const emit = defineEmits<{ 'update:inventory': [items: CharacterInventoryItemV3[
       <div class="inventory-intro-mark" aria-hidden="true">◆</div>
       <div><h1>Инвентарь</h1><p class="section-note">Соберите здесь всё, что герой носит с собой: предметы, снаряжение и деньги.</p></div>
     </section>
-    <InventoryList :items="character.inventoryData.items" :disabled="disabled" @update="emit('update:inventory', $event)" />
+    <InventoryList :items="character.inventoryData.items" :disabled="disabled" @update="emit('update:inventory', $event)" @use-item="emit('use-item', $event)" />
     <MoneyFields :money="character.inventoryData.money" :disabled="disabled" @update="emit('update:money', $event)" />
   </div>
 </template>
