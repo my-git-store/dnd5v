@@ -2,11 +2,46 @@ import type { AbilityKey, AttackBonusSource, CharacterAbilities, CharacterGender
 import type { CharacterProgressionV3, RuleSourceRef, SpellProgressionType } from './rules.ts'
 
 export type CharacterSchemaV3 = 3
+export type CharacterKind = 'character' | 'npc'
 export type CharacterRuleset = '2014' | '2024'
 export type CharacterCalculationMode = 'manual' | 'computed'
 export type SkillProficiencySource = 'race' | 'class' | 'background' | 'manual' | 'feat'
 export type CharacterAbilityBonusSource = 'species' | 'background' | 'manual' | 'feat' | 'class'
 export type CharacterV3SpellLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+export interface CharacterNpcBonusV3 {
+  id: string
+  name: string
+  value: number
+}
+
+export interface CharacterNpcEntryV3 {
+  id: string
+  name: string
+  description: string
+  attackBonus: string
+  damage: string
+}
+
+export interface CharacterNpcV3 {
+  name: string
+  creatureType: string
+  size: string
+  alignment: string
+  challengeRating: string
+  proficiencyBonus: number
+  armorClass: { mode: CharacterCalculationMode; value: number; additionalBonus: number }
+  hitPoints: { max: number; current: number; temporary: number }
+  speed: number
+  initiative: { mode?: CharacterCalculationMode; additionalBonus: number; value?: number }
+  senses: string
+  languages: string
+  abilities: CharacterAbilities
+  skills: CharacterNpcBonusV3[]
+  savingThrows: CharacterNpcBonusV3[]
+  features: CharacterNpcEntryV3[]
+  actions: CharacterNpcEntryV3[]
+}
 
 export interface RaceProfileV3 {
   name: string
@@ -229,6 +264,8 @@ export interface CharacterCreationV3 {
 export interface CharacterV3 {
   id: string
   schemaVersion: CharacterSchemaV3
+  /** Optional discriminator; omitted legacy records are ordinary characters. */
+  kind?: CharacterKind
   ruleset: CharacterRuleset
   identity: CharacterIdentityV3
   abilities: CharacterAbilities
@@ -248,6 +285,8 @@ export interface CharacterV3 {
   /** Optional additive foundation; absent on older v3 records and filled with safe defaults at runtime. */
   progression?: CharacterProgressionV3
   extensions: Record<string, unknown>
+  /** Optional NPC-specific data; character records do not need this field. */
+  npc?: CharacterNpcV3
 }
 
 export function cloneCharacterV3(character: CharacterV3): CharacterV3 {

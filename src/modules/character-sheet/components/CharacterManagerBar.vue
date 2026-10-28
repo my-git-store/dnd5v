@@ -14,6 +14,7 @@ defineProps<{
 const emit = defineEmits<{
   select: [id: string]
   create: []
+  'create-npc': []
   copy: []
   remove: []
   'export-current': []
@@ -43,10 +44,11 @@ function onFileChange(event: Event) {
         <span class="sr-only">Активный персонаж</span>
         <select class="select-control" :value="activeId ?? ''" :disabled="disabled || !characters.length" @change="emit('select', ($event.target as HTMLSelectElement).value)">
           <option v-if="!characters.length" value="">Нет сохранённых персонажей</option>
-          <option v-for="item in characters" :key="item.id" :value="item.id">{{ item.name || 'Безымянный герой' }}<template v-if="item.className"> · {{ item.className }}</template></option>
+          <option v-for="item in characters" :key="item.id" :value="item.id">{{ item.kind === 'npc' ? 'НПС · ' : '' }}{{ item.name || 'Безымянный герой' }}<template v-if="item.className"> · {{ item.className }}</template></option>
         </select>
       </label>
       <CBtn color-type="accent" :disabled="disabled" @click="emit('create')">Новый</CBtn>
+      <CBtn color-type="accent" :disabled="disabled" @click="emit('create-npc')">Новый НПС</CBtn>
       <CBtn color-type="accent" :disabled="disabled || !activeId" @click="emit('copy')">Копировать</CBtn>
       <CBtn color-type="delete" :disabled="disabled || !activeId" @click="emit('remove')">Удалить</CBtn>
       <CBtn color-type="accent" :disabled="disabled || !activeId" @click="emit('export-current')">Экспорт</CBtn>

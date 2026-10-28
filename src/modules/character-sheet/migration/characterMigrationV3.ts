@@ -189,6 +189,7 @@ export function migrateCharacterV2ToV3(value: Character): CharacterV3 {
   const migrated: CharacterV3 = {
     id: value.id,
     schemaVersion: 3,
+    kind: 'character',
     ruleset: '2014',
     identity: {
       name: value.name,
@@ -227,6 +228,7 @@ export function migrateCharacterV2ToV3(value: Character): CharacterV3 {
 /** Adds safe defaults for fields introduced after the first v3 release. */
 function normalizeCharacterV3(value: Record<string, unknown>): CharacterV3 {
   const next = cloneJson(value) as unknown as CharacterV3
+  next.kind = value.kind === 'npc' ? 'npc' : 'character'
   next.ruleset = isCharacterRuleset(value.ruleset) ? value.ruleset : DEFAULT_CHARACTER_RULESET
   if (isRecord(value.spellcasting) && (value.spellcasting.spellRuleset === undefined || value.spellcasting.spellRuleset === null)) {
     next.spellcasting.spellRuleset = next.ruleset

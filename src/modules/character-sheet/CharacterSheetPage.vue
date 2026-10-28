@@ -11,6 +11,7 @@ import CharacterBioTab from './components/CharacterBioTab.vue'
 import CharacterCreationTab from './components/CharacterCreationTab.vue'
 import CharacterIdentityModal from './components/CharacterIdentityModal.vue'
 import CharacterManagerBar from './components/CharacterManagerBar.vue'
+import NpcSheetPanel from './components/NpcSheetPanel.vue'
 import CharacterActionConfirmModal from './components/CharacterActionConfirmModal.vue'
 import CharacterImportModal from './components/CharacterImportModal.vue'
 import CollapsibleSheetSection from './components/CollapsibleSheetSection.vue'
@@ -172,6 +173,13 @@ function createCharacter() {
   }
   void sheet.createCharacter()
 }
+function createNpcCharacter() {
+  if (sheet.isDirty.value) {
+    openActionConfirm('Создать НПС?', 'Есть несохранённые изменения. При создании нового НПС они будут отменены.', 'Создать', async () => { await sheet.createNpc() })
+    return
+  }
+  void sheet.createNpc()
+}
 function copyCharacter() {
   if (sheet.isDirty.value) {
     openActionConfirm('Скопировать персонажа?', 'Есть несохранённые изменения. При копировании они будут сохранены в новой копии.', 'Копировать', async () => { await sheet.copyCharacter() })
@@ -195,7 +203,7 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
   <main class="character-sheet" :class="{ 'character-sheet-creation-mode': creationOpen, 'character-sheet-print-mode': printMode }">
     <CharacterLoadState :loading="sheet.isLoading.value" :error="sheet.loadError.value" @retry="sheet.load" />
     <template v-if="!sheet.isLoading.value && !sheet.loadError.value">
-      <CharacterManagerBar :characters="sheet.characters.value" :active-id="sheet.activeId.value" :dirty="sheet.isDirty.value" :disabled="sheet.isSaving.value" :status="transferStatus" @select="selectCharacter" @create="createCharacter" @copy="copyCharacter" @remove="deleteCharacter" @export-current="exportCharacters(false)" @export-all="exportCharacters(true)" @import-file="importFile" />
+      <CharacterManagerBar :characters="sheet.characters.value" :active-id="sheet.activeId.value" :dirty="sheet.isDirty.value" :disabled="sheet.isSaving.value" :status="transferStatus" @select="selectCharacter" @create="createCharacter" @create-npc="createNpcCharacter" @copy="copyCharacter" @remove="deleteCharacter" @export-current="exportCharacters(false)" @export-all="exportCharacters(true)" @import-file="importFile" />
       <section v-if="!sheet.character.value" class="character-empty-state sheet-section" aria-live="polite">
         <h1>Персонажи не найдены</h1>
         <p>Создайте нового персонажа, чтобы начать работу с листом.</p>
@@ -208,6 +216,8 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
           @create="applyCreation" @back-to-sheet="closeCreation" />
       </section>
       <template v-else>
+        <NpcSheetPanel v-if="sheet.character.value.kind === 'npc'" :character="sheet.character.value" :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value" :save-error="sheet.saveError.value" :on-save="sheet.save" :on-print="startPrint" @update="sheet.updateNpc" />
+        <template v-else>
         <CharacterSheetHeader :name="sheet.character.value.name"
           :race="sheet.character.value.race.name" :species-icon="selectedSpeciesIcon" :class-name="sheet.character.value.class" :class-icon="selectedClassIcon"
           :background-name="sheet.character.value.background.name || sheet.character.value.origin.background" :background-icon="selectedBackgroundIcon"
@@ -256,6 +266,7 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
             <TableComponentsShowcase />
           </div>
         </div>
+        </template>
       </template>
     </template>
   </main>

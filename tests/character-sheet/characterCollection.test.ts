@@ -73,7 +73,7 @@ test('legacy v2 records remain readable and appear in the character list', () =>
   const legacy = migrateCharacterV2ToV3(createEmptyCharacter('legacy'))
   storage.setItem('nastolka:character-sheet:v2:legacy', JSON.stringify({ ...createEmptyCharacter('legacy'), schemaVersion: 2 }))
   const summaries = listStoredCharacterSummaries(storage)
-  assert.deepEqual(summaries, [{ id: 'legacy', name: 'Новый персонаж', className: '', ruleset: '2014' }])
+  assert.deepEqual(summaries, [{ id: 'legacy', name: 'Новый персонаж', className: '', ruleset: '2014', kind: 'character' }])
   assert.equal(legacy.schemaVersion, 3)
 })
 

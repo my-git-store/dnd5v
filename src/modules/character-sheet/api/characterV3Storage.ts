@@ -21,6 +21,7 @@ export interface StoredCharacterSummary {
   name: string
   className: string
   ruleset: '2014' | '2024'
+  kind: 'character' | 'npc'
 }
 
 export type CharacterV3StorageSource = 'v1' | 'v2' | 'v3'
@@ -103,7 +104,7 @@ export function listStoredCharacterSummaries(storage: CharacterStorageLike = bro
   return listStoredCharacterIds(storage).flatMap((id) => {
     const stored = readStoredCharacterV3WithSource(id, storage)
     if (!stored) return []
-    return [{ id, name: stored.character.identity.name, className: stored.character.identity.class, ruleset: stored.character.ruleset }]
+    return [{ id, name: stored.character.identity.name, className: stored.character.identity.class, ruleset: stored.character.ruleset, kind: stored.character.kind === 'npc' ? 'npc' : 'character' }]
   })
 }
 

@@ -8,6 +8,7 @@ import { applyCharacterCreation, type CharacterCreationPayload } from '../domain
 import { levelUpProgression, progressionAtLevel } from '../domain/characterProgression'
 import { listStoredCharacterIds, listStoredCharacterSummaries, readStoredActiveCharacterId, removeStoredCharacter, writeStoredActiveCharacterId, writeStoredCharacterV3, type StoredCharacterSummary } from '../api/characterV3Storage'
 import { uniqueCharacterId } from '../api/characterTransfer'
+import { createDefaultNpcProfile } from '../domain/npc'
 import { changeSpellSlot, restoreSpellSlots, takeLongRest, takeShortRest, type ShortRestResult } from '../domain/rest'
 import type { CharacterV3SpellLevel } from '../types/characterV3'
 
@@ -31,7 +32,7 @@ export function useCharacterSheet(id = 'demo-character') {
   function refreshCharacters() {
     const stored = listStoredCharacterSummaries()
     if (!suppressVirtualCharacter.value && character.value && !stored.some((entry) => entry.id === character.value?.id)) {
-      stored.unshift({ id: character.value.id, name: character.value.name, className: character.value.class, ruleset: character.value.ruleset })
+      stored.unshift({ id: character.value.id, name: character.value.name, className: character.value.class, ruleset: character.value.ruleset, kind: character.value.kind === 'npc' ? 'npc' : 'character' })
     }
     characters.value = stored
   }
@@ -88,6 +89,19 @@ export function useCharacterSheet(id = 'demo-character') {
     const nextId = newCharacterId()
     suppressVirtualCharacter.value = false
     await load(nextId)
+    await save()
+    return nextId
+  }
+
+  async function createNpc() {
+    const nextId = newCharacterId()
+    suppressVirtualCharacter.value = false
+    await load(nextId)
+    if (character.value) {
+      character.value.kind = 'npc'
+      character.value.name = 'Новый НПС'
+      character.value.npc = createDefaultNpcProfile()
+    }
     await save()
     return nextId
   }
@@ -168,6 +182,13 @@ export function useCharacterSheet(id = 'demo-character') {
     }
     if (patch.experience !== undefined) character.value.experience = patch.experience
     if (patch.gender !== undefined && character.value.creation) character.value.creation.gender = patch.gender
+    savedNotice.value = false
+  }
+  function updateNpc(npc: NonNullable<CharacterSheetView['npc']>) {
+    if (!character.value) return
+    character.value.kind = 'npc'
+    character.value.name = npc.name
+    character.value.npc = JSON.parse(JSON.stringify(npc)) as NonNullable<CharacterSheetView['npc']>
     savedNotice.value = false
   }
   function updateDetails(details: CharacterDetails) { if (character.value) Object.assign(character.value, details); savedNotice.value = false }
@@ -290,5 +311,5 @@ export function useCharacterSheet(id = 'demo-character') {
   })
   onBeforeUnmount(() => { if (unloadHandler) window.removeEventListener('beforeunload', unloadHandler) })
 
-  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, copyCharacter, deleteCharacter, selectCharacter, importCharacters, updateIdentity, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, shortRest, longRest, adjustSpellSlot, useInventoryItem, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
+  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, createNpc, copyCharacter, deleteCharacter, selectCharacter, importCharacters, updateIdentity, updateNpc, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, shortRest, longRest, adjustSpellSlot, useInventoryItem, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
 }

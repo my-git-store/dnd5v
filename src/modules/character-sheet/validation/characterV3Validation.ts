@@ -279,6 +279,16 @@ function validInventory(value: unknown, ruleset: unknown): boolean {
   )
 }
 
+function validNpcEntry(value: unknown): boolean {
+  return isRecord(value) && isString(value.id) && value.id.length > 0 && isString(value.name) && isString(value.description) && isString(value.attackBonus) && isString(value.damage)
+}
+
+function validNpc(value: unknown): boolean {
+  if (!isRecord(value) || !isString(value.name) || !isString(value.creatureType) || !isString(value.size) || !isString(value.alignment) || !isString(value.challengeRating) || !isInteger(value.proficiencyBonus) || value.proficiencyBonus < 0 || !isRecord(value.armorClass) || !isCalculationMode(value.armorClass.mode) || !isInteger(value.armorClass.value) || !isInteger(value.armorClass.additionalBonus) || !isRecord(value.hitPoints) || !isInteger(value.hitPoints.max) || value.hitPoints.max < 0 || !isInteger(value.hitPoints.current) || value.hitPoints.current < 0 || value.hitPoints.current > value.hitPoints.max || !isInteger(value.hitPoints.temporary) || value.hitPoints.temporary < 0 || !isFiniteNumber(value.speed) || value.speed < 0 || !isRecord(value.initiative) || (value.initiative.mode !== undefined && !isCalculationMode(value.initiative.mode)) || !isInteger(value.initiative.additionalBonus) || (value.initiative.value !== undefined && !isInteger(value.initiative.value)) || !isString(value.senses) || !isString(value.languages) || !validAbilities(value.abilities) || !Array.isArray(value.skills) || !Array.isArray(value.savingThrows) || !Array.isArray(value.features) || !Array.isArray(value.actions)) return false
+  const validBonus = (entry: unknown): boolean => isRecord(entry) && isString(entry.id) && entry.id.length > 0 && isString(entry.name) && isInteger(entry.value)
+  return value.skills.every(validBonus) && value.savingThrows.every(validBonus) && value.features.every(validNpcEntry) && value.actions.every(validNpcEntry)
+}
+
 /** Returns all validation messages for a v3 character payload. */
 export function validateCharacterV3(value: unknown): string[] {
   if (!isRecord(value)) return ['Персонаж v3 должен быть объектом.']
@@ -287,6 +297,8 @@ export function validateCharacterV3(value: unknown): string[] {
   if (value.schemaVersion !== 3) errors.push('Неподдерживаемая версия схемы персонажа.')
   if (!isCharacterRuleset(value.ruleset)) errors.push('Неподдерживаемая редакция правил.')
   if (!isString(value.id) || !value.id) errors.push('Не указан идентификатор персонажа.')
+  if (value.kind !== undefined && value.kind !== 'character' && value.kind !== 'npc') errors.push('Неизвестный тип листа.')
+  if (value.kind === 'npc' && !validNpc(value.npc)) errors.push('Некорректные данные НПС.')
   if (!isRecord(identity)
     || !isString(identity.name) || !identity.name.trim()
     || !validRace(identity.race)

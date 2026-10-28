@@ -214,3 +214,37 @@ Print CSS дополнительно проверен через `emulateMedia('
 Через временный Playwright 1.52.0 с Microsoft Edge проверены `1440×900`, `1024×768`, `800×800`, `430×932` и `375×812`: ширина документа совпала с viewport, collapse сохраняется после reload, стрелка `ArrowRight` переключает активный раздел, scroll остаётся на прежней позиции, модалка получает focus, Escape закрывает её и возвращает focus на исходную кнопку.
 
 Print emulation подтвердила скрытие менеджера, вкладок и игрового стола и наличие пяти листовых панелей. На всех viewport: `console.error` — 0, `console.warn` — 0, page errors — 0, failed requests — 0.
+## Этап 6 — MVP-лист НПС
+
+### Реализовано
+
+- Добавлен безопасный discriminator `kind: "character" | "npc"` в v3-данные. Старые v1/v2/v3 записи при миграции получают `kind: "character"` и не получают выдуманных NPC-данных.
+- В менеджере листов добавлена отдельная кнопка «Новый НПС». НПС отображается отдельной панелью и помечается как `НПС` в списке, поэтому не смешивается визуально с обычными персонажами.
+- Добавлена редактируемая компактная панель НПС: имя, тип, размер, мировоззрение, рейтинг опасности, бонус мастерства, КД, HP, скорость, инициатива, чувства, языки и шесть характеристик.
+- Модификаторы характеристик используют существующий D&D floor-расчёт со знаком. Инициатива поддерживает режимы «Расчёт» и «Вручную» с ручной добавкой или значением.
+- Добавлены необязательные ручные списки навыков и спасбросков.
+- Добавлен CRUD списков «Особенности» и «Действия». В компактном списке описание ограничено одной строкой с многоточием, полное описание остаётся в модалке и storage.
+- Сохранение, dirty/saved-состояния, выбор, копирование, удаление, импорт/экспорт и reload используют существующий adapter и v3 storage. Прогрессия в режиме НПС не показывается.
+- Print CSS скрывает служебные действия и оставляет компактный лист НПС для печати.
+
+### Изменённые области
+
+- `src/modules/character-sheet/types/characterV3.ts`, `types/characterView.ts` — NPC-контракт и discriminator.
+- `migration/characterMigrationV3.ts`, `validation/characterV3Validation.ts`, `api/characterV3Storage.ts` — безопасная миграция, проверка и индексация типа листа.
+- `adapters/characterSheetAdapter.ts`, `composables/useCharacterSheet.ts` — round-trip и управление NPC.
+- `components/CharacterManagerBar.vue`, `CharacterSheetPage.vue`, `NpcSheetPanel.vue`, `NpcEntryEditorModal.vue` — UI и CRUD.
+- `domain/npc.ts`, `styles/character-sheet.css` — безопасные значения по умолчанию, режимы расчёта и адаптивные/печатные стили.
+- `tests/character-sheet/npcFoundation.test.ts` и обновление ожидания списка персонажей — миграция, adapter round-trip и экспорт/импорт NPC.
+
+### Проверки
+
+- `npm run typecheck` — PASS.
+- `npm test` — PASS, 145 тестов.
+- `npm run build` — PASS. Vite сообщает только существующие предупреждения о размере чанков и аннотациях `@vueuse/core`.
+- `git diff --check` — PASS.
+- Browser smoke не завершён: доступный CUA/browser kernel в текущей среде не запустился (`failed to write kernel assets`), Playwright/Puppeteer не установлены. Результаты визуальных viewport-проверок не имитировались.
+
+### Ограничения
+
+- Backend, API, schema version, migration architecture и compendium монстров не изменялись.
+- Для NPC используется текущий локальный v3 adapter/storage; серверной синхронизации и генератора NPC нет.
