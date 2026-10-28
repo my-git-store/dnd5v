@@ -7,10 +7,12 @@ export type CTab = {
 
 type Props = {
     tabs: readonly CTab[]
+    idPrefix?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    tabs: () => []
+    tabs: () => [],
+    idPrefix: ''
 })
 
 const model = defineModel<string>({ required: true })
@@ -33,7 +35,7 @@ async function onKeydown(event: KeyboardEvent, index: number) {
     <div role="tablist" aria-label="Разделы листа" class="tabs-list">
         <button type="button" role="tab" class="pb-3 text-sm font-semibold transition-all cursor-pointer" v-for="(item, index) in props.tabs"
             :key="`tabs-item-${item.name}`" :class="item.value === model ? 'tab-active' : 'tab-inactive'"
-            :aria-selected="item.value === model" :tabindex="item.value === model ? 0 : -1"
+            :aria-selected="item.value === model" :aria-controls="props.idPrefix ? `${props.idPrefix}-${item.value}` : undefined" :tabindex="item.value === model ? 0 : -1"
             @keydown="onKeydown($event, index)" @click="model = item.value">{{ item.name }}</button>
     </div>
 </template>

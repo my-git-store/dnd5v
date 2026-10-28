@@ -32,12 +32,12 @@ function useSlot(level: CharacterV3SpellLevel, delta: number) {
     <SpellcastingSummary :spellcasting="character.spellcasting" :abilities="character.abilities" :level="character.level" :disabled="disabled" @update="emit('update:spellcasting', $event)" />
     <SpellSlotsFields :slots="character.spellcasting.spellSlots" :disabled="disabled" @update="updateSlots" @use-slot="useSlot" />
     <section class="sheet-section magic-spellbook-shell">
-      <CTabs v-model="activeSpellbookTab" :tabs="spellbookTabs" />
+      <CTabs v-model="activeSpellbookTab" :tabs="spellbookTabs" id-prefix="spellbook-tab" />
       <div class="magic-spellbook-panels">
-        <div v-show="activeSpellbookTab === 'cantrips'" class="magic-spellbook-panel">
+        <div id="spellbook-tab-cantrips" v-show="activeSpellbookTab === 'cantrips'" class="magic-spellbook-panel">
           <SpellList title="Заговоры" :spells="character.cantrips" cantrip :disabled="disabled" @update="emit('update:cantrips', $event)" />
         </div>
-        <div v-show="activeSpellbookTab === 'spells'" class="magic-spellbook-panel">
+        <div id="spellbook-tab-spells" v-show="activeSpellbookTab === 'spells'" class="magic-spellbook-panel">
           <SpellList title="Заклинания" :spells="character.spells" :prepared-ids="character.spellcasting.preparedSpellIds" show-prepared-filter :disabled="disabled" @update="emit('update:spells', $event)" @update:prepared-ids="updatePrepared" />
         </div>
       </div>

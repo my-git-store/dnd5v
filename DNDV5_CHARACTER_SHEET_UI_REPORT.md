@@ -182,3 +182,35 @@ Dev-сервер проверен через временный Playwright 1.52.
 Print CSS дополнительно проверен через `emulateMedia('print')`: менеджер и вкладки скрыты, игровая вкладка скрыта, все пять листовых панелей остаются видимыми, overflow отсутствует. Нативное системное окно print preview автоматизация не открывала; проверен DOM/CSS print flow без имитации результата диалога.
 
 На smoke viewport: `console.error` — 0, `console.warn` — 0, page errors — 0, failed requests — 0.
+
+## Этап 5: UX и доступность листа
+
+### Изменения
+
+- Навигация листа сохранила tablist с активным состоянием и стрелочной навигацией; добавлены корректные `aria-controls` для основных вкладок и spellbook-вкладок.
+- Переключение вкладок удерживает текущую позицию scroll, а активная вкладка сохраняется в `sessionStorage` для активного персонажа.
+- Добавлена сворачиваемая обёртка для разделов «Основное», «Бой», «Магия и заклинания», «Инвентарь» и «Биография». Состояние хранится в рамках текущего персонажа/сессии; важные глобальные ошибки принудительно раскрывают раздел.
+- Для collapse-кнопок добавлены `aria-expanded`, `aria-controls`, понятные aria-label и видимый focus.
+- Существующий modal focus-контракт проверен: Escape закрывает модалку, focus возвращается на кнопку «Сведения». Ошибки загрузки/сохранения/импорта и success-сообщения остаются в `role=alert/status` с `aria-live`.
+- Сохранены существующие ограничения ввода и disabled-состояния для HP, количества предметов, spell slots и игровых действий; новые зависимости не добавлялись.
+
+### Изменённые файлы
+
+- `src/modules/character-sheet/components/CollapsibleSheetSection.vue`
+- `src/modules/character-sheet/CharacterSheetPage.vue`
+- `src/modules/character-sheet/components/CharacterMagicTab.vue`
+- `src/ui/components/CTabs/CTabs.vue`
+- `src/modules/character-sheet/styles/character-sheet.css`
+
+### Проверки
+
+- `npm run typecheck` — PASS.
+- `npm test` — PASS, 142 теста.
+- `npm run build` — PASS вне sandbox после ограничения `spawn EPERM` в обычном окружении; сохранились только известные предупреждения Rollup о размере чанков и аннотациях `@vueuse/core`.
+- `git diff --check` — PASS.
+
+### Browser smoke
+
+Через временный Playwright 1.52.0 с Microsoft Edge проверены `1440×900`, `1024×768`, `800×800`, `430×932` и `375×812`: ширина документа совпала с viewport, collapse сохраняется после reload, стрелка `ArrowRight` переключает активный раздел, scroll остаётся на прежней позиции, модалка получает focus, Escape закрывает её и возвращает focus на исходную кнопку.
+
+Print emulation подтвердила скрытие менеджера, вкладок и игрового стола и наличие пяти листовых панелей. На всех viewport: `console.error` — 0, `console.warn` — 0, page errors — 0, failed requests — 0.
