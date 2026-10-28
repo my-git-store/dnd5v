@@ -16,8 +16,13 @@ const abilityLabels: Record<typeof abilityKeys[number], string> = { strength: 'Ð
 const initiative = computed(() => draft.value.initiative.mode === 'manual'
   ? signedModifier(draft.value.initiative.value ?? 0)
   : signedModifier(abilityModifier(draft.value.abilities.dexterity) + draft.value.initiative.additionalBonus))
-watch(() => props.character.npc, value => { if (value) draft.value = JSON.parse(JSON.stringify(value)) as CharacterNpcV3 }, { deep: true })
-watch(draft, value => emit('update', JSON.parse(JSON.stringify(value)) as CharacterNpcV3), { deep: true })
+function snapshot(value: CharacterNpcV3 | undefined): string { return JSON.stringify(value ?? null) }
+watch(() => props.character.npc, value => {
+  if (value && snapshot(value) !== snapshot(draft.value)) draft.value = JSON.parse(JSON.stringify(value)) as CharacterNpcV3
+}, { deep: true })
+watch(draft, value => {
+  if (snapshot(value) !== snapshot(props.character.npc)) emit('update', JSON.parse(JSON.stringify(value)) as CharacterNpcV3)
+}, { deep: true })
 
 function integer(value: unknown, fallback = 0): number { const parsed = Number(value); return Number.isFinite(parsed) ? Math.max(0, Math.trunc(parsed)) : fallback }
 function updateNumber(path: 'proficiencyBonus' | 'speed' | 'armorClass' | 'armorBonus' | 'hpMax' | 'hpCurrent' | 'hpTemporary' | 'initiativeBonus', value: unknown) {

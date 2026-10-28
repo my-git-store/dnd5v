@@ -17,6 +17,8 @@ import CharacterImportModal from './components/CharacterImportModal.vue'
 import CollapsibleSheetSection from './components/CollapsibleSheetSection.vue'
 import LevelUpModal from './components/LevelUpModal.vue'
 import TableComponentsShowcase from '../table-components/TableComponentsShowcase.vue'
+import BestiaryPanel from '../bestiary/components/BestiaryPanel.vue'
+import { bestiaryToNpc, type BestiaryEntry } from '../bestiary/types.ts'
 import { useCharacterSheet } from './composables/useCharacterSheet'
 import type { AbilityKey } from './types/character'
 import type { CharacterIdentityPatch } from './types/characterView'
@@ -29,7 +31,7 @@ import { CHARACTER_TRANSFER_MAX_BYTES, parseCharacterTransfer, readAllStoredChar
 import { readStoredCharacterV3 } from './api/characterV3Storage.ts'
 import './styles/character-sheet.css'
 
-const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }, { name: 'Игровые компоненты', value: 'table-components' }] as const
+const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }, { name: 'Бестиарий', value: 'bestiary' }, { name: 'Игровые компоненты', value: 'table-components' }] as const
 const activeTab = ref<string>('main')
 const tabDirection = ref<'forward' | 'backward'>('forward')
 const creationOpen = ref(false)
@@ -180,6 +182,17 @@ function createNpcCharacter() {
   }
   void sheet.createNpc()
 }
+function createNpcFromBestiary(entry: BestiaryEntry) {
+  const create = async () => {
+    await sheet.createNpcFromProfile(bestiaryToNpc(entry))
+    activeTab.value = 'main'
+  }
+  if (sheet.isDirty.value) {
+    openActionConfirm('Создать НПС из бестиария?', 'Есть несохранённые изменения. При создании отдельной копии они будут отменены.', 'Создать НПС', create)
+    return
+  }
+  void create()
+}
 function copyCharacter() {
   if (sheet.isDirty.value) {
     openActionConfirm('Скопировать персонажа?', 'Есть несохранённые изменения. При копировании они будут сохранены в новой копии.', 'Копировать', async () => { await sheet.copyCharacter() })
@@ -264,6 +277,9 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
           </div>
           <div v-show="!printMode && activeTab === 'table-components'" class="sheet-tab-panel table-components-panel" :class="tabPanelClass('table-components')">
             <TableComponentsShowcase />
+          </div>
+          <div v-show="!printMode && activeTab === 'bestiary'" class="sheet-tab-panel bestiary-tab-panel" :class="tabPanelClass('bestiary')">
+            <BestiaryPanel :on-create-npc="createNpcFromBestiary" @status="(message) => { transferStatus = { kind: 'success', text: message } }" />
           </div>
         </div>
         </template>

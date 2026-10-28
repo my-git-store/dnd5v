@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { currentParticipantIdAfterRemoval, currentParticipantIndex, nextTurnIndex, sortInitiative, type InitiativeParticipant } from '../../domain/initiative.ts'
 
 const nextId = ref(4)
@@ -44,6 +44,17 @@ function nextTurn() {
   currentParticipantId.value = orderedParticipants.value[transition.index]?.id ?? ''
   if (transition.roundAdvanced) round.value += 1
 }
+type BestiaryInitiativeDetail = { id: string; name: string; initiative: number; hitPoints: number; armorClass: number }
+function addFromBestiary(event: Event) {
+  const detail = (event as CustomEvent<BestiaryInitiativeDetail>).detail
+  if (!detail || typeof detail.id !== 'string' || !detail.name || !Number.isFinite(detail.initiative)) return
+  const existing = participants.value.find((participant) => participant.id === detail.id)
+  if (existing) { currentParticipantId.value = existing.id; return }
+  participants.value = sortInitiative([...participants.value, detail])
+  currentParticipantId.value = detail.id
+}
+onMounted(() => window.addEventListener('nastolka:add-initiative-participant', addFromBestiary))
+onUnmounted(() => window.removeEventListener('nastolka:add-initiative-participant', addFromBestiary))
 </script>
 
 <template>
@@ -72,7 +83,7 @@ function nextTurn() {
     <ol v-else class="initiative-list" aria-label="Порядок инициативы">
       <li v-for="participant in orderedParticipants" :key="participant.id" :class="{ current: participant.id === currentParticipant?.id }">
         <span class="turn-marker" aria-hidden="true">{{ participant.id === currentParticipant?.id ? '◆' : '◇' }}</span>
-        <input class="participant-name" :aria-label="`Имя: ${participant.name}`" :value="participant.name" maxlength="60" @change="updateParticipant(participant.id, { name: ($event.target as HTMLInputElement).value })" />
+        <div class="participant-main"><input class="participant-name" :aria-label="`Имя: ${participant.name}`" :value="participant.name" maxlength="60" @change="updateParticipant(participant.id, { name: ($event.target as HTMLInputElement).value })" /><small v-if="participant.hitPoints !== undefined || participant.armorClass !== undefined" class="participant-stats">{{ participant.hitPoints !== undefined ? `HP ${participant.hitPoints}` : '' }}<span v-if="participant.hitPoints !== undefined && participant.armorClass !== undefined"> · </span>{{ participant.armorClass !== undefined ? `КД ${participant.armorClass}` : '' }}</small></div>
         <input class="participant-initiative" :aria-label="`Инициатива: ${participant.name}`" type="number" min="-99" max="99" :value="participant.initiative" @change="updateParticipant(participant.id, { initiative: Number(($event.target as HTMLInputElement).value) })" />
         <button class="icon-button" type="button" :aria-label="`Удалить ${participant.name}`" @click="removeParticipant(participant.id)">×</button>
       </li>

@@ -106,6 +106,19 @@ export function useCharacterSheet(id = 'demo-character') {
     return nextId
   }
 
+  async function createNpcFromProfile(profile: NonNullable<CharacterSheetView['npc']>) {
+    const nextId = newCharacterId()
+    suppressVirtualCharacter.value = false
+    await load(nextId)
+    if (character.value) {
+      character.value.kind = 'npc'
+      character.value.name = profile.name
+      character.value.npc = JSON.parse(JSON.stringify(profile)) as NonNullable<CharacterSheetView['npc']>
+    }
+    await save()
+    return nextId
+  }
+
   async function copyCharacter() {
     if (!character.value) return null
     // Persist the source first so copying the initial virtual demo character
@@ -311,5 +324,5 @@ export function useCharacterSheet(id = 'demo-character') {
   })
   onBeforeUnmount(() => { if (unloadHandler) window.removeEventListener('beforeunload', unloadHandler) })
 
-  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, createNpc, copyCharacter, deleteCharacter, selectCharacter, importCharacters, updateIdentity, updateNpc, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, shortRest, longRest, adjustSpellSlot, useInventoryItem, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
+  return { character, activeId, characters, isLoading, loadError, isSaving, saveError, savedNotice, isDirty, load, save, createCharacter, createNpc, createNpcFromProfile, copyCharacter, deleteCharacter, selectCharacter, importCharacters, updateIdentity, updateNpc, updateDetails, updateAbility, updateSkill, updateSavingThrow, updateCombat, updateAttacks, updateSpells, updateCantrips, updateSpellcasting, shortRest, longRest, adjustSpellSlot, useInventoryItem, updateInventory, updateMoney, updatePersonality, updateFeats, updateBio, levelUp, applyCreation }
 }

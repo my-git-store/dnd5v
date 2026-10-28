@@ -248,3 +248,46 @@ Print emulation подтвердила скрытие менеджера, вкл
 
 - Backend, API, schema version, migration architecture и compendium монстров не изменялись.
 - Для NPC используется текущий локальный v3 adapter/storage; серверной синхронизации и генератора NPC нет.
+
+## Этап 7 — MVP-бестиарий и связь с НПС
+
+### Реализовано
+
+- Добавлен отдельный раздел «Бестиарий» внутри текущей навигации Character Sheet. Каталог использует собственную типизированную модель `BestiaryEntry` и отдельный `BestiaryAdapter`, поэтому позднее его можно заменить легальным backend-источником без изменения UI-контракта.
+- Добавлен небольшой авторский mock dataset из четырёх нейтральных демонстрационных существ. Внешние тексты и изображения не копируются.
+- Карточки показывают имя, размер, тип, рейтинг опасности, среду, КД, HP и скорость. Доступны поиск, комбинируемые фильтры по размеру, типу, мировоззрению, рейтингу, среде, источнику, языку и скорости, а также сортировка по имени, рейтингу и скорости.
+- Detail-модалка показывает характеристики и модификаторы, спасброски, навыки, чувства, языки, особенности, действия и условные реакции/легендарные действия. Длинные тексты раскрываются через `details` и не ломают карточку.
+- Добавлены действия «Создать НПС на основе существа», «Добавить в инициативу» и «Скопировать данные». НПС создаётся независимой копией через существующий adapter/storage, а исходная readonly-запись бестиария не изменяется.
+- Initiative Tracker принимает типизированное локальное событие, добавляет имя, инициативу, HP и КД существа и игнорирует повторное добавление того же стабильного ID.
+- Сохраняются существующие персонажи, НПС, Dice Roller, CRUD и игровые действия; schemaVersion и backend не менялись. Print CSS скрывает фильтры и служебные действия бестиария.
+
+### Изменённые файлы
+
+- `src/modules/bestiary/types.ts`
+- `src/modules/bestiary/api/bestiaryAdapter.ts`
+- `src/modules/bestiary/data/mockBestiary.ts`
+- `src/modules/bestiary/components/BestiaryPanel.vue`
+- `src/modules/bestiary/components/BestiaryEntryModal.vue`
+- `src/modules/bestiary/styles/bestiary.css`
+- `src/modules/character-sheet/CharacterSheetPage.vue`
+- `src/modules/character-sheet/components/NpcSheetPanel.vue`
+- `src/modules/character-sheet/composables/useCharacterSheet.ts`
+- `src/modules/table-components/domain/initiative.ts`
+- `src/modules/table-components/components/initiative/InitiativeTracker.vue`
+- `src/modules/table-components/styles/table-components.css`
+- `tests/character-sheet/bestiary.test.ts`
+
+### Проверки
+
+- `npm run typecheck` — PASS.
+- `npm test` — PASS, 147 тестов.
+- `npm run build` — PASS; Vite сообщает только существующие предупреждения о размере чанков и аннотациях `@vueuse/core`.
+- `git diff --check` — PASS.
+- Browser smoke через CUA и встроенный Playwright — PASS на `1440×900`, `1024×768`, `800×800`, `430×932` и `375×812`: первый рендер, 4 карточки, отсутствие горизонтального overflow, поиск, комбинируемые фильтры, empty state, detail-модалка, раскрытие описания, Escape, добавление в Initiative Tracker и защита от дубля.
+- Создание НПС из существа, редактирование имени, Save и reload проверены; после smoke временные НПС удалены, исходный персонаж остался активным. Console warnings/errors и runtime errors после исправления — 0.
+
+### Ограничения
+
+- Каталог локальный и демонстрационный; backend, авторизация, онлайн-компендиум и изображения не добавлялись.
+- Инициатива передаётся в текущий локальный Initiative Tracker; серверной синхронизации трекера нет.
+- В ходе smoke была найдена и исправлена рекурсивная синхронизация draft в `NpcSheetPanel`; после фикса повторная проверка прошла без runtime ошибок.

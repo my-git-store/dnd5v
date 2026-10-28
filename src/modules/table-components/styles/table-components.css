@@ -81,6 +81,8 @@
 .table-components-showcase .add-participant label{ display: grid; gap: 4px; min-width: 0; }
 .table-components-showcase .initiative-list{ margin-bottom: 18px; }
 .table-components-showcase .initiative-list li{ display: grid; grid-template-columns: 22px minmax(0, 1fr) 74px 30px; align-items: center; gap: 7px; min-width: 0; padding: 8px 9px; border: 1px solid transparent; border-bottom-color: #e1d0ae; border-radius: 9px; }
+.table-components-showcase .participant-main{ display: grid; min-width: 0; gap: 2px; }
+.table-components-showcase .participant-stats{ color: #806c54; font-size: .75rem; }
 .table-components-showcase .initiative-list li.current{ border-color: #b8c99f; background: #edf3e7; }
 .table-components-showcase .turn-marker{ color: #aa8960; text-align: center; }
 .table-components-showcase .current .turn-marker{ color: #708d60; }

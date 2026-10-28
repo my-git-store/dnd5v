@@ -2,6 +2,8 @@ export interface InitiativeParticipant {
   id: string
   name: string
   initiative: number
+  hitPoints?: number
+  armorClass?: number
 }
 
 export function sortInitiative(participants: readonly InitiativeParticipant[]): InitiativeParticipant[] {
