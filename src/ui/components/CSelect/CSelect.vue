@@ -71,7 +71,7 @@ defineExpose({
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative c-select-field">
         <div class="text-md font-bold text-primary-1000 tracking-wider" v-if="props.label">
             {{ props.label }}
         </div>

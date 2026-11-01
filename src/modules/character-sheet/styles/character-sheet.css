@@ -206,9 +206,20 @@ body {
 }
 .character-sheet button:focus-visible, .character-sheet select:focus-visible, .character-sheet input:focus-visible, .character-sheet textarea:focus-visible { outline: 2px solid #9b6a2f; outline-offset: 2px; }
 
-/* Keep labels and their controls visually separated across every sheet section. */
+/* Keep every label/control pair readable without making compact cards airy. */
+.character-sheet .c-flex-col:has(> label),
+.character-sheet .compact-field,
+.character-sheet .npc-mode-field,
+.character-sheet .bestiary-controls label,
+.character-sheet .encounter-toolbar label,
+.character-sheet .encounter-add-row label,
+.character-sheet .encounter-participant label {
+  row-gap: 8px;
+}
 .character-sheet .c-flex-col:has(> label) { gap: 8px !important; }
-.character-sheet .compact-field { gap: 8px; }
+.character-sheet .compact-field,
+.character-sheet .npc-mode-field { gap: 8px; }
+.character-sheet .c-select-field { display: grid; gap: 8px; }
 
 .sheet-section {
   padding: 20px;
