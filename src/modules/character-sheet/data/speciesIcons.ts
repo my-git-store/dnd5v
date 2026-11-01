@@ -1,15 +1,17 @@
 /** Explicit presentation mapping for the D&D 2024 species assets. */
+import { assetUrl } from '../../../config/assets.ts'
+
 export const SPECIES_ICON_PATHS = {
-  aasimar: '/images/species/aasimar.png',
-  dragonborn: '/images/species/dragonborn.png',
-  dwarf: '/images/species/dwarf.png',
-  elf: '/images/species/elf.png',
-  gnome: '/images/species/gnome.png',
-  goliath: '/images/species/goliath.png',
-  halfling: '/images/species/halfling.png',
-  human: '/images/species/human.png',
-  orc: '/images/species/orc.png',
-  tiefling: '/images/species/tiefling.png',
+  aasimar: assetUrl('/images/species/aasimar.png'),
+  dragonborn: assetUrl('/images/species/dragonborn.png'),
+  dwarf: assetUrl('/images/species/dwarf.png'),
+  elf: assetUrl('/images/species/elf.png'),
+  gnome: assetUrl('/images/species/gnome.png'),
+  goliath: assetUrl('/images/species/goliath.png'),
+  halfling: assetUrl('/images/species/halfling.png'),
+  human: assetUrl('/images/species/human.png'),
+  orc: assetUrl('/images/species/orc.png'),
+  tiefling: assetUrl('/images/species/tiefling.png'),
 } as const
 
 const SPECIES_LABELS: Record<keyof typeof SPECIES_ICON_PATHS, string> = {

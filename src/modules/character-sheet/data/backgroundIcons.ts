@@ -1,21 +1,23 @@
 /** Explicit presentation mapping for the D&D 2024 background assets. */
+import { assetUrl } from '../../../config/assets.ts'
+
 export const BACKGROUND_ICON_PATHS = {
-  'artist-2024': '/images/backgrounds/artist.png',
-  'noble-2024': '/images/backgrounds/noble.png',
-  'sailor-2024': '/images/backgrounds/sailor.png',
-  'sage-2024': '/images/backgrounds/sage.png',
-  'hermit-2024': '/images/backgrounds/hermit.png',
-  'scribe-2024': '/images/backgrounds/scribe.png',
-  'acolyte-2024': '/images/backgrounds/acolyte.png',
-  'criminal-2024': '/images/backgrounds/criminal.png',
-  'guide-2024': '/images/backgrounds/guide.png',
-  'artisan-2024': '/images/backgrounds/artisan.png',
-  'soldier-2024': '/images/backgrounds/soldier.png',
-  'guard-2024': '/images/backgrounds/guard.png',
-  'outlander-2024': '/images/backgrounds/outlander.png',
-  'merchant-2024': '/images/backgrounds/merchant.png',
-  'farmer-2024': '/images/backgrounds/farmer.png',
-  'charlatan-2024': '/images/backgrounds/charlatan.png',
+  'artist-2024': assetUrl('/images/backgrounds/artist.png'),
+  'noble-2024': assetUrl('/images/backgrounds/noble.png'),
+  'sailor-2024': assetUrl('/images/backgrounds/sailor.png'),
+  'sage-2024': assetUrl('/images/backgrounds/sage.png'),
+  'hermit-2024': assetUrl('/images/backgrounds/hermit.png'),
+  'scribe-2024': assetUrl('/images/backgrounds/scribe.png'),
+  'acolyte-2024': assetUrl('/images/backgrounds/acolyte.png'),
+  'criminal-2024': assetUrl('/images/backgrounds/criminal.png'),
+  'guide-2024': assetUrl('/images/backgrounds/guide.png'),
+  'artisan-2024': assetUrl('/images/backgrounds/artisan.png'),
+  'soldier-2024': assetUrl('/images/backgrounds/soldier.png'),
+  'guard-2024': assetUrl('/images/backgrounds/guard.png'),
+  'outlander-2024': assetUrl('/images/backgrounds/outlander.png'),
+  'merchant-2024': assetUrl('/images/backgrounds/merchant.png'),
+  'farmer-2024': assetUrl('/images/backgrounds/farmer.png'),
+  'charlatan-2024': assetUrl('/images/backgrounds/charlatan.png'),
 } as const
 
 const BACKGROUND_LABELS: Record<keyof typeof BACKGROUND_ICON_PATHS, string> = {

@@ -32,7 +32,19 @@ import { CHARACTER_TRANSFER_MAX_BYTES, parseCharacterTransfer, readAllStoredChar
 import { readStoredCharacterV3 } from './api/characterV3Storage.ts'
 import './styles/character-sheet.css'
 
-const tabs = [{ name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' }, { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' }, { name: 'Бестиарий', value: 'bestiary' }, { name: 'Планировщик столкновения', value: 'encounter' }, { name: 'Игровые компоненты', value: 'table-components' }] as const
+const featureFlags = {
+  bestiary: import.meta.env.VITE_ENABLE_BESTIARY === 'true',
+  encounter: import.meta.env.VITE_ENABLE_ENCOUNTER_PLANNER === 'true',
+  components: import.meta.env.VITE_ENABLE_COMPONENTS === 'true',
+}
+const tabs = [
+  { name: 'Основное', value: 'main' }, { name: 'Бой', value: 'combat' },
+  { name: 'Магия / Заклинания', value: 'magic' }, { name: 'Инвентарь', value: 'inventory' }, { name: 'БИО', value: 'bio' },
+  ...(featureFlags.bestiary ? [{ name: 'Бестиарий', value: 'bestiary' }] : []),
+  ...(featureFlags.encounter ? [{ name: 'Планировщик столкновения', value: 'encounter' }] : []),
+  ...(featureFlags.components ? [{ name: 'Игровые компоненты', value: 'table-components' }] : []),
+] as const
+const visibleTabValues = new Set(tabs.map((tab) => tab.value))
 const activeTab = ref<string>('main')
 const tabDirection = ref<'forward' | 'backward'>('forward')
 const creationOpen = ref(false)
@@ -50,7 +62,10 @@ watch(activeTab, (next, previous) => {
 })
 watch(() => sheet.activeId.value, (id) => {
   if (!id) return
-  try { activeTab.value = sessionStorage.getItem(`nastolka:sheet:active-tab:${id}`) ?? 'main' } catch { activeTab.value = 'main' }
+  try {
+    const storedTab = sessionStorage.getItem(`nastolka:sheet:active-tab:${id}`) ?? 'main'
+    activeTab.value = visibleTabValues.has(storedTab as typeof tabs[number]['value']) ? storedTab : 'main'
+  } catch { activeTab.value = 'main' }
 }, { immediate: true })
 watch(activeTab, (tab) => {
   const id = sheet.activeId.value

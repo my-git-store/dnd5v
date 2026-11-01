@@ -955,7 +955,7 @@ body {
   background-color: #e9dbc2;
   background-image:
     linear-gradient(rgba(249, 239, 218, .26), rgba(230, 205, 165, .2)),
-    url("/Изображение ChatGPT 30 сент. 2026 г., 23_16_10.png");
+    var(--sheet-map-background, none);
   background-position: center top;
   background-repeat: no-repeat;
   background-size: cover;

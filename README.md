@@ -2,6 +2,18 @@
 
 Фронтенд-приложение на **Vue 3** (Composition API), **TypeScript**, **Vite** и **Tailwind CSS v4**.
 
+## GitHub Pages demo
+
+Публикация Pages запускается workflow `.github/workflows/deploy-pages.yml` после push в `feature/nastolka-demo-modules`.
+
+В production по умолчанию скрыты экспериментальные вкладки:
+
+- `VITE_ENABLE_BESTIARY=false`
+- `VITE_ENABLE_ENCOUNTER_PLANNER=false`
+- `VITE_ENABLE_COMPONENTS=false`
+
+Для локальной проверки скопируйте `.env.example` в `.env` и включите нужные флаги. `VITE_ASSET_BASE_URL` предназначен для проверенного публичного asset host; пока он пуст, assets разрешаются относительно Vite base path. Ожидаемый URL: `https://my-git-store.github.io/dnd5v/`.
+
 ---
 
 ## 🛠 Быстрый старт

@@ -1,34 +1,35 @@
 import type { CharacterGender } from '../types/character.ts'
+import { assetUrl } from '../../../config/assets.ts'
 
 /** Explicit asset mapping for the twelve D&D 2024 classes. */
 export const CLASS_ICON_PATHS = {
-  barbarian: '/images/classes/barbarian.png',
-  bard: '/images/classes/bard.png',
-  cleric: '/images/classes/cleric.png',
-  druid: '/images/classes/druid.png',
-  fighter: '/images/classes/fighter.png',
-  monk: '/images/classes/monk.png',
-  paladin: '/images/classes/paladin.png',
-  ranger: '/images/classes/ranger.png',
-  rogue: '/images/classes/rogue.png',
-  sorcerer: '/images/classes/sorcerer.png',
-  warlock: '/images/classes/warlock.png',
-  wizard: '/images/classes/wizard.png',
+  barbarian: assetUrl('/images/classes/barbarian.png'),
+  bard: assetUrl('/images/classes/bard.png'),
+  cleric: assetUrl('/images/classes/cleric.png'),
+  druid: assetUrl('/images/classes/druid.png'),
+  fighter: assetUrl('/images/classes/fighter.png'),
+  monk: assetUrl('/images/classes/monk.png'),
+  paladin: assetUrl('/images/classes/paladin.png'),
+  ranger: assetUrl('/images/classes/ranger.png'),
+  rogue: assetUrl('/images/classes/rogue.png'),
+  sorcerer: assetUrl('/images/classes/sorcerer.png'),
+  warlock: assetUrl('/images/classes/warlock.png'),
+  wizard: assetUrl('/images/classes/wizard.png'),
 } as const
 
 export const CLASS_ICON_PATHS_MALE = {
-  barbarian: '/images/classes/barbarian-male.png',
-  bard: '/images/classes/bard-male.png',
-  cleric: '/images/classes/cleric-male.png',
-  druid: '/images/classes/druid-male.png',
-  fighter: '/images/classes/fighter-male.png',
-  monk: '/images/classes/monk-male.png',
-  paladin: '/images/classes/paladin-male.png',
-  ranger: '/images/classes/ranger-male.png',
-  rogue: '/images/classes/rogue-male.png',
-  sorcerer: '/images/classes/sorcerer-male.png',
-  warlock: '/images/classes/warlock-male.png',
-  wizard: '/images/classes/wizard-male.png',
+  barbarian: assetUrl('/images/classes/barbarian-male.png'),
+  bard: assetUrl('/images/classes/bard-male.png'),
+  cleric: assetUrl('/images/classes/cleric-male.png'),
+  druid: assetUrl('/images/classes/druid-male.png'),
+  fighter: assetUrl('/images/classes/fighter-male.png'),
+  monk: assetUrl('/images/classes/monk-male.png'),
+  paladin: assetUrl('/images/classes/paladin-male.png'),
+  ranger: assetUrl('/images/classes/ranger-male.png'),
+  rogue: assetUrl('/images/classes/rogue-male.png'),
+  sorcerer: assetUrl('/images/classes/sorcerer-male.png'),
+  warlock: assetUrl('/images/classes/warlock-male.png'),
+  wizard: assetUrl('/images/classes/wizard-male.png'),
 } as const
 
 export const CLASS_ICON_PATHS_BY_GENDER = {
