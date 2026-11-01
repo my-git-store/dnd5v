@@ -6,7 +6,9 @@
 - Workflow: `.github/workflows/deploy-pages.yml`.
 - Ожидаемый URL: `https://my-git-store.github.io/dnd5v/`.
 - Workflow запускает typecheck, тесты, build и публикацию Pages после push в ветку.
-- Включение Pages через `Settings → Pages → Source: GitHub Actions` и первый remote Actions run ещё требуют проверки на GitHub.
+- Workflow опубликован в commit `aa83e6d` и запускается на push в эту ветку.
+- Первый запуск `41290600743` прошёл typecheck, тесты и build, но остановился на `Configure Pages`: сайт Pages ещё не был включён.
+- Второй запуск `41290971956` повторил проверки и получил точный отказ GitHub `Resource not accessible by integration` при попытке включить Pages через API. У текущего подключения нет доступа к настройкам репозитория, поэтому публикация URL ожидает ручного включения Pages владельцем репозитория.
 
 ## Feature flags
 
@@ -30,12 +32,14 @@ Mapping видов, классов и предысторий теперь про
 
 - `npm run typecheck` — PASS.
 - `npm test` — PASS, 150/150.
-- `npm run build` — стандартный запуск блокируется `spawn EPERM` в Vite/esbuild; нужен повторный запуск вне этого ограничения.
-- `git diff --check` — будет выполнен перед commit.
-- Browser smoke опубликованной Pages версии не выполнен: Actions ещё не запускался и URL не проверен.
+- `npm run build` — PASS при запуске вне ограничения среды `spawn EPERM`; локально Vite/esbuild в обычном режиме требует повышенного запуска.
+- `git diff --check` — PASS.
+- GitHub Actions build — PASS (typecheck, 150/150 tests, build); Pages deploy — BLOCKED BY GITHUB PERMISSIONS.
+- Локальный browser smoke с выключенными экспериментальными вкладками выполнен через in-app browser; точные viewport и чтение console/network этим инструментом не доступны.
+- Опубликованная Pages версия не проверена: сайт не включён, deployment job пропущен.
 
 ## Ограничения
 
-- Не подтверждены завершение GitHub Actions и ответ Pages URL.
-- Точные viewport, console и network smoke опубликованной версии остаются pending.
+- Для завершения публикации владелец `my-git-store/dnd5v` должен включить `Settings → Pages → Source: GitHub Actions` (или выдать подключению право управления Pages), после чего workflow повторится автоматически.
+- Точные viewport, console и network smoke опубликованной версии остаются pending до появления Pages URL.
 - Миграция внешних assets и удаление локальных файлов остаются заблокированы отсутствием стабильного публичного host.
