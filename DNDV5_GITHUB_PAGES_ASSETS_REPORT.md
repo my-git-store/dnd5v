@@ -53,7 +53,10 @@
 - В production `dist` нет localhost-ссылок.
 - Raw-содержимое ветки `gh-pages` доступно с HTTP 200.
 
-## Ограничения
+## Итоговая проверка
 
-- Pages URL `https://my-git-store.github.io/dnd5v/` сейчас возвращает HTTP 404; GitHub API `GET /repos/my-git-store/dnd5v/pages` также возвращает 404, то есть Pages site ещё не включён.
-- Владелец должен открыть `Settings` → `Pages` → `Deploy from a branch` → `gh-pages` → `/ (root)` и сохранить настройку. После этого повторно проверить URL, JS, CSS, изображения и favicon.
+- Pages URL `https://my-git-store.github.io/dnd5v/` возвращает HTTP 200.
+- `404.html` отдаётся с HTTP 200 и содержит SPA entrypoint.
+- JS, CSS и favicon проверены по опубликованным URL: HTTP 200.
+- Browser smoke подтверждает первый рендер листа и загрузку mock-персонажа.
+- Экспериментальные вкладки Бестиария, Планировщика столкновения и Компонентов в production UI не отображаются.
