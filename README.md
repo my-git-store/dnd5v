@@ -4,7 +4,13 @@
 
 ## GitHub Pages demo
 
-Публикация Pages запускается workflow `.github/workflows/deploy-pages.yml` после push в `feature/nastolka-demo-modules`.
+Публикация Pages выполняется через `gh-pages` из ветки `feature/nastolka-demo-modules`:
+
+```bash
+npm run deploy
+```
+
+Команда собирает production-версию с base `/dnd5v/` и публикует каталог `dist` в ветку `gh-pages`. В настройках репозитория GitHub Pages должен быть выбран источник `Deploy from a branch`, ветка `gh-pages`, каталог `/ (root)`.
 
 В production по умолчанию скрыты экспериментальные вкладки:
 
@@ -23,6 +29,7 @@ npm install
 npm run dev      # Разработка
 npm run build    # Продакшн сборка (vue-tsc + vite build)
 npm run preview  # Локальный запуск сборки
+npm run deploy   # Сборка и публикация ветки gh-pages
 ```
 
 ---

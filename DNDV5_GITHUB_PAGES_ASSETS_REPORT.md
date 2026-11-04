@@ -1,47 +1,57 @@
 # DNDV5 GitHub Pages и assets — отчёт
 
-## Ветка и публикация
+## Репозиторий
 
-- Ветка: `feature/nastolka-demo-modules`.
-- Workflow: `.github/workflows/deploy-pages.yml`.
+- Репозиторий: `https://github.com/my-git-store/dnd5v`.
+- Статус репозитория: публичный.
+- Рабочая ветка исходников: `feature/nastolka-demo-modules`.
 - Ожидаемый URL: `https://my-git-store.github.io/dnd5v/`.
-- Workflow запускает typecheck, тесты, build и публикацию Pages после push в ветку.
-- Workflow опубликован в commit `aa83e6d` и запускается на push в эту ветку.
-- Первый запуск `41290600743` прошёл typecheck, тесты и build, но остановился на `Configure Pages`: сайт Pages ещё не был включён.
-- Второй запуск `41290971956` повторил проверки и получил точный отказ GitHub `Resource not accessible by integration` при попытке включить Pages через API. У текущего подключения нет доступа к настройкам репозитория, поэтому публикация URL ожидает ручного включения Pages владельцем репозитория.
+
+## Способ публикации
+
+- Используется пакет `gh-pages` из devDependencies.
+- `npm run predeploy` собирает production-версию с `VITE_BASE=/dnd5v/`.
+- Production flags в predeploy принудительно выключены:
+  - `VITE_ENABLE_BESTIARY=false`;
+  - `VITE_ENABLE_ENCOUNTER_PLANNER=false`;
+  - `VITE_ENABLE_COMPONENTS=false`.
+- `npm run deploy` публикует `dist` в ветку `gh-pages` в корень `/`.
+- Конфликтующий Actions workflow `deploy-pages.yml` удалён, чтобы не смешивать два способа deployment.
+- Для GitHub Pages нужно выбрать `Deploy from a branch` → `gh-pages` → `/ (root)`.
+
+## SPA и asset paths
+
+- Локальный Vite base: `/`.
+- Pages base: `/dnd5v/`, передаётся через `VITE_BASE`.
+- После сборки `dist/index.html` копируется в `dist/404.html`, поэтому прямой переход к неизвестному пути открывает SPA.
+- Favicon, CSS, JS и public assets используют base-aware пути.
+- `VITE_ASSET_BASE_URL` поддерживается для проверенного внешнего asset host; пока переменная пустая, используются локальные assets относительно base path.
+- Production build не содержит ссылок на `localhost` или `127.0.0.1`.
 
 ## Feature flags
 
-Production workflow использует:
-
-- `VITE_ENABLE_BESTIARY=false`;
-- `VITE_ENABLE_ENCOUNTER_PLANNER=false`;
-- `VITE_ENABLE_COMPONENTS=false`.
-
-Скрытые вкладки отфильтрованы и не восстанавливаются из session storage. Неизвестное или отключённое значение активной вкладки возвращается на `Основное`, а скрытые панели не монтируются в DOM при выключенном флаге. Исходный код, модели и данные модулей сохранены. Локальный `.env` может включить флаги значением `true`.
+- В production-публикации все экспериментальные модули отключены.
+- Локально их можно включить через `.env` значением `true`.
+- Исходный код и данные Бестиария, Планировщика столкновений и Компонентов сохранены.
 
 ## Assets
 
-Проведена инвентаризация 64 изображений: виды, классы, предыстории, семь дайсов, карты/фоны, favicon/icons и прочие локальные изображения. Локальные файлы не удалялись.
-
-Mapping видов, классов и предысторий теперь проходит через `src/config/assets.ts` и учитывает `VITE_ASSET_BASE_URL` и `BASE_URL`. Favicon и фон карты также base-aware для Pages. Dice assets остаются Vite-бандлом с существующим fallback.
-
-Стабильный внешний asset host в проекте не настроен и не проверен. Поэтому перенос изображений из Git заблокирован явным правилом безопасности; `VITE_ASSET_BASE_URL` оставлен пустым, локальные assets сохранены. После предоставления host нужно проверить каждый URL и только затем удалять локальные копии.
+- Инвентаризировано 64 изображения: PNG, SVG и локальные файлы из `public`/`src/assets`.
+- Mapping видов, классов и предысторий проходит через `src/config/assets.ts`.
+- Стабильный внешний asset host не задан, поэтому локальные изображения не удалялись.
+- Перенос локальных assets во внешний host будет отдельным шагом после предоставления host и проверки каждого URL.
 
 ## Проверки
 
+- Публичность репозитория проверена через GitHub: `Public`.
 - `npm run typecheck` — PASS.
 - `npm test` — PASS, 150/150.
-- `npm run build` — PASS при запуске вне ограничения среды `spawn EPERM`; локально Vite/esbuild в обычном режиме требует повышенного запуска.
+- `npm run build` — PASS.
+- `npm run predeploy` — PASS; Pages base paths присутствуют в `dist/index.html`.
 - `git diff --check` — PASS.
-- В production-сборке нет ссылок на `localhost` или `127.0.0.1`.
-- GitHub Actions build — PASS (typecheck, 150/150 tests, build); Pages deploy — BLOCKED BY GITHUB PERMISSIONS.
-- Локальный browser smoke с выключенными экспериментальными вкладками выполнен через in-app browser; точные viewport и чтение console/network этим инструментом не доступны.
-- Опубликованная Pages версия не проверена: сайт не включён, deployment job пропущен.
+- В production `dist` нет localhost-ссылок.
 
 ## Ограничения
 
-- Для завершения публикации владелец `my-git-store/dnd5v` должен включить `Settings → Pages → Source: GitHub Actions` (или выдать подключению право управления Pages), после чего workflow повторится автоматически.
-- Ручной порядок включения Pages: открыть `Settings` репозитория → `Pages` → выбрать `Source: GitHub Actions` → повторно запустить workflow → проверить `https://my-git-store.github.io/dndv5/`.
-- Точные viewport, console и network smoke опубликованной версии остаются pending до появления Pages URL.
-- Миграция внешних assets и удаление локальных файлов остаются заблокированы отсутствием стабильного публичного host.
+- Состояние ветки `gh-pages` и HTTP 200 Pages URL фиксируются после фактического `npm run deploy`.
+- Если GitHub Pages не переключён на ветку `gh-pages`, владелец должен открыть `Settings` → `Pages` → `Deploy from a branch` → `gh-pages` → `/ (root)` и сохранить настройку.
