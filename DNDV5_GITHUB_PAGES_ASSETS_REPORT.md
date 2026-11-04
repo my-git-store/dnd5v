@@ -18,7 +18,7 @@ Production workflow использует:
 - `VITE_ENABLE_ENCOUNTER_PLANNER=false`;
 - `VITE_ENABLE_COMPONENTS=false`.
 
-Скрытые вкладки отфильтрованы и не восстанавливаются из session storage. Исходный код, модели и данные модулей сохранены. Локальный `.env` может включить флаги значением `true`.
+Скрытые вкладки отфильтрованы и не восстанавливаются из session storage. Неизвестное или отключённое значение активной вкладки возвращается на `Основное`, а скрытые панели не монтируются в DOM при выключенном флаге. Исходный код, модели и данные модулей сохранены. Локальный `.env` может включить флаги значением `true`.
 
 ## Assets
 
@@ -34,6 +34,7 @@ Mapping видов, классов и предысторий теперь про
 - `npm test` — PASS, 150/150.
 - `npm run build` — PASS при запуске вне ограничения среды `spawn EPERM`; локально Vite/esbuild в обычном режиме требует повышенного запуска.
 - `git diff --check` — PASS.
+- В production-сборке нет ссылок на `localhost` или `127.0.0.1`.
 - GitHub Actions build — PASS (typecheck, 150/150 tests, build); Pages deploy — BLOCKED BY GITHUB PERMISSIONS.
 - Локальный browser smoke с выключенными экспериментальными вкладками выполнен через in-app browser; точные viewport и чтение console/network этим инструментом не доступны.
 - Опубликованная Pages версия не проверена: сайт не включён, deployment job пропущен.
@@ -41,5 +42,6 @@ Mapping видов, классов и предысторий теперь про
 ## Ограничения
 
 - Для завершения публикации владелец `my-git-store/dnd5v` должен включить `Settings → Pages → Source: GitHub Actions` (или выдать подключению право управления Pages), после чего workflow повторится автоматически.
+- Ручной порядок включения Pages: открыть `Settings` репозитория → `Pages` → выбрать `Source: GitHub Actions` → повторно запустить workflow → проверить `https://my-git-store.github.io/dndv5/`.
 - Точные viewport, console и network smoke опубликованной версии остаются pending до появления Pages URL.
 - Миграция внешних assets и удаление локальных файлов остаются заблокированы отсутствием стабильного публичного host.

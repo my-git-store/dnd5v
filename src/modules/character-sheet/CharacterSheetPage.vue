@@ -56,6 +56,10 @@ const sheet = useCharacterSheet()
 const { open } = useDialog()
 const tabIndexes = new Map<string, number>(tabs.map((tab, index) => [tab.value, index]))
 watch(activeTab, (next, previous) => {
+  if (!visibleTabValues.has(next as typeof tabs[number]['value'])) {
+    activeTab.value = 'main'
+    return
+  }
   tabDirection.value = (tabIndexes.get(next) ?? 0) >= (tabIndexes.get(previous) ?? 0) ? 'forward' : 'backward'
   const scrollPosition = window.scrollY
   void nextTick(() => window.scrollTo({ top: scrollPosition, behavior: 'auto' }))
@@ -68,6 +72,7 @@ watch(() => sheet.activeId.value, (id) => {
   } catch { activeTab.value = 'main' }
 }, { immediate: true })
 watch(activeTab, (tab) => {
+  if (!visibleTabValues.has(tab as typeof tabs[number]['value'])) return
   const id = sheet.activeId.value
   if (!id) return
   try { sessionStorage.setItem(`nastolka:sheet:active-tab:${id}`, tab) } catch { /* ignore unavailable session storage */ }
@@ -291,13 +296,13 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
                 @update="sheet.updatePersonality" />
             </CollapsibleSheetSection>
           </div>
-          <div v-show="!printMode && activeTab === 'table-components'" class="sheet-tab-panel table-components-panel" :class="tabPanelClass('table-components')">
+          <div v-if="featureFlags.components && !printMode && activeTab === 'table-components'" class="sheet-tab-panel table-components-panel" :class="tabPanelClass('table-components')">
             <TableComponentsShowcase />
           </div>
-          <div v-show="!printMode && activeTab === 'bestiary'" class="sheet-tab-panel bestiary-tab-panel" :class="tabPanelClass('bestiary')">
+          <div v-if="featureFlags.bestiary && !printMode && activeTab === 'bestiary'" class="sheet-tab-panel bestiary-tab-panel" :class="tabPanelClass('bestiary')">
             <BestiaryPanel :on-create-npc="createNpcFromBestiary" @status="(message) => { transferStatus = { kind: 'success', text: message } }" />
           </div>
-          <div v-show="!printMode && activeTab === 'encounter'" class="sheet-tab-panel encounter-tab-panel" :class="tabPanelClass('encounter')">
+          <div v-if="featureFlags.encounter && !printMode && activeTab === 'encounter'" class="sheet-tab-panel encounter-tab-panel" :class="tabPanelClass('encounter')">
             <EncounterPlanner :encounters="sheet.character.value.encounters" :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" @update="sheet.updateEncounters" @status="(message) => { transferStatus = { kind: 'success', text: message } }" />
           </div>
         </div>
