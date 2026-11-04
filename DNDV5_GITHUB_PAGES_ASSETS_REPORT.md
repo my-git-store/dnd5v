@@ -16,6 +16,7 @@
   - `VITE_ENABLE_ENCOUNTER_PLANNER=false`;
   - `VITE_ENABLE_COMPONENTS=false`.
 - `npm run deploy` публикует `dist` в ветку `gh-pages` в корень `/`.
+- Публикация выполнена успешно: remote `gh-pages` указывает на commit `877af9b77ed9d55ca0b9ac73ee80b971553eba77`.
 - Конфликтующий Actions workflow `deploy-pages.yml` удалён, чтобы не смешивать два способа deployment.
 - Для GitHub Pages нужно выбрать `Deploy from a branch` → `gh-pages` → `/ (root)`.
 
@@ -50,8 +51,9 @@
 - `npm run predeploy` — PASS; Pages base paths присутствуют в `dist/index.html`.
 - `git diff --check` — PASS.
 - В production `dist` нет localhost-ссылок.
+- Raw-содержимое ветки `gh-pages` доступно с HTTP 200.
 
 ## Ограничения
 
-- Состояние ветки `gh-pages` и HTTP 200 Pages URL фиксируются после фактического `npm run deploy`.
-- Если GitHub Pages не переключён на ветку `gh-pages`, владелец должен открыть `Settings` → `Pages` → `Deploy from a branch` → `gh-pages` → `/ (root)` и сохранить настройку.
+- Pages URL `https://my-git-store.github.io/dnd5v/` сейчас возвращает HTTP 404; GitHub API `GET /repos/my-git-store/dnd5v/pages` также возвращает 404, то есть Pages site ещё не включён.
+- Владелец должен открыть `Settings` → `Pages` → `Deploy from a branch` → `gh-pages` → `/ (root)` и сохранить настройку. После этого повторно проверить URL, JS, CSS, изображения и favicon.
