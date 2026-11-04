@@ -221,6 +221,25 @@ body {
 .character-sheet .npc-mode-field { gap: 8px; }
 .character-sheet .c-select-field { display: grid; gap: 8px; }
 
+/* Keep the label-to-control rhythm consistent in the main sheet forms. */
+.character-sheet .c-flex-col:has(> label),
+.character-sheet .compact-field,
+.character-sheet .npc-mode-field,
+.character-sheet .c-select-field,
+.character-editor-modal .c-flex-col:has(> label),
+.character-editor-modal .compact-field {
+  row-gap: 12px !important;
+}
+.character-sheet .ability-grid .field-card,
+.character-sheet .spellcasting-grid .derived-card,
+.character-sheet .spell-slot-card {
+  row-gap: 12px;
+}
+.character-sheet .spell-slot-fields .c-flex-col,
+.character-editor-modal .editor-grid .c-flex-col {
+  row-gap: 12px !important;
+}
+
 .sheet-section {
   padding: 20px;
   background: linear-gradient(145deg, var(--sheet-paper), rgba(255, 247, 228, .82));
