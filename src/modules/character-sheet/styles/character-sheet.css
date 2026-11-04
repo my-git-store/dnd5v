@@ -248,6 +248,8 @@ body {
 .creator-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .creator-subheading { margin: 16px 0 7px; color: var(--sheet-muted); font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .feature-list { display: grid; gap: 6px; margin: 0; padding-left: 19px; color: var(--sheet-ink); font-size: .88rem; line-height: 1.45; }
+.feature-summary-grid .feature-list { list-style: none; gap: 8px; padding-left: 0; }
+.feature-summary-grid .feature-list li { min-width: 0; padding: 10px 12px; border: 1px solid var(--sheet-line-soft); border-radius: 8px; background: rgba(255, 248, 231, .72); }
 .feature-summary { margin-top: 18px; }
 .progression-summary { margin-top: 18px; }
 .progression-history { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 14px; color: var(--sheet-muted); font-size: .8rem; line-height: 1.4; }
@@ -359,7 +361,7 @@ body {
 .check-control input { width: 16px; height: 16px; }
 .derived-value { min-width: 34px; text-align: right; }
 
-.skill-calculation-mode { display: inline-flex; align-items: center; justify-content: center; padding: 2px 6px; border-radius: 999px; font-size: .68rem; font-weight: 700; white-space: nowrap; }
+.skill-calculation-mode { display: inline-flex; align-items: center; justify-content: center; width: 64px; box-sizing: border-box; padding: 2px 6px; border-radius: 999px; font-size: .68rem; font-weight: 700; white-space: nowrap; }
 .skill-calculation-mode.computed { color: #49633d; background: #e9f0df; }
 .skill-calculation-mode.manual { color: #7a4a36; background: #f5e5d4; }
 .character-details-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
@@ -745,7 +747,7 @@ body {
 .saving-result { min-width: 78px; padding: 6px 10px; border: 1px solid var(--sheet-line-soft); border-radius: 8px; background: rgba(255, 248, 231, .72); }
 .saving-result .derived-value { text-align: center; }
 .skill-row { display: block; padding: 11px 0 10px; }
-.skill-row-summary { display: grid; grid-template-columns: 16px minmax(0, 1fr) 38px 46px auto; align-items: center; gap: 8px; min-width: 0; }
+.skill-row-summary { display: grid; grid-template-columns: 16px minmax(0, 1fr) 38px 46px 64px; align-items: center; gap: 8px; min-width: 0; }
 .skill-proficiency-dot { display: block; width: 12px; height: 12px; border: 2px solid #b9ad98; border-radius: 50%; background: transparent; box-sizing: border-box; }
 .skill-proficiency-dot.active { border-color: #54705b; background: #54705b; box-shadow: inset 0 0 0 3px #f8efdc; }
 .skill-name { min-width: 0; color: var(--sheet-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
