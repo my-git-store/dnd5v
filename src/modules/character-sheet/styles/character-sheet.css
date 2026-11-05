@@ -45,15 +45,19 @@ body {
   border-radius: 18px;
 }
 .character-sheet::after {
-  content: "✦";
+  content: "◇";
   position: absolute;
   top: 4px;
-  left: 50%;
+  left: 24px;
+  right: 24px;
   z-index: 2;
-  transform: translateX(-50%);
-  padding: 0 12px;
+  display: grid;
+  place-items: center;
+  height: 16px;
+  padding: 0;
   color: var(--sheet-gold);
-  background: #efe0c5;
+  background: linear-gradient(90deg, transparent 0%, rgba(155, 106, 47, .42) 9%, rgba(155, 106, 47, .42) 91%, transparent 100%);
+  font-family: var(--font-serif);
   font-size: .85rem;
   line-height: 1;
   pointer-events: none;
@@ -993,7 +997,7 @@ body {
 }
 
 .character-sheet::before { border-color: rgba(122, 62, 67, .28); box-shadow: inset 0 0 0 3px rgba(255, 249, 231, .32); }
-.character-sheet::after { color: var(--sheet-burgundy); background: #ead8b7; }
+.character-sheet::after { color: var(--sheet-burgundy); background: linear-gradient(90deg, transparent 0%, rgba(122, 62, 67, .34) 9%, rgba(196, 155, 92, .68) 50%, rgba(122, 62, 67, .34) 91%, transparent 100%); }
 
 .sheet-header {
   padding: 23px 25px 21px;
