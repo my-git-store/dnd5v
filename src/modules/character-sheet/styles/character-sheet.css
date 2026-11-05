@@ -76,8 +76,7 @@ body {
 .character-manager-copy strong { color: var(--sheet-ink); font-family: var(--font-serif); }
 .character-manager-copy small { color: var(--sheet-muted); font-size: .74rem; }
 .character-manager-controls { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 7px; min-width: 0; }
-.character-manager-select-label { min-width: min(300px, 38vw); flex: 1 1 220px; }
-.character-manager-controls .select-control { min-height: 38px; }
+.survey-link { display: inline-flex; align-items: center; justify-content: center; color: inherit; text-decoration: none; }
 .character-manager-status { flex-basis: 100%; margin: 0; padding: 6px 10px; border-radius: 8px; font-size: .78rem; }
 .character-manager-status.success { color: var(--sheet-success); background: #edf5eb; }
 .character-manager-status.error { color: var(--sheet-danger); background: #fff0ed; }
@@ -481,7 +480,6 @@ body {
   .origin-summary-grid { grid-template-columns: minmax(0, 1fr); }
   .character-manager { align-items: stretch; flex-direction: column; padding: 12px; }
   .character-manager-controls { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, auto); justify-content: stretch; }
-  .character-manager-select-label { min-width: 0; grid-column: 1 / -1; }
   .character-manager-controls .c-btn { min-width: 0; padding-inline: 10px; }
   .character-manager-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
