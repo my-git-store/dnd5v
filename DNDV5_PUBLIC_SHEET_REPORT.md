@@ -34,4 +34,8 @@
 
 ## Публикация
 
-Перенос изменений в `main` и обновление `gh-pages` выполняются после commit и push текущей feature-ветки. Итоговые commit и URL Pages будут добавлены в историю Git после публикации.
+- Feature-коммит: `c6bf835`.
+- Изменения перенесены в `main` merge-коммитом `7bc8604` после интеграции актуального `origin/main`.
+- `main` отправлен в `origin`; force push не использовался.
+- После обновления `main` ветка `gh-pages` обновляется штатным `npm run deploy`.
+- Опубликованный URL: `https://my-git-store.github.io/dnd5v/`.
