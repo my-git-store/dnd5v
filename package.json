@@ -11,7 +11,7 @@
     "build": "vue-tsc -b && vite build && node scripts/copy-spa-fallback.mjs",
     "preview": "vite preview",
     "predeploy": "node scripts/build-pages.mjs",
-    "deploy": "gh-pages -d dist"
+    "deploy": "npx gh-pages -d dist"
   },
   "dependencies": {
     "@editorjs/editorjs": "^2.31.6",
