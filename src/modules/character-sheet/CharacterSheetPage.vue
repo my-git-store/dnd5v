@@ -107,19 +107,21 @@ async function exportCharacters(all: boolean) {
   transferStatus.value = { kind: 'success', text: all ? `Экспортировано персонажей: ${stored.length}.` : 'Персонаж экспортирован.' }
 }
 function openImportPreview(plan: ReturnType<typeof parseCharacterTransfer>) {
-  open({ component: CharacterImportModal, componentProps: {
-    characters: plan.characters,
-    currentAvailable: Boolean(sheet.character.value),
-    onImport: async (mode: 'add' | 'replace') => {
-      try {
-        await sheet.importCharacters(plan.characters, mode)
-        transferStatus.value = { kind: 'success', text: `Импортировано персонажей: ${plan.characters.length}.` }
-      } catch (error) {
-        transferStatus.value = { kind: 'error', text: error instanceof Error ? error.message : 'Не удалось импортировать персонажей.' }
-        throw error
-      }
-    },
-  } })
+  open({
+    component: CharacterImportModal, componentProps: {
+      characters: plan.characters,
+      currentAvailable: Boolean(sheet.character.value),
+      onImport: async (mode: 'add' | 'replace') => {
+        try {
+          await sheet.importCharacters(plan.characters, mode)
+          transferStatus.value = { kind: 'success', text: `Импортировано персонажей: ${plan.characters.length}.` }
+        } catch (error) {
+          transferStatus.value = { kind: 'error', text: error instanceof Error ? error.message : 'Не удалось импортировать персонажей.' }
+          throw error
+        }
+      },
+    }
+  })
 }
 async function importFile(file: File) {
   transferStatus.value = null
@@ -234,10 +236,14 @@ onMounted(() => window.addEventListener('afterprint', finishPrint))
 onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
 </script>
 <template>
-  <main class="character-sheet" :class="{ 'character-sheet-creation-mode': creationOpen, 'character-sheet-print-mode': printMode }">
+  <main class="character-sheet"
+    :class="{ 'character-sheet-creation-mode': creationOpen, 'character-sheet-print-mode': printMode }">
     <CharacterLoadState :loading="sheet.isLoading.value" :error="sheet.loadError.value" @retry="sheet.load" />
     <template v-if="!sheet.isLoading.value && !sheet.loadError.value">
-      <CharacterManagerBar :characters="sheet.characters.value" :active-id="sheet.activeId.value" :dirty="sheet.isDirty.value" :disabled="sheet.isSaving.value" :status="transferStatus" @select="selectCharacter" @create="createCharacter" @create-npc="createNpcCharacter" @copy="copyCharacter" @remove="deleteCharacter" @export-current="exportCharacters(false)" @export-all="exportCharacters(true)" @import-file="importFile" />
+      <CharacterManagerBar :characters="sheet.characters.value" :active-id="sheet.activeId.value"
+        :dirty="sheet.isDirty.value" :disabled="sheet.isSaving.value" :status="transferStatus" @select="selectCharacter"
+        @create="openCreationModal" @create-npc="createNpcCharacter" @copy="copyCharacter" @remove="deleteCharacter"
+        @export-current="exportCharacters(false)" @export-all="exportCharacters(true)" @import-file="importFile" />
       <section v-if="!sheet.character.value" class="character-empty-state sheet-section" aria-live="polite">
         <h1>Персонажи не найдены</h1>
         <p>Создайте нового персонажа, чтобы начать работу с листом.</p>
@@ -246,66 +252,91 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
     </template>
     <template v-if="sheet.character.value && !sheet.isLoading.value && !sheet.loadError.value">
       <section v-if="creationOpen" class="character-creation-root" aria-label="Создание персонажа">
-        <CharacterCreationTab :key="creationSession" :character="sheet.character.value" :disabled="sheet.isSaving.value" :creation-error="creationError" hide-preview
-          @create="applyCreation" @back-to-sheet="closeCreation" />
+        <CharacterCreationTab :key="creationSession" :character="sheet.character.value" :disabled="sheet.isSaving.value"
+          :creation-error="creationError" hide-preview @create="applyCreation" @back-to-sheet="closeCreation" />
       </section>
       <template v-else>
-        <NpcSheetPanel v-if="sheet.character.value.kind === 'npc'" :character="sheet.character.value" :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value" :save-error="sheet.saveError.value" :on-save="sheet.save" :on-print="startPrint" @update="sheet.updateNpc" />
-        <template v-else>
-        <CharacterSheetHeader :name="sheet.character.value.name"
-          :race="sheet.character.value.race.name" :species-icon="selectedSpeciesIcon" :class-name="sheet.character.value.class" :class-icon="selectedClassIcon"
-          :background-name="sheet.character.value.background.name || sheet.character.value.origin.background" :background-icon="selectedBackgroundIcon"
-          :ruleset="sheet.character.value.ruleset"
-          :level="sheet.character.value.level" :experience="sheet.character.value.experience"
+        <NpcSheetPanel v-if="sheet.character.value.kind === 'npc'" :character="sheet.character.value"
           :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"
-          :save-error="sheet.saveError.value" @save="sheet.save" @open-details="openIdentityModal" @print="startPrint" />
-        <div class="sheet-tabs-row">
-          <div class="sheet-tabs"><CTabs v-model="activeTab" :tabs="tabs" id-prefix="sheet-tab-panel" /></div>
-          <CBtn class="creation-launch-button" color-type="accent" :disabled="sheet.isSaving.value" @click="openCreationModal">Создание персонажа</CBtn>
-        </div>
-        <div class="sheet-tab-stage">
-          <div id="sheet-tab-panel-main" v-show="printMode || activeTab === 'main'" class="sheet-tab-panel" :class="tabPanelClass('main')">
-            <CollapsibleSheetSection title="Основное" id="main-section" :storage-key="sheet.activeId.value ?? 'empty'" :force-open="printMode || Boolean(sheet.saveError.value || transferStatus?.kind === 'error')">
-              <CharacterMainTab :character="sheet.character.value"
-                :disabled="sheet.isSaving.value" @update:saving-throw="sheet.updateSavingThrow"
-                @update:ability="updateAbility" @update:skill="sheet.updateSkill" @update:feats="sheet.updateFeats" @level-up="openLevelUpModal" />
-            </CollapsibleSheetSection>
+          :save-error="sheet.saveError.value" :on-save="sheet.save" :on-print="startPrint" @update="sheet.updateNpc" />
+        <template v-else>
+          <CharacterSheetHeader :name="sheet.character.value.name" :race="sheet.character.value.race.name"
+            :species-icon="selectedSpeciesIcon" :class-name="sheet.character.value.class"
+            :class-icon="selectedClassIcon"
+            :background-name="sheet.character.value.background.name || sheet.character.value.origin.background"
+            :background-icon="selectedBackgroundIcon" :ruleset="sheet.character.value.ruleset"
+            :level="sheet.character.value.level" :experience="sheet.character.value.experience"
+            :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"
+            :save-error="sheet.saveError.value" @save="sheet.save" @open-details="openIdentityModal"
+            @print="startPrint" />
+          <div class="sheet-tabs-row">
+            <div class="sheet-tabs">
+              <CTabs v-model="activeTab" :tabs="tabs" id-prefix="sheet-tab-panel" />
+            </div>
           </div>
-          <div id="sheet-tab-panel-combat" v-show="printMode || activeTab === 'combat'" class="sheet-tab-panel" :class="tabPanelClass('combat')">
-            <CollapsibleSheetSection title="Бой" id="combat-section" :storage-key="sheet.activeId.value ?? 'empty'" :force-open="printMode || Boolean(sheet.saveError.value || transferStatus?.kind === 'error')">
-              <CharacterCombatTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
-                :on-short-rest="takeShortRest" :on-long-rest="takeLongRest"
-                @update:combat="sheet.updateCombat" @update:attacks="sheet.updateAttacks" />
-            </CollapsibleSheetSection>
+          <div class="sheet-tab-stage">
+            <div id="sheet-tab-panel-main" v-show="printMode || activeTab === 'main'" class="sheet-tab-panel"
+              :class="tabPanelClass('main')">
+              <CollapsibleSheetSection title="Основное" id="main-section" :storage-key="sheet.activeId.value ?? 'empty'"
+                :force-open="printMode || Boolean(sheet.saveError.value || transferStatus?.kind === 'error')">
+                <CharacterMainTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
+                  @update:saving-throw="sheet.updateSavingThrow" @update:ability="updateAbility"
+                  @update:skill="sheet.updateSkill" @update:feats="sheet.updateFeats" @level-up="openLevelUpModal" />
+              </CollapsibleSheetSection>
+            </div>
+            <div id="sheet-tab-panel-combat" v-show="printMode || activeTab === 'combat'" class="sheet-tab-panel"
+              :class="tabPanelClass('combat')">
+              <CollapsibleSheetSection title="Бой" id="combat-section" :storage-key="sheet.activeId.value ?? 'empty'"
+                :force-open="printMode || Boolean(sheet.saveError.value || transferStatus?.kind === 'error')">
+                <CharacterCombatTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
+                  :on-short-rest="takeShortRest" :on-long-rest="takeLongRest" @update:combat="sheet.updateCombat"
+                  @update:attacks="sheet.updateAttacks" />
+              </CollapsibleSheetSection>
+            </div>
+            <div id="sheet-tab-panel-magic" v-show="printMode || activeTab === 'magic'" class="sheet-tab-panel"
+              :class="tabPanelClass('magic')">
+              <CollapsibleSheetSection title="Магия и заклинания" id="magic-section"
+                :storage-key="sheet.activeId.value ?? 'empty'"
+                :force-open="printMode || Boolean(sheet.saveError.value || transferStatus?.kind === 'error')">
+                <CharacterMagicTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
+                  @update:spells="sheet.updateSpells" @update:cantrips="sheet.updateCantrips"
+                  @update:spellcasting="sheet.updateSpellcasting" @use-slot="useSpellSlot" />
+              </CollapsibleSheetSection>
+            </div>
+            <div id="sheet-tab-panel-inventory" v-show="printMode || activeTab === 'inventory'" class="sheet-tab-panel"
+              :class="tabPanelClass('inventory')">
+              <CollapsibleSheetSection title="Инвентарь" id="inventory-section"
+                :storage-key="sheet.activeId.value ?? 'empty'"
+                :force-open="printMode || Boolean(sheet.saveError.value || transferStatus?.kind === 'error')">
+                <CharacterInventoryTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
+                  @update:inventory="sheet.updateInventory" @update:money="sheet.updateMoney"
+                  @use-item="useInventoryItem" />
+              </CollapsibleSheetSection>
+            </div>
+            <div id="sheet-tab-panel-bio" v-show="printMode || activeTab === 'bio'" class="sheet-tab-panel"
+              :class="tabPanelClass('bio')">
+              <CollapsibleSheetSection title="Биография" id="bio-section" :storage-key="sheet.activeId.value ?? 'empty'"
+                :force-open="printMode || Boolean(sheet.saveError.value || transferStatus?.kind === 'error')">
+                <CharacterBioTab :personality="sheet.character.value.personality" :disabled="sheet.isSaving.value"
+                  @update="sheet.updatePersonality" />
+              </CollapsibleSheetSection>
+            </div>
+            <div v-if="featureFlags.components && !printMode && activeTab === 'table-components'"
+              class="sheet-tab-panel table-components-panel" :class="tabPanelClass('table-components')">
+              <TableComponentsShowcase />
+            </div>
+            <div v-if="featureFlags.bestiary && !printMode && activeTab === 'bestiary'"
+              class="sheet-tab-panel bestiary-tab-panel" :class="tabPanelClass('bestiary')">
+              <BestiaryPanel :on-create-npc="createNpcFromBestiary"
+                @status="(message) => { transferStatus = { kind: 'success', text: message } }" />
+            </div>
+            <div v-if="featureFlags.encounter && !printMode && activeTab === 'encounter'"
+              class="sheet-tab-panel encounter-tab-panel" :class="tabPanelClass('encounter')">
+              <EncounterPlanner :encounters="sheet.character.value.encounters" :dirty="sheet.isDirty.value"
+                :saving="sheet.isSaving.value" @update="sheet.updateEncounters"
+                @status="(message) => { transferStatus = { kind: 'success', text: message } }" />
+            </div>
           </div>
-          <div id="sheet-tab-panel-magic" v-show="printMode || activeTab === 'magic'" class="sheet-tab-panel" :class="tabPanelClass('magic')">
-            <CollapsibleSheetSection title="Магия и заклинания" id="magic-section" :storage-key="sheet.activeId.value ?? 'empty'" :force-open="printMode || Boolean(sheet.saveError.value || transferStatus?.kind === 'error')">
-              <CharacterMagicTab :character="sheet.character.value"
-                :disabled="sheet.isSaving.value" @update:spells="sheet.updateSpells" @update:cantrips="sheet.updateCantrips" @update:spellcasting="sheet.updateSpellcasting" @use-slot="useSpellSlot" />
-            </CollapsibleSheetSection>
-          </div>
-          <div id="sheet-tab-panel-inventory" v-show="printMode || activeTab === 'inventory'" class="sheet-tab-panel" :class="tabPanelClass('inventory')">
-            <CollapsibleSheetSection title="Инвентарь" id="inventory-section" :storage-key="sheet.activeId.value ?? 'empty'" :force-open="printMode || Boolean(sheet.saveError.value || transferStatus?.kind === 'error')">
-              <CharacterInventoryTab :character="sheet.character.value"
-                :disabled="sheet.isSaving.value" @update:inventory="sheet.updateInventory" @update:money="sheet.updateMoney" @use-item="useInventoryItem" />
-            </CollapsibleSheetSection>
-          </div>
-          <div id="sheet-tab-panel-bio" v-show="printMode || activeTab === 'bio'" class="sheet-tab-panel" :class="tabPanelClass('bio')">
-            <CollapsibleSheetSection title="Биография" id="bio-section" :storage-key="sheet.activeId.value ?? 'empty'" :force-open="printMode || Boolean(sheet.saveError.value || transferStatus?.kind === 'error')">
-              <CharacterBioTab :personality="sheet.character.value.personality" :disabled="sheet.isSaving.value"
-                @update="sheet.updatePersonality" />
-            </CollapsibleSheetSection>
-          </div>
-          <div v-if="featureFlags.components && !printMode && activeTab === 'table-components'" class="sheet-tab-panel table-components-panel" :class="tabPanelClass('table-components')">
-            <TableComponentsShowcase />
-          </div>
-          <div v-if="featureFlags.bestiary && !printMode && activeTab === 'bestiary'" class="sheet-tab-panel bestiary-tab-panel" :class="tabPanelClass('bestiary')">
-            <BestiaryPanel :on-create-npc="createNpcFromBestiary" @status="(message) => { transferStatus = { kind: 'success', text: message } }" />
-          </div>
-          <div v-if="featureFlags.encounter && !printMode && activeTab === 'encounter'" class="sheet-tab-panel encounter-tab-panel" :class="tabPanelClass('encounter')">
-            <EncounterPlanner :encounters="sheet.character.value.encounters" :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" @update="sheet.updateEncounters" @status="(message) => { transferStatus = { kind: 'success', text: message } }" />
-          </div>
-        </div>
         </template>
       </template>
     </template>

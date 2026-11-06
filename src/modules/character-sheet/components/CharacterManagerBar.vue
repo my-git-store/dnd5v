@@ -32,8 +32,10 @@ const emit = defineEmits<{
     </div>
     <div class="character-manager-controls">
       <CBtn color-type="accent" :disabled="disabled" @click="emit('create')">Создать персонажа</CBtn>
-      <a class="c-btn c-btn-accent survey-link" href="https://forms.yandex.ru/u/6aec6367c45c070febaff5f5" target="_blank" rel="noopener noreferrer">Пройти опрос</a>
+      <a class="c-btn c-btn-accent survey-link" href="https://forms.yandex.ru/u/6aec6367c45c070febaff5f5"
+        target="_blank" rel="noopener noreferrer">Пройти опрос</a>
     </div>
-    <p v-if="status" class="character-manager-status" :class="status.kind" role="status" aria-live="polite">{{ status.text }}</p>
+    <p v-if="status" class="character-manager-status" :class="status.kind" role="status" aria-live="polite">{{
+      status.text }}</p>
   </section>
 </template>
