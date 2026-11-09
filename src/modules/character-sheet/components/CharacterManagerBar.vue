@@ -1,25 +1,24 @@
 <script setup lang="ts">
-import { CBtn } from '@/ui/components'
-import type { StoredCharacterSummary } from '../api/characterV3Storage'
+import type { StoredCharacterSummary } from "../api/characterV3Storage";
 
 defineProps<{
-  characters: StoredCharacterSummary[]
-  activeId: string | null
-  dirty: boolean
-  disabled: boolean
-  status?: { kind: 'success' | 'error'; text: string } | null
-}>()
+  characters: StoredCharacterSummary[];
+  activeId: string | null;
+  dirty: boolean;
+  disabled: boolean;
+  status?: { kind: "success" | "error"; text: string } | null;
+}>();
 
 const emit = defineEmits<{
-  select: [id: string]
-  create: []
-  'create-npc': []
-  copy: []
-  remove: []
-  'export-current': []
-  'export-all': []
-  'import-file': [file: File]
-}>()
+  select: [id: string];
+  create: [];
+  "create-npc": [];
+  copy: [];
+  remove: [];
+  "export-current": [];
+  "export-all": [];
+  "import-file": [file: File];
+}>();
 </script>
 
 <template>
@@ -31,11 +30,18 @@ const emit = defineEmits<{
       <small v-if="dirty">Есть несохранённые изменения.</small>
     </div>
     <div class="character-manager-controls">
-      <CBtn color-type="accent" :disabled="disabled" @click="emit('create')">Создать персонажа</CBtn>
-      <a class="c-btn c-btn-accent survey-link" href="https://forms.yandex.ru/u/6aec6367c45c070febaff5f5"
-        target="_blank" rel="noopener noreferrer">Пройти опрос</a>
+      <NButton type="default" :disabled="disabled" @click="emit('create')">Создать персонажа</NButton>
+      <NButton
+        type="default"
+        tag="a"
+        href="https://forms.yandex.ru/u/6aec6367c45c070febaff5f5"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Пройти опрос</NButton
+      >
     </div>
-    <p v-if="status" class="character-manager-status" :class="status.kind" role="status" aria-live="polite">{{
-      status.text }}</p>
+    <p v-if="status" class="character-manager-status" :class="status.kind" role="status" aria-live="polite">
+      {{ status.text }}
+    </p>
   </section>
 </template>

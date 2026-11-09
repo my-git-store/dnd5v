@@ -1,31 +1,46 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from "vue";
 
-const props = withDefaults(defineProps<{
-  title: string
-  id: string
-  storageKey: string
-  forceOpen?: boolean
-}>(), { forceOpen: false })
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    id: string;
+    storageKey: string;
+    forceOpen?: boolean;
+  }>(),
+  { forceOpen: false },
+);
 
-const expanded = ref(true)
-const hydrated = ref(false)
-const stateKey = `nastolka:sheet:collapse:${props.storageKey}:${props.id}`
-const contentId = `sheet-section-content-${props.id}`
+const expanded = ref(true);
+const hydrated = ref(false);
+const stateKey = `nastolka:sheet:collapse:${props.storageKey}:${props.id}`;
+const contentId = `sheet-section-content-${props.id}`;
 
 onMounted(() => {
   try {
-    const stored = sessionStorage.getItem(stateKey)
-    if (stored !== null) expanded.value = stored !== 'collapsed'
+    const stored = sessionStorage.getItem(stateKey);
+    if (stored !== null) expanded.value = stored !== "collapsed";
   } catch {
     // Session storage can be unavailable in privacy mode; the open default remains usable.
-  } finally { hydrated.value = true }
-})
-watch(() => props.forceOpen, (forceOpen) => { if (forceOpen) expanded.value = true }, { immediate: true })
+  } finally {
+    hydrated.value = true;
+  }
+});
+watch(
+  () => props.forceOpen,
+  (forceOpen) => {
+    if (forceOpen) expanded.value = true;
+  },
+  { immediate: true },
+);
 watch(expanded, (value) => {
-  if (!hydrated.value) return
-  try { sessionStorage.setItem(stateKey, value ? 'expanded' : 'collapsed') } catch { /* ignore unavailable session storage */ }
-})
+  if (!hydrated.value) return;
+  try {
+    sessionStorage.setItem(stateKey, value ? "expanded" : "collapsed");
+  } catch {
+    /* ignore unavailable session storage */
+  }
+});
 </script>
 
 <template>
@@ -40,8 +55,8 @@ watch(expanded, (value) => {
         :aria-label="expanded ? `Свернуть раздел «${title}»` : `Развернуть раздел «${title}»`"
         @click="expanded = !expanded"
       >
-        <span aria-hidden="true">{{ expanded ? '−' : '+' }}</span>
-        <span>{{ expanded ? 'Свернуть' : 'Развернуть' }}</span>
+        <span aria-hidden="true">{{ expanded ? "−" : "+" }}</span>
+        <span>{{ expanded ? "Свернуть" : "Развернуть" }}</span>
       </button>
     </header>
     <div v-show="expanded" :id="contentId" class="collapsible-sheet-content">

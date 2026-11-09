@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import DiceRoller from './components/dice/DiceRoller.vue'
-import InitiativeTracker from './components/initiative/InitiativeTracker.vue'
-import './styles/table-components.css'
+import DiceRoller from "./components/dice/DiceRoller.vue";
+import InitiativeTracker from "./components/initiative/InitiativeTracker.vue";
+import "./styles/table-components.css";
 </script>
 
 <template>
@@ -10,7 +10,10 @@ import './styles/table-components.css'
       <header class="app-header">
         <p class="eyebrow">Демо · локальные инструменты</p>
         <h2 id="table-components-title">Игровые компоненты</h2>
-        <p class="showcase-note">Самостоятельные компоненты «Бросок кубиков» и «Трекер инициативы» для будущего игрового стола. Состояние прототипа хранится локально в компоненте.</p>
+        <p class="showcase-note">
+          Самостоятельные компоненты «Бросок кубиков» и «Трекер инициативы» для будущего игрового стола. Состояние
+          прототипа хранится локально в компоненте.
+        </p>
       </header>
       <div class="component-grid" aria-label="Компоненты игрового стола">
         <DiceRoller />

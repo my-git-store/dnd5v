@@ -1,26 +1,34 @@
 <script setup lang="ts">
-import { CInput } from '@/ui/components'
-import { ABILITY_FIELDS } from '../data/characterFields'
-import { calculateSavingThrowBonus } from '../domain/savingThrow'
-import { signedModifier } from '../domain/abilityModifier'
-import type { AbilityKey, CharacterAbilities } from '../types/character'
-import type { CharacterSavingThrowsV3 } from '../types/characterV3'
+import { ABILITY_FIELDS } from "../data/characterFields";
+import { calculateSavingThrowBonus } from "../domain/savingThrow";
+import { signedModifier } from "../domain/abilityModifier";
+import type { AbilityKey, CharacterAbilities } from "../types/character";
+import type { CharacterSavingThrowsV3 } from "../types/characterV3";
 
-const props = defineProps<{ abilities: CharacterAbilities; savingThrows: CharacterSavingThrowsV3; level: number; disabled?: boolean }>()
-const emit = defineEmits<{ update: [key: AbilityKey, patch: { proficient?: boolean; additionalBonus?: number }] }>()
+const props = defineProps<{
+  abilities: CharacterAbilities;
+  savingThrows: CharacterSavingThrowsV3;
+  level: number;
+  disabled?: boolean;
+}>();
+const emit = defineEmits<{ update: [key: AbilityKey, patch: { proficient?: boolean; additionalBonus?: number }] }>();
 
 function updateBonus(key: AbilityKey, value: unknown) {
-  const parsed = Number(value)
-  emit('update', key, { additionalBonus: Number.isFinite(parsed) ? Math.trunc(parsed) : 0 })
+  const parsed = Number(value);
+  emit("update", key, { additionalBonus: Number.isFinite(parsed) ? Math.trunc(parsed) : 0 });
 }
 
-function updateProficiency(key: AbilityKey, event: Event) {
-  emit('update', key, { proficient: (event.target as HTMLInputElement).checked })
+function updateProficiency(key: AbilityKey, checked: boolean) {
+  emit("update", key, { proficient: checked });
 }
 
 function result(key: AbilityKey) {
-  const entry = props.savingThrows[key]
-  return calculateSavingThrowBonus({ ability: key, proficient: entry.proficient, additionalBonus: entry.additionalBonus }, props.abilities, props.level)
+  const entry = props.savingThrows[key];
+  return calculateSavingThrowBonus(
+    { ability: key, proficient: entry.proficient, additionalBonus: entry.additionalBonus },
+    props.abilities,
+    props.level,
+  );
 }
 </script>
 
@@ -40,10 +48,32 @@ function result(key: AbilityKey) {
         <span>Итог</span>
       </div>
       <div v-for="field in ABILITY_FIELDS" :key="field.key" class="saving-throw-row">
-        <div><strong>{{ field.label }}</strong><span class="field-caption">Модификатор + владение + добавка</span></div>
-        <label class="check-control"><input type="checkbox" :checked="savingThrows[field.key].proficient" :disabled="disabled" :aria-label="`${field.label}: владение`" @change="updateProficiency(field.key, $event)"><span>Владение</span></label>
-        <CInput type="number" step="1" aria-label="Добавка" :disabled="disabled" :model-value="savingThrows[field.key].additionalBonus" @update:model-value="updateBonus(field.key, $event)" />
-        <div class="saving-result"><span class="saving-result-label">Итог</span><strong class="derived-value">{{ result(field.key) === null ? '—' : signedModifier(result(field.key)!) }}</strong></div>
+        <div>
+          <strong>{{ field.label }}</strong
+          ><span class="field-caption">Модификатор + владение + добавка</span>
+        </div>
+        <label class="check-control"
+          ><NCheckbox
+            :checked="savingThrows[field.key].proficient"
+            :disabled="disabled"
+            :aria-label="`${field.label}: владение`"
+            @update:checked="updateProficiency(field.key, $event)"
+            >Владение</NCheckbox
+          ></label
+        >
+        <NInputNumber
+          step="1"
+          aria-label="Добавка"
+          :disabled="disabled"
+          :value="savingThrows[field.key].additionalBonus"
+          @update:value="updateBonus(field.key, $event)"
+        />
+        <div class="saving-result">
+          <span class="saving-result-label">Итог</span
+          ><strong class="derived-value">{{
+            result(field.key) === null ? "—" : signedModifier(result(field.key)!)
+          }}</strong>
+        </div>
       </div>
     </div>
   </section>

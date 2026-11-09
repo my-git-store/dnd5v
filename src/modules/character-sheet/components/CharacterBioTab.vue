@@ -1,23 +1,66 @@
 <script setup lang="ts">
-import { CTextarea } from '@/ui/components'
-import type { CharacterPersonalityV3 } from '../types/characterV3'
+import type { CharacterPersonalityV3 } from "../types/characterV3";
 
-const props = defineProps<{ personality: CharacterPersonalityV3; disabled?: boolean }>()
-const emit = defineEmits<{ update: [personality: CharacterPersonalityV3] }>()
+const props = defineProps<{ personality: CharacterPersonalityV3; disabled?: boolean }>();
+const emit = defineEmits<{ update: [personality: CharacterPersonalityV3] }>();
 function update(key: keyof CharacterPersonalityV3, value: unknown) {
-  emit('update', { ...props.personality, [key]: String(value ?? '') })
+  emit("update", { ...props.personality, [key]: String(value ?? "") });
 }
 </script>
 
 <template>
   <div class="tab-content bio-tab">
     <section class="sheet-section bio-grid">
-      <CTextarea label="Черты характера" rows="4" :model-value="personality.traits" :disabled="disabled" @update:model-value="update('traits', $event)" />
-      <CTextarea label="Идеалы" rows="4" :model-value="personality.ideals" :disabled="disabled" @update:model-value="update('ideals', $event)" />
-      <CTextarea label="Привязанности" rows="4" :model-value="personality.bonds" :disabled="disabled" @update:model-value="update('bonds', $event)" />
-      <CTextarea label="Слабости" rows="4" :model-value="personality.flaws" :disabled="disabled" @update:model-value="update('flaws', $event)" />
-      <CTextarea class="bio-wide bio-biography-field" label="Биография" rows="10" :model-value="personality.biography" :disabled="disabled" @update:model-value="update('biography', $event)" />
-      <CTextarea class="bio-wide" label="Особенности и дополнительные заметки" rows="5" :model-value="personality.features" :disabled="disabled" @update:model-value="update('features', $event)" />
+      <NFormItem label="Черты характера"
+        ><NInput
+          type="textarea"
+          rows="4"
+          :value="personality.traits"
+          :disabled="disabled"
+          @update:value="update('traits', $event)"
+      /></NFormItem>
+      <NFormItem label="Идеалы"
+        ><NInput
+          type="textarea"
+          rows="4"
+          :value="personality.ideals"
+          :disabled="disabled"
+          @update:value="update('ideals', $event)"
+      /></NFormItem>
+      <NFormItem label="Привязанности"
+        ><NInput
+          type="textarea"
+          rows="4"
+          :value="personality.bonds"
+          :disabled="disabled"
+          @update:value="update('bonds', $event)"
+      /></NFormItem>
+      <NFormItem label="Слабости"
+        ><NInput
+          type="textarea"
+          rows="4"
+          :value="personality.flaws"
+          :disabled="disabled"
+          @update:value="update('flaws', $event)"
+      /></NFormItem>
+      <NFormItem label="Биография"
+        ><NInput
+          type="textarea"
+          class="bio-wide bio-biography-field"
+          rows="10"
+          :value="personality.biography"
+          :disabled="disabled"
+          @update:value="update('biography', $event)"
+      /></NFormItem>
+      <NFormItem label="Особенности и дополнительные заметки"
+        ><NInput
+          type="textarea"
+          class="bio-wide"
+          rows="5"
+          :value="personality.features"
+          :disabled="disabled"
+          @update:value="update('features', $event)"
+      /></NFormItem>
     </section>
   </div>
 </template>

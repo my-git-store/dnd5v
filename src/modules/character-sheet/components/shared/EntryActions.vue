@@ -1,6 +1,6 @@
 <script setup lang="ts">
-defineProps<{ editing?: boolean; disabled?: boolean }>()
-const emit = defineEmits<{ edit: []; remove: []; save: []; cancel: [] }>()
+defineProps<{ editing?: boolean; disabled?: boolean }>();
+const emit = defineEmits<{ edit: []; remove: []; save: []; cancel: [] }>();
 </script>
 <template>
   <div class="entry-actions">

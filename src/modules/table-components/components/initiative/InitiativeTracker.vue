@@ -1,87 +1,108 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { currentParticipantIdAfterRemoval, currentParticipantIndex, nextTurnIndex, sortInitiative, type InitiativeParticipant } from '../../domain/initiative.ts'
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import {
+  currentParticipantIdAfterRemoval,
+  currentParticipantIndex,
+  nextTurnIndex,
+  sortInitiative,
+  type InitiativeParticipant,
+} from "../../domain/initiative.ts";
 
-const nextId = ref(4)
+const nextId = ref(4);
 const participants = ref<InitiativeParticipant[]>([
-  { id: 'ellara', name: 'Эллара', initiative: 18 },
-  { id: 'goblin', name: 'Гоблин', initiative: 14 },
-  { id: 'warrior', name: 'Воин', initiative: 10 },
-])
-const currentParticipantId = ref('ellara')
-const round = ref(1)
-const newName = ref('')
-const newInitiative = ref(10)
+  { id: "ellara", name: "Эллара", initiative: 18 },
+  { id: "goblin", name: "Гоблин", initiative: 14 },
+  { id: "warrior", name: "Воин", initiative: 10 },
+]);
+const currentParticipantId = ref("ellara");
+const round = ref(1);
+const newName = ref("");
+const newInitiative = ref(10);
 
-const orderedParticipants = computed(() => sortInitiative(participants.value))
-const currentIndex = computed(() => currentParticipantIndex(orderedParticipants.value, currentParticipantId.value))
-const currentParticipant = computed(() => orderedParticipants.value.find((participant) => participant.id === currentParticipantId.value))
+const orderedParticipants = computed(() => sortInitiative(participants.value));
+const currentIndex = computed(() => currentParticipantIndex(orderedParticipants.value, currentParticipantId.value));
+const currentParticipant = computed(() =>
+  orderedParticipants.value.find((participant) => participant.id === currentParticipantId.value),
+);
 
 function addParticipant() {
-  const name = newName.value.trim()
-  if (!name || !Number.isFinite(newInitiative.value)) return
-  participants.value = sortInitiative([...participants.value, { id: `participant-${nextId.value++}`, name, initiative: newInitiative.value }])
-  newName.value = ''
+  const name = newName.value.trim();
+  if (!name || !Number.isFinite(newInitiative.value)) return;
+  participants.value = sortInitiative([
+    ...participants.value,
+    { id: `participant-${nextId.value++}`, name, initiative: newInitiative.value },
+  ]);
+  newName.value = "";
 }
 
-function updateParticipant(id: string, patch: Partial<Pick<InitiativeParticipant, 'name' | 'initiative'>>) {
-  participants.value = sortInitiative(participants.value.map((participant) => participant.id === id ? { ...participant, ...patch } : participant))
+function updateParticipant(id: string, patch: Partial<Pick<InitiativeParticipant, "name" | "initiative">>) {
+  participants.value = sortInitiative(
+    participants.value.map((participant) => (participant.id === id ? { ...participant, ...patch } : participant)),
+  );
 }
 
 function removeParticipant(id: string) {
-  const nextCurrentId = currentParticipantIdAfterRemoval(orderedParticipants.value, currentParticipantId.value, id)
-  participants.value = participants.value.filter((participant) => participant.id !== id)
+  const nextCurrentId = currentParticipantIdAfterRemoval(orderedParticipants.value, currentParticipantId.value, id);
+  participants.value = participants.value.filter((participant) => participant.id !== id);
   if (participants.value.length === 0) {
-    currentParticipantId.value = ''
-    return
+    currentParticipantId.value = "";
+    return;
   }
-  currentParticipantId.value = nextCurrentId ?? orderedParticipants.value[0]!.id
+  currentParticipantId.value = nextCurrentId ?? orderedParticipants.value[0]!.id;
 }
 
 function nextTurn() {
-  const transition = nextTurnIndex(currentIndex.value, orderedParticipants.value.length)
-  if (transition.index < 0) return
-  currentParticipantId.value = orderedParticipants.value[transition.index]?.id ?? ''
-  if (transition.roundAdvanced) round.value += 1
+  const transition = nextTurnIndex(currentIndex.value, orderedParticipants.value.length);
+  if (transition.index < 0) return;
+  currentParticipantId.value = orderedParticipants.value[transition.index]?.id ?? "";
+  if (transition.roundAdvanced) round.value += 1;
 }
-type BestiaryInitiativeDetail = { id: string; name: string; initiative: number; hitPoints: number; armorClass: number }
+type BestiaryInitiativeDetail = { id: string; name: string; initiative: number; hitPoints: number; armorClass: number };
 function addFromBestiary(event: Event) {
-  const detail = (event as CustomEvent<BestiaryInitiativeDetail>).detail
-  if (!detail || typeof detail.id !== 'string' || !detail.name || !Number.isFinite(detail.initiative)) return
-  const existing = participants.value.find((participant) => participant.id === detail.id)
-  if (existing) { currentParticipantId.value = existing.id; return }
-  participants.value = sortInitiative([...participants.value, detail])
-  currentParticipantId.value = detail.id
+  const detail = (event as CustomEvent<BestiaryInitiativeDetail>).detail;
+  if (!detail || typeof detail.id !== "string" || !detail.name || !Number.isFinite(detail.initiative)) return;
+  const existing = participants.value.find((participant) => participant.id === detail.id);
+  if (existing) {
+    currentParticipantId.value = existing.id;
+    return;
+  }
+  participants.value = sortInitiative([...participants.value, detail]);
+  currentParticipantId.value = detail.id;
 }
 function syncParticipants(event: Event) {
-  const details = (event as CustomEvent<BestiaryInitiativeDetail[]>).detail
-  if (!Array.isArray(details)) return
-  const known = new Map(participants.value.map((participant) => [participant.id, participant]))
+  const details = (event as CustomEvent<BestiaryInitiativeDetail[]>).detail;
+  if (!Array.isArray(details)) return;
+  const known = new Map(participants.value.map((participant) => [participant.id, participant]));
   for (const detail of details) {
-    if (!detail || typeof detail.id !== 'string' || !detail.name || !Number.isFinite(detail.initiative)) continue
-    const current = known.get(detail.id)
-    if (current) { current.name = detail.name; current.initiative = detail.initiative; current.hitPoints = detail.hitPoints; current.armorClass = detail.armorClass }
-    else known.set(detail.id, detail)
+    if (!detail || typeof detail.id !== "string" || !detail.name || !Number.isFinite(detail.initiative)) continue;
+    const current = known.get(detail.id);
+    if (current) {
+      current.name = detail.name;
+      current.initiative = detail.initiative;
+      current.hitPoints = detail.hitPoints;
+      current.armorClass = detail.armorClass;
+    } else known.set(detail.id, detail);
   }
-  participants.value = sortInitiative([...known.values()])
+  participants.value = sortInitiative([...known.values()]);
 }
 function setTrackerState(event: Event) {
-  const detail = (event as CustomEvent<{ currentId: string | null; round: number }>).detail
-  if (!detail) return
-  if (detail.currentId !== null && participants.value.some((participant) => participant.id === detail.currentId)) currentParticipantId.value = detail.currentId
-  if (Number.isInteger(detail.round) && detail.round > 0) round.value = detail.round
+  const detail = (event as CustomEvent<{ currentId: string | null; round: number }>).detail;
+  if (!detail) return;
+  if (detail.currentId !== null && participants.value.some((participant) => participant.id === detail.currentId))
+    currentParticipantId.value = detail.currentId;
+  if (Number.isInteger(detail.round) && detail.round > 0) round.value = detail.round;
 }
 onMounted(() => {
-  window.addEventListener('nastolka:add-initiative-participant', addFromBestiary)
-  window.addEventListener('nastolka:sync-initiative-participants', syncParticipants)
-  window.addEventListener('nastolka:set-initiative-state', setTrackerState)
-  window.dispatchEvent(new CustomEvent('nastolka:initiative-tracker-ready'))
-})
+  window.addEventListener("nastolka:add-initiative-participant", addFromBestiary);
+  window.addEventListener("nastolka:sync-initiative-participants", syncParticipants);
+  window.addEventListener("nastolka:set-initiative-state", setTrackerState);
+  window.dispatchEvent(new CustomEvent("nastolka:initiative-tracker-ready"));
+});
 onUnmounted(() => {
-  window.removeEventListener('nastolka:add-initiative-participant', addFromBestiary)
-  window.removeEventListener('nastolka:sync-initiative-participants', syncParticipants)
-  window.removeEventListener('nastolka:set-initiative-state', setTrackerState)
-})
+  window.removeEventListener("nastolka:add-initiative-participant", addFromBestiary);
+  window.removeEventListener("nastolka:sync-initiative-participants", syncParticipants);
+  window.removeEventListener("nastolka:set-initiative-state", setTrackerState);
+});
 </script>
 
 <template>
@@ -97,28 +118,66 @@ onUnmounted(() => {
     <form class="add-participant" @submit.prevent="addParticipant">
       <label>
         <span>Имя участника</span>
-        <input v-model="newName" type="text" placeholder="Например, Гоблин" maxlength="60" />
+        <NInput v-model:value="newName" placeholder="Например, Гоблин" maxlength="60" />
       </label>
       <label>
         <span>Инициатива</span>
-        <input v-model.number="newInitiative" type="number" min="-99" max="99" />
+        <NInputNumber v-model:value="newInitiative" :min="-99" :max="99" />
       </label>
       <button class="primary-button" type="submit" :disabled="!newName.trim()">Добавить</button>
     </form>
 
-    <div v-if="orderedParticipants.length === 0" class="empty-state">Добавьте первого участника, чтобы начать раунд.</div>
+    <div v-if="orderedParticipants.length === 0" class="empty-state">
+      Добавьте первого участника, чтобы начать раунд.
+    </div>
     <ol v-else class="initiative-list" aria-label="Порядок инициативы">
-      <li v-for="participant in orderedParticipants" :key="participant.id" :class="{ current: participant.id === currentParticipant?.id }">
-        <span class="turn-marker" aria-hidden="true">{{ participant.id === currentParticipant?.id ? '◆' : '◇' }}</span>
-        <div class="participant-main"><input class="participant-name" :aria-label="`Имя: ${participant.name}`" :value="participant.name" maxlength="60" @change="updateParticipant(participant.id, { name: ($event.target as HTMLInputElement).value })" /><small v-if="participant.hitPoints !== undefined || participant.armorClass !== undefined" class="participant-stats">{{ participant.hitPoints !== undefined ? `HP ${participant.hitPoints}` : '' }}<span v-if="participant.hitPoints !== undefined && participant.armorClass !== undefined"> · </span>{{ participant.armorClass !== undefined ? `КД ${participant.armorClass}` : '' }}</small></div>
-        <input class="participant-initiative" :aria-label="`Инициатива: ${participant.name}`" type="number" min="-99" max="99" :value="participant.initiative" @change="updateParticipant(participant.id, { initiative: Number(($event.target as HTMLInputElement).value) })" />
-        <button class="icon-button" type="button" :aria-label="`Удалить ${participant.name}`" @click="removeParticipant(participant.id)">×</button>
+      <li
+        v-for="participant in orderedParticipants"
+        :key="participant.id"
+        :class="{ current: participant.id === currentParticipant?.id }"
+      >
+        <span class="turn-marker" aria-hidden="true">{{ participant.id === currentParticipant?.id ? "◆" : "◇" }}</span>
+        <div class="participant-main">
+          <NInput
+            class="participant-name"
+            :aria-label="`Имя: ${participant.name}`"
+            :value="participant.name"
+            maxlength="60"
+            @update:value="updateParticipant(participant.id, { name: $event })"
+          /><small
+            v-if="participant.hitPoints !== undefined || participant.armorClass !== undefined"
+            class="participant-stats"
+            >{{ participant.hitPoints !== undefined ? `HP ${participant.hitPoints}` : ""
+            }}<span v-if="participant.hitPoints !== undefined && participant.armorClass !== undefined"> · </span
+            >{{ participant.armorClass !== undefined ? `КД ${participant.armorClass}` : "" }}</small
+          >
+        </div>
+        <NInputNumber
+          class="participant-initiative"
+          :aria-label="`Инициатива: ${participant.name}`"
+          :min="-99"
+          :max="99"
+          :value="participant.initiative"
+          @update:value="updateParticipant(participant.id, { initiative: $event ?? 0 })"
+        />
+        <button
+          class="icon-button"
+          type="button"
+          :aria-label="`Удалить ${participant.name}`"
+          @click="removeParticipant(participant.id)"
+        >
+          ×
+        </button>
       </li>
     </ol>
 
     <div class="turn-footer">
-      <p aria-live="polite"><span>Текущий ход:</span> <strong>{{ currentParticipant?.name ?? '—' }}</strong></p>
-      <button class="primary-button" type="button" :disabled="orderedParticipants.length === 0" @click="nextTurn">Следующий ход</button>
+      <p aria-live="polite">
+        <span>Текущий ход:</span> <strong>{{ currentParticipant?.name ?? "—" }}</strong>
+      </p>
+      <button class="primary-button" type="button" :disabled="orderedParticipants.length === 0" @click="nextTurn">
+        Следующий ход
+      </button>
     </div>
   </section>
 </template>

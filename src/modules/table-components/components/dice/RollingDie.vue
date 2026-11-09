@@ -1,35 +1,46 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { diceLabel, dieFaceLabel, type DiceSides } from '../../domain/dice.ts'
-import { diceAssetFor } from './diceAssets.ts'
+import { computed, ref, watch } from "vue";
+import { diceLabel, dieFaceLabel, type DiceSides } from "../../domain/dice.ts";
+import { diceAssetFor } from "./diceAssets.ts";
 
 const props = defineProps<{
-  sides: DiceSides
-  result: number | null
-  rolling: boolean
-}>()
+  sides: DiceSides;
+  result: number | null;
+  rolling: boolean;
+}>();
 
-const assetSource = ref(diceAssetFor(props.sides))
+const assetSource = ref(diceAssetFor(props.sides));
 
-watch(() => props.sides, (sides) => {
-  assetSource.value = diceAssetFor(sides)
-})
+watch(
+  () => props.sides,
+  (sides) => {
+    assetSource.value = diceAssetFor(sides);
+  },
+);
 
 const state = computed(() => {
-  if (props.rolling) return 'rolling'
-  return props.result === null ? 'idle' : 'landed'
-})
+  if (props.rolling) return "rolling";
+  return props.result === null ? "idle" : "landed";
+});
 
-const faceLabel = computed(() => dieFaceLabel(props.sides, props.result))
-const visualLabel = computed(() => `${diceLabel(props.sides)}${props.result === null ? '' : `, результат ${props.result}`}`)
+const faceLabel = computed(() => dieFaceLabel(props.sides, props.result));
+const visualLabel = computed(
+  () => `${diceLabel(props.sides)}${props.result === null ? "" : `, результат ${props.result}`}`,
+);
 
 function useFallback() {
-  assetSource.value = undefined
+  assetSource.value = undefined;
 }
 </script>
 
 <template>
-  <div class="rolling-die" :class="`rolling-die--${state}`" :data-shape="`d${props.sides}`" role="img" :aria-label="visualLabel">
+  <div
+    class="rolling-die"
+    :class="`rolling-die--${state}`"
+    :data-shape="`d${props.sides}`"
+    role="img"
+    :aria-label="visualLabel"
+  >
     <img
       v-if="assetSource"
       class="rolling-die-image"
@@ -37,7 +48,7 @@ function useFallback() {
       :src="assetSource"
       alt=""
       @error="useFallback"
-    >
+    />
     <div v-else class="rolling-die-fallback" aria-hidden="true">
       <span class="rolling-die-fallback-facet rolling-die-fallback-facet-left"></span>
       <span class="rolling-die-fallback-facet rolling-die-fallback-facet-right"></span>
