@@ -34,6 +34,7 @@ function isLevel(value: unknown): value is number {
 
 function creationData(value: CharacterV3): Record<string, unknown> | undefined {
   const extensions = value.extensions as Record<string, unknown> | undefined;
+
   const creation = extensions?.characterCreation;
   return creation && typeof creation === "object" ? (creation as Record<string, unknown>) : undefined;
 }
@@ -97,6 +98,7 @@ function featureGainsFromExisting(
   const featureIds = new Set(value.features ?? value.featureIds ?? []);
   if (Array.isArray(value.gainedFeatures)) {
     const seen = new Set<string>();
+
     const existing = value.gainedFeatures
       .filter((gain) => {
         if (!gain || typeof gain.featureId !== "string" || !featureIds.has(gain.featureId) || seen.has(gain.featureId))
@@ -105,6 +107,7 @@ function featureGainsFromExisting(
         return true;
       })
       .map((gain) => ({ featureId: gain.featureId, level: gain.level, source: { ...gain.source } }));
+
     const missing = [...featureIds].filter((featureId) => !seen.has(featureId));
     return [...existing, ...featureGains(missing, classId, value.level)];
   }
@@ -144,8 +147,11 @@ export function progressionAfterCreation(
 ): CharacterProgressionV3 {
   if (!previous || previousRuleset !== ruleset) return created;
   const previousClassId = previous.classLevels[0]?.classId;
+
   const sameClass = previousClassId === created.classLevels[0]?.classId;
+
   const creationChoiceKeys = new Set(["classSkills", "classEquipment", "backgroundEquipment"]);
+
   const preservedChoices = Object.fromEntries(
     Object.entries(previous.choices).filter(
       ([key]) =>
@@ -207,16 +213,23 @@ export function levelUpProgression(
   const classLevels = progression.classLevels.map((entry, index) =>
     index === 0 ? { ...entry, level: targetLevel } : { ...entry },
   );
+
   const classId = classLevels[0]?.classId;
   if (ruleset === "2024" && (!classId || !getRules2024Class(classId))) {
     throw new Error("Для повышения уровня D&D 2024 нужен корректный класс.");
   }
   const existingFeatures = unique(progression.features ?? []);
+
   const availableFeatureIds = featureIdsForClass(ruleset, classId, targetLevel);
+
   const existingSet = new Set(existingFeatures);
+
   const gainedIds = availableFeatureIds.filter((featureId) => !existingSet.has(featureId));
+
   const gained = featureGains(gainedIds, classId, targetLevel);
+
   const existingGains = featureGainsFromExisting(progression, classId);
+
   const gainsById = new Map(existingGains.map((gain) => [gain.featureId, gain]));
   for (const gain of gained) gainsById.set(gain.featureId, gain);
   const historyEntry: ProgressionHistoryEntry = {
@@ -240,9 +253,13 @@ export function levelUpProgression(
 /** Build a progression envelope from the current character without applying any rules. */
 export function defaultProgressionForCharacter(value: CharacterV3): CharacterProgressionV3 {
   const level = isLevel(value.identity.level) ? value.identity.level : CHARACTER_LEVEL_MIN;
+
   const classId = classIdFromCharacter(value);
+
   const classLevelValue = creationData(value)?.classLevel;
+
   const classLevel = isLevel(classLevelValue) ? classLevelValue : level;
+
   const classLevels: ClassLevelEntry[] = classId ? [{ classId, level: classLevel }] : [];
   return {
     level,
@@ -266,6 +283,7 @@ export interface ProgressionSelection {
 /** Create a deterministic single-class envelope for the current creation foundation. */
 export function progressionForClass(selection: ProgressionSelection): CharacterProgressionV3 {
   const level = isLevel(selection.level) ? selection.level : CHARACTER_LEVEL_MIN;
+
   const features = unique(selection.featureIds ?? featureIdsForClass(selection.ruleset, selection.classId, level));
   return {
     level,
@@ -281,6 +299,7 @@ export function progressionForClass(selection: ProgressionSelection): CharacterP
 /** Keep the progression summary synchronized when the existing sheet level is edited. */
 export function progressionAtLevel(progression: CharacterProgressionV3, level: number): CharacterProgressionV3 {
   const nextLevel = isLevel(level) ? level : progression.level;
+
   const classLevels = progression.classLevels.map((entry, index) =>
     index === 0 ? { ...entry, level: nextLevel } : { ...entry },
   );

@@ -24,6 +24,7 @@ const state = computed(() => {
 });
 
 const faceLabel = computed(() => dieFaceLabel(props.sides, props.result));
+
 const visualLabel = computed(
   () => `${diceLabel(props.sides)}${props.result === null ? "" : `, результат ${props.result}`}`,
 );
@@ -43,8 +44,8 @@ function useFallback() {
   >
     <img
       v-if="assetSource"
-      class="rolling-die-image"
       :key="props.sides"
+      class="rolling-die-image"
       :src="assetSource"
       alt=""
       @error="useFallback"

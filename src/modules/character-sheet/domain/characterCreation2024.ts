@@ -19,6 +19,7 @@ const ABILITY_KEYS: readonly AbilityKey[] = [
   "wisdom",
   "charisma",
 ];
+
 const unique = (values: string[]) => [...new Set(values)];
 
 function selectedSpeciesChoices(
@@ -68,6 +69,7 @@ function selectedEquipment(
 
 function abilityBonuses(options: AbilityKey[], focus: AbilityKey | undefined): Partial<Record<AbilityKey, number>> {
   const selected = [...new Set(options)];
+
   const result: Partial<Record<AbilityKey, number>> = {};
   for (const key of selected) result[key] = key === focus ? 2 : 1;
   return result;
@@ -79,6 +81,7 @@ export function applyCharacterCreation2024(
   payload: CharacterCreationPayload,
 ): CharacterSheetView {
   const next = cloneCharacterView(character);
+
   const species = getSpecies2024(payload.speciesId ?? payload.raceId);
   if (!species) throw new Error(`Неизвестный вид D&D 2024: ${payload.speciesId ?? payload.raceId}`);
   const classOption = getRules2024Class(payload.classId);
@@ -86,20 +89,27 @@ export function applyCharacterCreation2024(
   const background = payload.backgroundId ? getRules2024Background(payload.backgroundId) : undefined;
   if (payload.backgroundId && !background) throw new Error(`Неизвестная предыстория D&D 2024: ${payload.backgroundId}`);
   const featId = payload.originFeatId ?? background?.originFeatId;
+
   const feat = featId ? getRules2024Feat(featId) : undefined;
   if (payload.originFeatId && !feat)
     throw new Error(`Неизвестная черта происхождения D&D 2024: ${payload.originFeatId}`);
   if (background && feat?.source === "background" && feat.id !== background.originFeatId)
     throw new Error("Черта происхождения не соответствует выбранной предыстории.");
   const previousCreation = next.creation;
+
   const previousClassSavingThrows = previousCreation?.classSavingThrowKeys ?? [];
+
   const previousManualSavingThrows = previousCreation?.manualSavingThrowKeys ?? [];
+
   const classSkillIds = unique(payload.classSkillIds.filter((id) => classOption.skillOptions.includes(id))).slice(
     0,
     classOption.skillChoiceCount,
   );
+
   const backgroundSkillIds = [...(background?.skillProficiencies ?? [])];
+
   const requestedAbilities = background ? (payload.originAbilityChoices ?? background.abilityOptions) : [];
+
   const chosenAbilities = [...new Set(requestedAbilities)];
   if (
     background &&
@@ -111,6 +121,7 @@ export function applyCharacterCreation2024(
     throw new Error("Фокус бонуса должен входить в выбранные характеристики предыстории.");
   }
   const bonuses = background ? abilityBonuses(chosenAbilities, payload.originAbilityFocus) : {};
+
   const speciesChoices = selectedSpeciesChoices(species, payload.speciesChoices);
   if (
     payload.speciesChoices !== undefined &&
@@ -132,26 +143,34 @@ export function applyCharacterCreation2024(
       ];
     }),
   ) as CharacterCreationV3["abilityBonusSources"];
+
   const oldCreationIds = new Set(previousCreation?.startingEquipmentIds ?? []);
+
   const creationPrefix = `creation:${next.id}:`;
+
   const preservedItems = next.inventoryData.items.filter(
     (item) => !(item.source === "creation" && (oldCreationIds.has(item.id) || item.id.startsWith(creationPrefix))),
   );
+
   const classKit = payload.classEquipmentId
     ? classOption.equipmentOptions.find((item) => item.id === payload.classEquipmentId)
     : classOption.equipmentOptions[0];
+
   const backgroundKit = background
     ? payload.backgroundEquipmentId
       ? background.equipmentOptions.find((item) => item.id === payload.backgroundEquipmentId)
       : background.equipmentOptions[0]
     : undefined;
+
   const generatedItemsWithCurrency = [
     ...selectedEquipment(classKit, next.id, "class"),
     ...selectedEquipment(backgroundKit, next.id, "background"),
   ];
+
   const generatedGold = generatedItemsWithCurrency
     .filter((item) => item.properties.includes("currency"))
     .reduce((sum, item) => sum + item.quantity, 0);
+
   const generatedItems = generatedItemsWithCurrency.filter((item) => !item.properties.includes("currency"));
 
   next.ruleset = "2024";
@@ -193,10 +212,12 @@ export function applyCharacterCreation2024(
   next.skills = next.skills.map((skill) => {
     const previousSources =
       skill.proficiencySources ?? (skill.proficiency === "none" ? [] : ["manual" as SkillProficiencySource]);
+
     const oldRaceSkills = new Set([
       ...(previousCreation?.raceSkillIds ?? []),
       ...(previousCreation?.subraceSkillIds ?? []),
     ]);
+
     const sources = [
       ...new Set([
         ...previousSources.filter(
@@ -206,8 +227,11 @@ export function applyCharacterCreation2024(
         ...(backgroundSkillIds.includes(skill.id) ? ["background" as SkillProficiencySource] : []),
       ]),
     ];
+
     const hasManualSource = previousSources.includes("manual");
+
     const hasDerivedSource = sources.some((source) => source !== "manual");
+
     const calculationMode =
       skill.calculationMode === "manual" &&
       !hasManualSource &&
@@ -231,6 +255,7 @@ export function applyCharacterCreation2024(
       !previousManualSavingThrows.includes(key) &&
       next.savingThrows[key].proficient,
   );
+
   const manualSavingThrowKeys = ABILITY_KEYS.filter(
     (key) =>
       next.savingThrows[key].proficient &&
@@ -242,14 +267,18 @@ export function applyCharacterCreation2024(
       proficient: manualSavingThrowKeys.includes(key) || classOption.savingThrowKeys.includes(key),
     };
   const oldClassTools = previousCreation?.classProficiencies ?? [];
+
   const oldBackgroundTools = previousCreation?.backgroundToolProficiencies ?? next.background.toolProficiencies;
+
   const manualTools = next.proficiency.toolProficiencies.filter(
     (tool) => !oldClassTools.includes(tool) && !oldBackgroundTools.includes(tool),
   );
+
   const oldLanguages = unique([
     ...(previousCreation?.raceLanguages ?? []),
     ...(previousCreation?.backgroundLanguages ?? []),
   ]);
+
   const manualLanguages = next.proficiency.languageProficiencies.filter((language) => !oldLanguages.includes(language));
   next.proficiency = {
     ...next.proficiency,

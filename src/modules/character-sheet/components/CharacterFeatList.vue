@@ -7,7 +7,9 @@ import EntryActions from "./shared/EntryActions.vue";
 import type { CharacterFeatV3 } from "../types/characterV3";
 
 const props = defineProps<{ feats: CharacterFeatV3[]; disabled?: boolean }>();
+
 const emit = defineEmits<{ update: [feats: CharacterFeatV3[]] }>();
+
 const { open } = useDialog();
 
 function save(feat: CharacterFeatV3) {

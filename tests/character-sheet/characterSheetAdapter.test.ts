@@ -20,6 +20,7 @@ class MemoryStorage implements CharacterStorageLike {
 
 test('loads a v3 record into the current UI projection', async () => {
   const storage = new MemoryStorage()
+
   const v3 = migrateCharacterV2ToV3(createMockCharacter())
   v3.identity.name = 'Имя v3'
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${v3.id}`, JSON.stringify(v3))
@@ -37,11 +38,13 @@ test('loads a v3 record into the current UI projection', async () => {
 
 test('loads v2, promotes a v3 copy, and leaves the old key untouched', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
   storage.setItem(`${CHARACTER_V2_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
 
   const uiCharacter = await adapter.load(source.id)
+
   const promoted = storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)
 
   assert.equal(uiCharacter.name, source.name)
@@ -52,14 +55,18 @@ test('loads v2, promotes a v3 copy, and leaves the old key untouched', async () 
 
 test('saves UI changes through the v3 adapter', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => source })
+
   const uiCharacter = await adapter.load(source.id)
   uiCharacter.name = 'Изменено через UI'
   uiCharacter.skills[0]!.value = -3
   uiCharacter.attacks[0]!.attackBonus = '1d20+6'
 
   const savedUiCharacter = await adapter.save(uiCharacter)
+
   const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as CharacterV3
 
   assert.equal(savedUiCharacter.name, 'Изменено через UI')
@@ -71,7 +78,9 @@ test('saves UI changes through the v3 adapter', async () => {
 
 test('preserves v3 fields that are not represented by the current UI', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
+
   const v3 = migrateCharacterV2ToV3(source)
   v3.identity.race.name = 'Эльф'
   v3.identity.background.name = 'Отшельник'
@@ -100,7 +109,9 @@ test('preserves v3 fields that are not represented by the current UI', async () 
 
 test('round-trips v3 identity, saving throws and skill settings through the UI projection', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
+
   const v3 = migrateCharacterV2ToV3(source)
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(v3))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
@@ -130,7 +141,9 @@ test('round-trips v3 identity, saving throws and skill settings through the UI p
 
 test('round-trips combat stats and the full attack editor shape without losing legacy bonus text', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
+
   const v3 = migrateCharacterV2ToV3(source)
   v3.combat.armorClass.mode = 'computed'
   v3.combat.armorClass.armorBase = 13
@@ -163,7 +176,9 @@ test('round-trips combat stats and the full attack editor shape without losing l
 
 test('round-trips spellcasting settings, slots and prepared spell ids', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
+
   const v3 = migrateCharacterV2ToV3(source)
   v3.spellcasting.spellcastingAbility = 'intelligence'
   v3.spellcasting.preparedSpellIds = ['spell-1']
@@ -186,7 +201,9 @@ test('round-trips spellcasting settings, slots and prepared spell ids', async ()
 
 test('round-trips full inventory item metadata and personality fields', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
+
   const v3 = migrateCharacterV2ToV3(source)
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(v3))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
@@ -217,7 +234,9 @@ test('round-trips full inventory item metadata and personality fields', async ()
 
 test('round-trips user-authored feats and keeps old records empty', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
+
   const v3 = migrateCharacterV2ToV3(source)
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(v3))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })

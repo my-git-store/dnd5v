@@ -4,6 +4,7 @@ import { readStoredCharacter, writeStoredCharacter } from "./characterStorage";
 import { assertValidCharacter } from "../validation/characterValidation";
 
 const delay = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+
 let loadErrorConsumed = false;
 
 function shouldFailFirstLoad(): boolean {

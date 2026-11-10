@@ -89,6 +89,7 @@ function skillSources(skill: CharacterSkillV3, value: CharacterV3): SkillProfici
   if (skill.proficiencySources) return [...skill.proficiencySources];
   if (skill.proficiency === "none") return [];
   const creation = toUiCreation(value);
+
   const sources: SkillProficiencySource[] = [];
   if (creation?.classSkillIds.includes(skill.id)) sources.push("class");
   if (creation?.raceSkillIds?.includes(skill.id) || creation?.subraceSkillIds?.includes(skill.id)) sources.push("race");
@@ -214,6 +215,7 @@ function mergeAttack(
 
 function mergeSpell(spell: CharacterSpell, stored: CharacterSpellV3 | undefined): CharacterSpellV3 {
   const metadata = spell.metadata ? clone(spell.metadata) : undefined;
+
   const catalogFields = {
     ...(spell.school !== undefined ? { school: spell.school } : {}),
     ...(spell.classes !== undefined ? { classes: [...spell.classes] } : {}),
@@ -257,9 +259,11 @@ function mergeItem(
 
 function mergePersonality(value: CharacterSheetView, base: CharacterV3): CharacterV3["personality"] {
   const next = clone(value.personality);
+
   const legacyFields: Array<keyof CharacterSheetView["bio"]> = ["biography", "traits", "features"];
   for (const field of legacyFields) {
     const v3Changed = value.personality[field] !== base.personality[field];
+
     const legacyChanged = value.bio[field] !== base.personality[field];
     if (!v3Changed && legacyChanged) next[field] = value.bio[field];
   }
@@ -268,9 +272,11 @@ function mergePersonality(value: CharacterSheetView, base: CharacterV3): Charact
 
 function mergeMoney(value: CharacterSheetView, base: CharacterV3): CharacterV3["inventory"]["money"] {
   const next = clone(value.inventoryData.money);
+
   const fields: Array<keyof CharacterSheetView["money"]> = ["copper", "silver", "electrum", "gold", "platinum"];
   for (const field of fields) {
     const v3Changed = value.inventoryData.money[field] !== base.inventory.money[field];
+
     const legacyChanged = value.money[field] !== base.inventory.money[field];
     if (!v3Changed && legacyChanged) next[field] = value.money[field];
   }
@@ -283,9 +289,13 @@ function progressionFeaturesForSave(
   base: CharacterV3,
 ): string[] {
   const viewFeatures = value.features ? [...value.features] : [...progression.features];
+
   const baseFeatures = base.features ?? base.progression?.features ?? [];
+
   const baseProgressionFeatures = base.progression?.features ?? base.features ?? [];
+
   const progressionChanged = JSON.stringify(progression.features) !== JSON.stringify(baseProgressionFeatures);
+
   const viewChanged = JSON.stringify(viewFeatures) !== JSON.stringify(baseFeatures);
   // An explicit progression operation (for example level-up) wins if both
   // projections were edited independently; otherwise preserve the projection
@@ -370,6 +380,7 @@ function toV3(value: CharacterSheetView, base: CharacterV3): CharacterV3 {
 
 export function createCharacterSheetAdapter(options: CharacterSheetAdapterOptions = {}): CharacterSheetAdapter {
   const loadLegacy = options.loadLegacy ?? loadLegacyCharacter;
+
   let currentV3: CharacterV3 | null = null;
 
   return {
@@ -388,7 +399,9 @@ export function createCharacterSheetAdapter(options: CharacterSheetAdapterOption
 
     async save(character: CharacterSheetView): Promise<CharacterSheetView> {
       const base = currentV3 ?? migrateCharacterV2ToV3(character);
+
       const next = toV3(character, base);
+
       const saved = writeStoredCharacterV3(next, options.storage);
       currentV3 = cloneCharacterV3(saved);
       return toUiCharacter(saved);

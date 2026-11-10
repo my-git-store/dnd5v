@@ -20,6 +20,7 @@ defineProps<{
   experience: number;
 }>();
 const emit = defineEmits<{ save: []; "open-details": []; print: [] }>();
+
 function hideBrokenAsset(event: Event) {
   const image = event.currentTarget as HTMLImageElement | null;
   if (image) {

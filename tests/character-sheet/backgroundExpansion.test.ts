@@ -64,8 +64,11 @@ test('resolves stable background icon paths and keeps missing assets on the fall
 
 test('switches background bonuses and skill sources without stacking or losing class proficiency', async () => {
   const { view } = await loadView(new MemoryStorage())
+
   const baseAbilities = { ...view.abilities }
+
   const sage = applyCharacterCreation(view, payload('sage-2024', baseAbilities, { originAbilityFocus: 'intelligence' }))
+
   const sageArcana = sage.skills.find((skill) => skill.id === 'arcana')
   assert.deepEqual(sageArcana?.proficiencySources, ['class', 'background'])
   assert.equal(sage.abilities.intelligence, baseAbilities.intelligence + 2)
@@ -73,7 +76,9 @@ test('switches background bonuses and skill sources without stacking or losing c
   assert.equal(sage.creation?.abilityBonusSources?.intelligence?.[0]?.source, 'background')
 
   const hermit = applyCharacterCreation(sage, payload('hermit-2024', baseAbilities, { originAbilityFocus: 'constitution' }))
+
   const hermitArcana = hermit.skills.find((skill) => skill.id === 'arcana')
+
   const hermitMedicine = hermit.skills.find((skill) => skill.id === 'medicine')
   assert.deepEqual(hermitArcana?.proficiencySources, ['class'])
   assert.deepEqual(hermitMedicine?.proficiencySources, ['background'])
@@ -100,10 +105,13 @@ test('rejects unknown backgrounds and invalid ability choices', async () => {
 
 test('keeps user equipment and persists one generated background kit after reload', async () => {
   const storage = new MemoryStorage()
+
   const { adapter, view } = await loadView(storage)
   view.inventoryData.items.push({ id: 'user:lantern', name: 'Личная лампа', quantity: 1, weight: null, description: 'Не удалять', equipped: false, properties: [], source: 'user' })
   const first = applyCharacterCreation(view, payload('sage-2024', { ...view.abilities }, { classEquipmentId: 'wizard-2024', backgroundEquipmentId: 'sage-kit-2024' }))
+
   const second = applyCharacterCreation(first, payload('hermit-2024', { ...view.abilities }, { classEquipmentId: 'wizard-2024', backgroundEquipmentId: 'hermit-kit-2024' }))
+
   const generated = second.inventoryData.items.filter((item) => item.source === 'creation')
   assert.equal(second.inventoryData.items.some((item) => item.id === 'user:lantern'), true)
   assert.equal(new Set(generated.map((item) => item.id)).size, generated.length)
@@ -121,6 +129,7 @@ test('keeps user equipment and persists one generated background kit after reloa
 
 test('normalizes an older v3 record without background creation fields', () => {
   const oldV3 = migrateCharacterV2ToV3(createMockCharacter()) as unknown as Record<string, unknown>
+
   const extensions = oldV3.extensions as Record<string, unknown>
   extensions.characterCreation = undefined
   const normalized = migrateCharacterToV3(oldV3)

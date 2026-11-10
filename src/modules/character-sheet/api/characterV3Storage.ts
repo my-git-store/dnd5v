@@ -147,11 +147,15 @@ export function readStoredCharacterV3WithSource(
       { key: `${CHARACTER_V2_STORAGE_PREFIX}${id}`, source: "v2" },
       { key: `${CHARACTER_V1_STORAGE_PREFIX}${id}`, source: "v1" },
     ];
+
     const candidate = candidates.find(({ key }) => storage.getItem(key) !== null);
     if (candidate === undefined) return null;
     const raw = storage.getItem(candidate.key);
     if (raw === null) return null;
-    return { character: cloneCharacterV3(migrateCharacterToV3(JSON.parse(raw) as unknown)), source: candidate.source };
+    return {
+      character: cloneCharacterV3(migrateCharacterToV3(JSON.parse(raw) as unknown)),
+      source: candidate.source,
+    };
   } catch (error) {
     if (error instanceof CharacterV3StorageError) throw error;
     throw new CharacterV3StorageError("Не удалось прочитать персонажа v3.", { cause: error });

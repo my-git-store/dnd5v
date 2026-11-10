@@ -8,10 +8,15 @@ const props = defineProps<{
   onCreateNpc: (entry: BestiaryEntry) => void | Promise<void>;
   onAddInitiative: (entry: BestiaryEntry) => void;
 }>();
+
 const emit = defineEmits<{ close: [] }>();
+
 const { close } = useDialog();
+
 const copied = ref(false);
+
 const busy = ref(false);
+
 const abilityLabels: Record<string, string> = {
   strength: "Сила",
   dexterity: "Ловкость",

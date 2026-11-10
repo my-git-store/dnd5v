@@ -14,7 +14,9 @@ type Result<T> = [T, null] | [null, ApiError];
 
 export function useReqDefault<T = unknown>(isSuccesAlert = false) {
   const { openError, openSucces } = useAlert();
+
   const isError = ref(false);
+
   const isLoading = ref(false);
 
   async function request(promise: Promise<RequestValue<T>>): Promise<Result<T>> {
@@ -22,6 +24,7 @@ export function useReqDefault<T = unknown>(isSuccesAlert = false) {
     isLoading.value = true;
     try {
       const response = await promise;
+
       const result = response && typeof response === "object" && "data" in response ? response.data : response;
       if (isSuccesAlert) openSucces();
       return [result as T, null];

@@ -27,16 +27,22 @@ export function takeShortRest(
   random = Math.random,
 ): ShortRestResult {
   const next = clone(combat);
+
   const available = Math.max(0, next.hitDice.total - next.hitDice.spent);
+
   const requested = Number.isFinite(Number(requestedDice)) ? Math.max(0, Math.trunc(Number(requestedDice))) : 0;
+
   const count = Math.min(available, requested);
+
   const sides = hitDieSides(next.hitDice.size);
   if (count === 0 || sides === null) return { combat: next, rolls: [], healing: 0, spent: 0 };
 
   const constitutionModifier = abilityModifier(
     typeof abilities.constitution === "number" ? abilities.constitution : 10,
   );
+
   const rolls: number[] = [];
+
   let healing = 0;
   for (let index = 0; index < count; index += 1) {
     const roll = rollDie(sides, random);
@@ -70,6 +76,7 @@ export function changeSpellSlot(
   delta: number,
 ): CharacterSpellSlotsV3 {
   const next = clone(slots);
+
   const slot = next[level];
   slot.used = Math.min(slot.max, Math.max(0, slot.used + Math.trunc(delta)));
   return next;

@@ -29,6 +29,7 @@ function createLegacyV1() {
 
 test('migrates a v2 character into a valid v3 envelope', () => {
   const source = createMockCharacter()
+
   const migrated = migrateCharacterToV3(source)
 
   assert.equal(migrated.schemaVersion, 3)
@@ -50,6 +51,7 @@ test('migrates a v2 character into a valid v3 envelope', () => {
 
 test('reads v1 through the existing v1 to v2 migration before creating v3', () => {
   const source = createLegacyV1()
+
   const migrated = migrateCharacterToV3(source)
 
   assert.equal(migrated.schemaVersion, 3)
@@ -63,6 +65,7 @@ test('reads v1 through the existing v1 to v2 migration before creating v3', () =
 
 test('migration is idempotent and returns an independent v3 copy', () => {
   const first = migrateCharacterToV3(createMockCharacter())
+
   const second = migrateCharacterToV3(first)
 
   assert.deepEqual(second, first)
@@ -95,6 +98,7 @@ test('preserves known and unknown data during v2 migration', () => {
   }
 
   const migrated = migrateCharacterToV3(sourceWithExtensions)
+
   const attack = migrated.attacks[0] as unknown as Record<string, unknown>
   assert.deepEqual(migrated.extensions.legacyNote, { origin: 'old-sheet' })
   assert.deepEqual(attack.customMeta, { critical: 'двойной' })
@@ -107,9 +111,13 @@ test('preserves known and unknown data during v2 migration', () => {
 
 test('reads v1/v2 keys, writes only v3, and never removes old keys', () => {
   const storage = new MemoryStorage()
+
   const source = createLegacyV1()
+
   const v1Key = `${CHARACTER_V1_STORAGE_PREFIX}${source.id}`
+
   const v2Key = `${CHARACTER_V2_STORAGE_PREFIX}${source.id}`
+
   const v3Key = `${CHARACTER_V3_STORAGE_PREFIX}${source.id}`
   storage.setItem(v1Key, JSON.stringify(source))
 

@@ -4,11 +4,14 @@ import { computed } from "vue";
 import type { CharacterSpellSlotV3, CharacterSpellSlotsV3 } from "../types/characterV3";
 
 const props = defineProps<{ slots: CharacterSpellSlotsV3; disabled?: boolean }>();
+
 const emit = defineEmits<{
   update: [slots: CharacterSpellSlotsV3];
   "use-slot": [level: (typeof levels)[number], delta: number];
 }>();
+
 const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+
 function copy(): CharacterSpellSlotsV3 {
   return JSON.parse(JSON.stringify(props.slots)) as CharacterSpellSlotsV3;
 }
@@ -18,6 +21,7 @@ function integer(value: unknown) {
 }
 function update(level: (typeof levels)[number], field: keyof CharacterSpellSlotV3, value: unknown) {
   const next = copy();
+
   const slot = next[level];
   if (field === "max") {
     slot.max = integer(value);
@@ -29,6 +33,7 @@ function remaining(level: (typeof levels)[number]) {
   const slot = props.slots[level];
   return Math.max(0, slot.max - slot.used);
 }
+
 const labels = computed(() => levels.map((level) => ({ level, label: `Уровень ${level}` })));
 </script>
 

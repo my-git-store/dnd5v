@@ -19,13 +19,16 @@ test('validation rejects an empty name and negative money', () => {
 
 test('legacy character receives defaults for new fields without changing existing data', () => {
   const character = createMockCharacter()
+
   const { class: _class, level: _level, experience: _experience, armorClass: _armorClass, ...legacyCharacter } = character
+
   const legacy = {
     ...legacyCharacter,
     schemaVersion: 1,
     skills: character.skills.map(({ id, name, value }) => ({ id, name, value })),
     attacks: character.attacks.map(({ id, name, attackBonus, damage, description }) => ({ id, name, attackBonus, damage, description })),
   }
+
   const migrated = withCharacterDefaults(legacy) as Record<string, unknown>
   assert.equal(migrated.name, character.name)
   assert.equal(migrated.class, '')

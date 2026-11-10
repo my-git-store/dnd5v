@@ -89,11 +89,17 @@ export function applyCharacterCreation(
 ): CharacterSheetView {
   if (payload.ruleset === "2024") return applyCharacterCreation2024(character, payload);
   const next = cloneCharacterView(character);
+
   const race = findRace(payload.raceId);
+
   const subrace = findSubrace(race.id, payload.subraceId);
+
   const classOption = findClass(payload.classId);
+
   const raceBonuses = combinedRaceBonuses(race, payload.raceAbilityChoices, subrace);
+
   const previousCreation = next.creation;
+
   const abilityBonusSources = Object.fromEntries(
     ABILITY_KEYS.map((key) => {
       const preservedFeatSources = (previousCreation?.abilityBonusSources?.[key] ?? []).filter(
@@ -108,31 +114,45 @@ export function applyCharacterCreation(
       ];
     }),
   ) as CharacterCreationV3["abilityBonusSources"];
+
   const hasBackgroundSelection = payload.backgroundId !== undefined;
+
   const backgroundId = hasBackgroundSelection ? payload.backgroundId : previousCreation?.backgroundId;
+
   const background = backgroundId ? findBackground(backgroundId) : undefined;
+
   const previousClassSavingThrowKeys = previousCreation?.classSavingThrowKeys ?? [];
+
   const previousManualSavingThrowKeys = previousCreation?.manualSavingThrowKeys ?? [];
+
   const classSkillIds = unique(payload.classSkillIds.filter((id) => classOption.skillOptions.includes(id))).slice(
     0,
     classOption.skillChoiceCount,
   );
+
   const raceSkillChoices = unique(
     (payload.raceSkillChoices ?? []).filter((id) => race.skillChoices?.options.includes(id)),
   ).slice(0, race.skillChoices?.count ?? 0);
+
   const raceSkillIds = unique([...(race.skillProficiencies ?? []), ...raceSkillChoices]);
+
   const subraceSkillIds = unique(subrace?.skillProficiencies ?? []);
+
   const backgroundSkillIds = hasBackgroundSelection
     ? unique(background?.skillProficiencies ?? [])
     : unique(
         background?.skillProficiencies ?? previousCreation?.backgroundSkillIds ?? next.background.skillProficiencies,
       );
+
   const oldRaceLanguages = unique([
     ...(previousCreation?.raceLanguages ?? []),
     ...(previousCreation?.subraceLanguages ?? []),
   ]);
+
   const oldBackgroundLanguages = previousCreation?.backgroundLanguages ?? next.background.languages;
+
   const oldClassProficiencies = previousCreation?.classProficiencies ?? [];
+
   const oldBackgroundTools = previousCreation?.backgroundToolProficiencies ?? next.background.toolProficiencies;
 
   next.name = payload.name.trim() || next.name;
@@ -165,10 +185,14 @@ export function applyCharacterCreation(
 
   next.skills = next.skills.map((skill) => {
     const selectedByClass = classSkillIds.includes(skill.id);
+
     const selectedByRace = raceSkillIds.includes(skill.id) || subraceSkillIds.includes(skill.id);
+
     const previousSources =
       skill.proficiencySources ?? (skill.proficiency === "none" ? [] : ["manual" as SkillProficiencySource]);
+
     const preservedSources = previousSources.filter((source) => source === "manual" || source === "feat");
+
     const nextSources = [
       ...new Set([
         ...preservedSources,
@@ -177,8 +201,11 @@ export function applyCharacterCreation(
         ...(backgroundSkillIds.includes(skill.id) ? ["background" as SkillProficiencySource] : []),
       ]),
     ];
+
     const hasManualSource = previousSources.includes("manual");
+
     const hasDerivedSource = nextSources.some((source) => source !== "manual");
+
     const calculationMode =
       skill.calculationMode === "manual" &&
       !hasManualSource &&
@@ -201,6 +228,7 @@ export function applyCharacterCreation(
       !previousManualSavingThrowKeys.includes(key) &&
       next.savingThrows[key].proficient,
   );
+
   const manualSavingThrowKeys = ABILITY_KEYS.filter(
     (key) =>
       next.savingThrows[key].proficient &&
@@ -215,6 +243,7 @@ export function applyCharacterCreation(
   const manualLanguages = next.proficiency.languageProficiencies.filter(
     (language) => !oldRaceLanguages.includes(language) && !oldBackgroundLanguages.includes(language),
   );
+
   const manualTools = next.proficiency.toolProficiencies.filter(
     (tool) => !oldClassProficiencies.includes(tool) && !oldBackgroundTools.includes(tool),
   );
@@ -250,13 +279,18 @@ export function applyCharacterCreation(
   const classEquipment = payload.classEquipmentId
     ? classOption.equipmentOptions?.find((item) => item.id === payload.classEquipmentId)
     : undefined;
+
   const backgroundEquipment =
     payload.backgroundEquipmentId && background
       ? background.equipmentOptions.find((item) => item.id === payload.backgroundEquipmentId)
       : undefined;
+
   const equipmentWasSelected = payload.classEquipmentId !== undefined || payload.backgroundEquipmentId !== undefined;
+
   const previousEquipmentIds = new Set(equipmentWasSelected ? (previousCreation?.startingEquipmentIds ?? []) : []);
+
   const creationPrefix = `creation:${next.id}:`;
+
   const preservedItems = next.inventoryData.items.filter(
     (item) =>
       !(
@@ -264,6 +298,7 @@ export function applyCharacterCreation(
         (previousEquipmentIds.has(item.id) || (equipmentWasSelected && item.id.startsWith(creationPrefix)))
       ),
   );
+
   const generatedItems = equipmentWasSelected
     ? [
         ...selectedEquipment(classEquipment, next.id, "class"),

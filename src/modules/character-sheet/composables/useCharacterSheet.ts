@@ -42,17 +42,29 @@ import type { CharacterV3SpellLevel } from "../types/characterV3";
 
 export function useCharacterSheet(id = "demo-character") {
   const adapter = createCharacterSheetAdapter();
+
   const storedActiveId = readStoredActiveCharacterId();
+
   const activeId = ref<string | null>(storedActiveId === undefined ? id : storedActiveId);
+
   const characters = ref<StoredCharacterSummary[]>([]);
+
   const suppressVirtualCharacter = ref(false);
+
   const character = ref<CharacterSheetView | null>(null);
+
   const savedCharacter = ref<CharacterSheetView | null>(null);
+
   const isLoading = ref(true);
+
   const loadError = ref<string | null>(null);
+
   const isSaving = ref(false);
+
   const saveError = ref<string | null>(null);
+
   const savedNotice = ref(false);
+
   const isDirty = computed(
     () =>
       character.value !== null &&
@@ -213,9 +225,11 @@ export function useCharacterSheet(id = "demo-character") {
 
   async function importCharacters(imported: CharacterV3[], mode: "add" | "replace"): Promise<string[]> {
     const usedIds = new Set(listStoredCharacterIds());
+
     const ids: string[] = [];
     for (const [index, importedCharacter] of imported.entries()) {
       const next = JSON.parse(JSON.stringify(importedCharacter)) as CharacterV3;
+
       const targetId =
         mode === "replace" && index === 0 && activeId.value ? activeId.value : uniqueCharacterId(next.id, usedIds);
       next.id = targetId;

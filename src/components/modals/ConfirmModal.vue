@@ -12,9 +12,11 @@ type Emits = {
 };
 
 const emit = defineEmits<Emits>();
+
 const props = withDefaults(defineProps<Props>(), {
   text: "",
 });
+
 const { close } = useDialog();
 
 function confirmFunction(): void {

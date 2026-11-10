@@ -13,6 +13,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{ close: [] }>();
+
 const { close } = useDialog();
 
 async function confirm() {

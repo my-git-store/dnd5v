@@ -12,8 +12,11 @@ const props = withDefaults(
 );
 
 const expanded = ref(true);
+
 const hydrated = ref(false);
+
 const stateKey = `nastolka:sheet:collapse:${props.storageKey}:${props.id}`;
+
 const contentId = `sheet-section-content-${props.id}`;
 
 onMounted(() => {

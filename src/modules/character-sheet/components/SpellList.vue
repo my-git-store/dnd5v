@@ -18,10 +18,15 @@ const props = defineProps<{
   showPreparedFilter?: boolean;
   disabled?: boolean;
 }>();
+
 const emit = defineEmits<{ update: [spells: CharacterSpell[]]; "update:prepared-ids": [ids: string[]] }>();
+
 const query = ref("");
+
 const preparedOnly = ref(false);
+
 const { open } = useDialog();
+
 const classLabels = new Map(RULES_2024_CLASSES.map((item) => [item.id, item.label]));
 
 function catalogSpell(spell: CharacterSpell) {
@@ -51,11 +56,13 @@ function metadataLabel(spell: CharacterSpell): string {
 
 const visibleSpells = computed(() => {
   const search = query.value.trim();
+
   const matches = search ? searchFilterObject(props.spells, ["name", "description"], search) : props.spells;
   return props.spells.filter(
     (spell) => matches.includes(spell) && (!preparedOnly.value || (props.preparedIds ?? []).includes(spell.id)),
   );
 });
+
 function save(spell: CharacterSpell) {
   const exists = props.spells.some((item) => item.id === spell.id);
   emit("update", exists ? props.spells.map((item) => (item.id === spell.id ? spell : item)) : [...props.spells, spell]);

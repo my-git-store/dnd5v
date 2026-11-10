@@ -5,8 +5,11 @@ import type { CharacterGender } from "../types/character";
 import type { CharacterIdentityPatch, CharacterSheetView } from "../types/characterView";
 
 const props = defineProps<{ character: CharacterSheetView; disabled?: boolean; gender?: CharacterGender }>();
+
 const emit = defineEmits<{ update: [patch: CharacterIdentityPatch] }>();
+
 const selectedGender = computed(() => props.gender ?? props.character.creation?.gender ?? "female");
+
 const genderLocked = computed(() => Boolean(props.character.creation));
 
 function update(key: keyof CharacterIdentityPatch, value: unknown) {

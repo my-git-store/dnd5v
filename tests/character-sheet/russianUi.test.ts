@@ -5,7 +5,9 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url))
+
 const srcRoot = path.resolve(testDirectory, '../../src')
+
 const uiRoots = [
   path.join(srcRoot, 'modules/character-sheet/components'),
   path.join(srcRoot, 'modules/table-components/components'),
@@ -29,6 +31,7 @@ test('user-facing UI does not contain known English phrases', () => {
     />\s*(?:Dice Roller|Initiative Tracker|Ready|History|Clear|Save|Cancel|Edit|Delete)\s*</i,
     />\s*(?:LOCAL COMPONENT|SHOWCASE)\s*</i,
   ]
+
   const violations: string[] = []
 
   const files = uiRoots.flatMap((root) => fs.statSync(root).isDirectory() ? sourceFiles(root) : [root])

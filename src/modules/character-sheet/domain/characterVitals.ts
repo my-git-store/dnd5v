@@ -36,6 +36,7 @@ export function initializeCharacterVitals(
   if (!isNewCharacter) return;
 
   const constitutionModifier = abilityModifier(character.abilities.constitution);
+
   const hitDie = hitDieMaximum(classOption.hitDie);
   if (character.combat.hitPoints.max <= 0 && character.combat.hitPoints.current <= 0 && hitDie > 0) {
     const hitPoints = Math.max(1, hitDie + constitutionModifier);
@@ -46,6 +47,7 @@ export function initializeCharacterVitals(
   }
 
   const slots = character.spellcasting.spellSlots;
+
   const noExistingSlots = Object.values(slots).every((slot) => slot.max === 0 && slot.used === 0);
   if (noExistingSlots && classOption.spellcastingAbility) {
     character.spellcasting.spellSlots = emptySpellSlots();

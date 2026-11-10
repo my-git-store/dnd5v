@@ -49,7 +49,9 @@ test('uses one tagged origin feat format with strict lookup and metadata', () =>
 
 test('stores background origin feat as a canonical ID and changes it with background', () => {
   const base = migrateCharacterV2ToV3(createMockCharacter())
+
   const view = { ...base, schemaVersion: 2 as const, name: base.identity.name, class: base.identity.class, level: base.identity.level, experience: base.identity.experience, armorClass: base.combat.armorClass.value, abilities: { ...base.abilities }, skills: base.skills, attacks: base.attacks, spells: base.spellcasting.knownSpells, cantrips: base.spellcasting.cantrips, inventory: base.inventory.items.map(({ id, name, quantity, description }) => ({ id, name, quantity, description })), money: base.inventory.money, bio: { biography: base.personality.biography, traits: base.personality.traits, features: base.personality.features }, race: base.identity.race, subclass: base.identity.subclass, background: base.identity.background, alignment: base.identity.alignment, savingThrows: base.savingThrows, proficiency: base.proficiency, combat: base.combat, spellcasting: base.spellcasting, inventoryData: base.inventory, personality: base.personality, origin: base.origin, ruleset: base.ruleset } as CharacterSheetView
+
   const sage = applyCharacterCreation(view, payload('sage-2024', view.abilities))
   assert.equal(sage.creation?.originFeatId, 'magic-initiate-wizard')
   assert.equal(sage.origin.featId, 'magic-initiate-wizard')
@@ -74,10 +76,15 @@ test('rejects unknown or mismatched origin feats instead of falling back', async
 
 test('round-trips feat reference and keeps non-feat collections intact', async () => {
   const storage = new MemoryStorage()
+
   const { adapter, view } = await loadView(storage)
+
   const created = applyCharacterCreation(view, payload('sage-2024', view.abilities))
+
   const spellDescription = created.spells[0]?.description
+
   const attackBonus = created.attacks[0]?.attackBonus
+
   const itemId = created.inventoryData.items[0]?.id
   await adapter.save(created)
   const raw = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${created.id}`)!) as CharacterV3
@@ -95,11 +102,13 @@ test('round-trips feat reference and keeps non-feat collections intact', async (
 
 test('supports feat source metadata without applying a rules engine', () => {
   const base = migrateCharacterV2ToV3(createMockCharacter())
+
   const storage = new MemoryStorage()
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${base.id}`, JSON.stringify(base))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
   return adapter.load(base.id).then((view) => {
     const created = applyCharacterCreation(view, payload('sage-2024', view.abilities))
+
     const arcana = created.skills.find((skill) => skill.id === 'arcana')!
     arcana.proficiencySources = [...new Set([...(arcana.proficiencySources ?? []), 'feat'])]
     created.creation!.abilityBonusSources!.strength = [{ source: 'feat', amount: 1 }]

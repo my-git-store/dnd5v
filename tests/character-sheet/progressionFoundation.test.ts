@@ -20,6 +20,7 @@ class MemoryStorage implements CharacterStorageLike {
 
 function modernPayload(view: CharacterSheetView, classId = 'wizard'): Parameters<typeof applyCharacterCreation>[1] {
   const background = RULES_2024_BACKGROUNDS[0]!
+
   const classDefinition = getRules2024Class(classId)!
   return {
     ruleset: '2024', speciesId: 'human', raceId: 'human', classId, backgroundId: background.id, originFeatId: background.originFeatId,
@@ -45,11 +46,13 @@ test('old v3 characters receive a safe progression default without a schema bump
 test('progression UI is hidden without removing persisted progression data', async () => {
   assert.equal(PROGRESSION_UI_ENABLED, false)
   const storage = new MemoryStorage()
+
   const character = migrateCharacterV2ToV3(createMockCharacter())
   character.identity.level = 2
   character.progression = { level: 2, classLevels: [{ classId: 'wizard', level: 2 }], features: ['wizard.level-1.1'], choices: {}, history: [{ fromLevel: 1, toLevel: 2, gainedFeatures: [], choices: {} }] }
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`, JSON.stringify(character))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const view = await adapter.load(character.id)
   await adapter.save(view)
   const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`)!) as CharacterV3
@@ -59,11 +62,15 @@ test('progression UI is hidden without removing persisted progression data', asy
 
 test('2024 class selection stores references and choices without duplicating feature content', async () => {
   const source = migrateCharacterV2ToV3(createMockCharacter())
+
   const storage = new MemoryStorage()
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const view = await adapter.load(source.id)
+
   const selected = applyCharacterCreation(view, modernPayload(view))
+
   const classDefinition = getRules2024Class('wizard')!
 
   assert.deepEqual(selected.progression?.classLevels, [{ classId: 'wizard', level: selected.level }])
@@ -85,10 +92,12 @@ test('feature metadata is generated from class level metadata and remains displa
 
 test('progression level and non-UI fields round-trip through the adapter', async () => {
   const storage = new MemoryStorage()
+
   const character = migrateCharacterV2ToV3(createMockCharacter())
   character.progression = { level: 1, classLevels: [{ classId: 'wizard', level: 1 }], features: ['wizard.level-1.1'], choices: { classSkills: ['arcana'] } }
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`, JSON.stringify(character))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const view = await adapter.load(character.id)
   view.level = 2
   view.progression!.choices.classSkills = ['history']

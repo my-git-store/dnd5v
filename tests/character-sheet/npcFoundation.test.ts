@@ -25,8 +25,11 @@ test('legacy characters migrate as regular characters without NPC data', () => {
 
 test('NPC profile validates and survives adapter roundtrip', async () => {
   const storage = new MemoryStorage()
+
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async (id) => createEmptyCharacter(id) })
+
   const view = await adapter.load('npc-roundtrip')
+
   const npc = createDefaultNpcProfile('Страж ворот')
   npc.abilities.dexterity = 14
   npc.features.push({ id: 'feature-1', name: 'Тёмное зрение', description: 'Видит в темноте.', attackBonus: '', damage: '' })

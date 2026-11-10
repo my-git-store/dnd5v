@@ -32,6 +32,7 @@ test('class metadata exposes weapon proficiencies without adding mastery choices
 
 test('known weapon and mastery links round-trip through attack and inventory', async () => {
   const storage = new MemoryStorage()
+
   const character = migrateCharacterV2ToV3(createMockCharacter())
   character.ruleset = '2024'
   character.attacks[0] = { ...character.attacks[0]!, weaponId: 'longsword', masteryId: 'sap' }
@@ -67,9 +68,11 @@ test('unknown weapon links are rejected while legacy free-text attacks remain va
 
 test('old v3 characters without weapon links preserve attacks and inventory after reload', async () => {
   const storage = new MemoryStorage()
+
   const legacy = migrateCharacterV2ToV3(createMockCharacter())
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${legacy.id}`, JSON.stringify(legacy))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const view = await adapter.load(legacy.id)
   await adapter.save(view)
   const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${legacy.id}`)!) as CharacterV3

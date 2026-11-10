@@ -14,10 +14,13 @@ type Emits = {
 };
 
 const emit = defineEmits<Emits>();
+
 const props = withDefaults(defineProps<Props>(), {
   entityName: "",
 });
+
 const { close } = useDialog();
+
 const { isLoading, request } = useReqDefault(true);
 
 async function deleteFunction(): Promise<void> {

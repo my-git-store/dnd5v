@@ -12,20 +12,26 @@ const props = defineProps<{
   level: number;
   disabled?: boolean;
 }>();
+
 const emit = defineEmits<{ update: [spellcasting: CharacterSpellcastingV3] }>();
+
 const abilityOptions = [
   { value: "", label: "Не настроено" },
   ...ABILITY_FIELDS.map((field) => ({ value: field.key, label: field.label })),
 ];
+
 const abilityLabel = computed(
   () => ABILITY_FIELDS.find((field) => field.key === props.spellcasting.spellcastingAbility)?.label ?? "Не настроено",
 );
+
 const saveDc = computed(() =>
   calculateSpellSaveDc(props.spellcasting.spellcastingAbility, props.abilities, props.level),
 );
+
 const attackBonus = computed(() =>
   calculateSpellAttackBonus(props.spellcasting.spellcastingAbility, props.abilities, props.level),
 );
+
 function updateAbility(value: string | null) {
   emit("update", { ...props.spellcasting, spellcastingAbility: value ? (value as AbilityKey) : null });
 }

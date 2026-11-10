@@ -13,13 +13,16 @@ const props = defineProps<{
   level: number;
   disabled?: boolean;
 }>();
+
 const emit = defineEmits<{ save: [attack: CharacterAttackView]; cancel: [] }>();
+
 const attackKinds = [
   { value: "melee", label: "Ближняя" },
   { value: "ranged", label: "Дальняя" },
   { value: "spell", label: "Заклинание" },
   { value: "other", label: "Другое" },
 ];
+
 const weaponOptions = [
   { value: "", label: "Без связи" },
   ...RULES_2024_WEAPONS.map((weapon) => ({
@@ -27,11 +30,14 @@ const weaponOptions = [
     label: `${weapon.name} (${weapon.category === "melee" ? "ближнее" : "дальнее"})`,
   })),
 ];
+
 const masteryOptions = [
   { value: "", label: "Не указано" },
   ...RULES_2024_WEAPON_MASTERIES.map((mastery) => ({ value: mastery.id, label: mastery.name })),
 ];
+
 const bonusSourceOptions = ATTACK_BONUS_SOURCES.map((source) => ({ value: source.value, label: source.label }));
+
 const calculationModeOptions = [
   { value: "manual", label: "Ручной" },
   { value: "computed", label: "Расчёт" },
@@ -45,6 +51,7 @@ function createDraft(attack: CharacterAttackView): CharacterAttackView {
     additionalBonus: getAdditionalAttackBonus(attack),
   };
 }
+
 const draft = ref(createDraft(props.attack));
 watch(
   () => props.attack,
@@ -154,7 +161,7 @@ function submit() {
       ><NInput :value="draft.properties.join(', ')" :disabled="disabled" @update:value="updateProperties"
     /></NFormItem>
     <NFormItem label="Описание"
-      ><NInput type="textarea" v-model:value="draft.description" :disabled="disabled" rows="2"
+      ><NInput v-model:value="draft.description" type="textarea" :disabled="disabled" rows="2"
     /></NFormItem>
     <div class="editor-actions">
       <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton

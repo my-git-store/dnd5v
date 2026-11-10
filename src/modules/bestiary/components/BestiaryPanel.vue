@@ -12,10 +12,15 @@ import { mockBestiaryAdapter } from "../data/mockBestiary.ts";
 import "../styles/bestiary.css";
 
 const props = defineProps<{ onCreateNpc: (entry: BestiaryEntry) => void | Promise<void> }>();
+
 const emit = defineEmits<{ status: [message: string] }>();
+
 const { open, close } = useDialog();
+
 const adapter = mockBestiaryAdapter();
+
 const entries = ref<BestiaryEntry[]>(adapter.list().map((entry) => entry));
+
 const filters = ref<BestiaryFilters>({
   search: "",
   size: "",
@@ -27,17 +32,21 @@ const filters = ref<BestiaryFilters>({
   language: "",
   speed: "",
 });
+
 const sort = ref<BestiarySort>("name");
+
 const speedOptions = [
   { value: "", label: "Любая скорость" },
   { value: "30", label: "До 30 фт." },
   { value: "40", label: "От 40 фт." },
 ];
+
 const sortOptions = [
   { value: "name", label: "По имени" },
   { value: "challengeRating", label: "По рейтингу опасности" },
   { value: "speed", label: "По скорости" },
 ];
+
 function filterOptions(values: string[], emptyLabel: string) {
   return [{ value: "", label: emptyLabel }, ...values.map((value) => ({ value, label: value }))];
 }
@@ -59,8 +68,10 @@ const options = computed(() => ({
   source: [...new Set(entries.value.map((entry) => entry.source))].sort(),
   language: [...new Set(entries.value.flatMap((entry) => entry.languages))].sort(),
 }));
+
 const filteredEntries = computed(() => {
   const query = filters.value.search.trim().toLocaleLowerCase("ru");
+
   const result = entries.value.filter((entry) => {
     if (query && !entry.name.toLocaleLowerCase("ru").includes(query)) return false;
     if (filters.value.size && entry.size !== filters.value.size) return false;

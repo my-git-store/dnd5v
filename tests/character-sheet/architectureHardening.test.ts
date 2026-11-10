@@ -23,6 +23,7 @@ class MemoryStorage implements CharacterStorageLike {
 
 test('normalizes a pre-creation v3 record with safe legacy defaults', () => {
   const source = migrateCharacterV2ToV3(createMockCharacter())
+
   const oldV3 = JSON.parse(JSON.stringify(source)) as Record<string, unknown>
   delete oldV3.ruleset
   delete oldV3.origin
@@ -40,17 +41,21 @@ test('normalizes a pre-creation v3 record with safe legacy defaults', () => {
 
 test('loads both rulesets through the same adapter contract', async () => {
   const legacy = migrateCharacterV2ToV3(createMockCharacter())
+
   const legacyStorage = new MemoryStorage()
   legacyStorage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${legacy.id}`, JSON.stringify(legacy))
   const legacyAdapter = createCharacterSheetAdapter({ storage: legacyStorage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const legacyView = await legacyAdapter.load(legacy.id)
   assert.equal(legacyView.ruleset, '2014')
   assert.equal(legacyView.spellcasting.spellRuleset, '2014')
 
   const modern = migrateV3To2024(legacy)
+
   const modernStorage = new MemoryStorage()
   modernStorage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${modern.id}`, JSON.stringify(modern))
   const modernAdapter = createCharacterSheetAdapter({ storage: modernStorage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const modernView = await modernAdapter.load(modern.id)
   assert.equal(modernView.ruleset, '2024')
   assert.equal(modernView.spellcasting.spellRuleset, '2024')
@@ -65,7 +70,9 @@ test('keeps non-creation collections during a 2014 to 2024 creation switch and r
   const storage = new MemoryStorage()
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const loaded = await adapter.load(source.id)
+
   const preservedItemId = loaded.inventoryData.items[0]?.id
 
   const switched = applyCharacterCreation(loaded, {
@@ -91,15 +98,19 @@ test('keeps non-creation collections during a 2014 to 2024 creation switch and r
 
 test('keeps proficiency sources unique and explains a shared class/background source', async () => {
   const source = migrateCharacterV2ToV3(createMockCharacter())
+
   const storage = new MemoryStorage()
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const loaded = await adapter.load(source.id)
+
   const created = applyCharacterCreation(loaded, {
     ruleset: '2024', speciesId: 'human', raceId: 'human', classId: 'wizard', backgroundId: 'sage-2024', originFeatId: 'magic-initiate-wizard',
     originAbilityChoices: ['intelligence', 'wisdom', 'constitution'], originAbilityFocus: 'intelligence', name: loaded.name, subclass: '', alignment: '', baseAbilities: loaded.abilities,
     classSkillIds: ['arcana', 'history'], raceSkillChoices: [], raceAbilityChoices: [],
   })
+
   const arcana = created.skills.find((skill) => skill.id === 'arcana')
   assert.ok(arcana)
   assert.deepEqual(arcana.proficiencySources, ['class', 'background'])

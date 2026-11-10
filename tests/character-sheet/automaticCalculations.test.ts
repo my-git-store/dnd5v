@@ -56,9 +56,13 @@ test('manual values remain authoritative while computed spell values follow leve
 
 test('calculation inputs survive adapter save and recompute after reload', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => source })
+
   const draft = await adapter.load(source.id)
+
   const skill = draft.skills[0]!
   draft.abilities.strength = 18
   skill.ability = 'strength'

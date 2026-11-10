@@ -13,8 +13,11 @@ type Props = {
 };
 
 const props = defineProps<Props>();
+
 const { close } = useDialog();
+
 const draft = ref(cloneCharacterView(props.character));
+
 const draftGender = ref<CharacterGender>(props.character.creation?.gender ?? "female");
 
 function update(patch: CharacterIdentityPatch) {

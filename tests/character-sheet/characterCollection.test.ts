@@ -17,6 +17,7 @@ class MemoryStorage implements CharacterStorageLike {
 
 test('new characters use safe empty defaults and persist all edited sections after reload', async () => {
   const storage = new MemoryStorage()
+
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async (id) => createEmptyCharacter(id) })
 
   const created = await adapter.load('new-character')
@@ -45,7 +46,9 @@ test('new characters use safe empty defaults and persist all edited sections aft
 
 test('character index supports listing, copying under a new id and deletion', async () => {
   const storage = new MemoryStorage()
+
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async (id) => createEmptyCharacter(id) })
+
   const first = await adapter.load('first')
   first.name = 'Первый'
   await adapter.save(first)
@@ -70,6 +73,7 @@ test('character index supports listing, copying under a new id and deletion', as
 
 test('legacy v2 records remain readable and appear in the character list', () => {
   const storage = new MemoryStorage()
+
   const legacy = migrateCharacterV2ToV3(createEmptyCharacter('legacy'))
   storage.setItem('nastolka:character-sheet:v2:legacy', JSON.stringify({ ...createEmptyCharacter('legacy'), schemaVersion: 2 }))
   const summaries = listStoredCharacterSummaries(storage)

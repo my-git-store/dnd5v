@@ -26,7 +26,9 @@ function adapterFor(storage: MemoryStorage) {
 
 function modernPayload(view: CharacterSheetView, speciesId: string, backgroundId: string, classId: string, overrides: Partial<CharacterCreationPayload> = {}): CharacterCreationPayload {
   const background = getRules2024Background(backgroundId)!
+
   const classDefinition = getRules2024Class(classId)!
+
   const species = getSpecies2024(speciesId)!
   return {
     ruleset: '2024',
@@ -59,6 +61,7 @@ async function loadedMock(storage: MemoryStorage): Promise<CharacterSheetView> {
 
 test('2024 character survives creation, level-up, origin/class changes and adapter reloads', async () => {
   const storage = new MemoryStorage()
+
   const initial = await loadedMock(storage)
   initial.inventoryData.items.push({ id: 'user:keepsake', name: 'Личный амулет', quantity: 1, weight: null, description: 'Оставить', equipped: false, properties: [], source: 'user' })
   initial.personality.biography = 'История героя сохраняется.'
@@ -125,7 +128,9 @@ test('2024 character survives creation, level-up, origin/class changes and adapt
 
 test('2014 racial proficiency does not leak into an unrelated 2024 species', async () => {
   const storage = new MemoryStorage()
+
   const initial = await loadedMock(storage)
+
   const elf = applyCharacterCreation(initial, {
     ruleset: '2014', name: initial.name, raceId: 'elf', subraceId: 'high-elf', classId: 'wizard', backgroundId: 'sage',
     subclass: '', alignment: '', baseAbilities: { ...initial.abilities }, classSkillIds: ['arcana', 'history'], raceSkillChoices: [], raceAbilityChoices: [],
@@ -137,6 +142,7 @@ test('2014 racial proficiency does not leak into an unrelated 2024 species', asy
 
 test('2024 species with required choices rejects a missing or unknown selection', async () => {
   const initial = await loadedMock(new MemoryStorage())
+
   const payload = modernPayload(initial, 'aasimar', 'sage-2024', 'wizard')
   assert.throws(() => applyCharacterCreation(initial, { ...payload, speciesChoices: {} }), /выбор|особенность|вид/i)
   assert.throws(() => applyCharacterCreation(initial, { ...payload, speciesChoices: { 'celestial-revelation': ['Неизвестный вариант'] } }), /выбор|особенность|вид/i)
@@ -144,7 +150,9 @@ test('2024 species with required choices rejects a missing or unknown selection'
 
 test('older creation metadata without equipment IDs does not duplicate generated kits', async () => {
   const storage = new MemoryStorage()
+
   const initial = await loadedMock(storage)
+
   const first = applyCharacterCreation(initial, modernPayload(initial, 'human', 'sage-2024', 'wizard'))
   first.inventoryData.items.push({ id: 'user:lantern', name: 'Личная лампа', quantity: 1, weight: null, description: '', equipped: false, properties: [], source: 'user' })
   const adapter = adapterFor(storage)
@@ -155,7 +163,9 @@ test('older creation metadata without equipment IDs does not duplicate generated
   storage.setItem(storageKey(old.id), JSON.stringify(old))
 
   const loaded = await adapterFor(storage).load(old.id)
+
   const changed = applyCharacterCreation(loaded, modernPayload(loaded, 'human', 'sage-2024', 'fighter'))
+
   const generated = changed.inventoryData.items.filter((item) => item.source === 'creation')
   assert.equal(generated.some((item) => item.id.includes(':class:wizard-')), false)
   assert.equal(new Set(generated.map((item) => item.id)).size, generated.length)
@@ -164,6 +174,7 @@ test('older creation metadata without equipment IDs does not duplicate generated
 
 test('new sourced skills show their computed bonus while explicit manual entries remain manual', async () => {
   const initial = await loadedMock(new MemoryStorage())
+
   const manual = initial.skills.find((skill) => skill.id === 'athletics')!
   manual.calculationMode = 'manual'
   manual.value = 7
@@ -175,14 +186,18 @@ test('new sourced skills show their computed bonus while explicit manual entries
 
 test('legacy v3 and corrupted or unknown catalog data are handled without overwriting storage', async () => {
   const storage = new MemoryStorage()
+
   const old = migrateCharacterV2ToV3(createMockCharacter())
   delete old.progression
   delete old.features
   const oldAttacks = JSON.stringify(old.attacks)
+
   const oldSpells = JSON.stringify(old.spellcasting.knownSpells)
+
   const oldInventory = JSON.stringify(old.inventory)
   storage.setItem(storageKey(old.id), JSON.stringify(old))
   const adapter = adapterFor(storage)
+
   const loaded = await adapter.load(old.id)
   assert.equal(loaded.ruleset, '2014')
   await adapter.save(loaded)

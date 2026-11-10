@@ -11,20 +11,29 @@ import type { CharacterInventoryItemV3 } from "../types/characterV3";
 import { getRules2024Weapon } from "../data/rules2024/index.ts";
 
 const props = defineProps<{ items: CharacterInventoryItemV3[]; disabled?: boolean }>();
+
 const emit = defineEmits<{ update: [items: CharacterInventoryItemV3[]]; "use-item": [id: string] }>();
+
 const query = ref("");
+
 const showEquipped = ref(true);
+
 const showUnequipped = ref(true);
+
 const { open } = useDialog();
+
 const visibleItems = computed(() => {
   const search = query.value.trim();
+
   const matches = search ? searchFilterObject(props.items, ["name", "description", "properties"], search) : props.items;
   return props.items.filter((item) => {
     const matchesSearch = matches.includes(item);
+
     const matchesEquipmentFilter = item.equipped ? showEquipped.value : showUnequipped.value;
     return matchesSearch && matchesEquipmentFilter;
   });
 });
+
 function save(item: CharacterInventoryItemV3) {
   const exists = props.items.some((current) => current.id === item.id);
   emit(

@@ -114,7 +114,13 @@ export const MOCK_BESTIARY: readonly BestiaryEntry[] = [
       },
     ],
     actions: [
-      { id: "spark", name: "Искра", description: "Дальнобойная магическая атака.", attackBonus: "+5", damage: "2d4+3" },
+      {
+        id: "spark",
+        name: "Искра",
+        description: "Дальнобойная магическая атака.",
+        attackBonus: "+5",
+        damage: "2d4+3",
+      },
     ],
     reactions: [],
     legendaryActions: [],
@@ -140,7 +146,13 @@ export const MOCK_BESTIARY: readonly BestiaryEntry[] = [
     senses: "Пассивная внимательность 10",
     features: [],
     actions: [
-      { id: "tusk", name: "Бивни", description: "Ближняя атака по одной цели.", attackBonus: "+5", damage: "2d8+3" },
+      {
+        id: "tusk",
+        name: "Бивни",
+        description: "Ближняя атака по одной цели.",
+        attackBonus: "+5",
+        damage: "2d8+3",
+      },
     ],
     reactions: [],
     legendaryActions: [],

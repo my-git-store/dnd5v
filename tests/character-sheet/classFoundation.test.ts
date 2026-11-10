@@ -74,11 +74,13 @@ test('class change replaces class skill and saving sources while preserving back
   const { view } = await loadView(new MemoryStorage())
   view.savingThrows.dexterity.proficient = true
   const wizard = applyCharacterCreation(view, modernPayload(view, 'wizard', 'sage-2024', { classSkillIds: ['arcana', 'history'] }))
+
   const wizardArcana = wizard.skills.find((skill) => skill.id === 'arcana')!
   assert.deepEqual(wizardArcana.proficiencySources, ['class', 'background'])
   wizardArcana.proficiencySources = ['race', 'class', 'background']
   assert.equal(wizard.spellcasting.spellcastingAbility, 'intelligence')
   const spellCount = wizard.spells.length
+
   const fighter = applyCharacterCreation(wizard, modernPayload(wizard, 'fighter', 'sage-2024', { classSkillIds: ['athletics', 'survival'] }))
   assert.deepEqual(fighter.skills.find((skill) => skill.id === 'arcana')?.proficiencySources, ['race', 'background'])
   assert.equal(fighter.savingThrows.dexterity.proficient, true)
@@ -92,10 +94,13 @@ test('class change replaces class skill and saving sources while preserving back
 
 test('class equipment is deterministic, repeatable and preserves user items', async () => {
   const storage = new MemoryStorage()
+
   const { adapter, view } = await loadView(storage)
   view.inventoryData.items.push({ id: 'user-item', name: 'Свой предмет', quantity: 1, weight: null, description: '', equipped: false, properties: [], source: 'user' })
   const wizard = applyCharacterCreation(view, modernPayload(view, 'wizard', 'sage-2024'))
+
   const repeated = applyCharacterCreation(wizard, modernPayload(wizard, 'wizard', 'sage-2024'))
+
   const repeatedCreationIds = repeated.inventoryData.items.filter((item) => item.source === 'creation').map((item) => item.id)
   assert.equal(new Set(repeatedCreationIds).size, repeatedCreationIds.length)
   assert.equal(repeated.inventoryData.items.filter((item) => item.source === 'creation').length, wizard.inventoryData.items.filter((item) => item.source === 'creation').length)
@@ -112,11 +117,13 @@ test('class equipment is deterministic, repeatable and preserves user items', as
 
 test('old v3 records without class foundation fields remain valid and round-trip through the adapter', async () => {
   const storage = new MemoryStorage()
+
   const old = migrateCharacterV2ToV3(createMockCharacter())
   delete old.extensions.characterCreation
   delete old.spellcasting.spellProgressionType
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${old.id}`, JSON.stringify(old))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const view = await adapter.load(old.id)
   assert.equal(view.creation, undefined)
   await adapter.save(view)
@@ -130,6 +137,7 @@ test('old v3 records without class foundation fields remain valid and round-trip
 
 test('creation metadata receives safe class defaults when an older v3 creation object lacks them', async () => {
   const storage = new MemoryStorage()
+
   const old = migrateCharacterV2ToV3(createMockCharacter())
   old.ruleset = '2024'
   old.extensions.characterCreation = {
@@ -144,7 +152,9 @@ test('creation metadata receives safe class defaults when an older v3 creation o
 
 test('class selection persists through the adapter while icon metadata stays presentation-only', async () => {
   const storage = new MemoryStorage()
+
   const { adapter, view } = await loadView(storage)
+
   const created = applyCharacterCreation(view, modernPayload(view, 'wizard', 'sage-2024', { gender: 'male' }))
   await adapter.save(created)
 

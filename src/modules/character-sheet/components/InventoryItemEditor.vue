@@ -5,11 +5,14 @@ import { RULES_2024_WEAPONS } from "../data/rules2024/index.ts";
 import type { CharacterInventoryItemV3 } from "../types/characterV3";
 
 const props = defineProps<{ item: CharacterInventoryItemV3; disabled?: boolean }>();
+
 const emit = defineEmits<{ save: [item: CharacterInventoryItemV3]; cancel: [] }>();
+
 const weaponOptions = [
   { value: "", label: "Не оружие / без связи" },
   ...RULES_2024_WEAPONS.map((weapon) => ({ value: weapon.id, label: weapon.name })),
 ];
+
 const draft = ref<CharacterInventoryItemV3>({ ...props.item, properties: [...props.item.properties] });
 watch(
   () => props.item,
@@ -80,7 +83,7 @@ function submit() {
       ><NInput :value="draft.properties.join(', ')" :disabled="disabled" @update:value="updateProperties"
     /></NFormItem>
     <NFormItem label="Описание"
-      ><NInput type="textarea" v-model:value="draft.description" :disabled="disabled" rows="3"
+      ><NInput v-model:value="draft.description" type="textarea" :disabled="disabled" rows="3"
     /></NFormItem>
     <div class="editor-actions">
       <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton

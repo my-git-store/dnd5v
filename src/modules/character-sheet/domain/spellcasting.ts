@@ -16,6 +16,7 @@ export function calculateSpellSaveDc(
   level: unknown,
 ): number | null {
   const modifier = spellcastingModifier(spellcastingAbility, abilities);
+
   const proficiency = proficiencyBonus(level);
   if (modifier === null || proficiency === null) return null;
   return 8 + proficiency + modifier;
@@ -27,6 +28,7 @@ export function calculateSpellAttackBonus(
   level: unknown,
 ): number | null {
   const modifier = spellcastingModifier(spellcastingAbility, abilities);
+
   const proficiency = proficiencyBonus(level);
   if (modifier === null || proficiency === null) return null;
   return proficiency + modifier;

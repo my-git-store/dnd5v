@@ -49,9 +49,11 @@ test('resolves stable species icon paths while keeping unknown and legacy values
 
 test('applies a species choice and replaces it when the species changes', async () => {
   const base = migrateCharacterV2ToV3(createMockCharacter())
+
   const storage = new MemoryStorage()
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${base.id}`, JSON.stringify(base))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const loaded = await adapter.load(base.id)
 
   const aasimar = applyCharacterCreation(loaded, {
@@ -78,15 +80,19 @@ test('applies a species choice and replaces it when the species changes', async 
 
 test('keeps species, class and background source metadata through v3 adapter round-trip', async () => {
   const base = migrateCharacterV2ToV3(createMockCharacter())
+
   const storage = new MemoryStorage()
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${base.id}`, JSON.stringify(base))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const loaded = await adapter.load(base.id)
+
   const created = applyCharacterCreation(loaded, {
     ruleset: '2024', speciesId: 'elf', raceId: 'elf', speciesChoices: { 'elven-lineage': ['Лесной эльф'] }, classId: 'wizard', backgroundId: 'sage-2024',
     originFeatId: 'magic-initiate-wizard', originAbilityChoices: ['intelligence', 'wisdom', 'constitution'], originAbilityFocus: 'intelligence', name: loaded.name, subclass: '', alignment: '', baseAbilities: loaded.abilities,
     classSkillIds: ['arcana', 'history'], raceSkillChoices: [], raceAbilityChoices: [],
   })
+
   const arcana = created.skills.find((skill) => skill.id === 'arcana')
   assert.deepEqual(arcana?.proficiencySources, ['class', 'background'])
   created.attacks[0]!.attackBonus = '1d20+6'

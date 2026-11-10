@@ -17,9 +17,11 @@ test('exports a sanitized v3 envelope with date and character data', () => {
 
 test('parses current transfer and migrates a legacy v2 character', () => {
   const legacy = createMockCharacter()
+
   const parsedLegacy = parseCharacterTransfer(JSON.stringify(legacy))
   assert.equal(parsedLegacy.characters[0]?.schemaVersion, 3)
   const current = migrateCharacterV2ToV3(legacy)
+
   const parsedCurrent = parseCharacterTransfer(serializeCharacterTransfer([current]))
   assert.equal(parsedCurrent.characters.length, 1)
   assert.equal(parsedCurrent.characters[0]?.id, current.id)

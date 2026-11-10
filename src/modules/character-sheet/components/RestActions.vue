@@ -13,10 +13,15 @@ const props = defineProps<{
   onShortRest: (dice: number) => ShortRestResult | null | Promise<ShortRestResult | null>;
   onLongRest: () => void | Promise<void>;
 }>();
+
 const { open } = useDialog();
+
 const selectedDice = ref(1);
+
 const status = ref<string | null>(null);
+
 const availableDice = computed(() => Math.max(0, props.combat.hitDice.total - props.combat.hitDice.spent));
+
 const diceOptions = computed(() =>
   Array.from({ length: availableDice.value }, (_, index) => ({ value: index + 1, label: String(index + 1) })),
 );

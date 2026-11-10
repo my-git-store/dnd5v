@@ -17,24 +17,30 @@ const props = defineProps<{
   backgroundSkillIds?: string[];
   disabled?: boolean;
 }>();
+
 const emit = defineEmits<{ update: [id: string, patch: CharacterSkillPatch] }>();
+
 const abilityLabels = Object.fromEntries(ABILITY_FIELDS.map((field) => [field.key, field.label])) as Record<
   AbilityKey,
   string
 >;
+
 const proficiencyOptions: Array<{ value: SkillProficiency; label: string }> = [
   { value: "none", label: "Без владения" },
   { value: "proficient", label: "Владение (+бонус)" },
   { value: "expertise", label: "Экспертиза (×2)" },
 ];
+
 const abilityOptions = [
   { value: "", label: "Не выбрана" },
   ...ABILITY_FIELDS.map((field) => ({ value: field.key, label: field.label })),
 ];
+
 const calculationModeOptions = [
   { value: "computed", label: "По характеристике" },
   { value: "manual", label: "Вручную" },
 ];
+
 const sourceLabels: Record<SkillProficiencySource, string> = {
   race: "Вид",
   class: "Класс",
@@ -42,6 +48,7 @@ const sourceLabels: Record<SkillProficiencySource, string> = {
   feat: "Черта",
   manual: "Вручную",
 };
+
 const abilityShortLabels: Record<AbilityKey, string> = {
   strength: "СИЛ",
   dexterity: "ЛОВ",
@@ -50,6 +57,7 @@ const abilityShortLabels: Record<AbilityKey, string> = {
   wisdom: "МДР",
   charisma: "ХАР",
 };
+
 const skillColumns = computed(() => [
   props.skills.filter((_, index) => index % 2 === 0),
   props.skills.filter((_, index) => index % 2 === 1),

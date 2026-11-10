@@ -4,7 +4,9 @@ import { ref, watch } from "vue";
 import type { CharacterFeatV3 } from "../types/characterV3";
 
 const props = defineProps<{ feat: CharacterFeatV3; disabled?: boolean }>();
+
 const emit = defineEmits<{ save: [feat: CharacterFeatV3]; cancel: [] }>();
+
 const draft = ref<CharacterFeatV3>({ ...props.feat });
 watch(
   () => props.feat,
@@ -25,7 +27,7 @@ function submit() {
   <div class="editor-grid">
     <NFormItem label="Наименование"><NInput v-model:value="draft.name" :disabled="disabled" /></NFormItem>
     <NFormItem label="Описание"
-      ><NInput type="textarea" v-model:value="draft.description" :disabled="disabled" rows="5"
+      ><NInput v-model:value="draft.description" type="textarea" :disabled="disabled" rows="5"
     /></NFormItem>
     <div class="editor-actions">
       <NButton type="primary" :disabled="disabled || !draft.name.trim()" @click="submit">Сохранить</NButton

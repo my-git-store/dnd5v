@@ -4,7 +4,9 @@ import CharacterFeatEditor from "./CharacterFeatEditor.vue";
 import type { CharacterFeatV3 } from "../types/characterV3";
 
 const props = defineProps<{ feat: CharacterFeatV3; disabled?: boolean; onSave: (feat: CharacterFeatV3) => void }>();
+
 const { close } = useDialog();
+
 function save(feat: CharacterFeatV3) {
   props.onSave(feat);
   close();

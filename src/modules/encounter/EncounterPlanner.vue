@@ -13,19 +13,30 @@ import type { CharacterEncounterParticipantV3, CharacterEncounterV3 } from "../c
 import "./encounter.css";
 
 const props = defineProps<{ encounters?: CharacterEncounterV3[]; dirty: boolean; saving: boolean }>();
+
 const emit = defineEmits<{ update: [encounters: CharacterEncounterV3[]]; status: [message: string] }>();
+
 const { open } = useDialog();
+
 const bestiary = mockBestiaryAdapter().list();
+
 const draft = ref<CharacterEncounterV3[]>(JSON.parse(JSON.stringify(props.encounters ?? [])) as CharacterEncounterV3[]);
+
 const activeId = ref<string | null>(draft.value[0]?.id ?? null);
+
 const selectedBestiaryId = ref(bestiary[0]?.id ?? "");
+
 const quantity = ref(1);
+
 const actionBusy = ref(false);
+
 const bestiaryOptions = bestiary.map((entry) => ({
   value: entry.id,
   label: `${entry.name} · HP ${entry.hitPoints} · КД ${entry.armorClass}`,
 }));
+
 const quantityOptions = Array.from({ length: 20 }, (_, index) => ({ value: index + 1, label: String(index + 1) }));
+
 const encounterOptions = computed(() =>
   draft.value.map((encounter) => ({ value: encounter.id, label: encounter.name })),
 );
@@ -54,6 +65,7 @@ watch(
 );
 
 const activeEncounter = computed(() => draft.value.find((encounter) => encounter.id === activeId.value) ?? null);
+
 const orderedParticipants = computed(() =>
   activeEncounter.value
     ? [...activeEncounter.value.participants].sort(
@@ -61,9 +73,11 @@ const orderedParticipants = computed(() =>
       )
     : [],
 );
+
 const currentIndex = computed(() =>
   currentParticipantIndex(orderedParticipants.value, activeEncounter.value?.currentParticipantId ?? undefined),
 );
+
 const currentParticipant = computed(() =>
   orderedParticipants.value.find((participant) => participant.id === activeEncounter.value?.currentParticipantId),
 );
@@ -120,10 +134,13 @@ function addBestiaryEntry() {
   if (!entry) return;
   actionBusy.value = true;
   const amount = Math.min(20, Math.max(1, Math.trunc(Number(quantity.value) || 1)));
+
   const existingNames = new Set(activeEncounter.value.participants.map((participant) => participant.name));
+
   const created: CharacterEncounterParticipantV3[] = [];
   for (let index = 0; index < amount; index += 1) {
     const baseName = amount > 1 ? `${entry.name} ${index + 1}` : entry.name;
+
     const name = existingNames.has(baseName)
       ? `${baseName} · ${activeEncounter.value.participants.length + index + 1}`
       : baseName;
@@ -293,7 +310,10 @@ onUnmounted(() => window.removeEventListener("nastolka:initiative-tracker-ready"
           v-for="participant in orderedParticipants"
           :key="participant.id"
           class="encounter-participant"
-          :class="{ current: participant.id === activeEncounter.currentParticipantId, defeated: participant.defeated }"
+          :class="{
+            current: participant.id === activeEncounter.currentParticipantId,
+            defeated: participant.defeated,
+          }"
         >
           <div class="encounter-participant-name">
             <span class="turn-marker" aria-hidden="true">{{

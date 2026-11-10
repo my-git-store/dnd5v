@@ -13,11 +13,15 @@ type Props = {
 };
 
 const props = defineProps<Props>();
+
 const { close } = useDialog();
+
 const confirming = ref(false);
+
 const confirmError = ref<string | null>(null);
 
 const nextLevel = computed(() => props.character.level + 1);
+
 const sourceProgression = computed(() => props.character.progression);
 
 function cloneProgression(value: CharacterProgressionV3): CharacterProgressionV3 {
@@ -55,6 +59,7 @@ const previewFeatures = computed(() => {
   const history = previewProgression.value?.history ?? [];
   return history.length ? (history[history.length - 1]?.gainedFeatures ?? []) : [];
 });
+
 const previewChoices = computed(() =>
   sourceProgression.value
     ? availableChoicesForProgression(sourceProgression.value, nextLevel.value, props.character.ruleset)
@@ -110,7 +115,9 @@ function confirmLevelUp() {
         <div v-if="previewFeatures.length" class="level-up-feature-list">
           <article v-for="gain in previewFeatures" :key="gain.featureId" class="feature-reference-card">
             <h4>{{ featureDefinition(gain)?.name ?? gain.featureId }}</h4>
-            <p>{{ featureDefinition(gain)?.description ?? "Описание особенности отсутствует в текущем каталоге." }}</p>
+            <p>
+              {{ featureDefinition(gain)?.description ?? "Описание особенности отсутствует в текущем каталоге." }}
+            </p>
             <small>Источник: {{ gain.source.label ?? gain.source.id }} · Уровень {{ gain.level }}</small>
           </article>
         </div>

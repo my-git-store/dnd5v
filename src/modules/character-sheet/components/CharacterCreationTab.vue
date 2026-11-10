@@ -41,7 +41,9 @@ const props = defineProps<{
   hidePreview?: boolean;
   creationError?: string | null;
 }>();
+
 const emit = defineEmits<{ create: [payload: CharacterCreationPayload]; "back-to-sheet": [] }>();
+
 const stepNames = [
   "Имя",
   "Раса",
@@ -53,6 +55,7 @@ const stepNames = [
   "Снаряжение",
   "Готово",
 ];
+
 const stepDescriptions = [
   "Дайте герою имя и задайте его первое впечатление.",
   "Выберите народ и познакомьтесь с его наследием.",
@@ -64,6 +67,7 @@ const stepDescriptions = [
   "Подготовьте снаряжение, с которым начнётся путь.",
   "Проверьте образ героя и примените выборы к листу.",
 ];
+
 const modernStepNames = [
   "Имя",
   "Вид",
@@ -75,6 +79,7 @@ const modernStepNames = [
   "Снаряжение",
   "Готово",
 ];
+
 const modernStepDescriptions = [
   "Дайте герою имя и выберите редакцию правил.",
   "Выберите вид и познакомьтесь с его наследием.",
@@ -86,35 +91,58 @@ const modernStepDescriptions = [
   "Подготовьте снаряжение, с которым начнётся путь.",
   "Проверьте образ героя и примените выборы к листу.",
 ];
+
 function stepLabel(index: number) {
   return ruleset.value === "2024" ? (modernStepNames[index] ?? "") : (stepNames[index] ?? "");
 }
 function stepDescription(index: number) {
   return ruleset.value === "2024" ? (modernStepDescriptions[index] ?? "") : (stepDescriptions[index] ?? "");
 }
+
 const currentStep = ref(1);
+
 // Character creation is always a new draft. The sheet remains available for
 // preview and skill metadata, but its saved choices must never prefill this flow.
 const ruleset = ref<CharacterRuleset>("2024");
+
 const highestUnlockedStep = ref(1);
+
 const completed = ref(false);
+
 const initialRuleset = ruleset.value;
+
 const raceId = ref(RULES_2024_SPECIES[0]!.id);
+
 const subraceId = ref("");
+
 const classId = ref(RULES_2024_CLASSES[0]!.id);
+
 const backgroundId = ref(RULES_2024_BACKGROUNDS[0]?.id ?? "");
+
 const backgroundEquipmentId = ref(RULES_2024_BACKGROUNDS[0]?.equipmentOptions[0]?.id ?? "");
+
 const backgroundAbilityChoices = ref<AbilityKey[]>([...(RULES_2024_BACKGROUNDS[0]?.abilityOptions ?? []).slice(0, 3)]);
+
 const originAbilityFocus = ref<AbilityKey | undefined>(RULES_2024_BACKGROUNDS[0]?.abilityOptions[0]);
+
 const speciesChoices = ref<Record<string, string[]>>({});
+
 const name = ref("");
+
 const gender = ref<CharacterGender>("female");
+
 const subclass = ref("");
+
 const alignment = ref("");
+
 const initialClass = initialRuleset === "2024" ? classAsLegacy(classId.value) : findClass(classId.value);
+
 const selectedSkillIds = ref<string[]>([]);
+
 const raceSkillChoices = ref<string[]>([]);
+
 const raceAbilityChoices = ref<AbilityKey[]>([]);
+
 const baseAbilities = reactive<CharacterAbilities>({
   strength: 10,
   dexterity: 10,
@@ -123,6 +151,7 @@ const baseAbilities = reactive<CharacterAbilities>({
   wisdom: 10,
   charisma: 10,
 });
+
 const classEquipmentId = ref(initialClass.equipmentOptions?.[0]?.id ?? "");
 
 function speciesAsLegacy(id: string): Dnd5eRaceOption {
@@ -178,6 +207,7 @@ type CreationBackgroundOption = Dnd5eBackgroundOption & {
 function backgroundAsCreation(id: string): CreationBackgroundOption {
   if (ruleset.value === "2024") {
     const background = findRules2024Background(id);
+
     const feat = findRules2024Feat(background.originFeatId);
     return {
       id: background.id,
@@ -197,59 +227,81 @@ function backgroundAsCreation(id: string): CreationBackgroundOption {
   }
   return findBackground(id);
 }
+
 const raceOptions = computed<Dnd5eRaceOption[]>(() =>
   ruleset.value === "2024" ? RULES_2024_SPECIES.map((species) => speciesAsLegacy(species.id)) : DND5E_RACES,
 );
+
 const classOptions = computed<Dnd5eClassOption[]>(() =>
   ruleset.value === "2024" ? RULES_2024_CLASSES.map((item) => classAsLegacy(item.id)) : DND5E_CLASSES,
 );
+
 const backgroundOptions = computed<CreationBackgroundOption[]>(() =>
   ruleset.value === "2024" ? RULES_2024_BACKGROUNDS.map((item) => backgroundAsCreation(item.id)) : DND5E_BACKGROUNDS,
 );
+
 const selectedRace = computed(() =>
   ruleset.value === "2024" ? speciesAsLegacy(raceId.value) : findRace(raceId.value),
 );
+
 const selected2024Species = computed(() => findSpecies2024(raceId.value));
+
 const selectedSpeciesIcon = computed(() => (ruleset.value === "2024" ? speciesIconFor(raceId.value) : undefined));
+
 const selectedSubrace = computed(() =>
   ruleset.value === "2024" ? undefined : findSubrace(raceId.value, subraceId.value),
 );
+
 const selectedClass = computed(() =>
   ruleset.value === "2024" ? classAsLegacy(classId.value) : findClass(classId.value),
 );
+
 const selectedBackground = computed(
   () => backgroundOptions.value.find((item) => item.id === backgroundId.value) ?? backgroundOptions.value[0]!,
 );
+
 const selectedModernBackground = computed(() =>
   ruleset.value === "2024" ? findRules2024Background(backgroundId.value) : undefined,
 );
+
 const selectedBackgroundIcon = computed(() =>
   ruleset.value === "2024" ? (selectedBackground.value.icon ?? backgroundIconFor(backgroundId.value)) : undefined,
 );
+
 const availableSubraces = computed(() => (ruleset.value === "2024" ? [] : subracesForRace(raceId.value)));
+
 const classEquipmentOptions = computed(() => selectedClass.value.equipmentOptions ?? []);
+
 const backgroundEquipmentOptions = computed(() => selectedBackground.value?.equipmentOptions ?? []);
+
 const rulesetOptions = [
   { value: "2024", label: "D&D 2024 / 5.5" },
   { value: "2014", label: "D&D 2014" },
 ];
+
 const choiceOptions = (values: string[]) => [
   { value: "", label: "Выберите вариант", disabled: true },
   ...values.map((value) => ({ value, label: value })),
 ];
+
 const skillLabels = computed(
   () => Object.fromEntries(props.character.skills.map((skill) => [skill.id, skill.name])) as Record<string, string>,
 );
+
 const selectedCount = computed(
   () => selectedSkillIds.value.filter((id) => selectedClass.value.skillOptions.includes(id)).length,
 );
+
 const raceSelectedCount = computed(
   () => raceSkillChoices.value.filter((id) => selectedRace.value.skillChoices?.options.includes(id)).length,
 );
+
 const classSkillsRemaining = computed(() => Math.max(0, selectedClass.value.skillChoiceCount - selectedCount.value));
+
 const raceSkillsRemaining = computed(() =>
   Math.max(0, (selectedRace.value.skillChoices?.count ?? 0) - raceSelectedCount.value),
 );
+
 const selectableSkills = computed(() =>
   props.character.skills.filter(
     (skill) =>
@@ -257,11 +309,14 @@ const selectableSkills = computed(() =>
       selectedRace.value.skillChoices?.options.includes(skill.id),
   ),
 );
+
 const backgroundChoiceIssue = computed(() => {
   if (!backgroundId.value) return "Выберите предысторию, чтобы продолжить.";
   if (ruleset.value !== "2024") return "";
   const background = selectedModernBackground.value;
+
   const allowed = background?.abilityOptions ?? [];
+
   const validChoices =
     backgroundAbilityChoices.value.length === Math.min(3, allowed.length) &&
     backgroundAbilityChoices.value.every((key) => allowed.includes(key));
@@ -270,6 +325,7 @@ const backgroundChoiceIssue = computed(() => {
     return "Выберите характеристику, которая получит бонус +2.";
   return "";
 });
+
 function spellProgressionLabel(value: Dnd5eClassOption["spellProgressionType"]): string {
   return (
     (
@@ -280,6 +336,7 @@ function spellProgressionLabel(value: Dnd5eClassOption["spellProgressionType"]):
     )[value ?? ""] ?? "Не указано"
   );
 }
+
 const speciesChoiceIssue = computed(() => {
   if (ruleset.value !== "2024") return "";
   const missing = selected2024Species.value.choices.find(
@@ -287,6 +344,7 @@ const speciesChoiceIssue = computed(() => {
   );
   return missing ? `Выберите вариант: ${missing.label}.` : "";
 });
+
 const finalAbility = (key: AbilityKey) => {
   if (ruleset.value === "2024") return baseAbilities[key];
   return (
@@ -298,6 +356,7 @@ const finalAbility = (key: AbilityKey) => {
       : 0)
   );
 };
+
 const initials = computed(
   () =>
     name.value
@@ -307,6 +366,7 @@ const initials = computed(
       .map((part) => part[0]?.toLocaleUpperCase("ru-RU") ?? "")
       .join("") || "✦",
 );
+
 const derivedRaceSkills = computed(() =>
   ruleset.value === "2024"
     ? []
@@ -318,6 +378,7 @@ const derivedRaceSkills = computed(() =>
         ]),
       ],
 );
+
 const currentOwnedSkills = computed(() =>
   props.character.skills
     .map((skill) => {
@@ -328,6 +389,7 @@ const currentOwnedSkills = computed(() =>
       for (const source of skill.proficiencySources ?? [])
         if (source === "manual" || source === "feat") sources.add(source);
       const proficiency = sources.size > 0 ? "proficient" : "none";
+
       const bonus = calculateSkillBonus(
         { ...skill, proficiency, calculationMode: "computed", additionalBonus: skill.additionalBonus },
         {
@@ -340,21 +402,26 @@ const currentOwnedSkills = computed(() =>
     })
     .filter((skill) => skill.sources.length > 0),
 );
+
 const selectedClassKit = computed(() =>
   classEquipmentOptions.value.find((option) => option.id === classEquipmentId.value),
 );
+
 const selectedBackgroundKit = computed(() =>
   backgroundEquipmentOptions.value.find((option) => option.id === backgroundEquipmentId.value),
 );
+
 const previewEquipment = computed(() => [
   ...(selectedBackgroundKit.value?.items.map((item) => ({ ...item, source: "Предыстория" })) ?? []),
   ...(selectedClassKit.value?.items.map((item) => ({ ...item, source: "Класс" })) ?? []),
 ]);
+
 const previewClassFeatures = computed(() =>
   ruleset.value === "2024"
     ? getRules2024ClassFeatures(classId.value, props.character.level).map((feature) => feature.name)
     : selectedClass.value.features,
 );
+
 const previewFeatures = computed(() =>
   [
     ...selectedRace.value.profile.traits,
@@ -362,13 +429,16 @@ const previewFeatures = computed(() =>
     ...previewClassFeatures.value,
   ].filter(Boolean),
 );
+
 const stepProgress = computed(() => Math.round((currentStep.value / stepNames.length) * 100));
+
 const abilityError = computed(() =>
   ABILITY_FIELDS.some(
     (field) =>
       !Number.isInteger(baseAbilities[field.key]) || baseAbilities[field.key] < 1 || baseAbilities[field.key] > 30,
   ),
 );
+
 const stepIssue = computed(() => {
   if (currentStep.value === 1 && !name.value.trim()) return "Введите имя персонажа, чтобы продолжить.";
   if (currentStep.value === 2 && speciesChoiceIssue.value) return speciesChoiceIssue.value;
@@ -385,6 +455,7 @@ const stepIssue = computed(() => {
     return "Выберите один набор снаряжения класса.";
   return "";
 });
+
 const canContinue = computed(() => !stepIssue.value);
 
 function goToStep(step: number) {
@@ -446,6 +517,7 @@ function toggleClassSkill(id: string) {
 }
 function toggleRaceSkill(id: string) {
   const options = selectedRace.value.skillChoices?.options ?? [];
+
   const limit = selectedRace.value.skillChoices?.count ?? 0;
   if (!options.includes(id)) return;
   if (raceSkillChoices.value.includes(id))
@@ -459,6 +531,7 @@ function isSkillChoiceSelected(id: string) {
 function canSelectSkill(id: string) {
   const classAvailable =
     selectedClass.value.skillOptions.includes(id) && selectedCount.value < selectedClass.value.skillChoiceCount;
+
   const raceAvailable =
     selectedRace.value.skillChoices?.options.includes(id) &&
     raceSelectedCount.value < (selectedRace.value.skillChoices?.count ?? 0);
@@ -466,6 +539,7 @@ function canSelectSkill(id: string) {
 }
 function toggleSelectableSkill(id: string) {
   const classOption = selectedClass.value.skillOptions.includes(id);
+
   const raceOption = selectedRace.value.skillChoices?.options.includes(id) ?? false;
   if (
     classOption &&
@@ -1189,7 +1263,8 @@ function applyCreation() {
                 <h3>{{ name.trim() || "Безымянный герой" }}</h3>
                 <p class="review-identity">
                   {{ selectedRace.label }} · {{ selectedBackground.label
-                  }}<span v-if="selectedSubrace"> · {{ selectedSubrace.label }}</span> · {{ selectedClass.label }}
+                  }}<span v-if="selectedSubrace"> · {{ selectedSubrace.label }}</span> ·
+                  {{ selectedClass.label }}
                 </p>
                 <div class="review-abilities">
                   <span v-for="field in ABILITY_FIELDS" :key="field.key"
@@ -1205,7 +1280,9 @@ function applyCreation() {
                   </div>
                   <div>
                     <strong>Снаряжение</strong>
-                    <p>{{ previewEquipment.map((item) => `${item.name} × ${item.quantity}`).join(" · ") }}</p>
+                    <p>
+                      {{ previewEquipment.map((item) => `${item.name} × ${item.quantity}`).join(" · ") }}
+                    </p>
                   </div>
                 </div>
                 <div class="creation-callout">
@@ -1314,7 +1391,9 @@ function applyCreation() {
         <div class="preview-section">
           <h3>Особенности</h3>
           <ul class="preview-feature-list">
-            <li v-for="feature in previewFeatures.slice(0, currentStep === 9 ? 8 : 3)" :key="feature">{{ feature }}</li>
+            <li v-for="feature in previewFeatures.slice(0, currentStep === 9 ? 8 : 3)" :key="feature">
+              {{ feature }}
+            </li>
           </ul>
         </div>
         <div class="preview-section">

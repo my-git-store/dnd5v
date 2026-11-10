@@ -16,12 +16,17 @@ const props = defineProps<{
   onSave: () => void | Promise<void>;
   onPrint: () => void;
 }>();
+
 const emit = defineEmits<{ update: [npc: CharacterNpcV3] }>();
+
 const { open } = useDialog();
+
 const draft = ref<CharacterNpcV3>(
   JSON.parse(JSON.stringify(props.character.npc ?? createDefaultNpcProfile(props.character.name))) as CharacterNpcV3,
 );
+
 const abilityKeys = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] as const;
+
 const abilityLabels: Record<(typeof abilityKeys)[number], string> = {
   strength: "Сила",
   dexterity: "Ловкость",
@@ -30,19 +35,23 @@ const abilityLabels: Record<(typeof abilityKeys)[number], string> = {
   wisdom: "Мудрость",
   charisma: "Харизма",
 };
+
 const armorClassModeOptions = [
   { value: "manual", label: "Вручную" },
   { value: "computed", label: "Расчёт" },
 ];
+
 const initiativeModeOptions = [
   { value: "computed", label: "Расчёт" },
   { value: "manual", label: "Вручную" },
 ];
+
 const initiative = computed(() =>
   draft.value.initiative.mode === "manual"
     ? signedModifier(draft.value.initiative.value ?? 0)
     : signedModifier(abilityModifier(draft.value.abilities.dexterity) + draft.value.initiative.additionalBonus),
 );
+
 function snapshot(value: CharacterNpcV3 | undefined): string {
   return JSON.stringify(value ?? null);
 }
@@ -116,6 +125,7 @@ function updateBonus(entry: CharacterNpcBonusV3, value: unknown) {
 }
 function saveEntry(kind: "features" | "actions", entry: CharacterNpcEntryV3) {
   const entries = draft.value[kind];
+
   const index = entries.findIndex((current) => current.id === entry.id);
   if (index >= 0) entries[index] = entry;
   else entries.push(entry);

@@ -13,6 +13,7 @@ export function parseDiceFormula(formula: string): { count: number; sides: DiceS
   const match = FORMULA_PATTERN.exec(formula);
   if (!match) return null;
   const count = Math.max(1, Math.min(20, Number(match[1] ?? 1)));
+
   const sides = Number(match[2]) as DiceSides;
   if (!DICE_TYPES.includes(sides)) return null;
   const amount = Number(match[4] ?? 0);

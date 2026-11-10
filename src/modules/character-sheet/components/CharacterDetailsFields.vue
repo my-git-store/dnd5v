@@ -2,6 +2,7 @@
 import type { CharacterDetails } from "../types/character";
 
 const props = defineProps<{ details: CharacterDetails; disabled?: boolean }>();
+
 const emit = defineEmits<{ update: [details: CharacterDetails] }>();
 
 function updateClass(value: unknown) {

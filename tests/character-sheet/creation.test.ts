@@ -14,6 +14,7 @@ class MemoryStorage implements CharacterStorageLike {
 
 test('applies PHB race/class selections without discarding existing collections', () => {
   const source = migrateCharacterV2ToV3(createMockCharacter())
+
   const view = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => createMockCharacter() })
   return view.load(source.id).then((loaded) => {
     const next = applyCharacterCreation(loaded, {
@@ -35,8 +36,11 @@ test('applies PHB race/class selections without discarding existing collections'
 
 test('initializes level-one hit points and hit dice from the selected class', async () => {
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
+
   const fighter = applyCharacterCreation(loaded, {
     name: loaded.name, raceId: 'human', classId: 'fighter', subclass: '', alignment: '',
     baseAbilities: { ...loaded.abilities, constitution: 14 }, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [],
@@ -48,8 +52,11 @@ test('initializes level-one hit points and hit dice from the selected class', as
 
 test('initializes first-level caster slots and leaves non-caster slots empty', async () => {
   const source = createMockCharacter()
+
   const wizardAdapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await wizardAdapter.load(source.id)
+
   const wizard = applyCharacterCreation(loaded, {
     name: loaded.name, raceId: 'human', classId: 'wizard', subclass: '', alignment: '',
     baseAbilities: loaded.abilities, classSkillIds: ['arcana', 'history'], raceAbilityChoices: [],
@@ -66,8 +73,11 @@ test('initializes first-level caster slots and leaves non-caster slots empty', a
 
 test('does not overwrite existing manual hit points or slots during re-creation', async () => {
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
+
   const created = applyCharacterCreation(loaded, {
     name: loaded.name, raceId: 'human', classId: 'fighter', subclass: '', alignment: '',
     baseAbilities: loaded.abilities, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [],
@@ -85,8 +95,11 @@ test('does not overwrite existing manual hit points or slots during re-creation'
 
 test('caps class skill selections at the class rule limit', async () => {
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
+
   const next = applyCharacterCreation(loaded, {
     name: loaded.name, raceId: 'human', classId: 'fighter', subclass: '', alignment: '',
     baseAbilities: loaded.abilities, classSkillIds: ['athletics', 'survival', 'perception', 'history'], raceAbilityChoices: [],
@@ -97,9 +110,13 @@ test('caps class skill selections at the class rule limit', async () => {
 
 test('persists creation metadata through the existing v3 adapter', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
+
   const created = applyCharacterCreation(loaded, {
     name: 'Гном-волшебник', raceId: 'gnome', classId: 'wizard', subclass: '', alignment: '',
     baseAbilities: { strength: 8, dexterity: 12, constitution: 12, intelligence: 15, wisdom: 13, charisma: 10 },
@@ -113,11 +130,17 @@ test('persists creation metadata through the existing v3 adapter', async () => {
 
 test('changing race replaces deterministic bonuses and preserves the base scores', async () => {
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
+
   const base = { strength: 10, dexterity: 10, constitution: 10, intelligence: 10, wisdom: 10, charisma: 10 }
+
   const dwarf = applyCharacterCreation(loaded, { name: loaded.name, raceId: 'dwarf', classId: 'fighter', subclass: '', alignment: '', baseAbilities: base, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [] })
+
   const elf = applyCharacterCreation(dwarf, { name: loaded.name, raceId: 'elf', classId: 'fighter', subclass: '', alignment: '', baseAbilities: base, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [] })
+
   const elfAgain = applyCharacterCreation(elf, { name: loaded.name, raceId: 'elf', classId: 'fighter', subclass: '', alignment: '', baseAbilities: base, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [] })
   assert.equal(dwarf.abilities.constitution, 12)
   assert.equal(elf.abilities.constitution, 10)
@@ -127,9 +150,13 @@ test('changing race replaces deterministic bonuses and preserves the base scores
 
 test('changing class replaces class sources while retaining race source on the same skill', async () => {
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
+
   const rogue = applyCharacterCreation(loaded, { name: loaded.name, raceId: 'elf', classId: 'rogue', subclass: '', alignment: '', baseAbilities: loaded.abilities, classSkillIds: ['stealth', 'perception', 'investigation', 'athletics'], raceAbilityChoices: [] })
+
   const wizard = applyCharacterCreation(rogue, { name: loaded.name, raceId: 'elf', classId: 'wizard', subclass: '', alignment: '', baseAbilities: rogue.creation!.baseAbilityScores, classSkillIds: ['arcana', 'history'], raceAbilityChoices: [] })
   assert.deepEqual(wizard.skills.find((skill) => skill.id === 'perception')?.proficiencySources, ['race'])
   assert.equal(wizard.skills.find((skill) => skill.id === 'stealth')?.proficiency, 'none')
@@ -140,9 +167,13 @@ test('changing class replaces class sources while retaining race source on the s
 
 test('caster and non-caster changes clear stale spellcasting ability without deleting spells', async () => {
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
+
   const wizard = applyCharacterCreation(loaded, { name: loaded.name, raceId: 'human', classId: 'wizard', subclass: '', alignment: '', baseAbilities: loaded.abilities, classSkillIds: ['arcana', 'history'], raceAbilityChoices: [] })
+
   const fighter = applyCharacterCreation(wizard, { name: loaded.name, raceId: 'human', classId: 'fighter', subclass: '', alignment: '', baseAbilities: wizard.creation!.baseAbilityScores, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [] })
   assert.equal(fighter.spellcasting.spellcastingAbility, null)
   assert.equal(fighter.spells.length, wizard.spells.length)
@@ -150,6 +181,7 @@ test('caster and non-caster changes clear stale spellcasting ability without del
 
 test('round-trip keeps old v3 data, manual speed override and creation-independent collections', async () => {
   const storage = new MemoryStorage()
+
   const source = migrateCharacterV2ToV3(createMockCharacter())
   source.combat.speed.override = 45
   source.attacks[0]!.attackBonus = '1d20+4'
@@ -158,6 +190,7 @@ test('round-trip keeps old v3 data, manual speed override and creation-independe
   source.personality.biography = 'Старая биография'
   storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+
   const loaded = await adapter.load(source.id)
   assert.equal(loaded.creation, undefined)
   const created = applyCharacterCreation(loaded, { name: loaded.name, raceId: 'elf', classId: 'bard', subclass: '', alignment: '', baseAbilities: loaded.abilities, classSkillIds: ['performance', 'persuasion', 'insight'], raceAbilityChoices: [] })
@@ -174,10 +207,15 @@ test('round-trip keeps old v3 data, manual speed override and creation-independe
 
 test('applies subrace bonuses and replaces them on subrace change', async () => {
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
+
   const base = { strength: 10, dexterity: 10, constitution: 10, intelligence: 10, wisdom: 10, charisma: 10 }
+
   const hill = applyCharacterCreation(loaded, { name: loaded.name, raceId: 'dwarf', subraceId: 'hill-dwarf', classId: 'fighter', backgroundId: 'soldier', subclass: '', alignment: '', baseAbilities: base, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [] })
+
   const mountain = applyCharacterCreation(hill, { name: loaded.name, raceId: 'dwarf', subraceId: 'mountain-dwarf', classId: 'fighter', backgroundId: 'soldier', subclass: '', alignment: '', baseAbilities: base, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [] })
   assert.equal(hill.abilities.wisdom, 11)
   assert.equal(mountain.abilities.wisdom, 10)
@@ -187,8 +225,11 @@ test('applies subrace bonuses and replaces them on subrace change', async () => 
 
 test('tracks background proficiency alongside race and class sources', async () => {
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
+
   const created = applyCharacterCreation(loaded, { name: loaded.name, raceId: 'half-elf', classId: 'rogue', backgroundId: 'criminal', subclass: '', alignment: '', baseAbilities: loaded.abilities, classSkillIds: ['deception', 'stealth', 'investigation', 'perception'], raceSkillChoices: ['deception'], raceAbilityChoices: [] })
   assert.deepEqual(created.skills.find((skill) => skill.id === 'deception')?.proficiencySources, ['class', 'race', 'background'])
   assert.equal(created.skills.find((skill) => skill.id === 'deception')?.proficiency, 'proficient')
@@ -196,9 +237,13 @@ test('tracks background proficiency alongside race and class sources', async () 
 
 test('changes background sources without removing class or race ownership', async () => {
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
+
   const criminal = applyCharacterCreation(loaded, { name: loaded.name, raceId: 'half-elf', classId: 'rogue', backgroundId: 'criminal', subclass: '', alignment: '', baseAbilities: loaded.abilities, classSkillIds: ['deception', 'stealth', 'investigation', 'perception'], raceSkillChoices: ['deception'], raceAbilityChoices: [] })
+
   const sage = applyCharacterCreation(criminal, { name: loaded.name, raceId: 'half-elf', classId: 'rogue', backgroundId: 'sage', subclass: '', alignment: '', baseAbilities: criminal.creation!.baseAbilityScores, classSkillIds: ['deception', 'stealth', 'investigation', 'perception'], raceSkillChoices: ['deception'], raceAbilityChoices: [] })
   assert.deepEqual(sage.skills.find((skill) => skill.id === 'deception')?.proficiencySources, ['class', 'race'])
   assert.equal(sage.skills.find((skill) => skill.id === 'arcana')?.proficiencySources?.includes('background'), true)
@@ -206,12 +251,17 @@ test('changes background sources without removing class or race ownership', asyn
 
 test('starting equipment is deterministic and preserves user items', async () => {
   const source = createMockCharacter()
+
   const storage = new MemoryStorage()
+
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
   loaded.inventoryData.items.push({ id: 'user-item', name: 'Личный амулет', quantity: 1, weight: null, description: 'Не удалять', equipped: false, properties: [] })
   const payload = { name: loaded.name, raceId: 'human', classId: 'fighter', backgroundId: 'soldier', subclass: '', alignment: '', baseAbilities: loaded.abilities, classSkillIds: ['athletics', 'survival'], raceAbilityChoices: [], classEquipmentId: 'fighter-sword', backgroundEquipmentId: 'soldier-kit' }
+
   const first = applyCharacterCreation(loaded, payload)
+
   const repeated = applyCharacterCreation(first, payload)
   assert.equal(repeated.inventoryData.items.filter((item) => item.source === 'creation').length, first.inventoryData.items.filter((item) => item.source === 'creation').length)
   assert.equal(repeated.inventoryData.items.filter((item) => item.id === 'user-item').length, 1)
@@ -223,7 +273,9 @@ test('starting equipment is deterministic and preserves user items', async () =>
 
 test('legacy creation payload keeps an existing background when no background choice is supplied', async () => {
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+
   const loaded = await adapter.load(source.id)
   loaded.background = { name: 'Старый фон', feature: 'Старое умение', skillProficiencies: ['history'], toolProficiencies: ['Старый инструмент'], languages: ['Старый язык'], notes: 'Сохранить' }
   loaded.proficiency.toolProficiencies.push('Старый инструмент')

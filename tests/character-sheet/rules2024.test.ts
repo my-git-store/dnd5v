@@ -36,6 +36,7 @@ test('promotes v3 2014 to 2024 without losing legacy data', () => {
 
 test('2024 creation uses background abilities and retains character collections', () => {
   const base = migrateCharacterV2ToV3(createMockCharacter())
+
   const view = {
     ...base,
     schemaVersion: 2 as const,
@@ -65,7 +66,9 @@ test('2024 creation uses background abilities and retains character collections'
     origin: base.origin,
     ruleset: base.ruleset,
   }
+
   const spellsBefore = view.spells.length
+
   const next = applyCharacterCreation(view, {
     ruleset: '2024', speciesId: 'elf', raceId: 'elf', classId: 'wizard', backgroundId: 'sage-2024',
     originFeatId: 'magic-initiate-wizard', originAbilityChoices: ['intelligence', 'wisdom', 'constitution'], originAbilityFocus: 'intelligence',
@@ -88,6 +91,7 @@ test('2024 creation uses background abilities and retains character collections'
 
 test('2024 starting gold is money and repeated creation does not duplicate it', () => {
   const base = migrateCharacterV2ToV3(createMockCharacter())
+
   const view = {
     ...base,
     schemaVersion: 2 as const,
@@ -117,12 +121,15 @@ test('2024 starting gold is money and repeated creation does not duplicate it', 
     origin: base.origin,
     ruleset: base.ruleset,
   }
+
   const payload = {
     ruleset: '2024' as const, speciesId: 'human', raceId: 'human', classId: 'wizard', backgroundId: 'sage-2024',
     classEquipmentId: 'wizard-gold', backgroundEquipmentId: 'sage-kit-2024-gold', originAbilityChoices: ['intelligence', 'wisdom', 'constitution'] as const, originAbilityFocus: 'intelligence' as const,
     name: 'Архивариус', subclass: '', alignment: '', baseAbilities: { ...base.abilities }, classSkillIds: ['arcana', 'history'], raceSkillChoices: [], raceAbilityChoices: [],
   }
+
   const first = applyCharacterCreation(view, payload)
+
   const repeated = applyCharacterCreation(first, payload)
   assert.equal(first.inventoryData.money.gold, 137)
   assert.equal(repeated.inventoryData.money.gold, 137)

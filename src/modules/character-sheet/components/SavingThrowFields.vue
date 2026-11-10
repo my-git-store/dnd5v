@@ -11,6 +11,7 @@ const props = defineProps<{
   level: number;
   disabled?: boolean;
 }>();
+
 const emit = defineEmits<{ update: [key: AbilityKey, patch: { proficient?: boolean; additionalBonus?: number }] }>();
 
 function updateBonus(key: AbilityKey, value: unknown) {

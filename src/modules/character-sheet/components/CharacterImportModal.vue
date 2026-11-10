@@ -7,8 +7,11 @@ const props = defineProps<{
   currentAvailable: boolean;
   onImport: (mode: "add" | "replace") => void | Promise<void>;
 }>();
+
 const emit = defineEmits<{ close: [] }>();
+
 const { close } = useDialog();
+
 async function importCharacters(mode: "add" | "replace") {
   await props.onImport(mode);
   close();

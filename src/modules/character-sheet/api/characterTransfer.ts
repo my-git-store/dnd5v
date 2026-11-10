@@ -26,6 +26,7 @@ function clone<T>(value: T): T {
 
 function safeCharacter(character: CharacterV3): CharacterV3 {
   const next = cloneCharacterV3(character);
+
   const creation =
     next.extensions && typeof next.extensions.characterCreation === "object"
       ? clone(next.extensions.characterCreation)
@@ -74,7 +75,10 @@ export function parseCharacterTransfer(raw: string): ImportedCharacterPlan {
       return migrateCharacterToV3(value);
     } catch (error) {
       const message = error instanceof Error ? error.message : "неизвестная ошибка";
-      throw new Error(`Персонаж ${index + 1}: ${message}`);
+
+      const wrappedError = new Error(`Персонаж ${index + 1}: ${message}`);
+      Object.assign(wrappedError, { cause: error });
+      throw wrappedError;
     }
   });
   return { characters, exportedAt };
@@ -93,6 +97,7 @@ export function transferFilename(name: string, date = new Date()): string {
       .trim()
       .replace(/[^\p{L}\p{N}_-]+/gu, "-")
       .replace(/^-+|-+$/g, "") || "personazh";
+
   const stamp = date.toISOString().slice(0, 10);
   return `${safeName}-${stamp}.json`;
 }

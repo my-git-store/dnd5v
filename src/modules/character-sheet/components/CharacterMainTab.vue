@@ -20,6 +20,7 @@ const emit = defineEmits<{
   "update:feats": [feats: CharacterSheetView["feats"]];
   "level-up": [];
 }>();
+
 function updateSavingThrow(key: AbilityKey, patch: CharacterSavingThrowPatch) {
   emit("update:saving-throw", key, patch);
 }

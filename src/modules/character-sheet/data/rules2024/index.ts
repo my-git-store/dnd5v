@@ -101,6 +101,7 @@ const kit = (id: string, label: string, items: Dnd5eEquipmentOption["items"]): D
   label,
   items,
 });
+
 const gold = (id: string): Dnd5eEquipmentOption =>
   kit(id, "50 зм вместо набора", [
     {
@@ -659,6 +660,7 @@ const allSkills = [
   "stealth",
   "survival",
 ];
+
 const classDescriptions: Record<string, string> = {
   barbarian: "Свирепый воин, черпающий силу в ярости и первобытной выносливости.",
   bard: "Вдохновляющий мастер слова, музыки и магии.",
@@ -683,6 +685,7 @@ const spellProgressionFor = (id: string, spellcastingAbility: AbilityKey | null)
 
 const splitProficiencies = (proficiencies: string[]): { weapon: string[]; armor: string[] } => {
   const weaponPattern = /оруж|меч|рапир|топор|арбалет|лук|кинжал|дротик|пращ|посох|дубин|серп/i;
+
   const armorPattern = /брон|щит/i;
   return {
     weapon: proficiencies.filter((value) => weaponPattern.test(value)),
@@ -703,7 +706,9 @@ const classData = (
   proficiencies: string[],
 ): Rules2024Class => {
   const equipmentOptions = classEquipment[id] ?? [gold(`${id}-gold`)];
+
   const split = splitProficiencies(proficiencies);
+
   const levelFeaturesMetadata: RuleFeatureMetadata[] = features.map((feature, index) => ({
     id: `${id}.level-1.${index + 1}`,
     level: 1,

@@ -6,7 +6,9 @@ import ModalHost from "@/components/ModalHost.vue";
 import { useColorTheme } from "@/utils/colorTheme";
 
 const { naiveTheme, theme } = useColorTheme();
+
 const primaryColor = ref(theme.colors.primary.primary950);
+
 const themeOverrides = computed(() => ({
   ...naiveTheme.value,
   common: {

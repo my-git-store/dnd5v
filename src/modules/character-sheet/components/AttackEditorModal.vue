@@ -14,6 +14,7 @@ type Props = {
 };
 
 const props = defineProps<Props>();
+
 const { close } = useDialog();
 
 function save(attack: CharacterAttackView) {

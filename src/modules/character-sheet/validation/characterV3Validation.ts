@@ -29,31 +29,44 @@ const ABILITY_KEYS: readonly AbilityKey[] = [
   "wisdom",
   "charisma",
 ];
+
 const SPELL_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+
 const PROFICIENCY_VALUES = ["none", "proficient", "expertise"] as const;
+
 const CALCULATION_MODES = ["manual", "computed"] as const;
+
 const ATTACK_KINDS = ["melee", "ranged", "spell", "other"] as const;
+
 const SPELL_PROGRESSION_TYPES = ["none", "prepared", "known", "pact"] as const;
 
 /** Checks that a value can be inspected as a plain record. */
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
 /** Checks that a value is a string. */
 const isString = (value: unknown): value is string => typeof value === "string";
+
 /** Checks that a value is a finite number. */
 const isFiniteNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
+
 /** Checks that a value is an integer number. */
 const isInteger = (value: unknown): value is number => isFiniteNumber(value) && Number.isInteger(value);
+
 /** Checks that a value names one of the six ability scores. */
 const isAbilityKey = (value: unknown): value is AbilityKey =>
   typeof value === "string" && ABILITY_KEYS.includes(value as AbilityKey);
+
 /** Checks that a calculation mode is supported by the v3 sheet. */
 const isCalculationMode = (value: unknown): boolean =>
   typeof value === "string" && CALCULATION_MODES.includes(value as (typeof CALCULATION_MODES)[number]);
+
 /** Checks that every member of a value is a string. */
 const isStringArray = (value: unknown): value is string[] => Array.isArray(value) && value.every(isString);
+
 /** Checks that a skill source is one of the tracked source kinds. */
 const isSkillSource = (value: unknown): boolean =>
   value === "race" || value === "class" || value === "background" || value === "manual" || value === "feat";
+
 /** Checks that a source map entry uses a known domain source kind. */
 const isRuleSourceKind = (value: unknown): boolean =>
   ["species", "race", "class", "background", "feat", "manual", "equipment", "spell", "temporary-effect"].includes(
@@ -111,6 +124,7 @@ function validProgression(value: unknown, ruleset: unknown): boolean {
   )
     return false;
   const progressionLevel = value.level;
+
   const featureValues = value.features ?? value.featureIds;
   if (!isStringArray(featureValues)) return false;
   if (new Set(featureValues).size !== featureValues.length) return false;
@@ -367,9 +381,13 @@ function validCombat(value: unknown): boolean {
   )
     return false;
   const armorClass = value.armorClass;
+
   const speed = value.speed;
+
   const hitPoints = value.hitPoints;
+
   const hitDice = value.hitDice;
+
   const deathSaves = value.deathSaves;
   return (
     isCalculationMode(armorClass.mode) &&
@@ -579,6 +597,7 @@ function validEncounter(value: unknown): boolean {
 export function validateCharacterV3(value: unknown): string[] {
   if (!isRecord(value)) return ["Персонаж v3 должен быть объектом."];
   const errors: string[] = [];
+
   const identity = value.identity;
   if (value.schemaVersion !== 3) errors.push("Неподдерживаемая версия схемы персонажа.");
   if (!isCharacterRuleset(value.ruleset)) errors.push("Неподдерживаемая редакция правил.");

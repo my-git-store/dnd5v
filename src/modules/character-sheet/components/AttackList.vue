@@ -23,14 +23,18 @@ const props = defineProps<{
   level: number;
   disabled?: boolean;
 }>();
+
 const emit = defineEmits<{ update: [attacks: CharacterAttackView[]] }>();
+
 const { open } = useDialog();
+
 const kindLabels: Record<CharacterAttackView["kind"], string> = {
   melee: "Ближняя",
   ranged: "Дальняя",
   spell: "Заклинание",
   other: "Другое",
 };
+
 const sourceLabels: Record<string, string> = {
   manual: "Ручной бонус",
   strength: "Сила",
@@ -50,9 +54,13 @@ interface AttackRollRecord {
   result: number;
 }
 const isRolling = ref(false);
+
 const rollHistory = ref<AttackRollRecord[]>([]);
+
 const lastRoll = ref<AttackRollRecord | null>(null);
+
 let rollTimer: number | undefined;
+
 let nextRollId = 1;
 
 function save(attack: CharacterAttackView) {
@@ -106,8 +114,11 @@ function remove(id: string, name: string) {
 }
 function attackSummary(attack: CharacterAttackView) {
   const source = getAttackBonusSource(attack);
+
   const mode = getAttackCalculationMode(attack);
+
   const bonus = formatAttackBonus(attack, props.abilities, props.level);
+
   const damageModifier = calculateAttackDamageModifier(attack, props.abilities);
   return {
     source: sourceLabels[source] ?? "Источник не настроен",
@@ -126,18 +137,22 @@ function masteryLabel(attack: CharacterAttackView): string {
 }
 function damageFormula(attack: CharacterAttackView): string {
   const base = attack.damage.trim() || "d4";
+
   const summary = attackSummary(attack);
-  if (summary.damageModifier === null || !/^[^+\-]+$/.test(base)) return base;
+  if (summary.damageModifier === null || !/^[^+-]+$/.test(base)) return base;
   return `${base} ${summary.damageModifier >= 0 ? "+" : "-"} ${Math.abs(summary.damageModifier)}`;
 }
 function roll(attack: CharacterAttackView, kind: RollKind) {
   if (isRolling.value) return;
   const summary = attackSummary(attack);
+
   const bonus = numericBonus(summary.bonus);
+
   const formula =
     kind === "attack"
       ? `d20${bonus === null || bonus === 0 ? "" : bonus > 0 ? `+${bonus}` : `${bonus}`}`
       : damageFormula(attack);
+
   const rolled = rollDiceFormula(formula);
   if (!rolled) {
     lastRoll.value = {

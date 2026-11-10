@@ -36,6 +36,7 @@ const ABILITY_KEYS: readonly AbilityKey[] = [
   "wisdom",
   "charisma",
 ];
+
 const V2_ROOT_FIELDS = new Set([
   "id",
   "schemaVersion",
@@ -55,9 +56,12 @@ const V2_ROOT_FIELDS = new Set([
 ]);
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
 const isString = (value: unknown): value is string => typeof value === "string";
+
 const isInteger = (value: unknown): value is number =>
   typeof value === "number" && Number.isFinite(value) && Number.isInteger(value);
+
 const isStringArray = (value: unknown): value is string[] => Array.isArray(value) && value.every(isString);
 
 function cloneJson<T>(value: T): T {
@@ -100,10 +104,12 @@ function createSpellSlots(): CharacterSpellSlotsV3 {
 
 function migrateSkill(skill: CharacterSkill): CharacterSkillV3 {
   const source = cloneJson(skill) as unknown as Record<string, unknown>;
+
   const ability =
     source.ability === null || typeof source.ability === "string"
       ? source.ability
       : (SKILL_ABILITIES[skill.id] ?? null);
+
   const proficiency =
     source.proficiency === "proficient" || source.proficiency === "expertise" ? source.proficiency : "none";
   return {
@@ -120,6 +126,7 @@ function migrateSkill(skill: CharacterSkill): CharacterSkillV3 {
 
 function migrateAttack(attack: CharacterAttack): CharacterAttackV3 {
   const source = omitKeys(cloneJson(attack) as unknown as Record<string, unknown>, ["bonusSource"]);
+
   const abilitySource = isAttackBonusSource(attack.bonusSource) ? attack.bonusSource : "manual";
   return {
     ...source,
@@ -144,6 +151,7 @@ function migrateAttack(attack: CharacterAttack): CharacterAttackV3 {
 
 function migrateSpell(spell: CharacterSpell): CharacterSpellV3 {
   const raw = cloneJson(spell) as unknown as Record<string, unknown>;
+
   const source = omitKeys(raw, ["classes", "metadata"]);
   return {
     ...source,
@@ -208,7 +216,9 @@ function normalizeSpellcasting(value: Record<string, unknown>, ruleset: unknown)
   const spellcasting = value.spellcasting;
   if (!isRecord(spellcasting)) return;
   const knownSpells = spellcasting.knownSpells;
+
   const cantrips = spellcasting.cantrips;
+
   const spellIds =
     spellcasting.spellIds === undefined
       ? ruleset === "2024"
@@ -217,6 +227,7 @@ function normalizeSpellcasting(value: Record<string, unknown>, ruleset: unknown)
       : isStringArray(spellcasting.spellIds)
         ? [...new Set(spellcasting.spellIds)]
         : spellcasting.spellIds;
+
   const cantripIds =
     spellcasting.cantripIds === undefined
       ? ruleset === "2024"
@@ -251,6 +262,7 @@ function migrateInventoryItem(item: InventoryItem): CharacterInventoryItemV3 {
 export function migrateCharacterV2ToV3(value: Character): CharacterV3 {
   assertValidCharacter(value);
   const source = value as unknown as Record<string, unknown>;
+
   const migrated: CharacterV3 = {
     id: value.id,
     schemaVersion: 3,
@@ -263,7 +275,14 @@ export function migrateCharacterV2ToV3(value: Character): CharacterV3 {
       subclass: "",
       level: value.level,
       experience: value.experience,
-      background: { name: "", feature: "", skillProficiencies: [], toolProficiencies: [], languages: [], notes: "" },
+      background: {
+        name: "",
+        feature: "",
+        skillProficiencies: [],
+        toolProficiencies: [],
+        languages: [],
+        notes: "",
+      },
       alignment: "",
     },
     abilities: cloneJson(value.abilities),
@@ -326,13 +345,17 @@ function normalizeCharacterV3(value: Record<string, unknown>): CharacterV3 {
   }
   normalizeSpellcasting(next as unknown as Record<string, unknown>, next.ruleset);
   const origin = isRecord(value.origin) ? value.origin : {};
+
   const legacyRace = isRecord(value.identity) && isRecord(value.identity.race) ? value.identity.race : {};
+
   const legacyBackground =
     isRecord(value.identity) && isRecord(value.identity.background) ? value.identity.background : {};
+
   const creation =
     isRecord(value.extensions) && isRecord(value.extensions.characterCreation)
       ? value.extensions.characterCreation
       : {};
+
   const featId =
     typeof origin.featId === "string" && origin.featId
       ? origin.featId

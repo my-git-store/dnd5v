@@ -4,8 +4,11 @@ import { useDialog } from "@/composables/useDialog";
 import type { CharacterNpcEntryV3 } from "../types/characterV3";
 
 const props = defineProps<{ entry: CharacterNpcEntryV3; onSave: (entry: CharacterNpcEntryV3) => void }>();
+
 const emit = defineEmits<{ close: [] }>();
+
 const { close } = useDialog();
+
 const draft = ref<CharacterNpcEntryV3>({ ...props.entry });
 watch(
   () => props.entry,
@@ -34,7 +37,7 @@ function save() {
         <NFormItem label="Название"><NInput v-model:value="draft.name" /></NFormItem>
         <NFormItem label="Бонус атаки"><NInput v-model:value="draft.attackBonus" /></NFormItem>
         <NFormItem label="Формула урона"><NInput v-model:value="draft.damage" /></NFormItem>
-        <NFormItem label="Описание"><NInput type="textarea" v-model:value="draft.description" rows="4" /></NFormItem>
+        <NFormItem label="Описание"><NInput v-model:value="draft.description" type="textarea" rows="4" /></NFormItem>
       </div>
       <div class="editor-actions">
         <NButton @click="close">Отмена</NButton>

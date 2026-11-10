@@ -4,6 +4,7 @@ import { abilityModifier, signedModifier } from "../domain/abilityModifier";
 import type { AbilityKey, CharacterAbilities } from "../types/character";
 defineProps<{ abilities: CharacterAbilities; disabled?: boolean }>();
 const emit = defineEmits<{ update: [key: AbilityKey, value: number] }>();
+
 function onInput(key: AbilityKey, value: unknown) {
   const numberValue = Number(value);
   emit("update", key, Number.isFinite(numberValue) ? numberValue : 0);

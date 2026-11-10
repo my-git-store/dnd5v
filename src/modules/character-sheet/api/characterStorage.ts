@@ -3,6 +3,7 @@ import { cloneCharacter, type Character } from "../types/character";
 import { assertValidCharacter, withCharacterDefaults } from "../validation/characterValidation";
 
 const STORAGE_PREFIX = "nastolka:character-sheet:v2:";
+
 const LEGACY_STORAGE_PREFIX = "nastolka:character-sheet:v1:";
 
 export class CharacterStorageError extends Error {
@@ -21,6 +22,7 @@ export function readStoredCharacter(id: string): Character | null {
       window.localStorage.getItem(`${LEGACY_STORAGE_PREFIX}${id}`);
     if (raw === null) return null;
     const parsed: unknown = JSON.parse(raw) as unknown;
+
     const value: unknown =
       parsed && typeof parsed === "object" && "schemaVersion" in parsed && parsed.schemaVersion === 1
         ? migrateCharacterV1(withCharacterDefaults(parsed))

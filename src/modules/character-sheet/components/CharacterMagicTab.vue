@@ -9,17 +9,21 @@ import type { CharacterSheetView } from "../types/characterView";
 import type { CharacterV3SpellLevel } from "../types/characterV3";
 
 const props = defineProps<{ character: CharacterSheetView; disabled?: boolean }>();
+
 const emit = defineEmits<{
   "update:spells": [spells: CharacterSpell[]];
   "update:cantrips": [spells: CharacterSpell[]];
   "update:spellcasting": [spellcasting: CharacterSheetView["spellcasting"]];
   "use-slot": [level: CharacterV3SpellLevel, delta: number];
 }>();
+
 const spellbookTabs = [
   { name: "Заговоры", value: "cantrips" },
   { name: "Заклинания", value: "spells" },
 ] as const;
+
 const activeSpellbookTab = ref<(typeof spellbookTabs)[number]["value"]>("cantrips");
+
 function updateSlots(spellSlots: CharacterSheetView["spellcasting"]["spellSlots"]) {
   emit("update:spellcasting", { ...props.character.spellcasting, spellSlots });
 }
@@ -58,7 +62,7 @@ function useSlot(level: CharacterV3SpellLevel, delta: number) {
         ><NTab v-for="tab in spellbookTabs" :key="tab.value" :name="tab.value" :tab="tab.name"
       /></NTabs>
       <div class="magic-spellbook-panels">
-        <div id="spellbook-tab-cantrips" v-show="activeSpellbookTab === 'cantrips'" class="magic-spellbook-panel">
+        <div v-show="activeSpellbookTab === 'cantrips'" id="spellbook-tab-cantrips" class="magic-spellbook-panel">
           <SpellList
             title="Заговоры"
             :spells="character.cantrips"
@@ -67,7 +71,7 @@ function useSlot(level: CharacterV3SpellLevel, delta: number) {
             @update="emit('update:cantrips', $event)"
           />
         </div>
-        <div id="spellbook-tab-spells" v-show="activeSpellbookTab === 'spells'" class="magic-spellbook-panel">
+        <div v-show="activeSpellbookTab === 'spells'" id="spellbook-tab-spells" class="magic-spellbook-panel">
           <SpellList
             title="Заклинания"
             :spells="character.spells"

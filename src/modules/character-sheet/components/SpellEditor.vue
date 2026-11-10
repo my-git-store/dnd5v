@@ -3,7 +3,9 @@ import { ref, watch } from "vue";
 
 import type { CharacterSpell } from "../types/character";
 const props = defineProps<{ spell: CharacterSpell; cantrip?: boolean; disabled?: boolean }>();
+
 const emit = defineEmits<{ save: [spell: CharacterSpell]; cancel: [] }>();
+
 const draft = ref({ ...props.spell });
 watch(
   () => props.spell,
@@ -24,7 +26,7 @@ function submit() {
     ><NFormItem label="Уровень"
       ><NInputNumber v-if="!cantrip" v-model:value="draft.level" min="1" max="9" :disabled="disabled" /></NFormItem
     ><NFormItem label="Описание"
-      ><NInput type="textarea" v-model:value="draft.description" :disabled="disabled" rows="3"
+      ><NInput v-model:value="draft.description" type="textarea" :disabled="disabled" rows="3"
     /></NFormItem>
     <div class="editor-actions">
       <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton

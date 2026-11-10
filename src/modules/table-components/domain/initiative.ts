@@ -26,6 +26,7 @@ export function currentParticipantIdAfterRemoval(
 ): string | undefined {
   if (currentId !== removedId) return currentId;
   const removedIndex = participants.findIndex((participant) => participant.id === removedId);
+
   const remaining = participants.filter((participant) => participant.id !== removedId);
   return remaining[Math.min(Math.max(removedIndex, 0), remaining.length - 1)]?.id;
 }

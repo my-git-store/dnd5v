@@ -23,7 +23,9 @@ test('old v3 payloads without encounters remain valid', () => {
 
 test('encounters round-trip through the existing v3 adapter', async () => {
   const storage = new MemoryStorage()
+
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async (id) => createEmptyCharacter(id) })
+
   const view = await adapter.load('encounter-roundtrip')
   view.encounters = [{ id: 'encounter-1', name: 'У ворот', round: 2, currentParticipantId: 'guard-1', participants: [{ id: 'guard-1', sourceId: 'ashen-scout', name: 'Страж 1', maxHitPoints: 18, currentHitPoints: 11, armorClass: 13, initiative: 2, defeated: false }] }]
   await adapter.save(view)

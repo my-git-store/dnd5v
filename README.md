@@ -38,6 +38,7 @@
 ~~~text
 npm install
 npm run dev
+npm run lint
 npm run format
 npm run build
 npm run preview
@@ -49,13 +50,14 @@ npm run gen
 
 - npm install устанавливает зависимости.
 - npm run dev запускает локальный Vite-сервер.
+- npm run lint проверяет TypeScript, Vue и конфигурационные файлы через ESLint.
 - npm run format форматирует TypeScript, Vue и CSS-файлы в src через Prettier.
 - npm run build запускает vue-tsc -b и затем production-сборку Vite. Команда обязательна перед коммитом измененного TypeScript или Vue-кода.
 - npm run preview запускает локальный просмотр production-сборки.
 - npm run test запускает тесты character-sheet.
 - npm run gen запускает Orval и обновляет код из http://localhost:8080/swagger/v1/swagger.json.
 
-В package.json нет отдельной команды lint; команды format и test доступны для проверки исходников и тестов. Нельзя указывать в описании изменения команды, которых нет в проекте. Если инструмент проверки добавляется, его команда должна быть добавлена в package.json и описана здесь.
+В package.json доступны команды lint, format и test для проверки исходников и тестов. Нельзя указывать в описании изменения команды, которых нет в проекте. Если инструмент проверки добавляется, его команда должна быть добавлена в package.json и описана здесь.
 
 ## 3. Архитектура
 

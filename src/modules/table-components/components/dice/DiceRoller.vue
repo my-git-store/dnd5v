@@ -10,20 +10,33 @@ interface RollRecord {
 }
 
 const selectedSides = ref<DiceSides>(20);
+
 const result = ref<number | null>(null);
+
 const lastRollSides = ref<DiceSides | null>(null);
+
 const isRolling = ref(false);
+
 const history = ref<RollRecord[]>([]);
+
 const showAllHistory = ref(false);
+
 const visualSides = ref<DiceSides>(selectedSides.value);
+
 const diceOptions = DICE_TYPES.map((sides) => ({ value: sides, label: `d${sides}` }));
+
 let nextId = 1;
+
 let rollTimer: number | undefined;
+
 let pendingResult: number | undefined;
+
 const ROLL_DURATION_MS = 800;
 
 const resultAnnouncement = computed(() => resultLabel(lastRollSides.value ?? selectedSides.value, result.value));
+
 const visibleHistory = computed(() => (showAllHistory.value ? history.value : history.value.slice(0, 5)));
+
 const hasCollapsedHistory = computed(() => history.value.length > 5);
 
 watch(selectedSides, (sides) => {

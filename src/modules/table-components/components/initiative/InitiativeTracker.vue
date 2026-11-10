@@ -9,18 +9,25 @@ import {
 } from "../../domain/initiative.ts";
 
 const nextId = ref(4);
+
 const participants = ref<InitiativeParticipant[]>([
   { id: "ellara", name: "Эллара", initiative: 18 },
   { id: "goblin", name: "Гоблин", initiative: 14 },
   { id: "warrior", name: "Воин", initiative: 10 },
 ]);
+
 const currentParticipantId = ref("ellara");
+
 const round = ref(1);
+
 const newName = ref("");
+
 const newInitiative = ref(10);
 
 const orderedParticipants = computed(() => sortInitiative(participants.value));
+
 const currentIndex = computed(() => currentParticipantIndex(orderedParticipants.value, currentParticipantId.value));
+
 const currentParticipant = computed(() =>
   orderedParticipants.value.find((participant) => participant.id === currentParticipantId.value),
 );

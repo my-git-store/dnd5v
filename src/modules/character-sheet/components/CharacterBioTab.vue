@@ -2,7 +2,9 @@
 import type { CharacterPersonalityV3 } from "../types/characterV3";
 
 const props = defineProps<{ personality: CharacterPersonalityV3; disabled?: boolean }>();
+
 const emit = defineEmits<{ update: [personality: CharacterPersonalityV3] }>();
+
 function update(key: keyof CharacterPersonalityV3, value: unknown) {
   emit("update", { ...props.personality, [key]: String(value ?? "") });
 }

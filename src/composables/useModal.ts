@@ -9,7 +9,9 @@ type ModalState<Item, Props> = {
 
 export function useModalUtil<Item, Props>(): ModalState<Item, Props> {
   const isShowModal = ref(false);
+
   const item = ref<Item>();
+
   const props = ref<Props>();
 
   function openOrClose(): void {

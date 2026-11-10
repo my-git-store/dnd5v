@@ -63,8 +63,11 @@ test('attack and damage formulas use the existing dice domain and tolerate legac
 
 test('rest, spell-slot and inventory actions survive v3 adapter save and reload', async () => {
   const storage = new MemoryStorage()
+
   const source = createMockCharacter()
+
   const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => source })
+
   const draft = await adapter.load(source.id)
   draft.combat.hitPoints = { max: 12, current: 4, temporary: 2 }
   draft.combat.hitDice = { size: 'd8', total: 2, spent: 1 }

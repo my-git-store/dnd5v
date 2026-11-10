@@ -35,6 +35,7 @@ test('relates catalog spells to class spellcasting metadata', () => {
 
 test('hydrates spellIds, preserves custom embedded spells and round-trips canonical links', async () => {
   const storage = new MemoryStorage()
+
   const character = migrateCharacterV2ToV3(createMockCharacter())
   character.ruleset = '2024'
   character.spellcasting.spellRuleset = '2024'

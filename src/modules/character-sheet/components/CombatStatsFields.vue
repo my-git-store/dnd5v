@@ -7,12 +7,15 @@ import type { CharacterAbilities } from "../types/character";
 import type { CharacterCombatV3 } from "../types/characterV3";
 
 const props = defineProps<{ combat: CharacterCombatV3; abilities: CharacterAbilities; disabled?: boolean }>();
+
 const emit = defineEmits<{ update: [combat: CharacterCombatV3] }>();
 
 const armorClass = computed(() => {
   return props.combat.armorClass.value;
 });
+
 const initiative = computed(() => calculateInitiative(props.abilities, props.combat.initiative.additionalBonus) ?? 0);
+
 const speed = computed(() => props.combat.speed.override ?? props.combat.speed.base);
 
 function numberValue(value: unknown): number {
@@ -27,6 +30,7 @@ function copy(): CharacterCombatV3 {
 }
 function updateArmorValue(value: unknown) {
   const next = copy();
+
   const parsed = numberValue(value);
   // Keep the v3 envelope intact while making a direct edit authoritative.
   // Existing computed values are shown first, then switch to manual on edit.

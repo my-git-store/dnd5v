@@ -30,6 +30,7 @@ document.documentElement.style.setProperty(
 );
 
 const app = createApp(App);
+
 const registerComponent = (name: string, component: unknown): void => {
   app.component(name, component as never);
 };

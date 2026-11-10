@@ -6,6 +6,7 @@ import { bestiaryToNpc } from '../../src/modules/bestiary/types.ts'
 
 test('mock bestiary exposes stable typed entries and adapter returns independent copies', () => {
   const adapter = createBestiaryAdapter(MOCK_BESTIARY)
+
   const first = adapter.list()[0]
   assert.ok(first)
   assert.ok(first.id)
@@ -19,6 +20,7 @@ test('mock bestiary exposes stable typed entries and adapter returns independent
 
 test('bestiary entry creates an independent editable NPC profile', () => {
   const entry = MOCK_BESTIARY[0]!
+
   const npc = bestiaryToNpc(entry)
   assert.equal(npc.name, entry.name)
   assert.equal(npc.armorClass.value, entry.armorClass)

@@ -3,6 +3,7 @@ import { ref } from "vue";
 
 export function useFormSubmit<Result>(submit: () => Promise<Result> | Result, rules: FormRules) {
   const formRef = ref<FormInst | null>(null);
+
   const loading = ref(false);
 
   async function handleSubmit(): Promise<void> {

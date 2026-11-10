@@ -20,6 +20,7 @@ test('class definitions expose canonical class feature references', () => {
   assert.equal(RULES_2024_CLASSES.every((classDefinition) => classDefinition.featureIds?.length === classDefinition.levelFeaturesMetadata.length), true)
 
   const fighter = getRules2024Class('fighter')!
+
   const features = getRules2024ClassFeatures('fighter', 1)
   assert.deepEqual(features.map((feature) => feature.id), fighter.featureIds)
   assert.equal(features.every((feature) => feature.classId === fighter.id && feature.level === 1), true)
@@ -28,6 +29,7 @@ test('class definitions expose canonical class feature references', () => {
 
 test('feature references round-trip through the adapter without embedding feature objects', async () => {
   const storage = new MemoryStorage()
+
   const source = migrateCharacterV2ToV3(createMockCharacter())
   source.ruleset = '2024'
   source.progression = { level: 1, classLevels: [{ classId: 'fighter', level: 1 }], features: ['fighter.level-1.1'], choices: {} }

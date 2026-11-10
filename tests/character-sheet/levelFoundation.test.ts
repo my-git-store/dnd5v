@@ -22,6 +22,7 @@ function fighterProgression(level = 1): CharacterProgressionV3 {
 
 test('level up advances one level and keeps feature references unique', () => {
   const initial = fighterProgression()
+
   const firstFeature = initial.features[0]
   assert.ok(firstFeature)
   initial.features.push(firstFeature)
@@ -56,7 +57,9 @@ test('ASI and feat choice metadata is available only at configured milestones', 
 
 test('level-up preview exposes new choices without mutating the draft', () => {
   const progression = fighterProgression(3)
+
   const before = JSON.stringify(progression)
+
   const preview = levelUpProgression({
     ...progression,
     classLevels: progression.classLevels.map((entry) => ({ ...entry })),
@@ -94,6 +97,7 @@ test('duplicate feature references and invalid choice levels fail validation', (
 
 test('level-up data survives adapter save and reload', async () => {
   const storage = new MemoryStorage()
+
   const source = migrateCharacterV2ToV3(createMockCharacter())
   source.ruleset = '2024'
   source.extensions.characterCreation = { classId: 'fighter', classLevel: 1 }
@@ -117,8 +121,11 @@ test('level-up data survives adapter save and reload', async () => {
 
 test('pre-progression v3 receives safe defaults without losing legacy data', () => {
   const old = migrateCharacterV2ToV3(createMockCharacter())
+
   const attacks = old.attacks.length
+
   const spells = old.spellcasting.knownSpells.length
+
   const inventory = old.inventory.items.length
   delete old.progression
   delete old.features

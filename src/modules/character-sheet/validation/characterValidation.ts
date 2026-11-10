@@ -26,12 +26,17 @@ export const CHARACTER_DETAIL_DEFAULTS = {
 
 /** Checks that a value can be inspected as a plain record. */
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
 /** Checks that a value is a finite number. */
 const isFiniteNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
+
 /** Checks that a value is a string. */
 const isString = (value: unknown): value is string => typeof value === "string";
+
 const ABILITY_KEYS: AbilityKey[] = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
+
 const PROFICIENCY_VALUES: SkillProficiency[] = ["none", "proficient", "expertise"];
+
 /** Checks that a value names one of the six ability scores. */
 const isAbilityKey = (value: unknown): value is AbilityKey =>
   typeof value === "string" && ABILITY_KEYS.includes(value as AbilityKey);
