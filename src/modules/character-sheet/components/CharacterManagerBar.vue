@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { StoredCharacterSummary } from '../api/characterV3Storage'
+import type { StoredCharacterSummary } from '../api/characterStorage'
 
 defineProps<{
     characters: StoredCharacterSummary[]

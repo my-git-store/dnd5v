@@ -1,14 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 import { RULES_2024_SPECIES, isSpecies2024Id } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { SPECIES_ICON_PATHS, speciesIconFor } from '../../src/modules/character-sheet/data/speciesIcons.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
-import { migrateCharacterToV3, migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
-import type { CharacterV3 } from '../../src/modules/character-sheet/types/characterV3.ts'
-import { validateCharacterV3 } from '../../src/modules/character-sheet/validation/characterV3Validation.ts'
+import type { Character } from '../../src/modules/character-sheet/types/character.ts'
+import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -48,11 +47,11 @@ test('resolves stable species icon paths while keeping unknown and legacy values
 })
 
 test('applies a species choice and replaces it when the species changes', async () => {
-  const base = migrateCharacterV2ToV3(createMockCharacter())
+  const base = createMockCharacter()
 
   const storage = new MemoryStorage()
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${base.id}`, JSON.stringify(base))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${base.id}`, JSON.stringify(base))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const loaded = await adapter.load(base.id)
 
@@ -78,12 +77,12 @@ test('applies a species choice and replaces it when the species changes', async 
   assert.equal(dragonborn.combat.speed.base, 30)
 })
 
-test('keeps species, class and background source metadata through v3 adapter round-trip', async () => {
-  const base = migrateCharacterV2ToV3(createMockCharacter())
+test('keeps species, class and background source metadata through current adapter round-trip', async () => {
+  const base = createMockCharacter()
 
   const storage = new MemoryStorage()
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${base.id}`, JSON.stringify(base))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${base.id}`, JSON.stringify(base))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const loaded = await adapter.load(base.id)
 
@@ -101,30 +100,29 @@ test('keeps species, class and background source metadata through v3 adapter rou
   created.personality.biography = 'Сохранить историю'
   await adapter.save(created)
 
-  const raw = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${base.id}`)!) as CharacterV3
+  const raw = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${base.id}`)!) as Character
   assert.deepEqual(raw.extensions.characterCreation && (raw.extensions.characterCreation as { speciesChoices?: unknown }).speciesChoices, { 'elven-lineage': ['Лесной эльф'] })
   assert.equal(raw.attacks[0]?.attackBonus, '1d20+6')
   assert.equal(raw.spellcasting.knownSpells[0]?.description, 'Не потерять при round-trip')
   assert.equal(raw.inventory.items[0]?.quantity, 2)
   assert.equal(raw.personality.biography, 'Сохранить историю')
-  assert.deepEqual(validateCharacterV3(raw), [])
+  assert.deepEqual(validateCharacter(raw), [])
 
   const reloaded = await adapter.load(base.id)
   assert.equal(reloaded.creation?.speciesId, 'elf')
   assert.deepEqual(reloaded.creation?.speciesChoices, { 'elven-lineage': ['Лесной эльф'] })
 })
 
-test('keeps a v3 character without presentation icon metadata valid', () => {
-  const legacy = migrateCharacterV2ToV3(createMockCharacter())
+test('keeps a current character without presentation icon metadata valid', () => {
+  const legacy = createMockCharacter()
   assert.equal(legacy.ruleset, '2014')
   assert.equal((legacy.extensions.characterCreation as { icon?: string } | undefined)?.icon, undefined)
-  assert.deepEqual(validateCharacterV3(legacy), [])
+  assert.deepEqual(validateCharacter(legacy), [])
 })
 
 test('rejects an unknown 2024 species id without changing the storage model', () => {
-  const character = migrateCharacterV2ToV3(createMockCharacter())
+  const character = createMockCharacter()
   character.ruleset = '2024'
   character.extensions.characterCreation = { speciesId: 'unknown-species' }
-  assert.ok(validateCharacterV3(character).some((error) => error.includes('Неизвестный вид')))
-  assert.throws(() => migrateCharacterToV3(character), /Неизвестный вид|Некорректный/)
+  assert.ok(validateCharacter(character).some((error) => error.includes('Неизвестный вид')))
 })

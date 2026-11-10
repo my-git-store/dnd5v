@@ -1,30 +1,29 @@
 import type {
     AbilityKey,
-    Character,
     CharacterAttack,
     CharacterGender,
     CharacterSkill,
 } from './character.ts'
 import type {
-    BackgroundProfileV3,
+    BackgroundProfile,
     CharacterCalculationMode,
-    CharacterCombatV3,
-    CharacterCreationV3,
-    CharacterEncounterV3,
-    CharacterFeatV3,
-    CharacterInventoryV3,
+    CharacterCombat,
+    CharacterCreation,
+    CharacterEncounter,
+    CharacterFeat,
+    CharacterInventory,
     CharacterKind,
-    CharacterNpcV3,
-    CharacterOriginV3,
-    CharacterPersonalityV3,
-    CharacterProficiencyV3,
+    CharacterNpc,
+    CharacterOrigin,
+    CharacterPersonality,
+    CharacterProficiency,
     CharacterRuleset,
-    CharacterSavingThrowsV3,
-    CharacterSpellcastingV3,
-    RaceProfileV3,
+    CharacterSavingThrows,
+    CharacterSpellcasting,
+    RaceProfile,
     SkillProficiencySource,
-} from './characterV3.ts'
-import type { CharacterProgressionV3 } from './rules.ts'
+} from './character.ts'
+import type { CharacterProgression } from './rules.ts'
 
 export interface CharacterSkillView extends CharacterSkill {
     calculationMode: CharacterCalculationMode
@@ -44,29 +43,48 @@ export interface CharacterAttackView extends CharacterAttack {
     masteryId?: string
 }
 
-export interface CharacterSheetView extends Omit<Character, 'skills' | 'attacks'> {
+export interface CharacterSheetView {
+    id: string
+    schemaVersion: 3
     kind?: CharacterKind
-    npc?: CharacterNpcV3
-    encounters?: CharacterEncounterV3[]
+    npc?: CharacterNpc
+    encounters?: CharacterEncounter[]
     ruleset: CharacterRuleset
-    origin: CharacterOriginV3
+    name: string
+    class: string
+    level: number
+    experience: number
+    armorClass: number
+    abilities: CharacterSheetAbilities
+    spells: CharacterSpellView[]
+    cantrips: CharacterSpellView[]
+    inventory: CharacterInventoryItemView[]
+    money: CharacterMoneyView
+    bio: CharacterBioView
+    origin: CharacterOrigin
     skills: CharacterSkillView[]
     attacks: CharacterAttackView[]
-    combat: CharacterCombatV3
-    spellcasting: CharacterSpellcastingV3
-    inventoryData: CharacterInventoryV3
-    personality: CharacterPersonalityV3
-    feats: CharacterFeatV3[]
-    race: RaceProfileV3
+    combat: CharacterCombat
+    spellcasting: CharacterSpellcasting
+    inventoryData: CharacterInventory
+    personality: CharacterPersonality
+    feats: CharacterFeat[]
+    race: RaceProfile
     subclass: string
-    background: BackgroundProfileV3
+    background: BackgroundProfile
     alignment: string
-    savingThrows: CharacterSavingThrowsV3
-    proficiency: CharacterProficiencyV3
+    savingThrows: CharacterSavingThrows
+    proficiency: CharacterProficiency
     features?: string[]
-    progression?: CharacterProgressionV3
-    creation?: CharacterCreationV3
+    progression?: CharacterProgression
+    creation?: CharacterCreation
 }
+
+type CharacterSheetAbilities = import('./character.ts').CharacterAbilities
+type CharacterSpellView = import('./character.ts').CharacterSpell
+type CharacterInventoryItemView = import('./character.ts').InventoryItem
+type CharacterMoneyView = import('./character.ts').CharacterMoney
+type CharacterBioView = import('./character.ts').CharacterBio
 
 export interface CharacterIdentityPatch {
     name?: string

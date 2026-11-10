@@ -1,10 +1,10 @@
-import './styles/index.css'
-import './ui/styles/index.css'
+import './modules/character-sheet/styles/index.css'
+import './modules/character-sheet/ui/styles/index.css'
 
 import { createApp } from 'vue'
 
 import App from './App.vue'
-import { assetUrl } from './config/assets'
+import { assetUrl } from './modules/character-sheet/config/assets'
 import naive from 'naive-ui'
 
 document.documentElement.style.setProperty(

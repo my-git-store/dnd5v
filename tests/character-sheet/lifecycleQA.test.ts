@@ -1,15 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { getRules2024Background, getRules2024Class, getSpecies2024 } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { applyCharacterCreation, type CharacterCreationPayload } from '../../src/modules/character-sheet/domain/characterCreation.ts'
 import { levelUpProgression } from '../../src/modules/character-sheet/domain/characterProgression.ts'
-import { migrateCharacterToV3, migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
+import { cloneCharacter } from '../../src/modules/character-sheet/types/character.ts'
 import type { CharacterSheetView } from '../../src/modules/character-sheet/types/characterView.ts'
-import type { CharacterV3 } from '../../src/modules/character-sheet/types/characterV3.ts'
-import { validateCharacterV3 } from '../../src/modules/character-sheet/validation/characterV3Validation.ts'
+import type { Character } from '../../src/modules/character-sheet/types/character.ts'
+import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -18,10 +18,10 @@ class MemoryStorage implements CharacterStorageLike {
   setItem(key: string, value: string): void { this.values.set(key, value) }
 }
 
-const storageKey = (id: string) => `${CHARACTER_V3_STORAGE_PREFIX}${id}`
+const storageKey = (id: string) => `${CHARACTER_STORAGE_PREFIX}${id}`
 
 function adapterFor(storage: MemoryStorage) {
-  return createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('Unexpected legacy load') } })
+  return createCharacterSheetAdapter({ storage })
 }
 
 function modernPayload(view: CharacterSheetView, speciesId: string, backgroundId: string, classId: string, overrides: Partial<CharacterCreationPayload> = {}): CharacterCreationPayload {
@@ -54,7 +54,7 @@ function modernPayload(view: CharacterSheetView, speciesId: string, backgroundId
 }
 
 async function loadedMock(storage: MemoryStorage): Promise<CharacterSheetView> {
-  const character = migrateCharacterV2ToV3(createMockCharacter())
+  const character = createMockCharacter()
   storage.setItem(storageKey(character.id), JSON.stringify(character))
   return adapterFor(storage).load(character.id)
 }
@@ -123,7 +123,7 @@ test('2024 character survives creation, level-up, origin/class changes and adapt
   assert.equal(reloaded.spells[0]?.description, 'Пользовательское описание заклинания.')
   assert.equal(reloaded.inventoryData.items.some((item) => item.id === 'user:keepsake'), true)
   assert.equal(reloaded.personality.biography, 'История героя сохраняется.')
-  assert.deepEqual(validateCharacterV3(JSON.parse(storage.getItem(storageKey(wizard.id))!) as unknown), [])
+  assert.deepEqual(validateCharacter(JSON.parse(storage.getItem(storageKey(wizard.id))!) as unknown), [])
 })
 
 test('2014 racial proficiency does not leak into an unrelated 2024 species', async () => {
@@ -158,7 +158,7 @@ test('older creation metadata without equipment IDs does not duplicate generated
   const adapter = adapterFor(storage)
   await adapter.load(first.id)
   await adapter.save(first)
-  const old = JSON.parse(storage.getItem(storageKey(first.id))!) as CharacterV3
+  const old = JSON.parse(storage.getItem(storageKey(first.id))!) as Character
   delete (old.extensions.characterCreation as { startingEquipmentIds?: string[] }).startingEquipmentIds
   storage.setItem(storageKey(old.id), JSON.stringify(old))
 
@@ -184,10 +184,10 @@ test('new sourced skills show their computed bonus while explicit manual entries
   assert.equal(created.skills.find((skill) => skill.id === 'athletics')?.value, 7)
 })
 
-test('legacy v3 and corrupted or unknown catalog data are handled without overwriting storage', async () => {
+test('legacy current and corrupted or unknown catalog data are handled without overwriting storage', async () => {
   const storage = new MemoryStorage()
 
-  const old = migrateCharacterV2ToV3(createMockCharacter())
+  const old = createMockCharacter()
   delete old.progression
   delete old.features
   const oldAttacks = JSON.stringify(old.attacks)
@@ -201,17 +201,16 @@ test('legacy v3 and corrupted or unknown catalog data are handled without overwr
   const loaded = await adapter.load(old.id)
   assert.equal(loaded.ruleset, '2014')
   await adapter.save(loaded)
-  const reloaded = JSON.parse(storage.getItem(storageKey(old.id))!) as CharacterV3
+  const reloaded = JSON.parse(storage.getItem(storageKey(old.id))!) as Character
   assert.equal(JSON.stringify(reloaded.attacks), oldAttacks)
   assert.equal(JSON.stringify(reloaded.spellcasting.knownSpells), oldSpells)
   assert.equal(JSON.stringify(reloaded.inventory), oldInventory)
-  assert.deepEqual(validateCharacterV3(reloaded), [])
+  assert.deepEqual(validateCharacter(reloaded), [])
 
-  const unknown = migrateCharacterToV3(reloaded)
+  const unknown = cloneCharacter(reloaded)
   unknown.ruleset = '2024'
   unknown.extensions.characterCreation = { speciesId: 'missing-species' }
-  assert.notDeepEqual(validateCharacterV3(unknown), [])
-  assert.throws(() => migrateCharacterToV3(unknown))
+  assert.notDeepEqual(validateCharacter(unknown), [])
 
   const corrupt = '{not valid JSON'
   storage.setItem(storageKey(old.id), corrupt)

@@ -1,15 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 import { CLASS_ICON_PATHS, CLASS_ICON_PATHS_MALE, classIconFor } from '../../src/modules/character-sheet/data/classIcons.ts'
 import { RULES_2024_BACKGROUNDS, RULES_2024_CLASSES, getRules2024Class, isRules2024ClassId } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
-import { migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
 import type { CharacterSheetView } from '../../src/modules/character-sheet/types/characterView.ts'
-import type { CharacterV3 } from '../../src/modules/character-sheet/types/characterV3.ts'
-import { validateCharacterV3 } from '../../src/modules/character-sheet/validation/characterV3Validation.ts'
+import type { Character } from '../../src/modules/character-sheet/types/character.ts'
+import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -30,9 +29,9 @@ function modernPayload(view: CharacterSheetView, classId: string, backgroundId =
 }
 
 async function loadView(storage: MemoryStorage): Promise<{ adapter: ReturnType<typeof createCharacterSheetAdapter>; view: CharacterSheetView }> {
-  const source = migrateCharacterV2ToV3(createMockCharacter())
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const source = createMockCharacter()
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
+  const adapter = createCharacterSheetAdapter({ storage })
   return { adapter, view: await adapter.load(source.id) }
 }
 
@@ -64,10 +63,10 @@ test('maps every modern class to its explicit icon asset and supports legacy lab
 test('rejects unknown modern class IDs instead of silently selecting a fallback', async () => {
   const { view } = await loadView(new MemoryStorage())
   assert.throws(() => applyCharacterCreation(view, modernPayload(view, 'missing-class')), /Неизвестный класс/)
-  const invalid = migrateCharacterV2ToV3(createMockCharacter())
+  const invalid = createMockCharacter()
   invalid.ruleset = '2024'
   invalid.extensions.characterCreation = { classId: 'missing-class' }
-  assert.ok(validateCharacterV3(invalid).some((error) => error.includes('класс')))
+  assert.ok(validateCharacter(invalid).some((error) => error.includes('класс')))
 })
 
 test('class change replaces class skill and saving sources while preserving background and manual sources', async () => {
@@ -109,42 +108,42 @@ test('class equipment is deterministic, repeatable and preserves user items', as
   assert.equal(fighter.inventoryData.items.some((item) => item.id.startsWith(`creation:${fighter.id}:class:wizard`)), false)
   assert.equal(fighter.inventoryData.items.some((item) => item.id.startsWith(`creation:${fighter.id}:class:fighter`)), true)
   await adapter.save(fighter)
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${fighter.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${fighter.id}`)!) as Character
   assert.equal(saved.spellcasting.spellProgressionType, 'none')
   assert.deepEqual((saved.extensions.characterCreation as { classSources?: unknown }).classSources, [{ kind: 'class', id: 'fighter', label: 'Воин' }])
-  assert.deepEqual(validateCharacterV3(saved), [])
+  assert.deepEqual(validateCharacter(saved), [])
 })
 
-test('old v3 records without class foundation fields remain valid and round-trip through the adapter', async () => {
+test('old current records without class foundation fields remain valid and round-trip through the adapter', async () => {
   const storage = new MemoryStorage()
 
-  const old = migrateCharacterV2ToV3(createMockCharacter())
+  const old = createMockCharacter()
   delete old.extensions.characterCreation
   delete old.spellcasting.spellProgressionType
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${old.id}`, JSON.stringify(old))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${old.id}`, JSON.stringify(old))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const view = await adapter.load(old.id)
   assert.equal(view.creation, undefined)
   await adapter.save(view)
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${old.id}`)!) as CharacterV3
-  assert.deepEqual(validateCharacterV3(saved), [])
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${old.id}`)!) as Character
+  assert.deepEqual(validateCharacter(saved), [])
   assert.equal(saved.attacks.length, old.attacks.length)
   assert.equal(saved.spellcasting.knownSpells.length, old.spellcasting.knownSpells.length)
   assert.equal(saved.inventory.items.length, old.inventory.items.length)
   assert.deepEqual(saved.personality, old.personality)
 })
 
-test('creation metadata receives safe class defaults when an older v3 creation object lacks them', async () => {
+test('creation metadata receives safe class defaults when an older current creation object lacks them', async () => {
   const storage = new MemoryStorage()
 
-  const old = migrateCharacterV2ToV3(createMockCharacter())
+  const old = createMockCharacter()
   old.ruleset = '2024'
   old.extensions.characterCreation = {
     ruleset: '2024', raceId: 'human', classId: 'wizard', baseAbilityScores: { ...old.abilities }, classSkillIds: [], classSavingThrowKeys: [],
   }
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${old.id}`, JSON.stringify(old))
+  const adapter = createCharacterSheetAdapter({ storage })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${old.id}`, JSON.stringify(old))
   const view = await adapter.load(old.id)
   assert.equal(view.creation?.classLevel, old.identity.level)
   assert.deepEqual(view.creation?.classSources, [{ kind: 'class', id: 'wizard', label: old.identity.class }])
@@ -158,11 +157,11 @@ test('class selection persists through the adapter while icon metadata stays pre
   const created = applyCharacterCreation(view, modernPayload(view, 'wizard', 'sage-2024', { gender: 'male' }))
   await adapter.save(created)
 
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${created.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${created.id}`)!) as Character
   assert.equal(saved.extensions.characterCreation?.classId, 'wizard')
   assert.equal(saved.extensions.characterCreation?.gender, 'male')
   assert.equal((saved.extensions.characterCreation as { icon?: string } | undefined)?.icon, undefined)
-  assert.deepEqual(validateCharacterV3(saved), [])
+  assert.deepEqual(validateCharacter(saved), [])
 
   const reloaded = await adapter.load(created.id)
   assert.equal(reloaded.creation?.classId, 'wizard')

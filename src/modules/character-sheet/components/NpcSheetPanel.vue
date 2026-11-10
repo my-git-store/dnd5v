@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useDialog } from '@/composables/useDialog'
+import { useDialog } from '@/modules/character-sheet/composables/useDialog'
 import { abilityModifier, signedModifier } from '../domain/abilityModifier'
 import { createDefaultNpcProfile } from '../domain/npc'
 import NpcEntryEditorModal from './NpcEntryEditorModal.vue'
 import type { CharacterSheetView } from '../types/characterView'
-import type { CharacterNpcBonusV3, CharacterNpcEntryV3, CharacterNpcV3 } from '../types/characterV3'
+import type { CharacterNpcBonus, CharacterNpcEntry, CharacterNpc } from '../types/character'
 
 const props = defineProps<{
     character: CharacterSheetView
@@ -17,14 +17,14 @@ const props = defineProps<{
     onPrint: () => void
 }>()
 
-const emit = defineEmits<{ update: [npc: CharacterNpcV3] }>()
+const emit = defineEmits<{ update: [npc: CharacterNpc] }>()
 
 const { open } = useDialog()
 
-const draft = ref<CharacterNpcV3>(
+const draft = ref<CharacterNpc>(
     JSON.parse(
         JSON.stringify(props.character.npc ?? createDefaultNpcProfile(props.character.name)),
-    ) as CharacterNpcV3,
+    ) as CharacterNpc,
 )
 
 const abilityKeys = [
@@ -64,14 +64,14 @@ const initiative = computed(() =>
           ),
 )
 
-function snapshot(value: CharacterNpcV3 | undefined): string {
+function snapshot(value: CharacterNpc | undefined): string {
     return JSON.stringify(value ?? null)
 }
 watch(
     () => props.character.npc,
     value => {
         if (value && snapshot(value) !== snapshot(draft.value))
-            draft.value = JSON.parse(JSON.stringify(value)) as CharacterNpcV3
+            draft.value = JSON.parse(JSON.stringify(value)) as CharacterNpc
     },
     { deep: true },
 )
@@ -79,7 +79,7 @@ watch(
     draft,
     value => {
         if (snapshot(value) !== snapshot(props.character.npc))
-            emit('update', JSON.parse(JSON.stringify(value)) as CharacterNpcV3)
+            emit('update', JSON.parse(JSON.stringify(value)) as CharacterNpc)
     },
     { deep: true },
 )
@@ -135,17 +135,17 @@ function addBonus(kind: 'skills' | 'savingThrows') {
 function removeBonus(kind: 'skills' | 'savingThrows', id: string) {
     draft.value[kind] = draft.value[kind].filter(entry => entry.id !== id)
 }
-function updateBonus(entry: CharacterNpcBonusV3, value: unknown) {
+function updateBonus(entry: CharacterNpcBonus, value: unknown) {
     entry.value = Number.isFinite(Number(value)) ? Math.trunc(Number(value)) : 0
 }
-function saveEntry(kind: 'features' | 'actions', entry: CharacterNpcEntryV3) {
+function saveEntry(kind: 'features' | 'actions', entry: CharacterNpcEntry) {
     const entries = draft.value[kind]
 
     const index = entries.findIndex(current => current.id === entry.id)
     if (index >= 0) entries[index] = entry
     else entries.push(entry)
 }
-function openEntry(kind: 'features' | 'actions', entry?: CharacterNpcEntryV3) {
+function openEntry(kind: 'features' | 'actions', entry?: CharacterNpcEntry) {
     const next = entry
         ? { ...entry }
         : {
@@ -159,7 +159,7 @@ function openEntry(kind: 'features' | 'actions', entry?: CharacterNpcEntryV3) {
         component: NpcEntryEditorModal,
         componentProps: {
             entry: next,
-            onSave: (value: CharacterNpcEntryV3) => saveEntry(kind, value),
+            onSave: (value: CharacterNpcEntry) => saveEntry(kind, value),
         },
     })
 }

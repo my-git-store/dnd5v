@@ -2,10 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createCharacterTransfer, parseCharacterTransfer, serializeCharacterTransfer, transferFilename, uniqueCharacterId } from '../../src/modules/character-sheet/api/characterTransfer.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
-import { migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
 
-test('exports a sanitized v3 envelope with date and character data', () => {
-  const character = migrateCharacterV2ToV3(createMockCharacter())
+test('exports a sanitized current envelope with date and character data', () => {
+  const character = createMockCharacter()
   character.extensions.secretToken = 'must-not-export'
   const exported = createCharacterTransfer([character], '2026-10-28T10:00:00.000Z')
   assert.equal(exported.schemaVersion, 3)
@@ -15,16 +14,15 @@ test('exports a sanitized v3 envelope with date and character data', () => {
   assert.equal(exported.characters[0]?.identity.name, character.identity.name)
 })
 
-test('parses current transfer and migrates a legacy v2 character', () => {
-  const legacy = createMockCharacter()
+test('parses the current transfer envelope', () => {
+  const character = createMockCharacter()
 
-  const parsedLegacy = parseCharacterTransfer(JSON.stringify(legacy))
-  assert.equal(parsedLegacy.characters[0]?.schemaVersion, 3)
-  const current = migrateCharacterV2ToV3(legacy)
+  const parsedCharacter = parseCharacterTransfer(JSON.stringify(character))
+  assert.equal(parsedCharacter.characters[0]?.schemaVersion, 3)
 
-  const parsedCurrent = parseCharacterTransfer(serializeCharacterTransfer([current]))
+  const parsedCurrent = parseCharacterTransfer(serializeCharacterTransfer([character]))
   assert.equal(parsedCurrent.characters.length, 1)
-  assert.equal(parsedCurrent.characters[0]?.id, current.id)
+  assert.equal(parsedCurrent.characters[0]?.id, character.id)
 })
 
 test('rejects malformed, unsupported and oversized imports before storage changes', () => {

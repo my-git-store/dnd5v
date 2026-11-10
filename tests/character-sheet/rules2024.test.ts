@@ -3,9 +3,8 @@ import assert from 'node:assert/strict'
 import { RULES_2024_BACKGROUNDS, RULES_2024_CLASSES, RULES_2024_FEATS, RULES_2024_SPECIES } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
-import { migrateV3To2024 } from '../../src/modules/character-sheet/migration/v3To2024.ts'
-import { migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
-import { validateCharacterV3 } from '../../src/modules/character-sheet/validation/characterV3Validation.ts'
+import { promoteCharacterTo2024 } from '../../src/modules/character-sheet/domain/ruleset.ts'
+import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
 
 test('ships the PHB 2024 selection catalog with the expected core counts', () => {
   assert.equal(RULES_2024_SPECIES.length, 10)
@@ -15,14 +14,14 @@ test('ships the PHB 2024 selection catalog with the expected core counts', () =>
   assert.ok(RULES_2024_BACKGROUNDS.every((background) => background.abilityOptions.length === 3 && background.skillProficiencies.length === 2 && background.originFeatId))
 })
 
-test('promotes v3 2014 to 2024 without losing legacy data', () => {
-  const legacy = migrateCharacterV2ToV3(createMockCharacter())
+test('promotes current 2014 to 2024 without losing legacy data', () => {
+  const legacy = createMockCharacter()
   legacy.attacks[0]!.attackBonus = '1d20+5'
   legacy.spellcasting.knownSpells[0]!.description = 'Оставить'
   legacy.inventory.items[0]!.quantity = 3
   legacy.personality.biography = 'Старая история'
 
-  const promoted = migrateV3To2024(legacy)
+  const promoted = promoteCharacterTo2024(legacy)
 
   assert.equal(promoted.ruleset, '2024')
   assert.equal(promoted.origin.species, legacy.identity.race.name)
@@ -30,12 +29,12 @@ test('promotes v3 2014 to 2024 without losing legacy data', () => {
   assert.equal(promoted.spellcasting.knownSpells[0]?.description, 'Оставить')
   assert.equal(promoted.inventory.items[0]?.quantity, 3)
   assert.equal(promoted.personality.biography, 'Старая история')
-  assert.equal(validateCharacterV3(promoted).length, 0)
+  assert.equal(validateCharacter(promoted).length, 0)
   assert.notStrictEqual(promoted, legacy)
 })
 
 test('2024 creation uses background abilities and retains character collections', () => {
-  const base = migrateCharacterV2ToV3(createMockCharacter())
+  const base = createMockCharacter()
 
   const view = {
     ...base,
@@ -90,7 +89,7 @@ test('2024 creation uses background abilities and retains character collections'
 })
 
 test('2024 starting gold is money and repeated creation does not duplicate it', () => {
-  const base = migrateCharacterV2ToV3(createMockCharacter())
+  const base = createMockCharacter()
 
   const view = {
     ...base,

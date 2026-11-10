@@ -1,5 +1,5 @@
 /** Explicit presentation mapping for the D&D 2024 background assets. */
-import { assetUrl } from '../../../config/assets.ts'
+import { assetUrl } from '../config/assets.ts'
 
 export const BACKGROUND_ICON_PATHS = {
     'artist-2024': assetUrl('/images/backgrounds/artist.png'),

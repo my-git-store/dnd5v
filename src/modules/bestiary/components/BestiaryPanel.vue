@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDialog } from '@/composables/useDialog'
+import { useDialog } from '@/modules/character-sheet/composables/useDialog'
 import BestiaryEntryModal from './BestiaryEntryModal.vue'
 import {
     bestiaryInitiativeParticipant,
     type BestiaryEntry,
     type BestiaryFilters,
     type BestiarySort,
-} from '../types.ts'
+} from '../types/bestiary.ts'
 import { mockBestiaryAdapter } from '../data/mockBestiary.ts'
 import '../styles/bestiary.css'
 

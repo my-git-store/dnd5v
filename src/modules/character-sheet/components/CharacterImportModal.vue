@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useDialog } from '@/composables/useDialog'
-import type { CharacterV3 } from '../types/characterV3'
+import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import type { Character } from '../types/character'
 
 const props = defineProps<{
-    characters: CharacterV3[]
+    characters: Character[]
     currentAvailable: boolean
     onImport: (mode: 'add' | 'replace') => void | Promise<void>
 }>()

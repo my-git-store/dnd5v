@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { MOCK_BESTIARY } from '../../src/modules/bestiary/data/mockBestiary.ts'
 import { createBestiaryAdapter } from '../../src/modules/bestiary/api/bestiaryAdapter.ts'
-import { bestiaryToNpc } from '../../src/modules/bestiary/types.ts'
+import { bestiaryToNpc } from '../../src/modules/bestiary/types/bestiary.ts'
 
 test('mock bestiary exposes stable typed entries and adapter returns independent copies', () => {
   const adapter = createBestiaryAdapter(MOCK_BESTIARY)

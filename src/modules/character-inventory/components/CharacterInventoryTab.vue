@@ -1,0 +1,39 @@
+<script setup lang="ts">
+import InventoryList from './InventoryList.vue'
+import MoneyFields from './MoneyFields.vue'
+import type { CharacterMoney } from '@/modules/character-sheet/types/character'
+import type { CharacterSheetView } from '@/modules/character-sheet/types/characterView'
+import type { CharacterInventoryItemRecord } from '@/modules/character-sheet/types/character'
+
+defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
+const emit = defineEmits<{
+    'update:inventory': [items: CharacterInventoryItemRecord[]]
+    'update:money': [money: CharacterMoney]
+    'use-item': [id: string]
+}>()
+</script>
+
+<template>
+    <div class="tab-content inventory-tab">
+        <section class="sheet-section inventory-intro-panel">
+            <div class="inventory-intro-mark" aria-hidden="true">◆</div>
+            <div>
+                <h1>Инвентарь</h1>
+                <p class="section-note">
+                    Соберите здесь всё, что герой носит с собой: предметы, снаряжение и деньги.
+                </p>
+            </div>
+        </section>
+        <InventoryList
+            :items="character.inventoryData.items"
+            :disabled="disabled"
+            @update="emit('update:inventory', $event)"
+            @use-item="emit('use-item', $event)"
+        />
+        <MoneyFields
+            :money="character.inventoryData.money"
+            :disabled="disabled"
+            @update="emit('update:money', $event)"
+        />
+    </div>
+</template>

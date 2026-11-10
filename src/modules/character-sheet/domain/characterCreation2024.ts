@@ -1,10 +1,10 @@
 import { cloneCharacterView, type CharacterSheetView } from '../types/characterView.ts'
 import type { AbilityKey } from '../types/character.ts'
 import type {
-    CharacterCreationV3,
-    CharacterInventoryItemV3,
+    CharacterCreation,
+    CharacterInventoryItemRecord,
     SkillProficiencySource,
-} from '../types/characterV3.ts'
+} from '../types/character.ts'
 import {
     getRules2024Background,
     getRules2024Class,
@@ -57,7 +57,7 @@ function selectedEquipment(
         | undefined,
     characterId: string,
     source: 'class' | 'background',
-): CharacterInventoryItemV3[] {
+): CharacterInventoryItemRecord[] {
     if (!option) return []
     return option.items.map((item, index) => ({
         id: `creation:${characterId}:${source}:${option.id}:${index}`,
@@ -163,7 +163,7 @@ export function applyCharacterCreation2024(
                 ],
             ]
         }),
-    ) as CharacterCreationV3['abilityBonusSources']
+    ) as CharacterCreation['abilityBonusSources']
 
     const oldCreationIds = new Set(previousCreation?.startingEquipmentIds ?? [])
 
@@ -354,7 +354,7 @@ export function applyCharacterCreation2024(
         gold: Math.max(0, next.inventoryData.money.gold - previousGeneratedGold + generatedGold),
     }
 
-    const creation: CharacterCreationV3 = {
+    const creation: CharacterCreation = {
         ruleset: '2024',
         gender: payload.gender ?? previousCreation?.gender ?? 'female',
         speciesId: species.id,

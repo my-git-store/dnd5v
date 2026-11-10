@@ -1,12 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 import { RULES_2024_CLASSES, RULES_2024_WEAPON_MASTERIES, RULES_2024_WEAPONS, getRules2024Weapon, getRules2024WeaponMastery } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
-import { migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
-import type { CharacterV3 } from '../../src/modules/character-sheet/types/characterV3.ts'
-import { validateCharacterV3 } from '../../src/modules/character-sheet/validation/characterV3Validation.ts'
+import type { Character } from '../../src/modules/character-sheet/types/character.ts'
+import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -33,12 +32,12 @@ test('class metadata exposes weapon proficiencies without adding mastery choices
 test('known weapon and mastery links round-trip through attack and inventory', async () => {
   const storage = new MemoryStorage()
 
-  const character = migrateCharacterV2ToV3(createMockCharacter())
+  const character = createMockCharacter()
   character.ruleset = '2024'
   character.attacks[0] = { ...character.attacks[0]!, weaponId: 'longsword', masteryId: 'sap' }
   character.inventory.items[0] = { ...character.inventory.items[0]!, weaponId: 'longsword' }
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`, JSON.stringify(character))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${character.id}`, JSON.stringify(character))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const view = await adapter.load(character.id)
   assert.equal(view.attacks[0]?.weaponId, 'longsword')
@@ -46,41 +45,41 @@ test('known weapon and mastery links round-trip through attack and inventory', a
   assert.equal(view.inventoryData.items[0]?.weaponId, 'longsword')
   await adapter.save(view)
 
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${character.id}`)!) as Character
   assert.equal(saved.attacks[0]?.weaponId, 'longsword')
   assert.equal(saved.attacks[0]?.masteryId, 'sap')
   assert.equal(saved.inventory.items[0]?.weaponId, 'longsword')
-  assert.deepEqual(validateCharacterV3(saved), [])
+  assert.deepEqual(validateCharacter(saved), [])
 })
 
 test('unknown weapon links are rejected while legacy free-text attacks remain valid', () => {
-  const invalid = migrateCharacterV2ToV3(createMockCharacter())
+  const invalid = createMockCharacter()
   invalid.ruleset = '2024'
   invalid.attacks[0] = { ...invalid.attacks[0]!, weaponId: 'missing-weapon', masteryId: 'missing-mastery' }
   invalid.inventory.items[0] = { ...invalid.inventory.items[0]!, weaponId: 'missing-weapon' }
-  assert.ok(validateCharacterV3(invalid).some((error) => error.includes('атаки')))
-  assert.ok(validateCharacterV3(invalid).some((error) => error.includes('инвентарь')))
+  assert.ok(validateCharacter(invalid).some((error) => error.includes('атаки')))
+  assert.ok(validateCharacter(invalid).some((error) => error.includes('инвентарь')))
 
-  const legacy = migrateCharacterV2ToV3(createMockCharacter())
+  const legacy = createMockCharacter()
   legacy.attacks[0] = { ...legacy.attacks[0]!, weaponMastery: 'Старое текстовое мастерство' }
-  assert.deepEqual(validateCharacterV3(legacy), [])
+  assert.deepEqual(validateCharacter(legacy), [])
 })
 
-test('old v3 characters without weapon links preserve attacks and inventory after reload', async () => {
+test('old current characters without weapon links preserve attacks and inventory after reload', async () => {
   const storage = new MemoryStorage()
 
-  const legacy = migrateCharacterV2ToV3(createMockCharacter())
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${legacy.id}`, JSON.stringify(legacy))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const legacy = createMockCharacter()
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${legacy.id}`, JSON.stringify(legacy))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const view = await adapter.load(legacy.id)
   await adapter.save(view)
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${legacy.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${legacy.id}`)!) as Character
 
   assert.equal(saved.attacks[0]?.weaponId, undefined)
   assert.equal(saved.attacks[0]?.masteryId, undefined)
   assert.equal(saved.attacks[0]?.weaponMastery, legacy.attacks[0]?.weaponMastery)
   assert.equal(saved.attacks.length, legacy.attacks.length)
   assert.equal(saved.inventory.items.length, legacy.inventory.items.length)
-  assert.deepEqual(validateCharacterV3(saved), [])
+  assert.deepEqual(validateCharacter(saved), [])
 })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDialog } from '@/composables/useDialog'
+import { useDialog } from '@/modules/character-sheet/composables/useDialog'
 
 const props = withDefaults(
     defineProps<{

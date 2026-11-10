@@ -1,10 +1,10 @@
 import { abilityModifier } from './abilityModifier.ts'
 import { DICE_TYPES, rollDie, type DiceSides } from '../../table-components/domain/dice.ts'
 import type { CharacterAbilities } from '../types/character.ts'
-import type { CharacterCombatV3, CharacterSpellSlotsV3 } from '../types/characterV3.ts'
+import type { CharacterCombat, CharacterSpellSlots } from '../types/character.ts'
 
 export interface ShortRestResult {
-    combat: CharacterCombatV3
+    combat: CharacterCombat
     rolls: number[]
     healing: number
     spent: number
@@ -21,7 +21,7 @@ function hitDieSides(size: string): DiceSides | null {
 
 /** Applies a short rest without changing unrelated combat fields. */
 export function takeShortRest(
-    combat: CharacterCombatV3,
+    combat: CharacterCombat,
     abilities: Partial<CharacterAbilities>,
     requestedDice: unknown,
     random = Math.random,
@@ -57,7 +57,7 @@ export function takeShortRest(
 }
 
 /** Applies a long rest using the standard half-of-total hit-dice recovery rule. */
-export function takeLongRest(combat: CharacterCombatV3): CharacterCombatV3 {
+export function takeLongRest(combat: CharacterCombat): CharacterCombat {
     const next = clone(combat)
     next.hitPoints.current = next.hitPoints.max
     next.hitPoints.temporary = 0
@@ -69,17 +69,17 @@ export function takeLongRest(combat: CharacterCombatV3): CharacterCombatV3 {
     return next
 }
 
-export function restoreSpellSlots(slots: CharacterSpellSlotsV3): CharacterSpellSlotsV3 {
+export function restoreSpellSlots(slots: CharacterSpellSlots): CharacterSpellSlots {
     return Object.fromEntries(
         Object.entries(slots).map(([level, slot]) => [level, { max: slot.max, used: 0 }]),
-    ) as unknown as CharacterSpellSlotsV3
+    ) as unknown as CharacterSpellSlots
 }
 
 export function changeSpellSlot(
-    slots: CharacterSpellSlotsV3,
-    level: keyof CharacterSpellSlotsV3,
+    slots: CharacterSpellSlots,
+    level: keyof CharacterSpellSlots,
     delta: number,
-): CharacterSpellSlotsV3 {
+): CharacterSpellSlots {
     const next = clone(slots)
 
     const slot = next[level]

@@ -4801,7 +4801,7 @@ body {
     box-sizing: border-box;
 }
 
-/* Keep the shared headers and data rows on the same compact grid. */
+/* Keep the common headers and data rows on the same compact grid. */
 .saving-throws-header,
 .saving-throw-row {
     grid-template-columns: minmax(0, 1fr) minmax(82px, auto) minmax(84px, 96px) minmax(72px, 96px);

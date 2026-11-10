@@ -1,4 +1,4 @@
-import type { BestiaryEntry } from '../types.ts'
+import type { BestiaryEntry } from '../types/bestiary.ts'
 import { createBestiaryAdapter } from '../api/bestiaryAdapter.ts'
 
 const entry = (value: BestiaryEntry): BestiaryEntry => value

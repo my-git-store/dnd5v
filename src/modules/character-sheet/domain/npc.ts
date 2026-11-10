@@ -1,5 +1,5 @@
 import type { CharacterAbilities } from '../types/character.ts'
-import type { CharacterNpcV3 } from '../types/characterV3.ts'
+import type { CharacterNpc } from '../types/character.ts'
 
 export const DEFAULT_NPC_ABILITIES: CharacterAbilities = {
     strength: 10,
@@ -10,7 +10,7 @@ export const DEFAULT_NPC_ABILITIES: CharacterAbilities = {
     charisma: 10,
 }
 
-export function createDefaultNpcProfile(name = 'Новый НПС'): CharacterNpcV3 {
+export function createDefaultNpcProfile(name = 'Новый НПС'): CharacterNpc {
     return {
         name,
         creatureType: 'Гуманоид',

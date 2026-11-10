@@ -1,10 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V2_STORAGE_PREFIX, CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
-import { migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
-import type { CharacterV3 } from '../../src/modules/character-sheet/types/characterV3.ts'
+import type { Character } from '../../src/modules/character-sheet/types/character.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -18,47 +17,31 @@ class MemoryStorage implements CharacterStorageLike {
   }
 }
 
-test('loads a v3 record into the current UI projection', async () => {
+test('loads a current record into the current UI projection', async () => {
   const storage = new MemoryStorage()
 
-  const v3 = migrateCharacterV2ToV3(createMockCharacter())
-  v3.identity.name = 'Имя v3'
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${v3.id}`, JSON.stringify(v3))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const character = createMockCharacter()
+  character.identity.name = 'Имя персонажа'
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${character.id}`, JSON.stringify(character))
+  const adapter = createCharacterSheetAdapter({ storage })
 
-  const uiCharacter = await adapter.load(v3.id)
+  const uiCharacter = await adapter.load(character.id)
 
-  assert.equal(uiCharacter.schemaVersion, 2)
-  assert.equal(uiCharacter.name, 'Имя v3')
-  assert.equal(uiCharacter.armorClass, v3.combat.armorClass.value)
-  assert.equal(uiCharacter.spells[0]?.name, v3.spellcasting.knownSpells[0]?.name)
-  assert.equal(uiCharacter.race.name, v3.identity.race.name)
-  assert.deepEqual(uiCharacter.savingThrows, v3.savingThrows)
+  assert.equal(uiCharacter.schemaVersion, 3)
+  assert.equal(uiCharacter.name, 'Имя персонажа')
+  assert.equal(uiCharacter.armorClass, character.combat.armorClass.value)
+  assert.equal(uiCharacter.spells[0]?.name, character.spellcasting.knownSpells[0]?.name)
+  assert.equal(uiCharacter.race.name, character.identity.race.name)
+  assert.deepEqual(uiCharacter.savingThrows, character.savingThrows)
 })
 
-test('loads v2, promotes a v3 copy, and leaves the old key untouched', async () => {
+test('saves UI changes through the current adapter', async () => {
   const storage = new MemoryStorage()
 
   const source = createMockCharacter()
-  storage.setItem(`${CHARACTER_V2_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
 
-  const uiCharacter = await adapter.load(source.id)
-
-  const promoted = storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)
-
-  assert.equal(uiCharacter.name, source.name)
-  assert.notEqual(promoted, null)
-  assert.equal(JSON.parse(promoted!).schemaVersion, 3)
-  assert.notEqual(storage.getItem(`${CHARACTER_V2_STORAGE_PREFIX}${source.id}`), null)
-})
-
-test('saves UI changes through the v3 adapter', async () => {
-  const storage = new MemoryStorage()
-
-  const source = createMockCharacter()
-
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const uiCharacter = await adapter.load(source.id)
   uiCharacter.name = 'Изменено через UI'
@@ -67,7 +50,7 @@ test('saves UI changes through the v3 adapter', async () => {
 
   const savedUiCharacter = await adapter.save(uiCharacter)
 
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`)!) as Character
 
   assert.equal(savedUiCharacter.name, 'Изменено через UI')
   assert.equal(saved.identity.name, 'Изменено через UI')
@@ -76,26 +59,26 @@ test('saves UI changes through the v3 adapter', async () => {
   assert.equal(saved.schemaVersion, 3)
 })
 
-test('preserves v3 fields that are not represented by the current UI', async () => {
+test('preserves current fields that are not represented by the UI', async () => {
   const storage = new MemoryStorage()
 
   const source = createMockCharacter()
 
-  const v3 = migrateCharacterV2ToV3(source)
-  v3.identity.race.name = 'Эльф'
-  v3.identity.background.name = 'Отшельник'
-  v3.combat.hitPoints.max = 18
-  v3.spellcasting.knownSpells[0]!.school = 'Ограждение'
-  v3.inventory.items[0]!.weight = 2
-  v3.inventory.items[0]!.equipped = true
-  v3.personality.ideals = 'Знание выше страха'
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(v3))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const current = source
+  current.identity.race.name = 'Эльф'
+  current.identity.background.name = 'Отшельник'
+  current.combat.hitPoints.max = 18
+  current.spellcasting.knownSpells[0]!.school = 'Ограждение'
+  current.inventory.items[0]!.weight = 2
+  current.inventory.items[0]!.equipped = true
+  current.personality.ideals = 'Знание выше страха'
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(current))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const uiCharacter = await adapter.load(source.id)
   uiCharacter.name = 'Новое имя'
   await adapter.save(uiCharacter)
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`)!) as Character
 
   assert.equal(saved.identity.name, 'Новое имя')
   assert.equal(saved.identity.race.name, 'Эльф')
@@ -107,14 +90,14 @@ test('preserves v3 fields that are not represented by the current UI', async () 
   assert.equal(saved.personality.ideals, 'Знание выше страха')
 })
 
-test('round-trips v3 identity, saving throws and skill settings through the UI projection', async () => {
+test('round-trips identity, saving throws and skill settings through the UI projection', async () => {
   const storage = new MemoryStorage()
 
   const source = createMockCharacter()
 
-  const v3 = migrateCharacterV2ToV3(source)
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(v3))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const current = source
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(current))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const uiCharacter = await adapter.load(source.id)
   uiCharacter.race.name = 'Эльф'
@@ -127,7 +110,7 @@ test('round-trips v3 identity, saving throws and skill settings through the UI p
   uiCharacter.skills[0]!.additionalBonus = 2
 
   await adapter.save(uiCharacter)
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`)!) as Character
 
   assert.equal(saved.identity.race.name, 'Эльф')
   assert.equal(saved.identity.subclass, 'Колдунский покровитель')
@@ -139,21 +122,21 @@ test('round-trips v3 identity, saving throws and skill settings through the UI p
   assert.equal(saved.skills[0]?.additionalBonus, 2)
 })
 
-test('round-trips combat stats and the full attack editor shape without losing legacy bonus text', async () => {
+test('round-trips combat stats and the full attack editor shape without losing bonus text', async () => {
   const storage = new MemoryStorage()
 
   const source = createMockCharacter()
 
-  const v3 = migrateCharacterV2ToV3(source)
-  v3.combat.armorClass.mode = 'computed'
-  v3.combat.armorClass.armorBase = 13
-  v3.combat.armorClass.armorDexCap = 2
-  v3.combat.hitPoints = { max: 24, current: 18, temporary: 3 }
-  v3.combat.hitDice = { size: 'd8', total: 4, spent: 1 }
-  v3.combat.deathSaves = { successes: 1, failures: 2 }
-  v3.attacks[0] = { ...v3.attacks[0]!, kind: 'ranged', abilitySource: 'dexterity', proficient: true, calculationMode: 'computed', attackBonus: '1d20+5', damageType: 'piercing', properties: ['Боеприпасы'], range: '80/320' }
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(v3))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const current = source
+  current.combat.armorClass.mode = 'computed'
+  current.combat.armorClass.armorBase = 13
+  current.combat.armorClass.armorDexCap = 2
+  current.combat.hitPoints = { max: 24, current: 18, temporary: 3 }
+  current.combat.hitDice = { size: 'd8', total: 4, spent: 1 }
+  current.combat.deathSaves = { successes: 1, failures: 2 }
+  current.attacks[0] = { ...current.attacks[0]!, kind: 'ranged', abilitySource: 'dexterity', proficient: true, calculationMode: 'computed', attackBonus: '1d20+5', damageType: 'piercing', properties: ['Боеприпасы'], range: '80/320' }
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(current))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const uiCharacter = await adapter.load(source.id)
   uiCharacter.combat.hitPoints.current = 12
@@ -164,7 +147,7 @@ test('round-trips combat stats and the full attack editor shape without losing l
   uiCharacter.attacks[0]!.properties = ['Двуручное']
   await adapter.save(uiCharacter)
 
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`)!) as Character
   assert.equal(saved.combat.armorClass.mode, 'computed')
   assert.equal(saved.combat.hitPoints.current, 12)
   assert.equal(saved.combat.deathSaves.failures, 3)
@@ -179,12 +162,12 @@ test('round-trips spellcasting settings, slots and prepared spell ids', async ()
 
   const source = createMockCharacter()
 
-  const v3 = migrateCharacterV2ToV3(source)
-  v3.spellcasting.spellcastingAbility = 'intelligence'
-  v3.spellcasting.preparedSpellIds = ['spell-1']
-  v3.spellcasting.spellSlots[1] = { max: 4, used: 2 }
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(v3))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const current = source
+  current.spellcasting.spellcastingAbility = 'intelligence'
+  current.spellcasting.preparedSpellIds = ['spell-1']
+  current.spellcasting.spellSlots[1] = { max: 4, used: 2 }
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(current))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const uiCharacter = await adapter.load(source.id)
   assert.equal(uiCharacter.spellcasting.spellcastingAbility, 'intelligence')
@@ -194,7 +177,7 @@ test('round-trips spellcasting settings, slots and prepared spell ids', async ()
   uiCharacter.spellcasting.spellSlots[1]!.used = 4
   await adapter.save(uiCharacter)
 
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`)!) as Character
   assert.deepEqual(saved.spellcasting.preparedSpellIds, [])
   assert.deepEqual(saved.spellcasting.spellSlots[1], { max: 4, used: 4 })
 })
@@ -204,9 +187,9 @@ test('round-trips full inventory item metadata and personality fields', async ()
 
   const source = createMockCharacter()
 
-  const v3 = migrateCharacterV2ToV3(source)
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(v3))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const current = source
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(current))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const uiCharacter = await adapter.load(source.id)
   uiCharacter.inventoryData.items[0]!.weight = 2.5
@@ -220,7 +203,7 @@ test('round-trips full inventory item metadata and personality fields', async ()
   uiCharacter.personality.features = 'Тёмное зрение.'
   await adapter.save(uiCharacter)
 
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`)!) as Character
   assert.equal(saved.inventory.items[0]?.weight, 2.5)
   assert.equal(saved.inventory.items[0]?.equipped, true)
   assert.deepEqual(saved.inventory.items[0]?.properties, ['Фокус', 'Дерево'])
@@ -237,9 +220,9 @@ test('round-trips user-authored feats and keeps old records empty', async () => 
 
   const source = createMockCharacter()
 
-  const v3 = migrateCharacterV2ToV3(source)
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(v3))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const current = source
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(current))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const empty = await adapter.load(source.id)
   assert.deepEqual(empty.feats, [])
@@ -251,6 +234,6 @@ test('round-trips user-authored feats and keeps old records empty', async () => 
   reloaded.feats[0]!.description = 'Обновлённое описание.'
   reloaded.feats = reloaded.feats.filter((feat) => feat.id !== 'missing')
   await adapter.save(reloaded)
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`)!) as Character
   assert.deepEqual(saved.feats, [{ id: 'feat-test', name: 'Наблюдатель', description: 'Обновлённое описание.' }])
 })

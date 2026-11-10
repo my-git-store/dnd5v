@@ -1,7 +1,7 @@
 import { getRules2024Class } from '../data/rules2024/index.ts'
-import type { CharacterRuleset, CharacterV3 } from '../types/characterV3.ts'
+import type { CharacterRuleset, Character } from '../types/character.ts'
 import type {
-    CharacterProgressionV3,
+    CharacterProgression,
     ChoiceDefinition,
     ClassLevelEntry,
     ProgressionChoiceMetadata,
@@ -37,7 +37,7 @@ function isLevel(value: unknown): value is number {
     )
 }
 
-function creationData(value: CharacterV3): Record<string, unknown> | undefined {
+function creationData(value: Character): Record<string, unknown> | undefined {
     const extensions = value.extensions as Record<string, unknown> | undefined
 
     const creation = extensions?.characterCreation
@@ -46,12 +46,12 @@ function creationData(value: CharacterV3): Record<string, unknown> | undefined {
         : undefined
 }
 
-function classIdFromCharacter(value: CharacterV3): string | undefined {
+function classIdFromCharacter(value: Character): string | undefined {
     const classId = creationData(value)?.classId
     return typeof classId === 'string' && classId.length > 0 ? classId : undefined
 }
 
-function selectedChoices(value: CharacterV3): Record<string, string[]> {
+function selectedChoices(value: Character): Record<string, string[]> {
     const creation = creationData(value)
     if (!creation) return {}
     const choices: Record<string, string[]> = {}
@@ -115,7 +115,7 @@ function cloneChoices(value: Record<string, string[]> | undefined): Record<strin
 }
 
 function featureGainsFromExisting(
-    value: CharacterProgressionV3,
+    value: CharacterProgression,
     classId: string | undefined,
 ): ProgressionFeatureGain[] {
     const featureIds = new Set(value.features ?? value.featureIds ?? [])
@@ -148,9 +148,9 @@ function featureGainsFromExisting(
 
 /** Add safe runtime defaults to progression metadata without applying any effects. */
 export function normalizeProgression(
-    value: CharacterProgressionV3,
+    value: CharacterProgression,
     _ruleset: CharacterRuleset,
-): CharacterProgressionV3 {
+): CharacterProgression {
     const classId = value.classLevels[0]?.classId
     return {
         ...value,
@@ -174,11 +174,11 @@ export function normalizeProgression(
 
 /** Reapply creation choices without erasing an existing level history. */
 export function progressionAfterCreation(
-    previous: CharacterProgressionV3 | undefined,
-    created: CharacterProgressionV3,
+    previous: CharacterProgression | undefined,
+    created: CharacterProgression,
     previousRuleset: CharacterRuleset,
     ruleset: CharacterRuleset,
-): CharacterProgressionV3 {
+): CharacterProgression {
     if (!previous || previousRuleset !== ruleset) return created
     const previousClassId = previous.classLevels[0]?.classId
 
@@ -210,7 +210,7 @@ export function progressionAfterCreation(
 
 /** Return future selection metadata available at a level; no selection is applied. */
 export function availableChoicesForProgression(
-    progression: CharacterProgressionV3,
+    progression: CharacterProgression,
     level = progression.level,
     ruleset: CharacterRuleset = '2024',
 ): ChoiceDefinition[] {
@@ -246,10 +246,10 @@ export function availableChoicesForProgression(
  * ASI allocation and feat selection remain explicit future operations.
  */
 export function levelUpProgression(
-    progression: CharacterProgressionV3,
+    progression: CharacterProgression,
     targetLevel = progression.level + 1,
     ruleset: CharacterRuleset = '2024',
-): CharacterProgressionV3 {
+): CharacterProgression {
     if (
         !isLevel(progression.level) ||
         !isLevel(targetLevel) ||
@@ -304,7 +304,7 @@ export function levelUpProgression(
 }
 
 /** Build a progression envelope from the current character without applying any rules. */
-export function defaultProgressionForCharacter(value: CharacterV3): CharacterProgressionV3 {
+export function defaultProgressionForCharacter(value: Character): CharacterProgression {
     const level = isLevel(value.identity.level) ? value.identity.level : CHARACTER_LEVEL_MIN
 
     const classId = classIdFromCharacter(value)
@@ -338,7 +338,7 @@ export interface ProgressionSelection {
 }
 
 /** Create a deterministic single-class envelope for the current creation foundation. */
-export function progressionForClass(selection: ProgressionSelection): CharacterProgressionV3 {
+export function progressionForClass(selection: ProgressionSelection): CharacterProgression {
     const level = isLevel(selection.level) ? selection.level : CHARACTER_LEVEL_MIN
 
     const features = unique(
@@ -359,9 +359,9 @@ export function progressionForClass(selection: ProgressionSelection): CharacterP
 
 /** Keep the progression summary synchronized when the existing sheet level is edited. */
 export function progressionAtLevel(
-    progression: CharacterProgressionV3,
+    progression: CharacterProgression,
     level: number,
-): CharacterProgressionV3 {
+): CharacterProgression {
     const nextLevel = isLevel(level) ? level : progression.level
 
     const classLevels = progression.classLevels.map((entry, index) =>

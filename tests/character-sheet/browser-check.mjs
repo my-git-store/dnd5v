@@ -113,7 +113,7 @@ try {
     assert.equal(await page.getByText('Сохранено', { exact: true }).count(), 0)
     await page.getByText('Сохранено', { exact: true }).waitFor()
     assert.equal(await page.getByRole('button', { name: 'Сохранить', exact: true }).isEnabled(), false)
-    const saved = await page.evaluate(() => localStorage.getItem('nastolka:character-sheet:v3:demo-character'))
+    const saved = await page.evaluate(() => localStorage.getItem('nastolka:character-sheet:demo-character'))
     assert.ok(saved)
     await page.reload()
     await loaded()
@@ -146,7 +146,7 @@ try {
     assert.equal(await page.locator('.load-state').isVisible(), true)
     await page.screenshot({ path: 'tests/character-sheet/loader-check.png' })
     await loaded()
-    assert.equal(await page.evaluate(() => localStorage.getItem('nastolka:character-sheet:v3:demo-character')), saved)
+    assert.equal(await page.evaluate(() => localStorage.getItem('nastolka:character-sheet:demo-character')), saved)
     report('controlled mock load error, visible loader on retry, successful retry, storage intact')
     await page.setViewportSize({ width: 375, height: 812 })
     for (const name of ['Основное', 'Магия / Заклинания', 'Инвентарь', 'БИО', 'Создание']) {

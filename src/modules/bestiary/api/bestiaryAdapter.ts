@@ -1,4 +1,4 @@
-import type { BestiaryEntry } from '../types.ts'
+import type { BestiaryEntry } from '../types/bestiary.ts'
 
 export interface BestiaryAdapter {
     list(): readonly BestiaryEntry[]

@@ -1,14 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 import { RULES_2024_BACKGROUNDS, RULES_2024_CLASSES, getRules2024Class, getRules2024Feature, RULES_2024_FEATURES } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
-import { migrateCharacterToV3, migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import type { CharacterSheetView } from '../../src/modules/character-sheet/types/characterView.ts'
-import type { CharacterV3 } from '../../src/modules/character-sheet/types/characterV3.ts'
-import { validateCharacterV3 } from '../../src/modules/character-sheet/validation/characterV3Validation.ts'
+import type { Character } from '../../src/modules/character-sheet/types/character.ts'
+import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
 import { PROGRESSION_UI_ENABLED } from '../../src/modules/character-sheet/domain/progressionVisibility.ts'
 
 class MemoryStorage implements CharacterStorageLike {
@@ -31,41 +30,29 @@ function modernPayload(view: CharacterSheetView, classId = 'wizard'): Parameters
   }
 }
 
-test('old v3 characters receive a safe progression default without a schema bump', () => {
-  const old = migrateCharacterV2ToV3(createMockCharacter())
-  delete old.progression
-  const migrated = migrateCharacterToV3(old)
-
-  assert.equal(migrated.schemaVersion, 3)
-  assert.equal(migrated.progression?.level, migrated.identity.level)
-  assert.deepEqual(migrated.progression?.classLevels, [])
-  assert.deepEqual(migrated.progression?.features, [])
-  assert.deepEqual(validateCharacterV3(migrated), [])
-})
-
 test('progression UI is hidden without removing persisted progression data', async () => {
   assert.equal(PROGRESSION_UI_ENABLED, false)
   const storage = new MemoryStorage()
 
-  const character = migrateCharacterV2ToV3(createMockCharacter())
+  const character = createMockCharacter()
   character.identity.level = 2
   character.progression = { level: 2, classLevels: [{ classId: 'wizard', level: 2 }], features: ['wizard.level-1.1'], choices: {}, history: [{ fromLevel: 1, toLevel: 2, gainedFeatures: [], choices: {} }] }
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`, JSON.stringify(character))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${character.id}`, JSON.stringify(character))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const view = await adapter.load(character.id)
   await adapter.save(view)
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${character.id}`)!) as Character
   assert.deepEqual(saved.progression?.history, character.progression.history)
   assert.equal(saved.progression?.level, 2)
 })
 
 test('2024 class selection stores references and choices without duplicating feature content', async () => {
-  const source = migrateCharacterV2ToV3(createMockCharacter())
+  const source = createMockCharacter()
 
   const storage = new MemoryStorage()
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const view = await adapter.load(source.id)
 
@@ -93,16 +80,16 @@ test('feature metadata is generated from class level metadata and remains displa
 test('progression level and non-UI fields round-trip through the adapter', async () => {
   const storage = new MemoryStorage()
 
-  const character = migrateCharacterV2ToV3(createMockCharacter())
+  const character = createMockCharacter()
   character.progression = { level: 1, classLevels: [{ classId: 'wizard', level: 1 }], features: ['wizard.level-1.1'], choices: { classSkills: ['arcana'] } }
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`, JSON.stringify(character))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${character.id}`, JSON.stringify(character))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const view = await adapter.load(character.id)
   view.level = 2
   view.progression!.choices.classSkills = ['history']
   await adapter.save(view)
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${character.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${character.id}`)!) as Character
 
   assert.equal(saved.progression?.level, 2)
   assert.deepEqual(saved.progression?.classLevels, [{ classId: 'wizard', level: 2 }])
@@ -114,12 +101,12 @@ test('progression level and non-UI fields round-trip through the adapter', async
 })
 
 test('invalid progression levels and missing class references are rejected', () => {
-  const invalidLevel = migrateCharacterV2ToV3(createMockCharacter())
+  const invalidLevel = createMockCharacter()
   invalidLevel.progression = { level: 0, classLevels: [], features: [], choices: {} }
-  assert.ok(validateCharacterV3(invalidLevel).some((error) => error.includes('progression')))
+  assert.ok(validateCharacter(invalidLevel).some((error) => error.includes('progression')))
 
-  const missingClass = migrateCharacterV2ToV3(createMockCharacter())
+  const missingClass = createMockCharacter()
   missingClass.ruleset = '2024'
   missingClass.progression = { level: 1, classLevels: [{ classId: '', level: 1 }], features: [], choices: {} }
-  assert.ok(validateCharacterV3(missingClass).some((error) => error.includes('progression')))
+  assert.ok(validateCharacter(missingClass).some((error) => error.includes('progression')))
 })

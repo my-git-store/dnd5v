@@ -1,5 +1,5 @@
 /** Explicit presentation mapping for the D&D 2024 species assets. */
-import { assetUrl } from '../../../config/assets.ts'
+import { assetUrl } from '../config/assets.ts'
 
 export const SPECIES_ICON_PATHS = {
     aasimar: assetUrl('/images/species/aasimar.png'),

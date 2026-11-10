@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-import CharacterSheetPage from '@/modules/character-sheet/CharacterSheetPage.vue'
-import ModalHost from '@/components/ModalHost.vue'
-import { useColorTheme } from '@/utils/colorTheme'
+import CharacterSheetPage from '@/modules/character-sheet/views/CharacterSheetPage.vue'
+import ModalHost from '@/modules/character-sheet/components/ModalHost.vue'
+import { useColorTheme } from '@/modules/character-sheet/utils/colorTheme'
 
 const { naiveTheme, theme } = useColorTheme()
 

@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useDialog } from '@/composables/useDialog'
-import type { CharacterNpcEntryV3 } from '../types/characterV3'
+import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import type { CharacterNpcEntry } from '../types/character'
 
 const props = defineProps<{
-    entry: CharacterNpcEntryV3
-    onSave: (entry: CharacterNpcEntryV3) => void
+    entry: CharacterNpcEntry
+    onSave: (entry: CharacterNpcEntry) => void
 }>()
 
 const emit = defineEmits<{ close: [] }>()
 
 const { close } = useDialog()
 
-const draft = ref<CharacterNpcEntryV3>({ ...props.entry })
+const draft = ref<CharacterNpcEntry>({ ...props.entry })
 watch(
     () => props.entry,
     value => {

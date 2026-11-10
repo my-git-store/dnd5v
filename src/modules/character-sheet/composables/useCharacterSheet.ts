@@ -1,5 +1,5 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { createCharacterSheetAdapter } from '../adapters/characterSheetAdapter'
+import { createCharacterSheetAdapter } from '../api/characterSheetAdapter'
 import {
     type AbilityKey,
     type CharacterBio,
@@ -15,15 +15,14 @@ import {
     type CharacterSkillPatch,
 } from '../types/characterView'
 import type {
-    CharacterCombatV3,
-    CharacterEncounterV3,
-    CharacterFeatV3,
-    CharacterInventoryItemV3,
-    CharacterPersonalityV3,
-    CharacterSpellcastingV3,
-    CharacterV3,
-} from '../types/characterV3'
-import { validateCharacter } from '../validation/characterValidation'
+    CharacterCombat,
+    CharacterEncounter,
+    CharacterFeat,
+    CharacterInventoryItemRecord,
+    CharacterPersonality,
+    CharacterSpellcasting,
+    Character,
+} from '../types/character'
 import { applyCharacterCreation, type CharacterCreationPayload } from '../domain/characterCreation'
 import { levelUpProgression, progressionAtLevel } from '../domain/characterProgression'
 import {
@@ -32,9 +31,9 @@ import {
     readStoredActiveCharacterId,
     removeStoredCharacter,
     writeStoredActiveCharacterId,
-    writeStoredCharacterV3,
+    writeStoredCharacter,
     type StoredCharacterSummary,
-} from '../api/characterV3Storage'
+} from '../api/characterStorage'
 import { uniqueCharacterId } from '../api/characterTransfer'
 import { createDefaultNpcProfile } from '../domain/npc'
 import {
@@ -44,7 +43,7 @@ import {
     takeShortRest,
     type ShortRestResult,
 } from '../domain/rest'
-import type { CharacterV3SpellLevel } from '../types/characterV3'
+import type { CharacterSpellLevel } from '../types/character'
 
 export function useCharacterSheet(id = 'demo-character') {
     const adapter = createCharacterSheetAdapter()
@@ -122,11 +121,6 @@ export function useCharacterSheet(id = 'demo-character') {
     async function save() {
         if (!character.value || isSaving.value) return
         savedNotice.value = false
-        const errors = validateCharacter(character.value)
-        if (errors.length) {
-            saveError.value = errors[0] ?? 'Проверьте данные персонажа.'
-            return
-        }
         isSaving.value = true
         saveError.value = null
         savedNotice.value = false
@@ -236,21 +230,21 @@ export function useCharacterSheet(id = 'demo-character') {
     }
 
     async function importCharacters(
-        imported: CharacterV3[],
+        imported: Character[],
         mode: 'add' | 'replace',
     ): Promise<string[]> {
         const usedIds = new Set(listStoredCharacterIds())
 
         const ids: string[] = []
         for (const [index, importedCharacter] of imported.entries()) {
-            const next = JSON.parse(JSON.stringify(importedCharacter)) as CharacterV3
+            const next = JSON.parse(JSON.stringify(importedCharacter)) as Character
 
             const targetId =
                 mode === 'replace' && index === 0 && activeId.value
                     ? activeId.value
                     : uniqueCharacterId(next.id, usedIds)
             next.id = targetId
-            writeStoredCharacterV3(next)
+            writeStoredCharacter(next)
             usedIds.add(targetId)
             ids.push(targetId)
         }
@@ -290,11 +284,11 @@ export function useCharacterSheet(id = 'demo-character') {
         >
         savedNotice.value = false
     }
-    function updateEncounters(encounters: CharacterEncounterV3[]) {
+    function updateEncounters(encounters: CharacterEncounter[]) {
         if (!character.value) return
         character.value.encounters = JSON.parse(
             JSON.stringify(encounters),
-        ) as CharacterEncounterV3[]
+        ) as CharacterEncounter[]
         savedNotice.value = false
     }
     function updateDetails(details: CharacterDetails) {
@@ -325,9 +319,9 @@ export function useCharacterSheet(id = 'demo-character') {
         }
         savedNotice.value = false
     }
-    function updateCombat(combat: CharacterCombatV3) {
+    function updateCombat(combat: CharacterCombat) {
         if (!character.value) return
-        character.value.combat = JSON.parse(JSON.stringify(combat)) as CharacterCombatV3
+        character.value.combat = JSON.parse(JSON.stringify(combat)) as CharacterCombat
         character.value.armorClass = combat.armorClass.value
         savedNotice.value = false
     }
@@ -343,11 +337,11 @@ export function useCharacterSheet(id = 'demo-character') {
         if (character.value) character.value.cantrips = cantrips
         savedNotice.value = false
     }
-    function updateSpellcasting(spellcasting: CharacterSpellcastingV3) {
+    function updateSpellcasting(spellcasting: CharacterSpellcasting) {
         if (!character.value) return
         character.value.spellcasting = JSON.parse(
             JSON.stringify(spellcasting),
-        ) as CharacterSpellcastingV3
+        ) as CharacterSpellcasting
         savedNotice.value = false
     }
     function shortRest(dice: number): ShortRestResult | null {
@@ -368,7 +362,7 @@ export function useCharacterSheet(id = 'demo-character') {
         savedNotice.value = false
         saveError.value = null
     }
-    function adjustSpellSlot(level: CharacterV3SpellLevel, delta: number) {
+    function adjustSpellSlot(level: CharacterSpellLevel, delta: number) {
         if (!character.value) return
         character.value.spellcasting = {
             ...character.value.spellcasting,
@@ -394,11 +388,11 @@ export function useCharacterSheet(id = 'demo-character') {
         saveError.value = null
         return true
     }
-    function updateInventory(inventory: CharacterInventoryItemV3[]) {
+    function updateInventory(inventory: CharacterInventoryItemRecord[]) {
         if (!character.value) return
         character.value.inventoryData.items = JSON.parse(
             JSON.stringify(inventory),
-        ) as CharacterInventoryItemV3[]
+        ) as CharacterInventoryItemRecord[]
         character.value.inventory = inventory.map(({ id, name, quantity, description }) => ({
             id,
             name,
@@ -413,11 +407,11 @@ export function useCharacterSheet(id = 'demo-character') {
         character.value.inventoryData.money = { ...money }
         savedNotice.value = false
     }
-    function updatePersonality(personality: CharacterPersonalityV3) {
+    function updatePersonality(personality: CharacterPersonality) {
         if (!character.value) return
         character.value.personality = JSON.parse(
             JSON.stringify(personality),
-        ) as CharacterPersonalityV3
+        ) as CharacterPersonality
         character.value.bio = {
             biography: personality.biography,
             traits: personality.traits,
@@ -425,9 +419,9 @@ export function useCharacterSheet(id = 'demo-character') {
         }
         savedNotice.value = false
     }
-    function updateFeats(feats: CharacterFeatV3[]) {
+    function updateFeats(feats: CharacterFeat[]) {
         if (!character.value) return
-        character.value.feats = JSON.parse(JSON.stringify(feats)) as CharacterFeatV3[]
+        character.value.feats = JSON.parse(JSON.stringify(feats)) as CharacterFeat[]
         savedNotice.value = false
     }
     function updateBio(bio: CharacterBio) {

@@ -1,14 +1,14 @@
 import { abilityModifier } from './abilityModifier.ts'
 import type { CharacterSheetView } from '../types/characterView.ts'
 import type { AbilityKey } from '../types/character.ts'
-import type { CharacterSpellSlotsV3 } from '../types/characterV3.ts'
+import type { CharacterSpellSlots } from '../types/character.ts'
 
 type CreationClassVitals = {
     hitDie: string
     spellcastingAbility: AbilityKey | null
 }
 
-function emptySpellSlots(): CharacterSpellSlotsV3 {
+function emptySpellSlots(): CharacterSpellSlots {
     return {
         1: { max: 0, used: 0 },
         2: { max: 0, used: 0 },

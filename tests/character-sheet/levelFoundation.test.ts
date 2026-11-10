@@ -1,13 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { availableChoicesForProgression, levelUpProgression, progressionForClass } from '../../src/modules/character-sheet/domain/characterProgression.ts'
-import { migrateCharacterToV3, migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
-import type { CharacterV3 } from '../../src/modules/character-sheet/types/characterV3.ts'
-import type { CharacterProgressionV3 } from '../../src/modules/character-sheet/types/rules.ts'
-import { validateCharacterV3 } from '../../src/modules/character-sheet/validation/characterV3Validation.ts'
+import type { Character } from '../../src/modules/character-sheet/types/character.ts'
+import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -16,7 +14,7 @@ class MemoryStorage implements CharacterStorageLike {
   setItem(key: string, value: string): void { this.values.set(key, value) }
 }
 
-function fighterProgression(level = 1): CharacterProgressionV3 {
+function fighterProgression(level = 1): CharacterProgression {
   return progressionForClass({ ruleset: '2024', classId: 'fighter', level })
 }
 
@@ -74,66 +72,47 @@ test('level-up preview exposes new choices without mutating the draft', () => {
 })
 
 test('duplicate feature references and invalid choice levels fail validation', () => {
-  const duplicate = migrateCharacterV2ToV3(createMockCharacter())
+  const duplicate = createMockCharacter()
   duplicate.ruleset = '2024'
   duplicate.progression = { ...fighterProgression(), features: ['fighter.level-1.1', 'fighter.level-1.1'] }
-  assert.ok(validateCharacterV3(duplicate).some((error) => error.includes('progression')))
+  assert.ok(validateCharacter(duplicate).some((error) => error.includes('progression')))
 
-  const invalidChoice = migrateCharacterV2ToV3(createMockCharacter())
+  const invalidChoice = createMockCharacter()
   invalidChoice.ruleset = '2024'
   invalidChoice.progression = { ...fighterProgression(), choiceMetadata: { abilityScoreImprovementLevels: [21], featChoiceLevels: [] } }
-  assert.ok(validateCharacterV3(invalidChoice).some((error) => error.includes('progression')))
+  assert.ok(validateCharacter(invalidChoice).some((error) => error.includes('progression')))
 
-  const malformedChoice = migrateCharacterV2ToV3(createMockCharacter())
+  const malformedChoice = createMockCharacter()
   malformedChoice.ruleset = '2024'
   malformedChoice.progression = { ...fighterProgression(), choices: { fightingStyle: [1 as unknown as string] } }
-  assert.ok(validateCharacterV3(malformedChoice).some((error) => error.includes('progression')))
+  assert.ok(validateCharacter(malformedChoice).some((error) => error.includes('progression')))
 
-  const invalidClassLevel = migrateCharacterV2ToV3(createMockCharacter())
+  const invalidClassLevel = createMockCharacter()
   invalidClassLevel.ruleset = '2024'
   invalidClassLevel.progression = { ...fighterProgression(), level: 1, classLevels: [{ classId: 'fighter', level: 2 }] }
-  assert.ok(validateCharacterV3(invalidClassLevel).some((error) => error.includes('progression')))
+  assert.ok(validateCharacter(invalidClassLevel).some((error) => error.includes('progression')))
 })
 
 test('level-up data survives adapter save and reload', async () => {
   const storage = new MemoryStorage()
 
-  const source = migrateCharacterV2ToV3(createMockCharacter())
+  const source = createMockCharacter()
   source.ruleset = '2024'
   source.extensions.characterCreation = { classId: 'fighter', classLevel: 1 }
   source.progression = fighterProgression()
   source.features = [...source.progression.features]
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const view = await adapter.load(source.id)
   view.level = 2
   view.progression = levelUpProgression(view.progression!, 2, '2024')
   await adapter.save(view)
 
-  const saved = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as CharacterV3
+  const saved = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`)!) as Character
   assert.equal(saved.progression?.level, 2)
   assert.equal(saved.progression?.classLevels[0]?.level, 2)
   assert.equal(saved.progression?.history?.at(-1)?.toLevel, 2)
   assert.deepEqual(saved.features, saved.progression?.features)
-  assert.deepEqual(validateCharacterV3(saved), [])
-})
-
-test('pre-progression v3 receives safe defaults without losing legacy data', () => {
-  const old = migrateCharacterV2ToV3(createMockCharacter())
-
-  const attacks = old.attacks.length
-
-  const spells = old.spellcasting.knownSpells.length
-
-  const inventory = old.inventory.items.length
-  delete old.progression
-  delete old.features
-
-  const migrated = migrateCharacterToV3(old)
-  assert.deepEqual(migrated.progression?.features, [])
-  assert.equal(migrated.attacks.length, attacks)
-  assert.equal(migrated.spellcasting.knownSpells.length, spells)
-  assert.equal(migrated.inventory.items.length, inventory)
-  assert.deepEqual(validateCharacterV3(migrated), [])
+  assert.deepEqual(validateCharacter(saved), [])
 })

@@ -2,9 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
-import { migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -13,9 +12,9 @@ class MemoryStorage implements CharacterStorageLike {
 }
 
 test('applies PHB race/class selections without discarding existing collections', () => {
-  const source = migrateCharacterV2ToV3(createMockCharacter())
+  const source = createMockCharacter()
 
-  const view = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => createMockCharacter() })
+  const view = createCharacterSheetAdapter({ storage: new MemoryStorage() })
   return view.load(source.id).then((loaded) => {
     const next = applyCharacterCreation(loaded, {
       name: 'Тестовый герой', raceId: 'dwarf', classId: 'rogue', subclass: '', alignment: '',
@@ -37,7 +36,7 @@ test('applies PHB race/class selections without discarding existing collections'
 test('initializes level-one hit points and hit dice from the selected class', async () => {
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await adapter.load(source.id)
 
@@ -53,7 +52,7 @@ test('initializes level-one hit points and hit dice from the selected class', as
 test('initializes first-level caster slots and leaves non-caster slots empty', async () => {
   const source = createMockCharacter()
 
-  const wizardAdapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const wizardAdapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await wizardAdapter.load(source.id)
 
@@ -74,7 +73,7 @@ test('initializes first-level caster slots and leaves non-caster slots empty', a
 test('does not overwrite existing manual hit points or slots during re-creation', async () => {
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await adapter.load(source.id)
 
@@ -96,7 +95,7 @@ test('does not overwrite existing manual hit points or slots during re-creation'
 test('caps class skill selections at the class rule limit', async () => {
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await adapter.load(source.id)
 
@@ -108,12 +107,12 @@ test('caps class skill selections at the class rule limit', async () => {
   assert.equal(next.skills.find((skill) => skill.id === 'perception')?.proficiency, 'none')
 })
 
-test('persists creation metadata through the existing v3 adapter', async () => {
+test('persists creation metadata through the existing current adapter', async () => {
   const storage = new MemoryStorage()
 
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const loaded = await adapter.load(source.id)
 
@@ -123,7 +122,7 @@ test('persists creation metadata through the existing v3 adapter', async () => {
     classSkillIds: ['arcana', 'history'], raceSkillChoices: [], raceAbilityChoices: [],
   })
   await adapter.save(created)
-  const raw = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`)!) as { extensions: { characterCreation: { classId: string } }; proficiency: { languageProficiencies: string[] } }
+  const raw = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`)!) as { extensions: { characterCreation: { classId: string } }; proficiency: { languageProficiencies: string[] } }
   assert.equal(raw.extensions.characterCreation.classId, 'wizard')
   assert.ok(raw.proficiency.languageProficiencies.includes('Гномий'))
 })
@@ -131,7 +130,7 @@ test('persists creation metadata through the existing v3 adapter', async () => {
 test('changing race replaces deterministic bonuses and preserves the base scores', async () => {
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await adapter.load(source.id)
 
@@ -151,7 +150,7 @@ test('changing race replaces deterministic bonuses and preserves the base scores
 test('changing class replaces class sources while retaining race source on the same skill', async () => {
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await adapter.load(source.id)
 
@@ -168,7 +167,7 @@ test('changing class replaces class sources while retaining race source on the s
 test('caster and non-caster changes clear stale spellcasting ability without deleting spells', async () => {
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await adapter.load(source.id)
 
@@ -179,23 +178,23 @@ test('caster and non-caster changes clear stale spellcasting ability without del
   assert.equal(fighter.spells.length, wizard.spells.length)
 })
 
-test('round-trip keeps old v3 data, manual speed override and creation-independent collections', async () => {
+test('round-trip keeps old current data, manual speed override and creation-independent collections', async () => {
   const storage = new MemoryStorage()
 
-  const source = migrateCharacterV2ToV3(createMockCharacter())
+  const source = createMockCharacter()
   source.combat.speed.override = 45
   source.attacks[0]!.attackBonus = '1d20+4'
   source.spellcasting.knownSpells[0]!.description = 'Не терять'
   source.inventory.items[0]!.equipped = true
   source.personality.biography = 'Старая биография'
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const loaded = await adapter.load(source.id)
   assert.equal(loaded.creation, undefined)
   const created = applyCharacterCreation(loaded, { name: loaded.name, raceId: 'elf', classId: 'bard', subclass: '', alignment: '', baseAbilities: loaded.abilities, classSkillIds: ['performance', 'persuasion', 'insight'], raceAbilityChoices: [] })
   await adapter.save(created)
-  const reloaded = await createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } }).load(source.id)
+  const reloaded = await createCharacterSheetAdapter({ storage }).load(source.id)
   assert.equal(reloaded.race.name, 'Эльф')
   assert.equal(reloaded.class, 'Бард')
   assert.equal(reloaded.combat.speed.override, 45)
@@ -208,7 +207,7 @@ test('round-trip keeps old v3 data, manual speed override and creation-independe
 test('applies subrace bonuses and replaces them on subrace change', async () => {
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await adapter.load(source.id)
 
@@ -226,7 +225,7 @@ test('applies subrace bonuses and replaces them on subrace change', async () => 
 test('tracks background proficiency alongside race and class sources', async () => {
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await adapter.load(source.id)
 
@@ -238,7 +237,7 @@ test('tracks background proficiency alongside race and class sources', async () 
 test('changes background sources without removing class or race ownership', async () => {
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await adapter.load(source.id)
 
@@ -254,7 +253,7 @@ test('starting equipment is deterministic and preserves user items', async () =>
 
   const storage = new MemoryStorage()
 
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const loaded = await adapter.load(source.id)
   loaded.inventoryData.items.push({ id: 'user-item', name: 'Личный амулет', quantity: 1, weight: null, description: 'Не удалять', equipped: false, properties: [] })
@@ -266,7 +265,7 @@ test('starting equipment is deterministic and preserves user items', async () =>
   assert.equal(repeated.inventoryData.items.filter((item) => item.source === 'creation').length, first.inventoryData.items.filter((item) => item.source === 'creation').length)
   assert.equal(repeated.inventoryData.items.filter((item) => item.id === 'user-item').length, 1)
   await adapter.save(repeated)
-  const reloaded = await createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } }).load(source.id)
+  const reloaded = await createCharacterSheetAdapter({ storage }).load(source.id)
   assert.equal(reloaded.inventoryData.items.filter((item) => item.source === 'creation').length, first.inventoryData.items.filter((item) => item.source === 'creation').length)
   assert.equal(reloaded.inventoryData.items.some((item) => item.id === 'user-item'), true)
 })
@@ -274,7 +273,7 @@ test('starting equipment is deterministic and preserves user items', async () =>
 test('legacy creation payload keeps an existing background when no background choice is supplied', async () => {
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage(), loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage: new MemoryStorage() })
 
   const loaded = await adapter.load(source.id)
   loaded.background = { name: 'Старый фон', feature: 'Старое умение', skillProficiencies: ['history'], toolProficiencies: ['Старый инструмент'], languages: ['Старый язык'], notes: 'Сохранить' }

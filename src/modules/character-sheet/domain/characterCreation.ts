@@ -1,11 +1,11 @@
 import { cloneCharacterView, type CharacterSheetView } from '../types/characterView.ts'
 import type { AbilityKey, CharacterAbilities, CharacterGender } from '../types/character.ts'
 import type {
-    CharacterCreationV3,
-    CharacterInventoryItemV3,
+    CharacterCreation,
+    CharacterInventoryItemRecord,
     CharacterRuleset,
     SkillProficiencySource,
-} from '../types/characterV3.ts'
+} from '../types/character.ts'
 import {
     combinedRaceBonuses,
     findBackground,
@@ -69,7 +69,7 @@ function selectedEquipment(
         | undefined,
     characterId: string,
     source: 'class' | 'background',
-): CharacterInventoryItemV3[] {
+): CharacterInventoryItemRecord[] {
     if (!option) return []
     return option.items.map((item, index) => ({
         id: `creation:${characterId}:${source}:${option.id}:${index}`,
@@ -115,7 +115,7 @@ export function applyCharacterCreation(
                 ],
             ]
         }),
-    ) as CharacterCreationV3['abilityBonusSources']
+    ) as CharacterCreation['abilityBonusSources']
 
     const hasBackgroundSelection = payload.backgroundId !== undefined
 
@@ -331,7 +331,7 @@ export function applyCharacterCreation(
           ]
         : []
     next.inventoryData.items = [...preservedItems, ...generatedItems]
-    const creation: CharacterCreationV3 = {
+    const creation: CharacterCreation = {
         ruleset: '2014',
         gender: payload.gender ?? previousCreation?.gender ?? 'female',
         raceId: race.id,

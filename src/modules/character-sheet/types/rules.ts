@@ -1,7 +1,7 @@
 import type { AbilityKey, CharacterGender } from './character.ts'
-import type { CharacterRuleset } from './characterV3.ts'
+import type { CharacterRuleset } from './character.ts'
 
-/** Shared vocabulary for future rule data. Existing v3 source fields stay compatible. */
+/** Common vocabulary for the current character record and future rule data. */
 export type RuleSourceKind =
     | 'species'
     | 'race'
@@ -67,7 +67,7 @@ export interface ChoiceDefinition {
 }
 
 /** Additive progression envelope. It stores references and choices, never evaluated effects. */
-export interface CharacterProgressionV3 {
+export interface CharacterProgression {
     level: number
     classLevels: ClassLevelEntry[]
     features: string[]
@@ -80,8 +80,6 @@ export interface CharacterProgressionV3 {
     /** Compatibility alias for an early, not-yet-persisted placeholder contract. */
     featureIds?: string[]
 }
-
-export type CharacterProgression = CharacterProgressionV3
 
 export interface RulesetTaggedDefinition {
     id: string
@@ -189,7 +187,7 @@ export interface RuleFeatureMetadata {
     label: string
 }
 
-/** Canonical class definition shared by future ruleset catalogues. */
+/** Canonical class definition used by future ruleset catalogues. */
 export interface ClassDefinition extends RulesetTaggedDefinition {
     name: string
     /** Optional portrait asset. Older class records can omit it safely. */

@@ -1,9 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
 import { createEmptyCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
-import { migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
-import { CHARACTER_ACTIVE_STORAGE_KEY, CHARACTER_INDEX_STORAGE_KEY, CHARACTER_V3_STORAGE_PREFIX, listStoredCharacterSummaries, readStoredActiveCharacterId, removeStoredCharacter, type CharacterStorageLike, writeStoredActiveCharacterId } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { CHARACTER_ACTIVE_STORAGE_KEY, CHARACTER_INDEX_STORAGE_KEY, CHARACTER_STORAGE_PREFIX, listStoredCharacterSummaries, readStoredActiveCharacterId, removeStoredCharacter, type CharacterStorageLike, writeStoredActiveCharacterId } from '../../src/modules/character-sheet/api/characterStorage.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -18,7 +17,7 @@ class MemoryStorage implements CharacterStorageLike {
 test('new characters use safe empty defaults and persist all edited sections after reload', async () => {
   const storage = new MemoryStorage()
 
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async (id) => createEmptyCharacter(id) })
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const created = await adapter.load('new-character')
   assert.equal(created.id, 'new-character')
@@ -35,7 +34,7 @@ test('new characters use safe empty defaults and persist all edited sections aft
   created.spells = [{ id: 'spell-1', name: 'Щит', level: 1, description: 'Защита.' }]
   const saved = await adapter.save(created)
 
-  const reloaded = await createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } }).load(saved.id)
+  const reloaded = await createCharacterSheetAdapter({ storage }).load(saved.id)
   assert.equal(reloaded.name, 'Лира')
   assert.deepEqual(reloaded.combat.hitPoints, { max: 18, current: 12, temporary: 2 })
   assert.deepEqual(reloaded.spellcasting.spellSlots[1], { max: 2, used: 1 })
@@ -47,7 +46,7 @@ test('new characters use safe empty defaults and persist all edited sections aft
 test('character index supports listing, copying under a new id and deletion', async () => {
   const storage = new MemoryStorage()
 
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async (id) => createEmptyCharacter(id) })
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const first = await adapter.load('first')
   first.name = 'Первый'
@@ -64,21 +63,19 @@ test('character index supports listing, copying under a new id and deletion', as
   await adapter.save(copy)
   summaries = listStoredCharacterSummaries(storage)
   assert.equal(summaries.some((item) => item.id === 'second-copy' && item.name === 'Второй (копия)'), true)
-  assert.notEqual(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}second`), null)
+  assert.notEqual(storage.getItem(`${CHARACTER_STORAGE_PREFIX}second`), null)
 
   removeStoredCharacter('second', storage)
   assert.equal(listStoredCharacterSummaries(storage).some((item) => item.id === 'second'), false)
-  assert.notEqual(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}first`), null)
+  assert.notEqual(storage.getItem(`${CHARACTER_STORAGE_PREFIX}first`), null)
 })
 
-test('legacy v2 records remain readable and appear in the character list', () => {
+test('records from removed schemas are ignored by the current character list', () => {
   const storage = new MemoryStorage()
 
-  const legacy = migrateCharacterV2ToV3(createEmptyCharacter('legacy'))
   storage.setItem('nastolka:character-sheet:v2:legacy', JSON.stringify({ ...createEmptyCharacter('legacy'), schemaVersion: 2 }))
   const summaries = listStoredCharacterSummaries(storage)
-  assert.deepEqual(summaries, [{ id: 'legacy', name: 'Новый персонаж', className: '', ruleset: '2014', kind: 'character' }])
-  assert.equal(legacy.schemaVersion, 3)
+  assert.deepEqual(summaries, [])
 })
 
 test('active character selection survives reload and supports an explicit empty state', () => {

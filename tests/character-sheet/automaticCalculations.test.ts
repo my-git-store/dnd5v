@@ -7,8 +7,8 @@ import { calculateSavingThrowBonus } from '../../src/modules/character-sheet/dom
 import { calculateSkillBonus } from '../../src/modules/character-sheet/domain/skillBonus.ts'
 import { calculateSpellAttackBonus, calculateSpellSaveDc } from '../../src/modules/character-sheet/domain/spellcasting.ts'
 import { proficiencyBonus } from '../../src/modules/character-sheet/domain/proficiencyBonus.ts'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 
 const abilities = { strength: 16, dexterity: 14, constitution: 12, intelligence: 10, wisdom: 8, charisma: 18 }
@@ -59,7 +59,7 @@ test('calculation inputs survive adapter save and recompute after reload', async
 
   const source = createMockCharacter()
 
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => source })
+  const adapter = createCharacterSheetAdapter({ storage })
 
   const draft = await adapter.load(source.id)
 
@@ -70,7 +70,7 @@ test('calculation inputs survive adapter save and recompute after reload', async
   skill.calculationMode = 'computed'
   skill.additionalBonus = 1
   await adapter.save(draft)
-  assert.ok(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`))
+  assert.ok(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`))
   const reloaded = await adapter.load(source.id)
   assert.equal(calculateSkillBonus(reloaded.skills[0]!, reloaded.abilities, reloaded.level), 7)
   assert.equal(reloaded.abilities.strength, 18)

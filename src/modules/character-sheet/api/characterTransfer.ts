@@ -1,10 +1,10 @@
 import {
     listStoredCharacterIds,
-    readStoredCharacterV3,
+    readStoredCharacter,
     type CharacterStorageLike,
-} from './characterV3Storage.ts'
-import { migrateCharacterToV3 } from '../migration/characterMigrationV3.ts'
-import { cloneCharacterV3, type CharacterV3 } from '../types/characterV3.ts'
+} from './characterStorage.ts'
+import { cloneCharacter, type Character } from '../types/character.ts'
+import { assertValidCharacter } from '../validation/characterValidation.ts'
 
 export const CHARACTER_TRANSFER_MAX_BYTES = 2 * 1024 * 1024
 
@@ -12,11 +12,11 @@ export interface CharacterTransferEnvelope {
     schemaVersion: 3
     exportVersion: 1
     exportedAt: string
-    characters: CharacterV3[]
+    characters: Character[]
 }
 
 export interface ImportedCharacterPlan {
-    characters: CharacterV3[]
+    characters: Character[]
     exportedAt?: string
 }
 
@@ -28,8 +28,8 @@ function clone<T>(value: T): T {
     return JSON.parse(JSON.stringify(value)) as T
 }
 
-function safeCharacter(character: CharacterV3): CharacterV3 {
-    const next = cloneCharacterV3(character)
+function safeCharacter(character: Character): Character {
+    const next = cloneCharacter(character)
 
     const creation =
         next.extensions && typeof next.extensions.characterCreation === 'object'
@@ -40,7 +40,7 @@ function safeCharacter(character: CharacterV3): CharacterV3 {
 }
 
 export function createCharacterTransfer(
-    characters: CharacterV3[],
+    characters: Character[],
     exportedAt = new Date().toISOString(),
 ): CharacterTransferEnvelope {
     return {
@@ -52,7 +52,7 @@ export function createCharacterTransfer(
 }
 
 export function serializeCharacterTransfer(
-    characters: CharacterV3[],
+    characters: Character[],
     exportedAt = new Date().toISOString(),
 ): string {
     return JSON.stringify(createCharacterTransfer(characters, exportedAt), null, 2)
@@ -84,7 +84,8 @@ export function parseCharacterTransfer(raw: string): ImportedCharacterPlan {
 
     const characters = sourceCharacters.map((value, index) => {
         try {
-            return migrateCharacterToV3(value)
+            assertValidCharacter(value)
+            return cloneCharacter(value)
         } catch (error) {
             const message = error instanceof Error ? error.message : 'неизвестная ошибка'
 
@@ -96,9 +97,9 @@ export function parseCharacterTransfer(raw: string): ImportedCharacterPlan {
     return { characters, exportedAt }
 }
 
-export function readAllStoredCharacters(storage: CharacterStorageLike): CharacterV3[] {
+export function readAllStoredCharacters(storage: CharacterStorageLike): Character[] {
     return listStoredCharacterIds(storage).flatMap(id => {
-        const character = readStoredCharacterV3(id, storage)
+        const character = readStoredCharacter(id, storage)
         return character ? [character] : []
     })
 }

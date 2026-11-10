@@ -1,15 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 import { BACKGROUND_ICON_PATHS, backgroundIconFor } from '../../src/modules/character-sheet/data/backgroundIcons.ts'
 import { RULES_2024_BACKGROUNDS, findRules2024Background, findRules2024Feat, isBackground2024Id } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
-import { migrateCharacterToV3, migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
 import type { CharacterSheetView } from '../../src/modules/character-sheet/types/characterView.ts'
-import type { CharacterV3 } from '../../src/modules/character-sheet/types/characterV3.ts'
-import { validateCharacterV3 } from '../../src/modules/character-sheet/validation/characterV3Validation.ts'
+import type { Character } from '../../src/modules/character-sheet/types/character.ts'
+import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -31,9 +30,9 @@ function payload(backgroundId: string, baseAbilities: CharacterSheetView['abilit
 }
 
 async function loadView(storage: MemoryStorage): Promise<{ adapter: ReturnType<typeof createCharacterSheetAdapter>; view: CharacterSheetView }> {
-  const source = migrateCharacterV2ToV3(createMockCharacter())
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const source = createMockCharacter()
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
+  const adapter = createCharacterSheetAdapter({ storage })
   return { adapter, view: await adapter.load(source.id) }
 }
 
@@ -97,10 +96,10 @@ test('rejects unknown backgrounds and invalid ability choices', async () => {
   const { view } = await loadView(new MemoryStorage())
   assert.throws(() => applyCharacterCreation(view, payload('missing-background', view.abilities)), /Неизвестная предыстория/)
   assert.throws(() => applyCharacterCreation(view, payload('sage-2024', view.abilities, { originAbilityChoices: ['strength', 'dexterity', 'charisma'] })), /Некорректный выбор характеристик/)
-  const oldV3 = migrateCharacterV2ToV3(createMockCharacter())
-  oldV3.ruleset = '2024'
-  oldV3.extensions.characterCreation = { speciesId: 'human', backgroundId: 'missing-background' }
-  assert.ok(validateCharacterV3(oldV3).some((error) => error.includes('предыстория D&D 2024')))
+  const currentRecord = createMockCharacter()
+  currentRecord.ruleset = '2024'
+  currentRecord.extensions.characterCreation = { speciesId: 'human', backgroundId: 'missing-background' }
+  assert.ok(validateCharacter(currentRecord).some((error) => error.includes('предыстория D&D 2024')))
 })
 
 test('keeps user equipment and persists one generated background kit after reload', async () => {
@@ -119,24 +118,10 @@ test('keeps user equipment and persists one generated background kit after reloa
   assert.equal(generated.some((item) => item.name === 'Набор травника'), true)
 
   await adapter.save(second)
-  const raw = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${second.id}`)!) as CharacterV3
-  assert.deepEqual(validateCharacterV3(raw), [])
+  const raw = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${second.id}`)!) as Character
+  assert.deepEqual(validateCharacter(raw), [])
   const reloaded = await adapter.load(second.id)
   assert.equal(reloaded.inventoryData.items.some((item) => item.id === 'user:lantern'), true)
   assert.equal(reloaded.creation?.backgroundId, 'hermit-2024')
   assert.equal(reloaded.creation?.backgroundSkillIds.includes('medicine'), true)
-})
-
-test('normalizes an older v3 record without background creation fields', () => {
-  const oldV3 = migrateCharacterV2ToV3(createMockCharacter()) as unknown as Record<string, unknown>
-
-  const extensions = oldV3.extensions as Record<string, unknown>
-  extensions.characterCreation = undefined
-  const normalized = migrateCharacterToV3(oldV3)
-  assert.equal(normalized.ruleset, '2014')
-  assert.deepEqual(validateCharacterV3(normalized), [])
-  assert.equal(normalized.attacks.length > 0, true)
-  assert.equal(normalized.spellcasting.knownSpells.length > 0, true)
-  assert.equal(normalized.inventory.items.length > 0, true)
-  assert.equal(normalized.personality.biography.length >= 0, true)
 })

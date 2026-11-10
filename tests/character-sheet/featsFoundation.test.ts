@@ -1,14 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/adapters/characterSheetAdapter.ts'
-import { CHARACTER_V3_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterV3Storage.ts'
+import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
 import { RULES_2024_BACKGROUNDS, RULES_2024_FEATS, getRules2024Feat, isRules2024FeatId } from '../../src/modules/character-sheet/data/rules2024/index.ts'
 import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
 import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
-import { migrateCharacterToV3, migrateCharacterV2ToV3 } from '../../src/modules/character-sheet/migration/characterMigrationV3.ts'
+import { cloneCharacter } from '../../src/modules/character-sheet/types/character.ts'
 import type { CharacterSheetView } from '../../src/modules/character-sheet/types/characterView.ts'
-import type { CharacterV3 } from '../../src/modules/character-sheet/types/characterV3.ts'
-import { validateCharacterV3 } from '../../src/modules/character-sheet/validation/characterV3Validation.ts'
+import type { Character } from '../../src/modules/character-sheet/types/character.ts'
+import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()
@@ -30,9 +30,9 @@ function getBackgroundFeat(backgroundId: string): string {
 }
 
 async function loadView(storage: MemoryStorage): Promise<{ adapter: ReturnType<typeof createCharacterSheetAdapter>; view: CharacterSheetView }> {
-  const source = migrateCharacterV2ToV3(createMockCharacter())
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  const source = createMockCharacter()
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
+  const adapter = createCharacterSheetAdapter({ storage })
   return { adapter, view: await adapter.load(source.id) }
 }
 
@@ -48,7 +48,7 @@ test('uses one tagged origin feat format with strict lookup and metadata', () =>
 })
 
 test('stores background origin feat as a canonical ID and changes it with background', () => {
-  const base = migrateCharacterV2ToV3(createMockCharacter())
+  const base = createMockCharacter()
 
   const view = { ...base, schemaVersion: 2 as const, name: base.identity.name, class: base.identity.class, level: base.identity.level, experience: base.identity.experience, armorClass: base.combat.armorClass.value, abilities: { ...base.abilities }, skills: base.skills, attacks: base.attacks, spells: base.spellcasting.knownSpells, cantrips: base.spellcasting.cantrips, inventory: base.inventory.items.map(({ id, name, quantity, description }) => ({ id, name, quantity, description })), money: base.inventory.money, bio: { biography: base.personality.biography, traits: base.personality.traits, features: base.personality.features }, race: base.identity.race, subclass: base.identity.subclass, background: base.identity.background, alignment: base.identity.alignment, savingThrows: base.savingThrows, proficiency: base.proficiency, combat: base.combat, spellcasting: base.spellcasting, inventoryData: base.inventory, personality: base.personality, origin: base.origin, ruleset: base.ruleset } as CharacterSheetView
 
@@ -67,11 +67,11 @@ test('rejects unknown or mismatched origin feats instead of falling back', async
   assert.throws(() => applyCharacterCreation(view, payload('sage-2024', view.abilities, 'missing-feat')), /Неизвестная черта/)
   assert.throws(() => applyCharacterCreation(view, payload('sage-2024', view.abilities, 'healer')), /не соответствует/)
 
-  const oldV3 = migrateCharacterV2ToV3(createMockCharacter())
-  oldV3.ruleset = '2024'
-  oldV3.origin.featId = 'missing-feat'
-  oldV3.extensions.characterCreation = { speciesId: 'human', backgroundId: 'sage-2024', originFeatId: 'missing-feat' }
-  assert.ok(validateCharacterV3(oldV3).some((error) => error.includes('origin') || error.includes('предыстория D&D 2024')))
+  const currentRecord = createMockCharacter()
+  currentRecord.ruleset = '2024'
+  currentRecord.origin.featId = 'missing-feat'
+  currentRecord.extensions.characterCreation = { speciesId: 'human', backgroundId: 'sage-2024', originFeatId: 'missing-feat' }
+  assert.ok(validateCharacter(currentRecord).some((error) => error.includes('origin') || error.includes('предыстория D&D 2024')))
 })
 
 test('round-trips feat reference and keeps non-feat collections intact', async () => {
@@ -87,25 +87,25 @@ test('round-trips feat reference and keeps non-feat collections intact', async (
 
   const itemId = created.inventoryData.items[0]?.id
   await adapter.save(created)
-  const raw = JSON.parse(storage.getItem(`${CHARACTER_V3_STORAGE_PREFIX}${created.id}`)!) as CharacterV3
+  const raw = JSON.parse(storage.getItem(`${CHARACTER_STORAGE_PREFIX}${created.id}`)!) as Character
   assert.equal(raw.origin.featId, 'magic-initiate-wizard')
   assert.equal(raw.extensions.characterCreation && (raw.extensions.characterCreation as { originFeatId?: string }).originFeatId, 'magic-initiate-wizard')
   assert.equal(raw.origin.originFeat, 'Посвящённый в магию: волшебник')
   assert.equal(raw.spellcasting.knownSpells[0]?.description, spellDescription)
   assert.equal(raw.attacks[0]?.attackBonus, attackBonus)
   assert.equal(raw.inventory.items.some((item) => item.id === itemId), true)
-  assert.deepEqual(validateCharacterV3(raw), [])
+  assert.deepEqual(validateCharacter(raw), [])
   const reloaded = await adapter.load(created.id)
   assert.equal(reloaded.origin.featId, 'magic-initiate-wizard')
   assert.equal(reloaded.creation?.originFeatId, 'magic-initiate-wizard')
 })
 
 test('supports feat source metadata without applying a rules engine', () => {
-  const base = migrateCharacterV2ToV3(createMockCharacter())
+  const base = createMockCharacter()
 
   const storage = new MemoryStorage()
-  storage.setItem(`${CHARACTER_V3_STORAGE_PREFIX}${base.id}`, JSON.stringify(base))
-  const adapter = createCharacterSheetAdapter({ storage, loadLegacy: async () => { throw new Error('legacy loader must not run') } })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${base.id}`, JSON.stringify(base))
+  const adapter = createCharacterSheetAdapter({ storage })
   return adapter.load(base.id).then((view) => {
     const created = applyCharacterCreation(view, payload('sage-2024', view.abilities))
 
@@ -120,9 +120,9 @@ test('supports feat source metadata without applying a rules engine', () => {
   })
 })
 
-test('old v3 without feat ID remains valid and gets no fabricated feat', () => {
-  const oldV3 = migrateCharacterToV3(migrateCharacterV2ToV3(createMockCharacter()))
-  delete oldV3.origin.featId
-  assert.equal(oldV3.origin.originFeat, '')
-  assert.deepEqual(validateCharacterV3(oldV3), [])
+test('old current without feat ID remains valid and gets no fabricated feat', () => {
+  const currentRecord = cloneCharacter(createMockCharacter())
+  delete currentRecord.origin.featId
+  assert.equal(currentRecord.origin.originFeat, '')
+  assert.deepEqual(validateCharacter(currentRecord), [])
 })

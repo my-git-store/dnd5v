@@ -1,5 +1,5 @@
 import type { CharacterGender } from '../types/character.ts'
-import { assetUrl } from '../../../config/assets.ts'
+import { assetUrl } from '../config/assets.ts'
 
 /** Explicit asset mapping for the twelve D&D 2024 classes. */
 export const CLASS_ICON_PATHS = {

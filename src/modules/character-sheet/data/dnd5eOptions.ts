@@ -1,16 +1,16 @@
 import type { AbilityKey, CharacterGender } from '../types/character.ts'
 import type {
-    BackgroundProfileV3,
-    CharacterProficiencyV3,
-    RaceProfileV3,
-} from '../types/characterV3.ts'
+    BackgroundProfile,
+    CharacterProficiency,
+    RaceProfile,
+} from '../types/character.ts'
 import type { SpellProgressionType } from '../types/rules.ts'
 import { classIconFor, classIconVariantsFor } from './classIcons.ts'
 
 export interface Dnd5eRaceOption {
     id: string
     label: string
-    profile: RaceProfileV3
+    profile: RaceProfile
     skillProficiencies?: string[]
     skillChoices?: { count: number; options: string[] }
     abilityChoices?: { count: number; bonus: number; options: AbilityKey[] }
@@ -769,7 +769,7 @@ export const DND5E_BACKGROUNDS: Dnd5eBackgroundOption[] = [
     },
 ]
 
-export const EMPTY_BACKGROUND: BackgroundProfileV3 = {
+export const EMPTY_BACKGROUND: BackgroundProfile = {
     name: '',
     feature: '',
     skillProficiencies: [],
@@ -782,7 +782,7 @@ export function raceProfile(
     option: Dnd5eRaceOption,
     bonuses = option.profile.abilityBonuses,
     subrace?: Dnd5eSubraceOption,
-): RaceProfileV3 {
+): RaceProfile {
     return {
         ...option.profile,
         subrace: subrace?.label ?? '',
@@ -825,7 +825,7 @@ export function findBackground(id?: string): Dnd5eBackgroundOption {
 export function proficiencyForCreation(
     classOption: Dnd5eClassOption,
     race: Dnd5eRaceOption,
-): CharacterProficiencyV3 {
+): CharacterProficiency {
     return {
         toolProficiencies: [...classOption.proficiencies],
         languageProficiencies: [...race.profile.languages],

@@ -10,8 +10,15 @@ const srcRoot = path.resolve(testDirectory, '../../src')
 
 const uiRoots = [
   path.join(srcRoot, 'modules/character-sheet/components'),
+  path.join(srcRoot, 'modules/character-main/components'),
+  path.join(srcRoot, 'modules/character-combat/components'),
+  path.join(srcRoot, 'modules/character-magic/components'),
+  path.join(srcRoot, 'modules/character-inventory/components'),
+  path.join(srcRoot, 'modules/character-identity/components'),
+  path.join(srcRoot, 'modules/character-creation/components'),
+  path.join(srcRoot, 'modules/character-progression/components'),
   path.join(srcRoot, 'modules/table-components/components'),
-  path.join(srcRoot, 'modules/table-components/TableComponentsShowcase.vue'),
+  path.join(srcRoot, 'modules/table-components/components/showcase/TableComponentsShowcase.vue'),
   path.join(srcRoot, 'modules/character-sheet/data/rules2024/index.ts'),
 ]
 
