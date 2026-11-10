@@ -1,16 +1,16 @@
 .scrollbar::-webkit-scrollbar {
-  width: 4px;
+    width: 4px;
 }
 
 .scrollbar::-webkit-scrollbar:horizontal {
-  height: 4px;
+    height: 4px;
 }
 
 .scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 
 .scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-accent);
-  border-radius: 10px;
+    background: var(--color-accent);
+    border-radius: 10px;
 }
