@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CharacterMoney } from '@/modules/character-sheet/types/character'
+import type { CharacterMoney } from '@/types/character'
 const props = defineProps<{ money: CharacterMoney; disabled?: boolean }>()
 
 const emit = defineEmits<{ update: [money: CharacterMoney] }>()

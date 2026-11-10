@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { NButton, NCard, NModal } from 'naive-ui'
 
-import { useReqDefault } from '@/modules/character-sheet/composables/useReqDefault'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useReqDefault } from '@/composables/useReqDefault'
+import { useDialog } from '@/composables/useDialog'
 
 export type Props = {
     entityName?: string

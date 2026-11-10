@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
-import { openConfirmModal } from '@/modules/character-sheet/components/modals'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { openConfirmModal } from '@/components/modals'
+import { useDialog } from '@/composables/useDialog'
 import {
     calculateAttackDamageModifier,
     formatAttackBonus,
     getAttackBonusSource,
     getAttackCalculationMode,
-} from '@/modules/character-sheet/domain/attackBonus'
-import { signedModifier } from '@/modules/character-sheet/domain/abilityModifier'
-import { numericBonus, rollDiceFormula } from '@/modules/character-sheet/domain/rollFormula'
-import { getRules2024Weapon, getRules2024WeaponMastery } from '@/modules/character-sheet/data/rules2024/index.ts'
+} from '@/domain/attackBonus'
+import { signedModifier } from '@/domain/abilityModifier'
+import { numericBonus, rollDiceFormula } from '@/domain/rollFormula'
+import { getRules2024Weapon, getRules2024WeaponMastery } from '@/data/rules2024/index.ts'
 import AttackEditorModal from './AttackEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
-import type { CharacterAbilities } from '@/modules/character-sheet/types/character'
-import type { CharacterAttackView } from '@/modules/character-sheet/types/characterView'
+import type { CharacterAbilities } from '@/types/character'
+import type { CharacterAttackView } from '@/types/characterView'
 
 const props = defineProps<{
     attacks: CharacterAttackView[]

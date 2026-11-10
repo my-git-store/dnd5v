@@ -1,9 +1,5 @@
 import type { AbilityKey, CharacterGender } from '../types/character.ts'
-import type {
-    BackgroundProfile,
-    CharacterProficiency,
-    RaceProfile,
-} from '../types/character.ts'
+import type { BackgroundProfile, CharacterProficiency, RaceProfile } from '../types/character.ts'
 import type { SpellProgressionType } from '../types/rules.ts'
 import { classIconFor, classIconVariantsFor } from './classIcons.ts'
 

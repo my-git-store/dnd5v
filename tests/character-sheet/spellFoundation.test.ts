@@ -1,12 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
-import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
-import { getRules2024CantripsForClass, getRules2024Class, getRules2024Spell, getRules2024SpellsForClass, RULES_2024_SPELLS } from '../../src/modules/character-sheet/data/rules2024/index.ts'
-import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
-import { promoteCharacterTo2024 } from '../../src/modules/character-sheet/domain/ruleset.ts'
-import type { Character } from '../../src/modules/character-sheet/types/character.ts'
-import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
+import { createCharacterSheetAdapter } from '../../src/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/api/characterStorage.ts'
+import { getRules2024CantripsForClass, getRules2024Class, getRules2024Spell, getRules2024SpellsForClass, RULES_2024_SPELLS } from '../../src/data/rules2024/index.ts'
+import { createMockCharacter } from '../../src/data/character.mock.ts'
+import { promoteCharacterTo2024 } from '../../src/domain/ruleset.ts'
+import type { Character } from '../../src/types/character.ts'
+import { validateCharacter } from '../../src/validation/characterValidation.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()

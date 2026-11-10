@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { CharacterSpellSlot, CharacterSpellSlots } from '@/modules/character-sheet/types/character'
+import type { CharacterSpellSlot, CharacterSpellSlots } from '@/types/character'
 
 const props = defineProps<{ slots: CharacterSpellSlots; disabled?: boolean }>()
 

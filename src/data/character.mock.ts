@@ -125,7 +125,9 @@ function createCharacter(id: string, demo: boolean): Character {
                 ? [spell('spell-1', 'Щит', 1, 'Защитная реакция, повышающая класс брони.')]
                 : [],
             preparedSpellIds: [],
-            cantrips: demo ? [spell('cantrip-1', 'Свет', 0, 'Создаёт яркий свет на предмете.')] : [],
+            cantrips: demo
+                ? [spell('cantrip-1', 'Свет', 0, 'Создаёт яркий свет на предмете.')]
+                : [],
             spellSlots: {
                 1: { max: 0, used: 0 },
                 2: { max: 0, used: 0 },

@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { openConfirmModal } from '@/modules/character-sheet/components/modals'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
-import { searchFilterObject } from '@/modules/character-sheet/composables/useFilters'
+import { openConfirmModal } from '@/components/modals'
+import { useDialog } from '@/composables/useDialog'
+import { searchFilterObject } from '@/composables/useFilters'
 import SpellEditorModal from './SpellEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
 import CollectionSearch from '@/modules/character-inventory/components/CollectionSearch.vue'
-import type { CharacterSpell } from '@/modules/character-sheet/types/character'
-import { RULES_2024_CLASSES, getRules2024Spell } from '@/modules/character-sheet/data/rules2024/index.ts'
+import type { CharacterSpell } from '@/types/character'
+import { RULES_2024_CLASSES, getRules2024Spell } from '@/data/rules2024/index.ts'
 
 const props = defineProps<{
     title: string

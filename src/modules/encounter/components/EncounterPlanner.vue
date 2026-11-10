@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
-import CharacterActionConfirmModal from '../../character-sheet/components/CharacterActionConfirmModal.vue'
+import { useDialog } from '@/composables/useDialog'
+import CharacterActionConfirmModal from '@/components/CharacterActionConfirmModal.vue'
 import {
     currentParticipantIdAfterRemoval,
     currentParticipantIndex,
     nextTurnIndex,
-} from '../../table-components/domain/initiative.ts'
-import { mockBestiaryAdapter } from '../../bestiary/data/mockBestiary.ts'
-import type { BestiaryEntry } from '../../bestiary/types/bestiary.ts'
-import type {
-    CharacterEncounterParticipant,
-    CharacterEncounter,
-} from '../../character-sheet/types/character.ts'
+} from '@/modules/table-components/domain/initiative.ts'
+import { mockBestiaryAdapter } from '@/modules/bestiary/data/mockBestiary.ts'
+import type { BestiaryEntry } from '@/modules/bestiary/types/bestiary.ts'
+import type { CharacterEncounterParticipant, CharacterEncounter } from '@/types/character.ts'
 import '../styles/encounter.css'
 
 const props = defineProps<{

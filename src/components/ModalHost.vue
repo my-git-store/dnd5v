@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onUnmounted, watch } from 'vue'
 
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 
 const { modals, close } = useDialog()
 

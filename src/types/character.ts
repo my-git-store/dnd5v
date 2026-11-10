@@ -66,7 +66,6 @@ export interface CharacterDetails {
 
 export type CharacterCollection = 'attacks' | 'spells' | 'cantrips' | 'inventory'
 
-
 import type { CharacterProgression, RuleSourceRef, SpellProgressionType } from './rules.ts'
 
 export type CharacterSchema = 3

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 import SpellEditor from './SpellEditor.vue'
-import type { CharacterSpell } from '@/modules/character-sheet/types/character'
+import type { CharacterSpell } from '@/types/character'
 
 type Props = {
     spell: CharacterSpell

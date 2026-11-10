@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ABILITY_FIELDS } from '@/modules/character-sheet/data/characterFields'
-import { calculateSavingThrowBonus } from '@/modules/character-sheet/domain/savingThrow'
-import { signedModifier } from '@/modules/character-sheet/domain/abilityModifier'
-import type { AbilityKey, CharacterAbilities } from '@/modules/character-sheet/types/character'
-import type { CharacterSavingThrows } from '@/modules/character-sheet/types/character'
+import { ABILITY_FIELDS } from '@/data/characterFields'
+import { calculateSavingThrowBonus } from '@/domain/savingThrow'
+import { signedModifier } from '@/domain/abilityModifier'
+import type { AbilityKey, CharacterAbilities } from '@/types/character'
+import type { CharacterSavingThrows } from '@/types/character'
 
 const props = defineProps<{
     abilities: CharacterAbilities

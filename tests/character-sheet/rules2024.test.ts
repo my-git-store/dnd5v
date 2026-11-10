@@ -1,10 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { RULES_2024_BACKGROUNDS, RULES_2024_CLASSES, RULES_2024_FEATS, RULES_2024_SPECIES } from '../../src/modules/character-sheet/data/rules2024/index.ts'
-import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
-import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
-import { promoteCharacterTo2024 } from '../../src/modules/character-sheet/domain/ruleset.ts'
-import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
+import { RULES_2024_BACKGROUNDS, RULES_2024_CLASSES, RULES_2024_FEATS, RULES_2024_SPECIES } from '../../src/data/rules2024/index.ts'
+import { createMockCharacter } from '../../src/data/character.mock.ts'
+import { applyCharacterCreation } from '../../src/domain/characterCreation.ts'
+import { promoteCharacterTo2024 } from '../../src/domain/ruleset.ts'
+import { validateCharacter } from '../../src/validation/characterValidation.ts'
 
 test('ships the PHB 2024 selection catalog with the expected core counts', () => {
   assert.equal(RULES_2024_SPECIES.length, 10)

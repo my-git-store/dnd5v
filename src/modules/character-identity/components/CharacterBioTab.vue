@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CharacterPersonality } from '@/modules/character-sheet/types/character'
+import type { CharacterPersonality } from '@/types/character'
 
 const props = defineProps<{ personality: CharacterPersonality; disabled?: boolean }>()
 

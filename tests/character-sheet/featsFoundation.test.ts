@@ -1,14 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
-import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
-import { RULES_2024_BACKGROUNDS, RULES_2024_FEATS, getRules2024Feat, isRules2024FeatId } from '../../src/modules/character-sheet/data/rules2024/index.ts'
-import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
-import { applyCharacterCreation } from '../../src/modules/character-sheet/domain/characterCreation.ts'
-import { cloneCharacter } from '../../src/modules/character-sheet/types/character.ts'
-import type { CharacterSheetView } from '../../src/modules/character-sheet/types/characterView.ts'
-import type { Character } from '../../src/modules/character-sheet/types/character.ts'
-import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
+import { createCharacterSheetAdapter } from '../../src/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/api/characterStorage.ts'
+import { RULES_2024_BACKGROUNDS, RULES_2024_FEATS, getRules2024Feat, isRules2024FeatId } from '../../src/data/rules2024/index.ts'
+import { createMockCharacter } from '../../src/data/character.mock.ts'
+import { applyCharacterCreation } from '../../src/domain/characterCreation.ts'
+import { cloneCharacter } from '../../src/types/character.ts'
+import type { CharacterSheetView } from '../../src/types/characterView.ts'
+import type { Character } from '../../src/types/character.ts'
+import { validateCharacter } from '../../src/validation/characterValidation.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()

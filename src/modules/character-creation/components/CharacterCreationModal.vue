@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 import CharacterCreationTab from './CharacterCreationTab.vue'
-import type { CharacterCreationPayload } from '@/modules/character-sheet/domain/characterCreation'
-import type { CharacterSheetView } from '@/modules/character-sheet/types/characterView'
+import type { CharacterCreationPayload } from '@/domain/characterCreation'
+import type { CharacterSheetView } from '@/types/characterView'
 
 type Props = {
     character: CharacterSheetView

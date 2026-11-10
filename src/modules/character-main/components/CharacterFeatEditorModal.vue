@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 import CharacterFeatEditor from './CharacterFeatEditor.vue'
-import type { CharacterFeat } from '@/modules/character-sheet/types/character'
+import type { CharacterFeat } from '@/types/character'
 
 const props = defineProps<{
     feat: CharacterFeat

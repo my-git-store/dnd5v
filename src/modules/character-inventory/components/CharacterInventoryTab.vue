@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import InventoryList from './InventoryList.vue'
 import MoneyFields from './MoneyFields.vue'
-import type { CharacterMoney } from '@/modules/character-sheet/types/character'
-import type { CharacterSheetView } from '@/modules/character-sheet/types/characterView'
-import type { CharacterInventoryItemRecord } from '@/modules/character-sheet/types/character'
+import type { CharacterMoney } from '@/types/character'
+import type { CharacterSheetView } from '@/types/characterView'
+import type { CharacterInventoryItemRecord } from '@/types/character'
 
 defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
 const emit = defineEmits<{

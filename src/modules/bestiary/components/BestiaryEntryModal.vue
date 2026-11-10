@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
-import { BESTIARY_ABILITY_KEYS, bestiaryAbilityModifier, type BestiaryEntry } from '../types/bestiary.ts'
+import { useDialog } from '@/composables/useDialog'
+import {
+    BESTIARY_ABILITY_KEYS,
+    bestiaryAbilityModifier,
+    type BestiaryEntry,
+} from '../types/bestiary.ts'
 
 const props = defineProps<{
     entry: BestiaryEntry

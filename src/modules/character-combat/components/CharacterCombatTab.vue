@@ -2,8 +2,8 @@
 import CombatStatsFields from './CombatStatsFields.vue'
 import AttackList from './AttackList.vue'
 import RestActions from './RestActions.vue'
-import type { CharacterSheetView } from '@/modules/character-sheet/types/characterView'
-import type { ShortRestResult } from '@/modules/character-sheet/domain/rest'
+import type { CharacterSheetView } from '@/types/characterView'
+import type { ShortRestResult } from '@/domain/rest'
 
 defineProps<{
     character: CharacterSheetView

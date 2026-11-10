@@ -4,9 +4,9 @@ import { ref } from 'vue'
 import SpellList from './SpellList.vue'
 import SpellcastingSummary from './SpellcastingSummary.vue'
 import SpellSlotsFields from './SpellSlotsFields.vue'
-import type { CharacterSpell } from '@/modules/character-sheet/types/character'
-import type { CharacterSheetView } from '@/modules/character-sheet/types/characterView'
-import type { CharacterSpellLevel } from '@/modules/character-sheet/types/character'
+import type { CharacterSpell } from '@/types/character'
+import type { CharacterSheetView } from '@/types/characterView'
+import type { CharacterSpellLevel } from '@/types/character'
 
 const props = defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
 

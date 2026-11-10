@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 import InventoryItemEditor from './InventoryItemEditor.vue'
-import type { CharacterInventoryItemRecord } from '@/modules/character-sheet/types/character'
+import type { CharacterInventoryItemRecord } from '@/types/character'
 
 type Props = {
     item: CharacterInventoryItemRecord

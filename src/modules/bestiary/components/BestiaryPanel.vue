@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 import BestiaryEntryModal from './BestiaryEntryModal.vue'
 import {
     bestiaryInitiativeParticipant,

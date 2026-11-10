@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterTransfer, parseCharacterTransfer, serializeCharacterTransfer, transferFilename, uniqueCharacterId } from '../../src/modules/character-sheet/api/characterTransfer.ts'
-import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
+import { createCharacterTransfer, parseCharacterTransfer, serializeCharacterTransfer, transferFilename, uniqueCharacterId } from '../../src/api/characterTransfer.ts'
+import { createMockCharacter } from '../../src/data/character.mock.ts'
 
 test('exports a sanitized current envelope with date and character data', () => {
   const character = createMockCharacter()

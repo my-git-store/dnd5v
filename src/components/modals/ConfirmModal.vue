@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NButton, NCard, NModal } from 'naive-ui'
 
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 
 export type Props = {
     text: string

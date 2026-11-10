@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 import { abilityModifier, signedModifier } from '../domain/abilityModifier'
 import { createDefaultNpcProfile } from '../domain/npc'
 import NpcEntryEditorModal from './NpcEntryEditorModal.vue'

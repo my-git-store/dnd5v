@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ABILITY_FIELDS } from '@/modules/character-sheet/data/characterFields'
-import { abilityModifier, signedModifier } from '@/modules/character-sheet/domain/abilityModifier'
-import type { AbilityKey, CharacterAbilities } from '@/modules/character-sheet/types/character'
+import { ABILITY_FIELDS } from '@/data/characterFields'
+import { abilityModifier, signedModifier } from '@/domain/abilityModifier'
+import type { AbilityKey, CharacterAbilities } from '@/types/character'
 defineProps<{ abilities: CharacterAbilities; disabled?: boolean }>()
 const emit = defineEmits<{ update: [key: AbilityKey, value: number] }>()
 

@@ -1,4 +1,4 @@
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 
 import ConfirmModal from './ConfirmModal.vue'
 import DeleteModal from './DeleteModal.vue'

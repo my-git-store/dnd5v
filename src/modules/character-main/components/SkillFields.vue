@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { ABILITY_FIELDS } from '@/modules/character-sheet/data/characterFields'
-import { calculateSkillBonus, getSkillCalculationMode } from '@/modules/character-sheet/domain/skillBonus'
-import { signedModifier } from '@/modules/character-sheet/domain/abilityModifier'
-import type { AbilityKey, CharacterAbilities, SkillProficiency } from '@/modules/character-sheet/types/character'
-import type { SkillProficiencySource } from '@/modules/character-sheet/types/character'
-import type { CharacterSkillPatch, CharacterSkillView } from '@/modules/character-sheet/types/characterView'
+import { ABILITY_FIELDS } from '@/data/characterFields'
+import { calculateSkillBonus, getSkillCalculationMode } from '@/domain/skillBonus'
+import { signedModifier } from '@/domain/abilityModifier'
+import type { AbilityKey, CharacterAbilities, SkillProficiency } from '@/types/character'
+import type { SkillProficiencySource } from '@/types/character'
+import type { CharacterSkillPatch, CharacterSkillView } from '@/types/characterView'
 
 const props = defineProps<{
     skills: CharacterSkillView[]

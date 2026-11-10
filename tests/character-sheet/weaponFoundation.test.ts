@@ -1,11 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
-import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
-import { RULES_2024_CLASSES, RULES_2024_WEAPON_MASTERIES, RULES_2024_WEAPONS, getRules2024Weapon, getRules2024WeaponMastery } from '../../src/modules/character-sheet/data/rules2024/index.ts'
-import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
-import type { Character } from '../../src/modules/character-sheet/types/character.ts'
-import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
+import { createCharacterSheetAdapter } from '../../src/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/api/characterStorage.ts'
+import { RULES_2024_CLASSES, RULES_2024_WEAPON_MASTERIES, RULES_2024_WEAPONS, getRules2024Weapon, getRules2024WeaponMastery } from '../../src/data/rules2024/index.ts'
+import { createMockCharacter } from '../../src/data/character.mock.ts'
+import type { Character } from '../../src/types/character.ts'
+import { validateCharacter } from '../../src/validation/characterValidation.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()

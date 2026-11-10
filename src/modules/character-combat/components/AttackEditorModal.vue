@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 import AttackEditor from './AttackEditor.vue'
-import type { CharacterAbilities } from '@/modules/character-sheet/types/character'
-import type { CharacterAttackView } from '@/modules/character-sheet/types/characterView'
+import type { CharacterAbilities } from '@/types/character'
+import type { CharacterAttackView } from '@/types/characterView'
 
 type Props = {
     attack: CharacterAttackView

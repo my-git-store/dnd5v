@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import { ATTACK_BONUS_SOURCES } from '@/modules/character-sheet/data/characterFields'
+import { ATTACK_BONUS_SOURCES } from '@/data/characterFields'
 import {
     getRules2024Weapon,
     RULES_2024_WEAPON_MASTERIES,
     RULES_2024_WEAPONS,
-} from '@/modules/character-sheet/data/rules2024/index.ts'
-import { getAttackBonusSource, getAdditionalAttackBonus } from '@/modules/character-sheet/domain/attackBonus'
-import type { CharacterAbilities } from '@/modules/character-sheet/types/character'
-import type { CharacterAttackView } from '@/modules/character-sheet/types/characterView'
+} from '@/data/rules2024/index.ts'
+import { getAttackBonusSource, getAdditionalAttackBonus } from '@/domain/attackBonus'
+import type { CharacterAbilities } from '@/types/character'
+import type { CharacterAttackView } from '@/types/characterView'
 
 const props = defineProps<{
     attack: CharacterAttackView

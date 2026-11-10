@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 import IdentityFields from './IdentityFields.vue'
 import {
     cloneCharacterView,
     type CharacterIdentityPatch,
     type CharacterSheetView,
-} from '@/modules/character-sheet/types/characterView'
-import type { CharacterGender } from '@/modules/character-sheet/types/character'
+} from '@/types/characterView'
+import type { CharacterGender } from '@/types/character'
 
 type Props = {
     character: CharacterSheetView

@@ -1,9 +1,4 @@
-import type {
-    AbilityKey,
-    CharacterAttack,
-    CharacterGender,
-    CharacterSkill,
-} from './character.ts'
+import type { AbilityKey, CharacterAttack, CharacterGender, CharacterSkill } from './character.ts'
 import type {
     BackgroundProfile,
     CharacterCalculationMode,

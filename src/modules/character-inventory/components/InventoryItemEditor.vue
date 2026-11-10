@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import { RULES_2024_WEAPONS } from '@/modules/character-sheet/data/rules2024/index.ts'
-import type { CharacterInventoryItemRecord } from '@/modules/character-sheet/types/character'
+import { RULES_2024_WEAPONS } from '@/data/rules2024/index.ts'
+import type { CharacterInventoryItemRecord } from '@/types/character'
 
 const props = defineProps<{ item: CharacterInventoryItemRecord; disabled?: boolean }>()
 

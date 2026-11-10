@@ -1,9 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
-import { createEmptyCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
-import { validateCharacter } from '../../src/modules/character-sheet/validation/characterValidation.ts'
-import type { CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
+import { createCharacterSheetAdapter } from '../../src/api/characterSheetAdapter.ts'
+import { createEmptyCharacter } from '../../src/data/character.mock.ts'
+import { validateCharacter } from '../../src/validation/characterValidation.ts'
+import type { CharacterStorageLike } from '../../src/api/characterStorage.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()

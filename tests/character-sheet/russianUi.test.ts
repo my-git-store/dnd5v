@@ -9,7 +9,7 @@ const testDirectory = path.dirname(fileURLToPath(import.meta.url))
 const srcRoot = path.resolve(testDirectory, '../../src')
 
 const uiRoots = [
-  path.join(srcRoot, 'modules/character-sheet/components'),
+  path.join(srcRoot, 'components'),
   path.join(srcRoot, 'modules/character-main/components'),
   path.join(srcRoot, 'modules/character-combat/components'),
   path.join(srcRoot, 'modules/character-magic/components'),
@@ -19,7 +19,7 @@ const uiRoots = [
   path.join(srcRoot, 'modules/character-progression/components'),
   path.join(srcRoot, 'modules/table-components/components'),
   path.join(srcRoot, 'modules/table-components/components/showcase/TableComponentsShowcase.vue'),
-  path.join(srcRoot, 'modules/character-sheet/data/rules2024/index.ts'),
+  path.join(srcRoot, 'data/rules2024/index.ts'),
 ]
 
 function sourceFiles(directory: string): string[] {

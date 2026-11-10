@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { signedModifier } from '@/modules/character-sheet/domain/abilityModifier'
-import { calculateInitiative } from '@/modules/character-sheet/domain/combatCalculations'
-import type { CharacterAbilities } from '@/modules/character-sheet/types/character'
-import type { CharacterCombat } from '@/modules/character-sheet/types/character'
+import { signedModifier } from '@/domain/abilityModifier'
+import { calculateInitiative } from '@/domain/combatCalculations'
+import type { CharacterAbilities } from '@/types/character'
+import type { CharacterCombat } from '@/types/character'
 
 const props = defineProps<{
     combat: CharacterCombat

@@ -286,9 +286,7 @@ export function useCharacterSheet(id = 'demo-character') {
     }
     function updateEncounters(encounters: CharacterEncounter[]) {
         if (!character.value) return
-        character.value.encounters = JSON.parse(
-            JSON.stringify(encounters),
-        ) as CharacterEncounter[]
+        character.value.encounters = JSON.parse(JSON.stringify(encounters)) as CharacterEncounter[]
         savedNotice.value = false
     }
     function updateDetails(details: CharacterDetails) {

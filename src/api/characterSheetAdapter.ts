@@ -223,7 +223,10 @@ function mergeAttack(
     return { ...(stored ? clone(stored) : {}), ...fields, abilitySource: bonusSource }
 }
 
-function mergeSpell(spell: CharacterSpell, stored: CharacterSpellRecord | undefined): CharacterSpellRecord {
+function mergeSpell(
+    spell: CharacterSpell,
+    stored: CharacterSpellRecord | undefined,
+): CharacterSpellRecord {
     const metadata = spell.metadata ? clone(spell.metadata) : undefined
 
     const catalogFields = {
@@ -269,10 +272,7 @@ function mergeItem(
         : clone(item)
 }
 
-function mergePersonality(
-    value: CharacterSheetView,
-    base: Character,
-): Character['personality'] {
+function mergePersonality(value: CharacterSheetView, base: Character): Character['personality'] {
     const next = clone(value.personality)
 
     const legacyFields: Array<keyof CharacterSheetView['bio']> = ['biography', 'traits', 'features']
@@ -285,10 +285,7 @@ function mergePersonality(
     return next
 }
 
-function mergeMoney(
-    value: CharacterSheetView,
-    base: Character,
-): Character['inventory']['money'] {
+function mergeMoney(value: CharacterSheetView, base: Character): Character['inventory']['money'] {
     const next = clone(value.inventoryData.money)
 
     const fields: Array<keyof CharacterSheetView['money']> = [

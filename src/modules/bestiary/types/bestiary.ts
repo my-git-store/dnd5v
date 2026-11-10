@@ -1,9 +1,5 @@
-import type { AbilityKey, CharacterAbilities } from '../../character-sheet/types/character.ts'
-import type {
-    CharacterNpcBonus,
-    CharacterNpcEntry,
-    CharacterNpc,
-} from '../../character-sheet/types/character.ts'
+import type { AbilityKey, CharacterAbilities } from '@/types/character.ts'
+import type { CharacterNpcBonus, CharacterNpcEntry, CharacterNpc } from '@/types/character.ts'
 
 export type BestiarySize = 'Крошечный' | 'Маленький' | 'Средний' | 'Большой' | 'Огромный'
 

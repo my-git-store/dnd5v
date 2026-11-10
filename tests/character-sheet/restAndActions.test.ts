@@ -1,10 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { changeSpellSlot, restoreSpellSlots, takeLongRest, takeShortRest } from '../../src/modules/character-sheet/domain/rest.ts'
-import { numericBonus, parseDiceFormula, rollDiceFormula } from '../../src/modules/character-sheet/domain/rollFormula.ts'
-import { createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
-import { createCharacterSheetAdapter } from '../../src/modules/character-sheet/api/characterSheetAdapter.ts'
-import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/modules/character-sheet/api/characterStorage.ts'
+import { changeSpellSlot, restoreSpellSlots, takeLongRest, takeShortRest } from '../../src/domain/rest.ts'
+import { numericBonus, parseDiceFormula, rollDiceFormula } from '../../src/domain/rollFormula.ts'
+import { createMockCharacter } from '../../src/data/character.mock.ts'
+import { createCharacterSheetAdapter } from '../../src/api/characterSheetAdapter.ts'
+import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/api/characterStorage.ts'
 
 class MemoryStorage implements CharacterStorageLike {
   private readonly values = new Map<string, string>()

@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { useDialog } from '@/composables/useDialog'
 import {
     availableChoicesForProgression,
     levelUpProgression,
-} from '@/modules/character-sheet/domain/characterProgression.ts'
-import { getRules2024Feature } from '@/modules/character-sheet/data/rules2024/index.ts'
-import type { CharacterSheetView } from '@/modules/character-sheet/types/characterView.ts'
+} from '@/domain/characterProgression.ts'
+import { getRules2024Feature } from '@/data/rules2024/index.ts'
+import type { CharacterSheetView } from '@/types/characterView.ts'
 import type {
     CharacterProgression,
     ChoiceDefinition,
     ProgressionFeatureGain,
-} from '@/modules/character-sheet/types/rules.ts'
+} from '@/types/rules.ts'
 
 type Props = {
     character: CharacterSheetView

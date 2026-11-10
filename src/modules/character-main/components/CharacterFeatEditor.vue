@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import type { CharacterFeat } from '@/modules/character-sheet/types/character'
+import type { CharacterFeat } from '@/types/character'
 
 const props = defineProps<{ feat: CharacterFeat; disabled?: boolean }>()
 

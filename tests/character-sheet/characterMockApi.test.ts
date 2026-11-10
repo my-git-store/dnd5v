@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createEmptyCharacter, createMockCharacter } from '../../src/modules/character-sheet/data/character.mock.ts'
+import { createEmptyCharacter, createMockCharacter } from '../../src/data/character.mock.ts'
 
 test('mock character factory returns independent copies', () => {
   const first = createMockCharacter()

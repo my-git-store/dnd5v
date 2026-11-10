@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ABILITY_FIELDS } from '@/modules/character-sheet/data/characterFields'
-import { calculateSpellAttackBonus, calculateSpellSaveDc } from '@/modules/character-sheet/domain/spellcasting'
-import { signedModifier } from '@/modules/character-sheet/domain/abilityModifier'
-import type { AbilityKey, CharacterAbilities } from '@/modules/character-sheet/types/character'
-import type { CharacterSpellcasting } from '@/modules/character-sheet/types/character'
+import { ABILITY_FIELDS } from '@/data/characterFields'
+import { calculateSpellAttackBonus, calculateSpellSaveDc } from '@/domain/spellcasting'
+import { signedModifier } from '@/domain/abilityModifier'
+import type { AbilityKey, CharacterAbilities } from '@/types/character'
+import type { CharacterSpellcasting } from '@/types/character'
 
 const props = defineProps<{
     spellcasting: CharacterSpellcasting

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { CharacterGender } from '@/modules/character-sheet/types/character'
-import type { CharacterIdentityPatch, CharacterSheetView } from '@/modules/character-sheet/types/characterView'
+import type { CharacterGender } from '@/types/character'
+import type { CharacterIdentityPatch, CharacterSheetView } from '@/types/characterView'
 
 const props = defineProps<{
     character: CharacterSheetView

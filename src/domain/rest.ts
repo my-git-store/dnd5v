@@ -1,5 +1,5 @@
 import { abilityModifier } from './abilityModifier.ts'
-import { DICE_TYPES, rollDie, type DiceSides } from '../../table-components/domain/dice.ts'
+import { DICE_TYPES, rollDie, type DiceSides } from '../modules/table-components/domain/dice.ts'
 import type { CharacterAbilities } from '../types/character.ts'
 import type { CharacterCombat, CharacterSpellSlots } from '../types/character.ts'
 

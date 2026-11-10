@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { proficiencyBonus } from '@/modules/character-sheet/domain/proficiencyBonus'
-import { signedModifier } from '@/modules/character-sheet/domain/abilityModifier'
-import type { CharacterRuleset } from '@/modules/character-sheet/types/character'
+import { proficiencyBonus } from '@/domain/proficiencyBonus'
+import { signedModifier } from '@/domain/abilityModifier'
+import type { CharacterRuleset } from '@/types/character'
 
 defineProps<{
     dirty: boolean

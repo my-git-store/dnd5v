@@ -1,12 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { abilityModifier, nullableAbilityModifier } from '../../src/modules/character-sheet/domain/abilityModifier.ts'
-import { calculateAttackBonus, formatAttackBonus } from '../../src/modules/character-sheet/domain/attackBonus.ts'
-import { proficiencyBonus } from '../../src/modules/character-sheet/domain/proficiencyBonus.ts'
-import { calculateSavingThrowBonus } from '../../src/modules/character-sheet/domain/savingThrow.ts'
-import { calculateSkillBonus } from '../../src/modules/character-sheet/domain/skillBonus.ts'
-import { calculateSpellAttackBonus, calculateSpellSaveDc } from '../../src/modules/character-sheet/domain/spellcasting.ts'
-import type { CharacterAbilities } from '../../src/modules/character-sheet/types/character.ts'
+import { abilityModifier, nullableAbilityModifier } from '../../src/domain/abilityModifier.ts'
+import { calculateAttackBonus, formatAttackBonus } from '../../src/domain/attackBonus.ts'
+import { proficiencyBonus } from '../../src/domain/proficiencyBonus.ts'
+import { calculateSavingThrowBonus } from '../../src/domain/savingThrow.ts'
+import { calculateSkillBonus } from '../../src/domain/skillBonus.ts'
+import { calculateSpellAttackBonus, calculateSpellSaveDc } from '../../src/domain/spellcasting.ts'
+import type { CharacterAbilities } from '../../src/types/character.ts'
 
 const abilities: CharacterAbilities = {
   strength: 16,

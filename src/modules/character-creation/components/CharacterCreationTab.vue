@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 
-import { ABILITY_FIELDS } from '@/modules/character-sheet/data/characterFields.ts'
+import { ABILITY_FIELDS } from '@/data/characterFields.ts'
 import {
     DND5E_BACKGROUNDS,
     DND5E_CLASSES,
@@ -14,7 +14,7 @@ import {
     type Dnd5eBackgroundOption,
     type Dnd5eClassOption,
     type Dnd5eRaceOption,
-} from '@/modules/character-sheet/data/dnd5eOptions.ts'
+} from '@/data/dnd5eOptions.ts'
 import {
     RULES_2024_BACKGROUNDS,
     RULES_2024_CLASSES,
@@ -24,16 +24,16 @@ import {
     findRules2024Feat,
     findSpecies2024,
     getRules2024ClassFeatures,
-} from '@/modules/character-sheet/data/rules2024/index.ts'
-import { abilityModifier, signedModifier } from '@/modules/character-sheet/domain/abilityModifier.ts'
-import { calculateSkillBonus } from '@/modules/character-sheet/domain/skillBonus.ts'
-import type { AbilityKey, CharacterAbilities, CharacterGender } from '@/modules/character-sheet/types/character.ts'
-import type { CharacterRuleset } from '@/modules/character-sheet/types/character.ts'
-import type { CharacterCreationPayload } from '@/modules/character-sheet/domain/characterCreation.ts'
-import type { CharacterSheetView } from '@/modules/character-sheet/types/characterView.ts'
-import { classIconFor } from '@/modules/character-sheet/data/classIcons.ts'
-import { backgroundIconFor } from '@/modules/character-sheet/data/backgroundIcons.ts'
-import { speciesIconFor } from '@/modules/character-sheet/data/speciesIcons.ts'
+} from '@/data/rules2024/index.ts'
+import { abilityModifier, signedModifier } from '@/domain/abilityModifier.ts'
+import { calculateSkillBonus } from '@/domain/skillBonus.ts'
+import type { AbilityKey, CharacterAbilities, CharacterGender } from '@/types/character.ts'
+import type { CharacterRuleset } from '@/types/character.ts'
+import type { CharacterCreationPayload } from '@/domain/characterCreation.ts'
+import type { CharacterSheetView } from '@/types/characterView.ts'
+import { classIconFor } from '@/data/classIcons.ts'
+import { backgroundIconFor } from '@/data/backgroundIcons.ts'
+import { speciesIconFor } from '@/data/speciesIcons.ts'
 
 const props = defineProps<{
     character: CharacterSheetView

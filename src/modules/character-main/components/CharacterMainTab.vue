@@ -3,22 +3,18 @@ import AbilityFields from './AbilityFields.vue'
 import SkillFields from './SkillFields.vue'
 import SavingThrowFields from './SavingThrowFields.vue'
 import CharacterFeatList from './CharacterFeatList.vue'
-import type { AbilityKey } from '@/modules/character-sheet/types/character'
+import type { AbilityKey } from '@/types/character'
 import type {
     CharacterSavingThrowPatch,
     CharacterSheetView,
     CharacterSkillPatch,
-} from '@/modules/character-sheet/types/characterView'
-import { backgroundIconFor } from '@/modules/character-sheet/data/backgroundIcons.ts'
-import {
-    getRules2024Class,
-    getRules2024Feat,
-    getRules2024Feature,
-} from '@/modules/character-sheet/data/rules2024/index.ts'
-import { speciesIconFor } from '@/modules/character-sheet/data/speciesIcons.ts'
-import { availableChoicesForProgression } from '@/modules/character-sheet/domain/characterProgression.ts'
-import { PROGRESSION_UI_ENABLED } from '@/modules/character-sheet/domain/progressionVisibility.ts'
-import type { ChoiceDefinition } from '@/modules/character-sheet/types/rules.ts'
+} from '@/types/characterView'
+import { backgroundIconFor } from '@/data/backgroundIcons.ts'
+import { getRules2024Class, getRules2024Feat, getRules2024Feature } from '@/data/rules2024/index.ts'
+import { speciesIconFor } from '@/data/speciesIcons.ts'
+import { availableChoicesForProgression } from '@/domain/characterProgression.ts'
+import { PROGRESSION_UI_ENABLED } from '@/domain/progressionVisibility.ts'
+import type { ChoiceDefinition } from '@/types/rules.ts'
 
 defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
 const emit = defineEmits<{

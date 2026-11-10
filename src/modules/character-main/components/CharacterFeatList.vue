@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { openConfirmModal } from '@/modules/character-sheet/components/modals'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
+import { openConfirmModal } from '@/components/modals'
+import { useDialog } from '@/composables/useDialog'
 import CharacterFeatEditorModal from './CharacterFeatEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
-import type { CharacterFeat } from '@/modules/character-sheet/types/character'
+import type { CharacterFeat } from '@/types/character'
 
 const props = defineProps<{ feats: CharacterFeat[]; disabled?: boolean }>()
 

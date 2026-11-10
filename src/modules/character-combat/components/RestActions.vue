@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDialog } from '@/modules/character-sheet/composables/useDialog'
-import CharacterActionConfirmModal from '@/modules/character-sheet/components/CharacterActionConfirmModal.vue'
-import type { CharacterAbilities } from '@/modules/character-sheet/types/character'
-import type { CharacterCombat } from '@/modules/character-sheet/types/character'
-import type { ShortRestResult } from '@/modules/character-sheet/domain/rest'
+import { useDialog } from '@/composables/useDialog'
+import CharacterActionConfirmModal from '@/components/CharacterActionConfirmModal.vue'
+import type { CharacterAbilities } from '@/types/character'
+import type { CharacterCombat } from '@/types/character'
+import type { ShortRestResult } from '@/domain/rest'
 
 const props = defineProps<{
     combat: CharacterCombat

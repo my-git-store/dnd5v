@@ -1,4 +1,4 @@
-import { DICE_TYPES, rollDie, type DiceSides } from '../../table-components/domain/dice.ts'
+import { DICE_TYPES, rollDie, type DiceSides } from '../modules/table-components/domain/dice.ts'
 
 export interface FormulaRollResult {
     formula: string
