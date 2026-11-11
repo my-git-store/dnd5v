@@ -11,7 +11,7 @@ import CreationPreview from './CreationPreview.vue'
 import CreationIdentityStep from './steps/CreationIdentityStep.vue'
 import CreationSpeciesStep from './steps/CreationSpeciesStep.vue'
 import CreationBackgroundStep from './steps/CreationBackgroundStep.vue'
-import CreationSubraceStep from './steps/CreationSubraceStep.vue'
+import CreationSpeciesDetailsStep from './steps/CreationSpeciesDetailsStep.vue'
 import CreationClassStep from './steps/CreationClassStep.vue'
 import CreationAbilitiesStep from './steps/CreationAbilitiesStep.vue'
 import CreationSkillsStep from './steps/CreationSkillsStep.vue'
@@ -85,7 +85,6 @@ const { currentStep, isCompleted, stepIssue, stepLabel, stepDescription, steps, 
                             :model="creation"
                             :disabled="disabled"
                             @update-name="creation.updateName"
-                            @update-ruleset="creation.updateRulesetValue"
                             @update-gender="creation.updateGender"
                             @update-alignment="creation.updateAlignment"
                             @update-subclass="creation.updateSubclass"
@@ -106,11 +105,9 @@ const { currentStep, isCompleted, stepIssue, stepLabel, stepDescription, steps, 
                             @select-origin-ability-focus="creation.selectOriginAbilityFocus"
                             @select-background-kit="creation.selectBackgroundKit"
                         />
-                        <CreationSubraceStep
+                        <CreationSpeciesDetailsStep
                             v-else-if="currentStep === 4"
                             :model="creation"
-                            :disabled="disabled"
-                            @select-subrace="creation.selectSubrace"
                         />
                         <CreationClassStep
                             v-else-if="currentStep === 5"

@@ -44,7 +44,7 @@ function update(key: keyof CharacterIdentityPatch, value: unknown) {
                     @update:value="update('name', $event)"
                 />
             </NFormItem>
-            <NFormItem :label="character.ruleset === '2024' ? 'Вид' : 'Раса'">
+            <NFormItem label="Вид">
                 <NInput
                     :disabled="disabled"
                     :value="character.race.name"

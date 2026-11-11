@@ -46,7 +46,7 @@ export function useCharacterCreation(
 
     const options = useCreationOptions(draft)
 
-    const abilities = useCreationAbilities(draft, options)
+    const abilities = useCreationAbilities(draft)
 
     const skills = useCreationSkills(draft, options, abilities, character)
 
@@ -57,10 +57,8 @@ export function useCharacterCreation(
     const navigation = useCreationNavigation(draft, options, skills, abilities, preview)
 
     const {
-        ruleset,
         isCompleted,
         raceId,
-        subraceId,
         classId,
         backgroundId,
         backgroundEquipmentId,
@@ -72,8 +70,6 @@ export function useCharacterCreation(
         subclass,
         alignment,
         selectedSkillIds,
-        raceSkillChoices,
-        raceAbilityChoices,
         baseAbilities,
         classEquipmentId,
     } = draft
@@ -95,34 +91,26 @@ export function useCharacterCreation(
     function applyCreation() {
         if (stepIssue.value || !name.value.trim()) return
         const payload: CharacterCreationPayload = {
-            ruleset: ruleset.value,
+            ruleset: '2024',
             gender: gender.value,
-            speciesId: ruleset.value === '2024' ? raceId.value : undefined,
-            speciesChoices:
-                ruleset.value === '2024'
-                    ? Object.fromEntries(
-                          Object.entries(speciesChoices.value).map(([choiceId, selections]) => [
-                              choiceId,
-                              [...selections],
-                          ]),
-                      )
-                    : undefined,
+            speciesId: raceId.value,
+            speciesChoices: Object.fromEntries(
+                Object.entries(speciesChoices.value).map(([choiceId, selections]) => [
+                    choiceId,
+                    [...selections],
+                ]),
+            ),
             name: name.value,
             raceId: raceId.value,
-            subraceId: subraceId.value || undefined,
             classId: classId.value,
             backgroundId: backgroundId.value,
             subclass: subclass.value,
             alignment: alignment.value,
             baseAbilities: { ...baseAbilities },
             classSkillIds: [...selectedSkillIds.value],
-            raceSkillChoices: [...raceSkillChoices.value],
-            raceAbilityChoices: [...raceAbilityChoices.value],
-            originFeatId:
-                ruleset.value === '2024' ? selectedModernBackground.value?.originFeatId : undefined,
-            originAbilityChoices:
-                ruleset.value === '2024' ? [...backgroundAbilityChoices.value] : undefined,
-            originAbilityFocus: ruleset.value === '2024' ? originAbilityFocus.value : undefined,
+            originFeatId: selectedModernBackground.value?.originFeatId,
+            originAbilityChoices: [...backgroundAbilityChoices.value],
+            originAbilityFocus: originAbilityFocus.value,
             classEquipmentId: classEquipmentId.value || undefined,
             backgroundEquipmentId: backgroundEquipmentId.value || undefined,
         }

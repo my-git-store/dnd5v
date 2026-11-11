@@ -3,19 +3,14 @@ import { toRefs } from 'vue'
 
 import { speciesIconFor } from '@/data/speciesIcons'
 
-import { hideBrokenAsset, choiceOptions, raceBonusLines } from '../../utils/creationLabels'
+import { hideBrokenAsset, choiceOptions } from '../../utils/creationLabels'
 import type { CharacterCreationModel } from '../../composables/useCharacterCreation'
 
 type Props = {
     model: Readonly<
         Pick<
             CharacterCreationModel,
-            | 'ruleset'
-            | 'raceOptions'
-            | 'raceId'
-            | 'selected2024Species'
-            | 'skillLabels'
-            | 'speciesChoices'
+            'raceOptions' | 'raceId' | 'selected2024Species' | 'speciesChoices'
         >
     >
     disabled?: boolean
@@ -29,21 +24,15 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
-const { ruleset, raceOptions, raceId, selected2024Species, skillLabels, speciesChoices } = toRefs(
-    props.model,
-)
+const { raceOptions, raceId, selected2024Species, speciesChoices } = toRefs(props.model)
 </script>
 
 <template>
     <div class="creation-step-content">
-        <p v-if="ruleset === '2024'" class="creation-source-explainer creation-race-bonus-note">
+        <p class="creation-source-explainer creation-race-bonus-note">
             Бонусы характеристик задаются исходными значениями.
         </p>
-        <div
-            class="selection-grid race-selection-grid"
-            role="group"
-            :aria-label="ruleset === '2024' ? 'Выберите вид' : 'Выберите расу'"
-        >
+        <div class="selection-grid race-selection-grid" role="group" aria-label="Выберите вид">
             <button
                 v-for="race in raceOptions"
                 :key="race.id"
@@ -55,7 +44,7 @@ const { ruleset, raceOptions, raceId, selected2024Species, skillLabels, speciesC
                 @click="emit('selectRace', race.id)"
             >
                 <span class="selection-card-top"
-                    ><span v-if="ruleset === '2024'" class="species-icon" aria-hidden="true"
+                    ><span class="species-icon" aria-hidden="true"
                         ><span
                             data-asset-fallback
                             class="species-icon-fallback"
@@ -67,9 +56,6 @@ const { ruleset, raceOptions, raceId, selected2024Species, skillLabels, speciesC
                             :alt="`Иконка вида «${race.label}»`"
                             loading="lazy"
                             @error="hideBrokenAsset" /></span
-                    ><span v-else class="selection-sigil" aria-hidden="true">{{
-                        race.label.slice(0, 1)
-                    }}</span
                     ><span v-if="raceId === race.id" class="selection-check" aria-label="Выбрано"
                         >✓</span
                     ></span
@@ -77,34 +63,18 @@ const { ruleset, raceOptions, raceId, selected2024Species, skillLabels, speciesC
                 <strong>{{ race.label }}</strong
                 ><span class="selection-description"
                     >{{ race.profile.size }} · скорость {{ race.profile.speed }} фт.</span
-                ><span
-                    v-if="ruleset === '2024' && race.id === selected2024Species.id"
-                    class="selection-description"
-                    >{{ selected2024Species.description }}</span
-                >
-                <span v-if="ruleset !== '2024'" class="selection-bonuses"
-                    ><span v-for="bonus in raceBonusLines(ruleset, race.id)" :key="bonus">{{
-                        bonus
-                    }}</span></span
-                >
+                ><span v-if="race.id === selected2024Species.id" class="selection-description">{{
+                    selected2024Species.description
+                }}</span>
                 <span class="selection-traits"
                     >Особенности: {{ race.profile.traits.join(' · ') }}</span
                 >
-                <span
-                    v-if="ruleset === '2024' && race.id === selected2024Species.id"
-                    class="selection-origin"
+                <span v-if="race.id === selected2024Species.id" class="selection-origin"
                     >Языки: {{ selected2024Species.languages.join(', ') || 'не указаны' }}</span
-                >
-                <span v-if="race.skillProficiencies?.length" class="selection-origin"
-                    >Владение:
-                    {{ race.skillProficiencies.map(id => skillLabels[id] ?? id).join(', ') }}</span
                 >
             </button>
         </div>
-        <div
-            v-if="ruleset === '2024' && selected2024Species.choices.length"
-            class="species-choice-panel"
-        >
+        <div v-if="selected2024Species.choices.length" class="species-choice-panel">
             <div class="creation-panel-heading">
                 <div>
                     <p class="c-eyebrow">Наследие вида</p>

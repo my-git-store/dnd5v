@@ -1,37 +1,27 @@
 import { computed } from 'vue'
 
 import {
-    DND5E_RACES,
-    DND5E_CLASSES,
-    DND5E_BACKGROUNDS,
-    findRace,
-    findSubrace,
-    findClass,
-    subracesForRace,
-} from '@/data/dnd5eOptions'
-import type { Dnd5eRaceOption, Dnd5eClassOption } from '@/data/dnd5eOptions'
-import {
     RULES_2024_SPECIES,
     RULES_2024_CLASSES,
     RULES_2024_BACKGROUNDS,
     findSpecies2024,
+    findRules2024Class,
     findRules2024Background,
 } from '@/data/rules2024'
 import { speciesIconFor } from '@/data/speciesIcons'
 import { backgroundIconFor } from '@/data/backgroundIcons'
 
-import { speciesAsLegacy, classAsLegacy, backgroundAsCreation } from '../utils/creationOptions'
+import { speciesAsCreation, backgroundAsCreation } from '../utils/creationOptions'
 import type {
     CreationDraft,
     CreationOptions,
     CreationBackgroundOption,
+    CreationSpeciesOption,
 } from '../types/characterCreation'
 
 export function useCreationOptions(draft: CreationDraft): CreationOptions {
     const {
-        ruleset,
         raceId,
-        subraceId,
         classId,
         backgroundId,
         backgroundAbilityChoices,
@@ -39,41 +29,23 @@ export function useCreationOptions(draft: CreationDraft): CreationOptions {
         speciesChoices,
     } = draft
 
-    const raceOptions = computed<Dnd5eRaceOption[]>(() =>
-        ruleset.value === '2024'
-            ? RULES_2024_SPECIES.map(species => speciesAsLegacy(species.id))
-            : DND5E_RACES,
+    const raceOptions = computed<CreationSpeciesOption[]>(() =>
+        RULES_2024_SPECIES.map(species => speciesAsCreation(species.id)),
     )
 
-    const classOptions = computed<Dnd5eClassOption[]>(() =>
-        ruleset.value === '2024'
-            ? RULES_2024_CLASSES.map(item => classAsLegacy(item.id))
-            : DND5E_CLASSES,
-    )
+    const classOptions = computed(() => RULES_2024_CLASSES)
 
     const backgroundOptions = computed<CreationBackgroundOption[]>(() =>
-        ruleset.value === '2024'
-            ? RULES_2024_BACKGROUNDS.map(item => backgroundAsCreation(item.id, ruleset.value))
-            : DND5E_BACKGROUNDS,
+        RULES_2024_BACKGROUNDS.map(item => backgroundAsCreation(item.id)),
     )
 
-    const selectedRace = computed(() =>
-        ruleset.value === '2024' ? speciesAsLegacy(raceId.value) : findRace(raceId.value),
-    )
+    const selectedRace = computed(() => speciesAsCreation(raceId.value))
 
     const selected2024Species = computed(() => findSpecies2024(raceId.value))
 
-    const selectedSpeciesIcon = computed(() =>
-        ruleset.value === '2024' ? speciesIconFor(raceId.value) : undefined,
-    )
+    const selectedSpeciesIcon = computed(() => speciesIconFor(raceId.value))
 
-    const selectedSubrace = computed(() =>
-        ruleset.value === '2024' ? undefined : findSubrace(raceId.value, subraceId.value),
-    )
-
-    const selectedClass = computed(() =>
-        ruleset.value === '2024' ? classAsLegacy(classId.value) : findClass(classId.value),
-    )
+    const selectedClass = computed(() => findRules2024Class(classId.value))
 
     const selectedBackground = computed(
         () =>
@@ -81,18 +53,10 @@ export function useCreationOptions(draft: CreationDraft): CreationOptions {
             backgroundOptions.value[0]!,
     )
 
-    const selectedModernBackground = computed(() =>
-        ruleset.value === '2024' ? findRules2024Background(backgroundId.value) : undefined,
-    )
+    const selectedModernBackground = computed(() => findRules2024Background(backgroundId.value))
 
-    const selectedBackgroundIcon = computed(() =>
-        ruleset.value === '2024'
-            ? (selectedBackground.value.icon ?? backgroundIconFor(backgroundId.value))
-            : undefined,
-    )
-
-    const availableSubraces = computed(() =>
-        ruleset.value === '2024' ? [] : subracesForRace(raceId.value),
+    const selectedBackgroundIcon = computed(
+        () => selectedBackground.value.icon ?? backgroundIconFor(backgroundId.value),
     )
 
     const classEquipmentOptions = computed(() => selectedClass.value.equipmentOptions ?? [])
@@ -103,7 +67,6 @@ export function useCreationOptions(draft: CreationDraft): CreationOptions {
 
     const backgroundChoiceIssue = computed(() => {
         if (!backgroundId.value) return 'Выберите предысторию, чтобы продолжить.'
-        if (ruleset.value !== '2024') return ''
         const background = selectedModernBackground.value
 
         const allowed = background?.abilityOptions ?? []
@@ -121,7 +84,6 @@ export function useCreationOptions(draft: CreationDraft): CreationOptions {
     })
 
     const speciesChoiceIssue = computed(() => {
-        if (ruleset.value !== '2024') return ''
         const missing = selected2024Species.value.choices.find(
             choice => (speciesChoices.value[choice.id]?.length ?? 0) < choice.minSelections,
         )
@@ -134,12 +96,10 @@ export function useCreationOptions(draft: CreationDraft): CreationOptions {
         selectedRace,
         selected2024Species,
         selectedSpeciesIcon,
-        selectedSubrace,
         selectedClass,
         selectedBackground,
         selectedModernBackground,
         selectedBackgroundIcon,
-        availableSubraces,
         classEquipmentOptions,
         backgroundEquipmentOptions,
         backgroundChoiceIssue,

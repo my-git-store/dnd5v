@@ -70,7 +70,7 @@ import type { CharacterProgression, RuleSourceRef, SpellProgressionType } from '
 
 export type CharacterSchema = 3
 export type CharacterKind = 'character' | 'npc'
-export type CharacterRuleset = '2014' | '2024'
+export type CharacterRuleset = '2024'
 export type CharacterCalculationMode = 'manual' | 'computed'
 export type SkillProficiencySource = 'race' | 'class' | 'background' | 'manual' | 'feat'
 export type CharacterAbilityBonusSource = 'species' | 'background' | 'manual' | 'feat' | 'class'

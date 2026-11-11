@@ -3,18 +3,14 @@ import { toRefs } from 'vue'
 
 import type { CharacterGender } from '@/types/character'
 
-import { RULESET_OPTIONS } from '../../data/creationSteps'
 import type { CharacterCreationModel } from '../../composables/useCharacterCreation'
 
 type Props = {
-    model: Readonly<
-        Pick<CharacterCreationModel, 'name' | 'ruleset' | 'alignment' | 'subclass' | 'gender'>
-    >
+    model: Readonly<Pick<CharacterCreationModel, 'name' | 'alignment' | 'subclass' | 'gender'>>
     disabled?: boolean
 }
 type Emits = {
     updateName: [name: string]
-    updateRuleset: [ruleset: string | null]
     updateGender: [gender: CharacterGender]
     updateAlignment: [alignment: string]
     updateSubclass: [subclass: string]
@@ -24,7 +20,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
-const { name, ruleset, alignment, subclass, gender } = toRefs(props.model)
+const { name, alignment, subclass, gender } = toRefs(props.model)
 </script>
 
 <template>
@@ -37,16 +33,6 @@ const { name, ruleset, alignment, subclass, gender } = toRefs(props.model)
                     autocomplete="off"
                     @update:value="emit('updateName', $event)"
             /></NFormItem>
-            <label class="c-compact-field creation-ruleset-field"
-                >Редакция правил
-                <NSelect
-                    class="c-select-control"
-                    :value="ruleset"
-                    :options="RULESET_OPTIONS"
-                    :disabled="disabled"
-                    @update:value="emit('updateRuleset', $event)"
-                />
-            </label>
             <NFormItem label="Мировоззрение (необязательно)"
                 ><NInput
                     :value="alignment"
@@ -87,7 +73,10 @@ const { name, ruleset, alignment, subclass, gender } = toRefs(props.model)
         </div>
         <div class="creation-callout">
             <span aria-hidden="true">✧</span>
-            <p>Имя можно изменить позднее. Ваш выбор пока остаётся в черновике листа.</p>
+            <p>
+                Персонаж создаётся по правилам D&amp;D 2024. Имя можно изменить позднее. Ваш выбор
+                пока остаётся в черновике листа.
+            </p>
         </div>
     </div>
 </template>

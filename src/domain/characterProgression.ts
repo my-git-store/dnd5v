@@ -1,3 +1,4 @@
+import { isCharacterRuleset } from './ruleset.ts'
 import { getRules2024Class } from '../data/rules2024/index.ts'
 import type { CharacterRuleset, Character } from '../types/character.ts'
 import type {
@@ -20,12 +21,11 @@ export const RULES_2024_FEAT_CHOICE_LEVELS = [4, 8, 12, 16, 19] as const
 export function defaultProgressionChoiceMetadata(
     ruleset: CharacterRuleset,
 ): ProgressionChoiceMetadata {
-    return ruleset === '2024'
-        ? {
-              abilityScoreImprovementLevels: [...RULES_2024_ASI_LEVELS],
-              featChoiceLevels: [...RULES_2024_FEAT_CHOICE_LEVELS],
-          }
-        : { abilityScoreImprovementLevels: [], featChoiceLevels: [] }
+    if (!isCharacterRuleset(ruleset)) throw new Error('Поддерживается только редакция D&D 2024.')
+    return {
+        abilityScoreImprovementLevels: [...RULES_2024_ASI_LEVELS],
+        featChoiceLevels: [...RULES_2024_FEAT_CHOICE_LEVELS],
+    }
 }
 
 function isLevel(value: unknown): value is number {
@@ -71,7 +71,8 @@ function featureIdsForClass(
     classId: string | undefined,
     level: number,
 ): string[] {
-    if (ruleset !== '2024' || !classId) return []
+    if (!isCharacterRuleset(ruleset)) throw new Error('Поддерживается только редакция D&D 2024.')
+    if (!classId) return []
     return (
         getRules2024Class(classId)
             ?.levelFeaturesMetadata.filter(feature => feature.level <= level)
@@ -228,7 +229,7 @@ export function availableChoicesForProgression(
         !metadata.featChoiceLevels.includes(level)
     )
         return []
-    if (ruleset !== '2024') return []
+    if (!isCharacterRuleset(ruleset)) throw new Error('Поддерживается только редакция D&D 2024.')
     const classDefinition = getRules2024Class(classEntry.classId)
     if (!classDefinition) return []
     return [
@@ -257,7 +258,7 @@ export function levelUpProgression(
     ) {
         throw new Error('Повышение возможно только на один уровень за операцию.')
     }
-    if (ruleset === '2024' && progression.classLevels.length === 0) {
+    if (progression.classLevels.length === 0) {
         throw new Error('Для повышения уровня D&D 2024 нужен выбранный класс.')
     }
     const classLevels = progression.classLevels.map((entry, index) =>
@@ -265,7 +266,7 @@ export function levelUpProgression(
     )
 
     const classId = classLevels[0]?.classId
-    if (ruleset === '2024' && (!classId || !getRules2024Class(classId))) {
+    if (!classId || !getRules2024Class(classId)) {
         throw new Error('Для повышения уровня D&D 2024 нужен корректный класс.')
     }
     const existingFeatures = unique(progression.features ?? [])

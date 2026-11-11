@@ -8,7 +8,7 @@ import type { AbilityKey } from '@/types/character'
 import type { CharacterCreationModel } from '../../composables/useCharacterCreation'
 
 type Props = {
-    model: Readonly<Pick<CharacterCreationModel, 'ruleset' | 'baseAbilities' | 'finalAbility'>>
+    model: Readonly<Pick<CharacterCreationModel, 'baseAbilities' | 'finalAbility'>>
     disabled?: boolean
 }
 type Emits = {
@@ -19,7 +19,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
-const { ruleset, baseAbilities, finalAbility } = toRefs(props.model)
+const { baseAbilities, finalAbility } = toRefs(props.model)
 </script>
 
 <template>
@@ -32,15 +32,7 @@ const { ruleset, baseAbilities, finalAbility } = toRefs(props.model)
             >
         </div>
         <div class="creator-abilities creation-ability-grid">
-            <article
-                v-for="field in ABILITY_FIELDS"
-                :key="field.key"
-                class="creation-ability-card"
-                :class="{
-                    'has-racial-bonus': finalAbility(field.key) !== baseAbilities[field.key],
-                    'creation-ability-card-modern': ruleset === '2024',
-                }"
-            >
+            <article v-for="field in ABILITY_FIELDS" :key="field.key" class="creation-ability-card">
                 <div class="creation-ability-input-row">
                     <NFormItem :label="field.label"
                         ><NInputNumber
@@ -51,25 +43,10 @@ const { ruleset, baseAbilities, finalAbility } = toRefs(props.model)
                             :disabled="disabled"
                             :value="baseAbilities[field.key]"
                             @update:value="emit('updateAbility', field.key, $event)" /></NFormItem
-                    ><strong v-if="ruleset === '2024'" class="ability-modifier-inline">{{
+                    ><strong class="ability-modifier-inline">{{
                         signedModifier(abilityModifier(finalAbility(field.key)))
                     }}</strong>
                 </div>
-                <div v-if="ruleset !== '2024'" class="ability-result">
-                    <span
-                        >Итог <b>{{ finalAbility(field.key) }}</b></span
-                    ><strong>{{ signedModifier(abilityModifier(finalAbility(field.key))) }}</strong>
-                </div>
-                <span
-                    v-if="
-                        ruleset !== '2024' && finalAbility(field.key) !== baseAbilities[field.key]
-                    "
-                    class="ability-source"
-                    >Раса / подраса
-                    {{ signedModifier(finalAbility(field.key) - baseAbilities[field.key]) }}</span
-                ><span v-else-if="ruleset !== '2024'" class="ability-source"
-                    >Без бонуса происхождения</span
-                >
             </article>
         </div>
     </div>
@@ -98,10 +75,6 @@ const { ruleset, baseAbilities, finalAbility } = toRefs(props.model)
         border-color 0.2s ease,
         box-shadow 0.2s ease;
 }
-.creation-ability-card.has-racial-bonus {
-    border-color: #bc975d;
-    box-shadow: inset 0 0 0 1px rgba(188, 151, 93, 0.2);
-}
 .creation-ability-input-row {
     display: flex;
     align-items: flex-end;
@@ -128,35 +101,6 @@ const { ruleset, baseAbilities, finalAbility } = toRefs(props.model)
     text-align: center;
     font-size: 1.25rem;
     font-weight: 800;
-}
-.ability-result {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    color: #796448;
-    font-size: 0.75rem;
-}
-.ability-result b {
-    margin-left: 5px;
-    color: #4c3723;
-    font-size: 1rem;
-}
-.ability-result strong {
-    display: grid;
-    place-items: center;
-    min-width: 38px;
-    min-height: 34px;
-    border: 1px solid #d6c39e;
-    border-radius: 9px;
-    background: #fff7e6;
-    color: #714d28;
-    font-size: 1rem;
-}
-.ability-source {
-    color: #90754f;
-    font-size: 0.68rem;
-    line-height: 1.3;
 }
 .creation-source-hint {
     display: flex;

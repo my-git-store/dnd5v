@@ -1,12 +1,7 @@
 import { reactive, ref } from 'vue'
 
 import { RULES_2024_SPECIES, RULES_2024_CLASSES, RULES_2024_BACKGROUNDS } from '@/data/rules2024'
-import type {
-    AbilityKey,
-    CharacterAbilities,
-    CharacterGender,
-    CharacterRuleset,
-} from '@/types/character'
+import type { AbilityKey, CharacterAbilities, CharacterGender } from '@/types/character'
 
 import type { CreationDraft } from '../types/characterCreation'
 
@@ -14,15 +9,11 @@ export function useCreationDraft(): CreationDraft {
     // Always start a new draft; saved sheet choices must never prefill creation.
     const currentStep = ref(1)
 
-    const ruleset = ref<CharacterRuleset>('2024')
-
     const highestUnlockedStep = ref(1)
 
     const isCompleted = ref(false)
 
     const raceId = ref(RULES_2024_SPECIES[0]!.id)
-
-    const subraceId = ref('')
 
     const classId = ref(RULES_2024_CLASSES[0]!.id)
 
@@ -50,10 +41,6 @@ export function useCreationDraft(): CreationDraft {
 
     const selectedSkillIds = ref<string[]>([])
 
-    const raceSkillChoices = ref<string[]>([])
-
-    const raceAbilityChoices = ref<AbilityKey[]>([])
-
     const baseAbilities = reactive<CharacterAbilities>({
         strength: 10,
         dexterity: 10,
@@ -66,11 +53,9 @@ export function useCreationDraft(): CreationDraft {
     const classEquipmentId = ref(RULES_2024_CLASSES[0]?.equipmentOptions?.[0]?.id ?? '')
     return {
         currentStep,
-        ruleset,
         highestUnlockedStep,
         isCompleted,
         raceId,
-        subraceId,
         classId,
         backgroundId,
         backgroundEquipmentId,
@@ -82,8 +67,6 @@ export function useCreationDraft(): CreationDraft {
         subclass,
         alignment,
         selectedSkillIds,
-        raceSkillChoices,
-        raceAbilityChoices,
         baseAbilities,
         classEquipmentId,
     }

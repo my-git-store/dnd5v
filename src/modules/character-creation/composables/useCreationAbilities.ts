@@ -3,27 +3,12 @@ import { computed } from 'vue'
 import { ABILITY_FIELDS } from '@/data/characterFields'
 import type { AbilityKey } from '@/types/character'
 
-import type { CreationDraft, CreationOptions, CreationAbilities } from '../types/characterCreation'
+import type { CreationDraft, CreationAbilities } from '../types/characterCreation'
 
-export function useCreationAbilities(
-    draft: CreationDraft,
-    options: CreationOptions,
-): CreationAbilities {
-    const { ruleset, baseAbilities, raceAbilityChoices, isCompleted } = draft
+export function useCreationAbilities(draft: CreationDraft): CreationAbilities {
+    const { baseAbilities, isCompleted } = draft
 
-    const { selectedRace, selectedSubrace } = options
-
-    const finalAbility = (key: AbilityKey) => {
-        if (ruleset.value === '2024') return baseAbilities[key]
-        return (
-            baseAbilities[key] +
-            (selectedRace.value.profile.abilityBonuses[key] ?? 0) +
-            (selectedSubrace.value?.abilityBonuses[key] ?? 0) +
-            (selectedRace.value.abilityChoices && raceAbilityChoices.value.includes(key)
-                ? selectedRace.value.abilityChoices.bonus
-                : 0)
-        )
-    }
+    const finalAbility = (key: AbilityKey) => baseAbilities[key]
 
     const hasAbilityError = computed(() =>
         ABILITY_FIELDS.some(

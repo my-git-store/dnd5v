@@ -12,7 +12,6 @@ type Props = {
     model: Readonly<
         Pick<
             CharacterCreationModel,
-            | 'ruleset'
             | 'backgroundOptions'
             | 'backgroundId'
             | 'skillLabels'
@@ -38,7 +37,6 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const {
-    ruleset,
     backgroundOptions,
     backgroundId,
     skillLabels,
@@ -69,7 +67,7 @@ const {
                 @click="emit('selectBackground', background.id)"
             >
                 <span class="selection-card-top"
-                    ><span v-if="ruleset === '2024'" class="background-icon" aria-hidden="true"
+                    ><span class="background-icon" aria-hidden="true"
                         ><span
                             data-asset-fallback
                             class="background-icon-fallback"
@@ -81,7 +79,6 @@ const {
                             :alt="`Иконка предыстории «${background.label}»`"
                             loading="lazy"
                             @error="hideBrokenAsset" /></span
-                    ><span v-else class="selection-sigil" aria-hidden="true">✧</span
                     ><span
                         v-if="backgroundId === background.id"
                         class="selection-check"
@@ -113,7 +110,7 @@ const {
                 >
             </button>
         </div>
-        <div v-if="ruleset === '2024'" class="origin-ability-choice">
+        <div class="origin-ability-choice">
             <div>
                 <strong>Бонусы характеристик</strong
                 ><small

@@ -1,5 +1,5 @@
 import {
-    listStoredCharacterIds,
+    listStoredCharacterSummaries,
     readStoredCharacter,
     type CharacterStorageLike,
 } from './characterStorage.ts'
@@ -98,7 +98,7 @@ export function parseCharacterTransfer(raw: string): ImportedCharacterPlan {
 }
 
 export function readAllStoredCharacters(storage: CharacterStorageLike): Character[] {
-    return listStoredCharacterIds(storage).flatMap(id => {
+    return listStoredCharacterSummaries(storage).flatMap(({ id }) => {
         const character = readStoredCharacter(id, storage)
         return character ? [character] : []
     })

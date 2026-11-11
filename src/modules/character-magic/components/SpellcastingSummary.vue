@@ -52,9 +52,7 @@ function updateAbility(value: string | null) {
                 </p>
             </div>
             <div class="section-heading-badges">
-                <span class="c-mode-tag mode-ready">{{
-                    spellcasting.spellRuleset === '2024' ? 'D&amp;D 2024' : 'D&amp;D 2014'
-                    }}</span><span class="c-mode-tag"
+                <span class="c-mode-tag mode-ready">D&amp;D 2024</span><span class="c-mode-tag"
                     :class="spellcasting.spellcastingAbility ? 'mode-ready' : 'mode-unset'">{{
                         spellcasting.spellcastingAbility ? 'Настроено' : 'Не настроено' }}</span>
             </div>

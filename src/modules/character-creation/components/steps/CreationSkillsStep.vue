@@ -13,9 +13,6 @@ type Props = {
             | 'classSkillsRemaining'
             | 'selectedCount'
             | 'selectedClass'
-            | 'selectedRace'
-            | 'raceSkillsRemaining'
-            | 'raceSelectedCount'
             | 'selectableSkills'
             | 'isSkillChoiceSelected'
             | 'canSelectSkill'
@@ -38,9 +35,6 @@ const {
     classSkillsRemaining,
     selectedCount,
     selectedClass,
-    selectedRace,
-    raceSkillsRemaining,
-    raceSelectedCount,
     selectableSkills,
     isSkillChoiceSelected,
     canSelectSkill,
@@ -58,15 +52,6 @@ const {
                 ><small>{{
                     classSkillsRemaining
                         ? `Осталось выбрать: ${classSkillsRemaining}`
-                        : 'Выбор завершён'
-                }}</small></span
-            ><span
-                v-if="selectedRace.skillChoices?.count"
-                :class="{ 'selection-complete': raceSkillsRemaining === 0 }"
-                >Навыки вида: <b>{{ raceSelectedCount }} / {{ selectedRace.skillChoices.count }}</b
-                ><small>{{
-                    raceSkillsRemaining
-                        ? `Осталось выбрать: ${raceSkillsRemaining}`
                         : 'Выбор завершён'
                 }}</small></span
             >

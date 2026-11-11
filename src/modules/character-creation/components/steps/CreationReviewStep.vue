@@ -14,7 +14,6 @@ type Props = {
             | 'name'
             | 'selectedRace'
             | 'selectedBackground'
-            | 'selectedSubrace'
             | 'selectedClass'
             | 'finalAbility'
             | 'previewFeatures'
@@ -36,7 +35,6 @@ const {
     name,
     selectedRace,
     selectedBackground,
-    selectedSubrace,
     selectedClass,
     finalAbility,
     previewFeatures,
@@ -51,8 +49,7 @@ const {
             <p class="c-eyebrow">Последняя проверка</p>
             <h3>{{ name.trim() || 'Безымянный герой' }}</h3>
             <p class="review-identity">
-                {{ selectedRace.label }} · {{ selectedBackground.label
-                }}<span v-if="selectedSubrace"> · {{ selectedSubrace.label }}</span>
+                {{ selectedRace.label }} · {{ selectedBackground.label }}
                 ·
                 {{ selectedClass.label }}
             </p>
@@ -92,9 +89,8 @@ const {
             <p class="c-eyebrow">Путь начинается</p>
             <h3>Персонаж готов</h3>
             <p>
-                {{ name }} — {{ selectedRace.label }} · {{ selectedBackground.label
-                }}<span v-if="selectedSubrace"> · {{ selectedSubrace.label }}</span
-                >, {{ selectedClass.label }}.
+                {{ name }} — {{ selectedRace.label }} · {{ selectedBackground.label }},
+                {{ selectedClass.label }}.
             </p>
             <div class="finished-actions">
                 <NButton type="primary" @click="emit('backToSheet')">Открыть лист персонажа</NButton

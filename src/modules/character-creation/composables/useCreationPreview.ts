@@ -14,22 +14,12 @@ export function useCreationPreview(
     options: CreationOptions,
     character: CreationCharacterSource,
 ): CreationPreview {
-    const { name, ruleset, classId, classEquipmentId, backgroundEquipmentId } = draft
+    const { name, classId, classEquipmentId, backgroundEquipmentId } = draft
 
-    const {
-        selectedRace,
-        selectedSubrace,
-        selectedClass,
-        classEquipmentOptions,
-        backgroundEquipmentOptions,
-    } = options
+    const { selectedRace, classEquipmentOptions, backgroundEquipmentOptions } = options
 
     const previewClassFeatures = computed(() =>
-        ruleset.value === '2024'
-            ? getRules2024ClassFeatures(classId.value, character().level).map(
-                  feature => feature.name,
-              )
-            : selectedClass.value.features,
+        getRules2024ClassFeatures(classId.value, character().level).map(feature => feature.name),
     )
 
     const initials = computed(
@@ -57,11 +47,7 @@ export function useCreationPreview(
     ])
 
     const previewFeatures = computed(() =>
-        [
-            ...selectedRace.value.profile.traits,
-            ...(selectedSubrace.value?.traits ?? []),
-            ...previewClassFeatures.value,
-        ].filter(Boolean),
+        [...selectedRace.value.profile.traits, ...previewClassFeatures.value].filter(Boolean),
     )
     return { initials, selectedClassKit, selectedBackgroundKit, previewEquipment, previewFeatures }
 }

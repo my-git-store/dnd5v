@@ -373,17 +373,8 @@ function toRecord(value: CharacterSheetView, base: Character): Character {
             base.spellcasting.cantrips.find(item => item.id === spell.id),
         ),
     )
-    if (value.ruleset === '2024') {
-        next.spellcasting.spellIds = canonicalSpellIds(next.spellcasting.knownSpells)
-        next.spellcasting.cantripIds = canonicalSpellIds(next.spellcasting.cantrips)
-    } else {
-        next.spellcasting.spellIds = value.spellcasting.spellIds
-            ? [...value.spellcasting.spellIds]
-            : []
-        next.spellcasting.cantripIds = value.spellcasting.cantripIds
-            ? [...value.spellcasting.cantripIds]
-            : []
-    }
+    next.spellcasting.spellIds = canonicalSpellIds(next.spellcasting.knownSpells)
+    next.spellcasting.cantripIds = canonicalSpellIds(next.spellcasting.cantrips)
     const knownSpellIds = new Set(next.spellcasting.knownSpells.map(spell => spell.id))
     next.spellcasting.preparedSpellIds = next.spellcasting.preparedSpellIds.filter(id =>
         knownSpellIds.has(id),

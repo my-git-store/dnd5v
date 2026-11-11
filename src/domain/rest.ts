@@ -56,15 +56,12 @@ export function takeShortRest(
     return { combat: next, rolls, healing, spent: count }
 }
 
-/** Applies a long rest using the standard half-of-total hit-dice recovery rule. */
+/** A D&D 2024 long rest restores all spent Hit Point Dice. */
 export function takeLongRest(combat: CharacterCombat): CharacterCombat {
     const next = clone(combat)
     next.hitPoints.current = next.hitPoints.max
     next.hitPoints.temporary = 0
-    next.hitDice.spent = Math.max(
-        0,
-        next.hitDice.spent - Math.max(1, Math.floor(next.hitDice.total / 2)),
-    )
+    next.hitDice.spent = 0
     next.deathSaves = { successes: 0, failures: 0 }
     return next
 }

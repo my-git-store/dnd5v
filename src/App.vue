@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import CharacterSheetPage from '@/views/CharacterSheetPage.vue'
 import { useColorTheme } from '@/utils/colorTheme'
 import { NScrollbar } from 'naive-ui'
+import { NConfigProvider, ruRU, dateRuRU } from 'naive-ui'
 
 const { naiveTheme, theme } = useColorTheme()
 
@@ -16,10 +17,23 @@ const themeOverrides = computed(() => ({
         primaryColor: primaryColor.value,
     },
 }))
+
+const locale = {
+    ...ruRU,
+    Input: {
+        placeholder: '',
+    },
+    InputNumber: {
+        placeholder: '',
+    },
+    Select: {
+        placeholder: '',
+    },
+}
 </script>
 
 <template>
-    <n-config-provider :theme-overrides="themeOverrides">
+    <n-config-provider :theme-overrides="themeOverrides" :locale="locale" :date-locale="dateRuRU">
         <n-notification-provider placement="bottom-right">
             <n-dialog-provider>
                 <n-modal-provider>

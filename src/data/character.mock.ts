@@ -40,7 +40,7 @@ function createCharacter(id: string, demo: boolean): Character {
         id,
         schemaVersion: 3,
         kind: 'character',
-        ruleset: '2014',
+        ruleset: '2024',
         identity: {
             name: demo ? 'Элара Лунный Свет' : 'Новый персонаж',
             race: {
@@ -117,7 +117,7 @@ function createCharacter(id: string, demo: boolean): Character {
               ]
             : [],
         spellcasting: {
-            spellRuleset: '2014',
+            spellRuleset: '2024',
             spellcastingAbility: null,
             spellIds: [],
             cantripIds: [],

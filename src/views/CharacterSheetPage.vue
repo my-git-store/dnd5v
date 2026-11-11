@@ -242,7 +242,7 @@ const selectedClassIcon = computed(() =>
 )
 
 const selectedSpeciesIcon = computed(() =>
-    sheet.character.value?.ruleset === '2024'
+    sheet.character.value
         ? speciesIconFor(
             sheet.character.value.creation?.speciesId ?? sheet.character.value.race.name,
         )
@@ -261,7 +261,7 @@ const selectedBackgroundIcon = computed(() =>
     <main class="c-character-sheet" :class="{
         'character-sheet-creation-mode': creationOpen,
     }">
-        <CharacterLoadState :loading="sheet.isLoading.value" :error="sheet.loadError.value" @retry="sheet.load" />
+        <CharacterLoadState :loading="sheet.isLoading.value" :error="sheet.loadError.value" @retry="sheet.load" @create="createCharacter" />
         <template v-if="!sheet.isLoading.value && !sheet.loadError.value">
             <CharacterManagerBar :characters="sheet.characters.value" :active-id="sheet.activeId.value"
                 :dirty="sheet.isDirty.value" :disabled="sheet.isSaving.value" :status="transferStatus"
@@ -287,7 +287,7 @@ const selectedBackgroundIcon = computed(() =>
                         :species-icon="selectedSpeciesIcon" :class-name="sheet.character.value.class"
                         :class-icon="selectedClassIcon" :background-name="sheet.character.value.background.name ||
                             sheet.character.value.origin.background
-                            " :background-icon="selectedBackgroundIcon" :ruleset="sheet.character.value.ruleset"
+                            " :background-icon="selectedBackgroundIcon"
                         :level="sheet.character.value.level" :experience="sheet.character.value.experience"
                         :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"
                         :save-error="sheet.saveError.value" @save="sheet.save" @open-details="openIdentityModal" />

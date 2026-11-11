@@ -18,23 +18,11 @@ export function useCreationSkills(
     abilities: CreationAbilities,
     character: CreationCharacterSource,
 ): CreationSkills {
-    const { ruleset, selectedSkillIds, raceSkillChoices, baseAbilities, isCompleted } = draft
+    const { selectedSkillIds, baseAbilities, isCompleted } = draft
 
-    const { selectedRace, selectedClass, selectedBackground, selectedSubrace } = options
+    const { selectedClass, selectedBackground } = options
 
     const { finalAbility } = abilities
-
-    const derivedRaceSkills = computed(() =>
-        ruleset.value === '2024'
-            ? []
-            : [
-                  ...new Set([
-                      ...(selectedRace.value.skillProficiencies ?? []),
-                      ...raceSkillChoices.value,
-                      ...(selectedSubrace.value?.skillProficiencies ?? []),
-                  ]),
-              ],
-    )
 
     const skillLabels = computed(
         () =>
@@ -50,34 +38,18 @@ export function useCreationSkills(
                 .length,
     )
 
-    const raceSelectedCount = computed(
-        () =>
-            raceSkillChoices.value.filter(id =>
-                selectedRace.value.skillChoices?.options.includes(id),
-            ).length,
-    )
-
     const classSkillsRemaining = computed(() =>
         Math.max(0, selectedClass.value.skillChoiceCount - selectedCount.value),
     )
 
-    const raceSkillsRemaining = computed(() =>
-        Math.max(0, (selectedRace.value.skillChoices?.count ?? 0) - raceSelectedCount.value),
-    )
-
     const selectableSkills = computed(() =>
-        character().skills.filter(
-            skill =>
-                selectedClass.value.skillOptions.includes(skill.id) ||
-                selectedRace.value.skillChoices?.options.includes(skill.id),
-        ),
+        character().skills.filter(skill => selectedClass.value.skillOptions.includes(skill.id)),
     )
 
     const currentOwnedSkills = computed(() =>
         character()
             .skills.map(skill => {
                 const sources = new Set<string>()
-                if (derivedRaceSkills.value.includes(skill.id)) sources.add('race')
                 if (selectedBackground.value.skillProficiencies.includes(skill.id))
                     sources.add('background')
                 if (selectedSkillIds.value.includes(skill.id)) sources.add('class')
@@ -107,44 +79,21 @@ export function useCreationSkills(
     )
 
     function isSkillChoiceSelected(id: string) {
-        return selectedSkillIds.value.includes(id) || raceSkillChoices.value.includes(id)
+        return selectedSkillIds.value.includes(id)
     }
 
     function canSelectSkill(id: string) {
-        const classAvailable =
+        return (
             selectedClass.value.skillOptions.includes(id) &&
             selectedCount.value < selectedClass.value.skillChoiceCount
-
-        const raceAvailable =
-            selectedRace.value.skillChoices?.options.includes(id) &&
-            raceSelectedCount.value < (selectedRace.value.skillChoices?.count ?? 0)
-        return Boolean(classAvailable || raceAvailable)
-    }
-
-    function toggleSelectableSkill(id: string) {
-        const classOption = selectedClass.value.skillOptions.includes(id)
-
-        const raceOption = selectedRace.value.skillChoices?.options.includes(id) ?? false
-        if (
-            classOption &&
-            (selectedSkillIds.value.includes(id) ||
-                !raceOption ||
-                selectedCount.value < selectedClass.value.skillChoiceCount)
-        ) {
-            toggleClassSkill(id)
-            return
-        }
-        if (raceOption) toggleRaceSkill(id)
+        )
     }
 
     function selectableSkillSource(id: string) {
-        const sources: string[] = []
-        if (selectedClass.value.skillOptions.includes(id)) sources.push('Класс')
-        if (selectedRace.value.skillChoices?.options.includes(id)) sources.push('Вид')
-        return sources.join(' · ')
+        return selectedClass.value.skillOptions.includes(id) ? 'Класс' : ''
     }
 
-    function toggleClassSkill(id: string) {
+    function toggleSelectableSkill(id: string) {
         if (!selectedClass.value.skillOptions.includes(id)) return
         if (selectedSkillIds.value.includes(id))
             selectedSkillIds.value = selectedSkillIds.value.filter(item => item !== id)
@@ -153,23 +102,10 @@ export function useCreationSkills(
         isCompleted.value = false
     }
 
-    function toggleRaceSkill(id: string) {
-        const options = selectedRace.value.skillChoices?.options ?? []
-
-        const limit = selectedRace.value.skillChoices?.count ?? 0
-        if (!options.includes(id)) return
-        if (raceSkillChoices.value.includes(id))
-            raceSkillChoices.value = raceSkillChoices.value.filter(item => item !== id)
-        else if (raceSelectedCount.value < limit)
-            raceSkillChoices.value = [...new Set([...raceSkillChoices.value, id])]
-        isCompleted.value = false
-    }
     return {
         skillLabels,
         selectedCount,
-        raceSelectedCount,
         classSkillsRemaining,
-        raceSkillsRemaining,
         selectableSkills,
         currentOwnedSkills,
         isSkillChoiceSelected,

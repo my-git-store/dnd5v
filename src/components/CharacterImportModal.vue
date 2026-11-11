@@ -39,7 +39,7 @@ async function importCharacters(mode: 'add' | 'replace') {
                     <strong>{{ character.identity.name || 'Безымянный герой' }}</strong>
                     <span
                         >Уровень {{ character.identity.level }} ·
-                        {{ character.ruleset === '2024' ? 'D&amp;D 2024' : 'D&amp;D 2014' }}</span
+                        D&amp;D 2024</span
                     >
                 </li>
             </ul>

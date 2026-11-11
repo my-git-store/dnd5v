@@ -17,7 +17,6 @@ type Props = {
             | 'initials'
             | 'name'
             | 'selectedBackground'
-            | 'selectedSubrace'
             | 'selectedClass'
             | 'selectedBackgroundIcon'
             | 'finalAbility'
@@ -39,7 +38,6 @@ const {
     initials,
     name,
     selectedBackground,
-    selectedSubrace,
     selectedClass,
     selectedBackgroundIcon,
     finalAbility,
@@ -78,10 +76,7 @@ const {
         <div class="preview-identity">
             <p class="c-eyebrow">Новый искатель приключений</p>
             <h2>{{ name.trim() || 'Имя героя' }}</h2>
-            <p>
-                {{ selectedRace.label }} · {{ selectedBackground.label
-                }}<span v-if="selectedSubrace"> · {{ selectedSubrace.label }}</span>
-            </p>
+            <p>{{ selectedRace.label }} · {{ selectedBackground.label }}</p>
             <div class="preview-class-row">
                 <span>{{ selectedClass.label }}</span
                 ><span>Уровень {{ level }}</span>

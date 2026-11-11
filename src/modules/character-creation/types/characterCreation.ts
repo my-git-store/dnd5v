@@ -1,19 +1,10 @@
 import type { ComputedRef, Ref } from 'vue'
 
-import type {
-    AbilityKey,
-    CharacterAbilities,
-    CharacterGender,
-    CharacterRuleset,
-} from '@/types/character'
+import type { AbilityKey, CharacterAbilities, CharacterGender } from '@/types/character'
 import type { CharacterSheetView, CharacterSkillView } from '@/types/characterView'
-import type {
-    Dnd5eBackgroundOption,
-    Dnd5eClassOption,
-    Dnd5eEquipmentOption,
-    Dnd5eRaceOption,
-    Dnd5eSubraceOption,
-} from '@/data/dnd5eOptions'
+import type { RuleEquipmentOption } from '@/types/rules'
+import type { RaceProfile } from '@/types/character'
+import type { Rules2024Background, Rules2024Class } from '@/data/rules2024'
 import type { findSpecies2024, findRules2024Background } from '@/data/rules2024'
 
 export type CreationComputed<T> = { [Key in keyof T]: ComputedRef<T[Key]> }
@@ -23,9 +14,7 @@ export type CreationDraftValues = {
     currentStep: number
     highestUnlockedStep: number
     isCompleted: boolean
-    ruleset: CharacterRuleset
     raceId: string
-    subraceId: string
     classId: string
     backgroundId: string
     backgroundEquipmentId: string
@@ -37,8 +26,6 @@ export type CreationDraftValues = {
     subclass: string
     alignment: string
     selectedSkillIds: string[]
-    raceSkillChoices: string[]
-    raceAbilityChoices: AbilityKey[]
     classEquipmentId: string
 }
 
@@ -46,29 +33,26 @@ export type CreationDraft = {
     [Key in keyof CreationDraftValues]: Ref<CreationDraftValues[Key]>
 } & { baseAbilities: CharacterAbilities }
 
-export type CreationBackgroundOption = Dnd5eBackgroundOption & {
-    icon?: string
-    abilityOptions?: AbilityKey[]
-    originFeatId?: string
+export type CreationSpeciesOption = { id: string; label: string; profile: RaceProfile }
+
+export type CreationBackgroundOption = Rules2024Background & {
     originFeatLabel?: string
     originFeatDescription?: string
 }
 
 export type CreationOptions = CreationComputed<{
-    raceOptions: Dnd5eRaceOption[]
-    classOptions: Dnd5eClassOption[]
+    raceOptions: CreationSpeciesOption[]
+    classOptions: Rules2024Class[]
     backgroundOptions: CreationBackgroundOption[]
-    selectedRace: Dnd5eRaceOption
+    selectedRace: CreationSpeciesOption
     selected2024Species: ReturnType<typeof findSpecies2024>
     selectedSpeciesIcon: string | undefined
-    selectedSubrace: Dnd5eSubraceOption | undefined
-    selectedClass: Dnd5eClassOption
+    selectedClass: Rules2024Class
     selectedBackground: CreationBackgroundOption
     selectedModernBackground: ReturnType<typeof findRules2024Background> | undefined
     selectedBackgroundIcon: string | undefined
-    availableSubraces: Dnd5eSubraceOption[]
-    classEquipmentOptions: Dnd5eEquipmentOption[]
-    backgroundEquipmentOptions: Dnd5eEquipmentOption[]
+    classEquipmentOptions: RuleEquipmentOption[]
+    backgroundEquipmentOptions: RuleEquipmentOption[]
     backgroundChoiceIssue: string
     speciesChoiceIssue: string
 }>
@@ -81,9 +65,7 @@ export type CreationOwnedSkill = CharacterSkillView & {
 export type CreationSkills = CreationComputed<{
     skillLabels: Record<string, string>
     selectedCount: number
-    raceSelectedCount: number
     classSkillsRemaining: number
-    raceSkillsRemaining: number
     selectableSkills: CharacterSkillView[]
     currentOwnedSkills: CreationOwnedSkill[]
 }> & {
@@ -99,12 +81,12 @@ export type CreationAbilities = {
     updateAbility: (key: AbilityKey, input: unknown) => void
 }
 
-export type CreationEquipmentItem = Dnd5eEquipmentOption['items'][number] & { source: string }
+export type CreationEquipmentItem = RuleEquipmentOption['items'][number] & { source: string }
 
 export type CreationPreview = CreationComputed<{
     initials: string
-    selectedClassKit: Dnd5eEquipmentOption | undefined
-    selectedBackgroundKit: Dnd5eEquipmentOption | undefined
+    selectedClassKit: RuleEquipmentOption | undefined
+    selectedBackgroundKit: RuleEquipmentOption | undefined
     previewEquipment: CreationEquipmentItem[]
     previewFeatures: string[]
 }>
@@ -113,11 +95,9 @@ export type CreationChoices = {
     updateRace: (id: string) => void
     updateBackground: (id: string) => void
     updateClass: (id: string) => void
-    updateRulesetValue: (ruleset: string | null) => void
     selectSpeciesChoice: (choiceId: string, choice: string | null) => void
     toggleBackgroundAbility: (key: AbilityKey) => void
     selectOriginAbilityFocus: (key: AbilityKey) => void
-    selectSubrace: (id: string) => void
     selectClassKit: (id: string) => void
     selectBackgroundKit: (id: string) => void
 }

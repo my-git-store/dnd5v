@@ -91,7 +91,7 @@ const isRuleSourceKind = (value: unknown): boolean =>
     ].includes(String(value))
 
 /** Validates one gained feature entry in a progression envelope. */
-function validProgressionFeatureGain(value: unknown, ruleset: unknown): boolean {
+function validProgressionFeatureGain(value: unknown): boolean {
     if (
         !isRecord(value) ||
         !isString(value.featureId) ||
@@ -104,7 +104,6 @@ function validProgressionFeatureGain(value: unknown, ruleset: unknown): boolean 
         return false
     if (!isString(value.source.id) || !value.source.id || !isRuleSourceKind(value.source.kind))
         return false
-    if (ruleset !== '2024') return true
     const feature = getRules2024Feature(value.featureId)
     return (
         feature !== undefined &&
@@ -115,7 +114,7 @@ function validProgressionFeatureGain(value: unknown, ruleset: unknown): boolean 
 }
 
 /** Validates the historical level-change entries in progression data. */
-function validProgressionHistory(value: unknown, ruleset: unknown): boolean {
+function validProgressionHistory(value: unknown): boolean {
     if (!Array.isArray(value)) return false
     return value.every(
         entry =>
@@ -127,14 +126,14 @@ function validProgressionHistory(value: unknown, ruleset: unknown): boolean {
             entry.toLevel > entry.fromLevel &&
             entry.toLevel <= 20 &&
             Array.isArray(entry.gainedFeatures) &&
-            entry.gainedFeatures.every(gain => validProgressionFeatureGain(gain, ruleset)) &&
+            entry.gainedFeatures.every(gain => validProgressionFeatureGain(gain)) &&
             isRecord(entry.choices) &&
             Object.values(entry.choices).every(selection => isStringArray(selection)),
     )
 }
 
 /** Validates the complete progression envelope and its feature references. */
-function validProgression(value: unknown, ruleset: unknown): boolean {
+function validProgression(value: unknown): boolean {
     if (
         !isRecord(value) ||
         !isInteger(value.level) ||
@@ -159,7 +158,7 @@ function validProgression(value: unknown, ruleset: unknown): boolean {
                 entry.level >= 1 &&
                 entry.level <= 20 &&
                 entry.level <= progressionLevel &&
-                (ruleset !== '2024' || isRules2024ClassId(entry.classId)),
+                isRules2024ClassId(entry.classId),
         )
     )
         return false
@@ -169,7 +168,6 @@ function validProgression(value: unknown, ruleset: unknown): boolean {
         ),
     )
     if (
-        ruleset === '2024' &&
         !featureValues.every(
             id =>
                 isRules2024FeatureId(id) &&
@@ -189,7 +187,7 @@ function validProgression(value: unknown, ruleset: unknown): boolean {
             !Array.isArray(value.gainedFeatures) ||
             new Set(value.gainedFeatures.map(gain => (isRecord(gain) ? gain.featureId : '')))
                 .size !== value.gainedFeatures.length ||
-            !value.gainedFeatures.every(gain => validProgressionFeatureGain(gain, ruleset))
+            !value.gainedFeatures.every(gain => validProgressionFeatureGain(gain))
         )
             return false
         if (
@@ -203,8 +201,7 @@ function validProgression(value: unknown, ruleset: unknown): boolean {
         )
             return false
     }
-    if (value.history !== undefined && !validProgressionHistory(value.history, ruleset))
-        return false
+    if (value.history !== undefined && !validProgressionHistory(value.history)) return false
     if (value.choiceMetadata !== undefined) {
         const metadata = value.choiceMetadata
         if (
@@ -253,13 +250,13 @@ function validBackground(value: unknown): boolean {
 }
 
 /** Validates origin links and optional 2024 feat references. */
-function validOrigin(value: unknown, ruleset: unknown): boolean {
+function validOrigin(value: unknown): boolean {
     return (
         isRecord(value) &&
         isString(value.species) &&
         isString(value.background) &&
         (value.featId === undefined ||
-            (isString(value.featId) && (ruleset !== '2024' || isRules2024FeatId(value.featId)))) &&
+            (isString(value.featId) && isRules2024FeatId(value.featId))) &&
         isString(value.originFeat) &&
         isStringArray(value.languages) &&
         isStringArray(value.tools)
@@ -283,11 +280,11 @@ function validSourceMap(value: unknown): boolean {
 }
 
 /** Validates additive character-creation extensions for the selected ruleset. */
-function validCreationExtension(value: unknown, ruleset: unknown): boolean {
+function validCreationExtension(value: unknown): boolean {
     if (!isRecord(value)) return true
+    if (value.ruleset !== undefined && !isCharacterRuleset(value.ruleset)) return false
     if (value.gender !== undefined && value.gender !== 'female' && value.gender !== 'male')
         return false
-    if (ruleset !== '2024') return true
     if (
         value.speciesId !== undefined &&
         (!isString(value.speciesId) || !isSpecies2024Id(value.speciesId))
@@ -361,7 +358,7 @@ function validSkill(value: unknown): boolean {
 }
 
 /** Validates an attack entry and its optional 2024 weapon links. */
-function validAttack(value: unknown, ruleset: unknown): boolean {
+function validAttack(value: unknown): boolean {
     return (
         isRecord(value) &&
         isString(value.id) &&
@@ -380,11 +377,11 @@ function validAttack(value: unknown, ruleset: unknown): boolean {
         (value.weaponId === undefined ||
             (isString(value.weaponId) &&
                 value.weaponId.length > 0 &&
-                (ruleset !== '2024' || isRules2024WeaponId(value.weaponId)))) &&
+                isRules2024WeaponId(value.weaponId))) &&
         (value.masteryId === undefined ||
             (isString(value.masteryId) &&
                 value.masteryId.length > 0 &&
-                (ruleset !== '2024' || isRules2024WeaponMasteryId(value.masteryId)))) &&
+                isRules2024WeaponMasteryId(value.masteryId))) &&
         isString(value.range) &&
         isString(value.description)
     )
@@ -488,7 +485,7 @@ function validSavingThrows(value: unknown): boolean {
 }
 
 /** Validates spellcasting metadata, catalog links, and spell slot counters. */
-function validSpellcasting(value: unknown, ruleset: unknown): boolean {
+function validSpellcasting(value: unknown): boolean {
     if (
         !isRecord(value) ||
         (value.spellRuleset !== undefined && !isCharacterRuleset(value.spellRuleset)) ||
@@ -507,8 +504,7 @@ function validSpellcasting(value: unknown, ruleset: unknown): boolean {
     /** Validates optional references into the ruleset spell catalog. */
     const validCatalogIds = (ids: unknown): boolean =>
         ids === undefined ||
-        (isStringArray(ids) &&
-            ids.every(id => id.length > 0 && (ruleset !== '2024' || isRules2024SpellId(id))))
+        (isStringArray(ids) && ids.every(id => id.length > 0 && isRules2024SpellId(id)))
     if (!validCatalogIds(value.spellIds) || !validCatalogIds(value.cantripIds)) return false
     if (
         !value.knownSpells.every(spell => validSpell(spell, false)) ||
@@ -535,7 +531,7 @@ function validSpellcasting(value: unknown, ruleset: unknown): boolean {
 }
 
 /** Validates inventory items and their optional weapon catalog links. */
-function validInventory(value: unknown, ruleset: unknown): boolean {
+function validInventory(value: unknown): boolean {
     if (!isRecord(value) || !Array.isArray(value.items) || !validMoney(value.money)) return false
     return value.items.every(
         item =>
@@ -552,7 +548,7 @@ function validInventory(value: unknown, ruleset: unknown): boolean {
             (item.weaponId === undefined ||
                 (isString(item.weaponId) &&
                     item.weaponId.length > 0 &&
-                    (ruleset !== '2024' || isRules2024WeaponId(item.weaponId)))),
+                    isRules2024WeaponId(item.weaponId))),
     )
 }
 
@@ -661,7 +657,7 @@ export function validateCharacter(value: unknown): string[] {
 
     const identity = value.identity
     if (value.schemaVersion !== 3) errors.push('Неподдерживаемая версия схемы персонажа.')
-    if (!isCharacterRuleset(value.ruleset)) errors.push('Неподдерживаемая редакция правил.')
+    if (!isCharacterRuleset(value.ruleset)) errors.push('Поддерживается только редакция D&D 2024.')
     if (!isString(value.id) || !value.id) errors.push('Не указан идентификатор персонажа.')
     if (value.kind !== undefined && value.kind !== 'character' && value.kind !== 'npc')
         errors.push('Неизвестный тип листа.')
@@ -700,21 +696,17 @@ export function validateCharacter(value: unknown): string[] {
     if (!validCombat(value.combat)) errors.push('Некорректные combat-данные.')
     if (!Array.isArray(value.skills) || !value.skills.every(validSkill))
         errors.push('Некорректные навыки.')
-    if (
-        !Array.isArray(value.attacks) ||
-        !value.attacks.every(attack => validAttack(attack, value.ruleset))
-    )
+    if (!Array.isArray(value.attacks) || !value.attacks.every(attack => validAttack(attack)))
         errors.push('Некорректные атаки.')
-    if (!validSpellcasting(value.spellcasting, value.ruleset))
-        errors.push('Некорректные данные магии.')
-    if (!validInventory(value.inventory, value.ruleset)) errors.push('Некорректный инвентарь.')
-    if (value.progression !== undefined && !validProgression(value.progression, value.ruleset))
+    if (!validSpellcasting(value.spellcasting)) errors.push('Некорректные данные магии.')
+    if (!validInventory(value.inventory)) errors.push('Некорректный инвентарь.')
+    if (value.progression !== undefined && !validProgression(value.progression))
         errors.push('Некорректная progression-секция.')
     if (
         value.features !== undefined &&
         (!isStringArray(value.features) ||
             new Set(value.features).size !== value.features.length ||
-            (value.ruleset === '2024' && !value.features.every(id => isRules2024FeatureId(id))))
+            !value.features.every(id => isRules2024FeatureId(id)))
     )
         errors.push('Некорректные ссылки на особенности.')
     if (
@@ -741,9 +733,9 @@ export function validateCharacter(value: unknown): string[] {
     )
         errors.push('Некорректная personality-секция.')
     if (!isRecord(value.extensions)) errors.push('Некорректные extension-данные.')
-    else if (!validCreationExtension(value.extensions.characterCreation, value.ruleset))
-        errors.push('Неизвестный вид, класс или предыстория D&D 2024 в данных создания.')
-    if (!validOrigin(value.origin, value.ruleset)) errors.push('Некорректная origin-секция.')
+    else if (!validCreationExtension(value.extensions.characterCreation))
+        errors.push('Некорректная редакция, вид, класс или предыстория D&D 2024 в данных создания.')
+    if (!validOrigin(value.origin)) errors.push('Некорректная origin-секция.')
     return errors
 }
 

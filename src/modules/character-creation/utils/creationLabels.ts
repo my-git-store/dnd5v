@@ -1,10 +1,6 @@
-import { ABILITY_FIELDS } from '@/data/characterFields'
-import { findRace, findSubrace } from '@/data/dnd5eOptions'
-import type { Dnd5eClassOption } from '@/data/dnd5eOptions'
-import { signedModifier } from '@/domain/abilityModifier'
-import type { CharacterRuleset } from '@/types/character'
+import type { SpellProgressionType } from '@/types/rules'
 
-export function spellProgressionLabel(value: Dnd5eClassOption['spellProgressionType']): string {
+export function spellProgressionLabel(value: SpellProgressionType): string {
     return (
         (
             {
@@ -14,23 +10,6 @@ export function spellProgressionLabel(value: Dnd5eClassOption['spellProgressionT
                 pact: 'Магия договора',
             } as Record<string, string>
         )[value ?? ''] ?? 'Не указано'
-    )
-}
-
-export function raceBonusLines(ruleset: CharacterRuleset, raceIdValue: string): string[] {
-    if (ruleset === '2024') return ['Бонусы характеристик задаются исходными значениями']
-    const race = findRace(raceIdValue)
-    return Object.entries(race.profile.abilityBonuses).map(
-        ([key, value]) =>
-            `${ABILITY_FIELDS.find(field => field.key === key)?.label} ${signedModifier(value ?? 0)}`,
-    )
-}
-
-export function subraceBonusLines(raceId: string, subraceIdValue: string): string[] {
-    const subrace = findSubrace(raceId, subraceIdValue)
-    return Object.entries(subrace?.abilityBonuses ?? {}).map(
-        ([key, value]) =>
-            `${ABILITY_FIELDS.find(field => field.key === key)?.label} ${signedModifier(value ?? 0)}`,
     )
 }
 

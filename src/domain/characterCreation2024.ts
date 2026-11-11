@@ -347,8 +347,7 @@ export function applyCharacterCreation2024(
     next.spellcasting.spellProgressionType = classOption.spellProgressionType
     initializeCharacterVitals(next, classOption, previousCreation === undefined)
     next.inventoryData.items = [...preservedItems, ...generatedItems]
-    const previousGeneratedGold =
-        previousCreation?.ruleset === '2024' ? (previousCreation.startingGold ?? 0) : 0
+    const previousGeneratedGold = previousCreation?.startingGold ?? 0
     next.inventoryData.money = {
         ...next.inventoryData.money,
         gold: Math.max(0, next.inventoryData.money.gold - previousGeneratedGold + generatedGold),

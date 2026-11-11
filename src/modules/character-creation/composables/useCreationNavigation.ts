@@ -1,11 +1,6 @@
 import { computed } from 'vue'
 
-import {
-    STEP_NAMES,
-    STEP_DESCRIPTIONS,
-    MODERN_STEP_NAMES,
-    MODERN_STEP_DESCRIPTIONS,
-} from '../data/creationSteps'
+import { STEP_NAMES, STEP_DESCRIPTIONS } from '../data/creationSteps'
 import type {
     CreationDraft,
     CreationOptions,
@@ -22,34 +17,23 @@ export function useCreationNavigation(
     abilities: CreationAbilities,
     preview: CreationPreview,
 ): CreationNavigation {
-    const { name, ruleset, currentStep, highestUnlockedStep, isCompleted } = draft
+    const { name, currentStep, highestUnlockedStep, isCompleted } = draft
 
-    const {
-        speciesChoiceIssue,
-        backgroundChoiceIssue,
-        availableSubraces,
-        selectedSubrace,
-        selectedClass,
-        selectedRace,
-        classEquipmentOptions,
-    } = options
+    const { speciesChoiceIssue, backgroundChoiceIssue, selectedClass, classEquipmentOptions } =
+        options
 
-    const { selectedCount, raceSelectedCount } = skills
+    const { selectedCount } = skills
 
     const { hasAbilityError } = abilities
 
     const { selectedClassKit } = preview
 
     function stepLabel(index: number) {
-        return ruleset.value === '2024'
-            ? (MODERN_STEP_NAMES[index] ?? '')
-            : (STEP_NAMES[index] ?? '')
+        return STEP_NAMES[index] ?? ''
     }
 
     function stepDescription(index: number) {
-        return ruleset.value === '2024'
-            ? (MODERN_STEP_DESCRIPTIONS[index] ?? '')
-            : (STEP_DESCRIPTIONS[index] ?? '')
+        return STEP_DESCRIPTIONS[index] ?? ''
     }
 
     const stepProgress = computed(() => Math.round((currentStep.value / STEP_NAMES.length) * 100))
@@ -60,17 +44,10 @@ export function useCreationNavigation(
         if (currentStep.value === 2 && speciesChoiceIssue.value) return speciesChoiceIssue.value
         if (currentStep.value === 3 && backgroundChoiceIssue.value)
             return backgroundChoiceIssue.value
-        if (currentStep.value === 4 && availableSubraces.value.length > 0 && !selectedSubrace.value)
-            return 'Выберите подрасу для выбранной расы.'
         if (currentStep.value === 6 && hasAbilityError.value)
             return 'Каждая характеристика должна быть целым числом от 1 до 30.'
         if (currentStep.value === 7 && selectedCount.value !== selectedClass.value.skillChoiceCount)
             return `Выберите навыки класса: ${selectedClass.value.skillChoiceCount - selectedCount.value > 0 ? `осталось ${selectedClass.value.skillChoiceCount - selectedCount.value}` : `уберите лишние ${selectedCount.value - selectedClass.value.skillChoiceCount}`}.`
-        if (
-            currentStep.value === 7 &&
-            raceSelectedCount.value !== (selectedRace.value.skillChoices?.count ?? 0)
-        )
-            return `Выберите навыки вида: осталось ${(selectedRace.value.skillChoices?.count ?? 0) - raceSelectedCount.value}`
         if (
             currentStep.value === 8 &&
             classEquipmentOptions.value.length &&

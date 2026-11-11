@@ -1,6 +1,7 @@
 <script setup lang="ts">
 type Emits = {
     retry: []
+    create: []
 }
 
 defineProps<{ loading: boolean; error: string | null }>()
@@ -14,6 +15,7 @@ const emit = defineEmits<Emits>()
     <div v-else-if="error" class="load-state error-state" role="alert">
         <p>{{ error }}</p>
         <NButton type="primary" @click="emit('retry')">Повторить</NButton>
+        <NButton @click="emit('create')">Создать персонажа</NButton>
     </div>
 </template>
 

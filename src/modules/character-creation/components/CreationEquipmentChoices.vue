@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Dnd5eEquipmentOption } from '@/data/dnd5eOptions'
+import type { RuleEquipmentOption } from '@/types/rules'
 
 type Props = {
-    options: Dnd5eEquipmentOption[]
+    options: RuleEquipmentOption[]
     selectedId: string
     disabled?: boolean
     sigil?: string

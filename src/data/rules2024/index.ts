@@ -8,7 +8,7 @@ import type {
     RulesetTaggedDefinition,
     SpellProgressionType,
 } from '../../types/rules.ts'
-import type { Dnd5eEquipmentOption } from '../dnd5eOptions.ts'
+import type { RuleEquipmentOption } from '../../types/rules.ts'
 import { classIconFor, classIconVariantsFor } from '../classIcons.ts'
 import { BACKGROUND_ICON_PATHS } from '../backgroundIcons.ts'
 import { SPECIES_ICON_PATHS } from '../speciesIcons.ts'
@@ -39,7 +39,7 @@ export interface Rules2024Background {
     languages: string[]
     originFeatId: string
     feature: string
-    equipmentOptions: Dnd5eEquipmentOption[]
+    equipmentOptions: RuleEquipmentOption[]
     choices: RuleChoice[]
 }
 
@@ -55,7 +55,7 @@ export interface Rules2024Class extends ClassDefinition {
     skillOptions: string[]
     features: string[]
     proficiencies: string[]
-    equipmentOptions: Dnd5eEquipmentOption[]
+    equipmentOptions: RuleEquipmentOption[]
 }
 
 export interface Rules2024OriginFeat extends FeatDefinition {
@@ -104,14 +104,14 @@ function species(
 const kit = (
     id: string,
     label: string,
-    items: Dnd5eEquipmentOption['items'],
-): Dnd5eEquipmentOption => ({
+    items: RuleEquipmentOption['items'],
+): RuleEquipmentOption => ({
     id,
     label,
     items,
 })
 
-const gold = (id: string): Dnd5eEquipmentOption =>
+const gold = (id: string): RuleEquipmentOption =>
     kit(id, '50 зм вместо набора', [
         {
             name: 'Золотые монеты',
@@ -373,7 +373,7 @@ export const RULES_2024_SPECIES: Rules2024Species[] = [
     }),
 ]
 
-const classEquipment: Record<string, Dnd5eEquipmentOption[]> = {
+const classEquipment: Record<string, RuleEquipmentOption[]> = {
     barbarian: [
         kit('barbarian-2024', 'Боевой набор', [
             { name: 'Боевой топор', quantity: 1, description: '' },
@@ -475,7 +475,7 @@ const classEquipment: Record<string, Dnd5eEquipmentOption[]> = {
     ],
 }
 
-const backgroundEquipment = (id: string, label: string, item: string): Dnd5eEquipmentOption[] => [
+const backgroundEquipment = (id: string, label: string, item: string): RuleEquipmentOption[] => [
     kit(id, label, [{ name: item, quantity: 1, description: '' }]),
     gold(`${id}-gold`),
 ]

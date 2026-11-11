@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { proficiencyBonus } from '@/domain/proficiencyBonus'
 import { signedModifier } from '@/domain/abilityModifier'
-import type { CharacterRuleset } from '@/types/character'
 
 type Emits = {
     save: []
@@ -20,7 +19,6 @@ defineProps<{
     classIcon?: string
     backgroundName: string
     backgroundIcon?: string
-    ruleset: CharacterRuleset
     level: number
     experience: number
 }>()
@@ -93,7 +91,7 @@ function hideBrokenAsset(event: Event) {
                 </div>
                 <div>
                     <dt>Редакция</dt>
-                    <dd>{{ ruleset === '2024' ? 'D&D 2024 / 5.5' : 'D&D 2014' }}</dd>
+                    <dd>D&amp;D 2024 / 5.5</dd>
                 </div>
             </dl>
             <p v-if="saveError" class="c-status-text error" role="alert">{{ saveError }}</p>

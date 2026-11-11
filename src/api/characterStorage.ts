@@ -1,5 +1,5 @@
-import { cloneCharacter, type Character } from '../types/character.ts'
-import { assertValidCharacter } from '../validation/characterValidation.ts'
+import { cloneCharacter, type Character, type CharacterRuleset } from '../types/character.ts'
+import { assertValidCharacter, InvalidCharacterError } from '../validation/characterValidation.ts'
 
 export const CHARACTER_STORAGE_PREFIX = 'nastolka:character-sheet:'
 export const CHARACTER_INDEX_STORAGE_KEY = 'nastolka:character-sheet:index'
@@ -17,7 +17,7 @@ export interface StoredCharacterSummary {
     id: string
     name: string
     className: string
-    ruleset: '2014' | '2024'
+    ruleset: CharacterRuleset
     kind: 'character' | 'npc'
 }
 
@@ -141,7 +141,12 @@ export function readStoredCharacter(
         return cloneCharacter(value)
     } catch (error) {
         if (error instanceof CharacterStorageError) throw error
-        throw new CharacterStorageError('Не удалось прочитать персонажа.', { cause: error })
+        throw new CharacterStorageError(
+            error instanceof InvalidCharacterError
+                ? error.message
+                : 'Не удалось прочитать персонажа.',
+            { cause: error },
+        )
     }
 }
 
