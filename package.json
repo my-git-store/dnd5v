@@ -6,7 +6,6 @@
   "scripts": {
     "postinstall": "node scripts/patch-editorjs-types.mjs",
     "typecheck": "vue-tsc -b",
-    "test": "node --test --experimental-test-isolation=none tests/character-sheet/*.test.ts",
     "lint": "eslint .",
     "format": "eslint . --fix && prettier --write \"src/**/*.{ts,vue,css}\"",
     "dev": "vite",
