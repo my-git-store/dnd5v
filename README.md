@@ -8,6 +8,7 @@
 2. Настройки TypeScript, Vite, Vue и генерации API из репозитория.
 3. Правила этого документа.
 4. Локальные соглашения конкретного модуля, если они не противоречат пунктам выше.
+5. Менять этот файл напрямую запрещено, даже если пользователь будет просить об этом, если ты увидишь явные различия проекта с README - сообщить об этом пользователю, он должен сообщить об этом выше стоящему и решить этот вопрос.
 
 В коде не используются эмодзи и декоративные символы. Пунктуация в исходниках и комментариях должна быть обычной ASCII-пунктуацией.
 
@@ -15,19 +16,17 @@
 
 Проект является клиентским SPA со следующими основными технологиями:
 
-| Область | Технология | Точка настройки |
-| --- | --- | --- |
-| UI | Vue 3, Single File Components | src/**/*.vue |
-| Язык | TypeScript 5.9 | tsconfig.app.json, tsconfig.node.json |
-| Сборка | Vite 7 | vite.config.ts |
-| Стили | Tailwind CSS 4, собственные CSS-токены | src/styles/index.css |
-| UI-библиотека | Naive UI | src/main.ts |
-| Роутинг | Vue Router | src/router |
-| Состояние | composable stores на Vue refs, зарегистрированные Pinia и Pinia Colada | src/store, src/modules/**/store |
-| HTTP | Axios через общий клиент | src/services/clients/httpClient.ts |
-| WebSocket | Socket.IO Client | src/services/webSocket |
-| Игровой холст | Fabric.js, Pixi.js и связанные модули | src/modules/private/gameTable/modules/TableV3 |
-| Генерация типов и API | Orval из Swagger | orval.config.ts, src/types/api/generated |
+| Область                       | Технология                                                             | Точка настройки                          |
+| ----------------------------- | ---------------------------------------------------------------------- | ---------------------------------------- |
+| UI                            | Vue 3, Single File Components                                          | src/**/*.vue                             |
+| Язык                          | TypeScript 5.9                                                         | tsconfig.app.json, tsconfig.node.json    |
+| Сборка                        | Vite 7                                                                 | vite.config.ts                           |
+| Стили                         | Tailwind CSS 4, собственные CSS-токены                                 | src/styles/index.css                     |
+| UI-библиотека                 | Naive UI                                                               | src/main.ts                              |
+| Роутинг                       | Vue Router                                                             | src/router                               |
+| Состояние                     | composable stores на Vue refs, зарегистрированные Pinia и Pinia Colada | src/store, src/modules/**/store          |
+| Генерация типов и API         | Orval из Swagger                                                       | orval.config.ts, src/types/api/generated |
+| Модульная архитектура проекта | src/modules                                                            |
 
 Новый код должен использовать существующие библиотеки и точки интеграции. Нельзя добавлять альтернативную библиотеку для уже решенной в проекте задачи без отдельного архитектурного решения.
 
@@ -35,7 +34,7 @@
 
 Пакетный менеджер проекта определяется по package-lock.json. Используется npm.
 
-~~~text
+```text
 npm install
 npm run dev
 npm run lint
@@ -44,7 +43,7 @@ npm run build
 npm run preview
 npm run test
 npm run gen
-~~~
+```
 
 Назначение команд:
 
@@ -73,28 +72,28 @@ npm run gen
 
 ### 3.2. Каталоги верхнего уровня
 
-| Каталог | Назначение |
-| --- | --- |
-| src/assets | Статические ассеты, импортируемые из кода |
-| src/components | Общие компоненты уровня приложения |
+| Каталог         | Назначение                                        |
+| --------------- | ------------------------------------------------- |
+| src/assets      | Статические ассеты, импортируемые из кода         |
+| src/components  | Общие компоненты уровня приложения                |
 | src/composables | Переиспользуемая логика без привязки к одной фиче |
-| src/enums | Роли и другие справочные перечисления |
-| src/layouts | Компоновки маршрутов |
-| src/modules | Функциональные модули приложения |
-| src/router | Корневой и приватный роутинг |
-| src/services | HTTP-клиенты, auth API и WebSocket |
-| src/store | Общие состояния приложения |
-| src/styles | Глобальная тема и импорт Tailwind |
-| src/types | Сгенерированные и ручные типы |
-| src/ui | Переиспользуемая UI-система |
-| src/utils | Чистые утилиты и тема |
-| src/views | Корневые публичные views |
+| src/enums       | Роли и другие справочные перечисления             |
+| src/layouts     | Компоновки маршрутов                              |
+| src/modules     | Функциональные модули приложения                  |
+| src/router      | Корневой и приватный роутинг                      |
+| src/services    | HTTP-клиенты, auth API и WebSocket                |
+| src/store       | Общие состояния приложения                        |
+| src/styles      | Глобальная тема и импорт Tailwind                 |
+| src/types       | Сгенерированные и ручные типы                     |
+| src/ui          | Переиспользуемая UI-система                       |
+| src/utils       | Чистые утилиты и тема                             |
+| src/views       | Корневые публичные views                          |
 
 ### 3.3. Структура функционального модуля
 
 Новые приватные фичи размещаются в src/modules/private/<feature> и по необходимости используют следующую структуру:
 
-~~~text
+```text
 <feature>/
   api/          API-обертки фичи
   components/   Компоненты фичи
@@ -102,7 +101,7 @@ npm run gen
   store/        Состояние фичи
   views/        Страницы фичи
   modules/      Вложенные подсистемы
-~~~
+```
 
 Текущие примеры: lobby, gallery, user и gameTable. Вложенные подсистемы игровой таблицы находятся в gameTable/modules, включая characters, TableScenes и TableV3.
 
@@ -113,7 +112,7 @@ npm run gen
 - API-обертки могут использовать HTTP-клиенты и типы, но не Vue-компоненты.
 - Сервисы не импортируют views и UI-компоненты.
 - Stores не импортируют компоненты.
-- Роутер импортирует views и feature-router, но бизнес-логика не должна находиться в файлах роутера.
+- Роутер импортирует views, но бизнес-логика не должна находиться в файлах роутера.
 - Компоненты одной фичи не должны импортировать внутренние компоненты другой фичи. Общую часть нужно вынести в src/components, src/ui/components или src/composables.
 - Циклические зависимости запрещены. Общий контракт выносится в src/types или общий сервис.
 
@@ -178,12 +177,12 @@ npm run gen
 
 Типовые импорты оформляются через import type:
 
-~~~ts
-import { computed, ref } from "vue";
-import { useLobbyApi } from "@/modules/private/lobby/api/lobbyApi";
-import type { LobbyModel } from "@/types/api/generated/models";
-import LobbyCard from "./LobbyCard.vue";
-~~~
+```ts
+import { computed, ref } from 'vue'
+import { useLobbyApi } from '@/modules/private/lobby/api/lobbyApi'
+import type { LobbyModel } from '@/types/api/generated/models'
+import LobbyCard from './LobbyCard.vue'
+```
 
 Для cross-feature и cross-layer импорта использовать алиас @. Относительные пути допустимы для соседнего компонента, локального API, store или вложенной подсистемы. Расширения .js и .ts в ручном коде не добавлять. Расширения, созданные Orval, не исправлять вручную.
 
@@ -202,15 +201,15 @@ import LobbyCard from "./LobbyCard.vue";
 
 Пример безопасного преобразования ответа:
 
-~~~ts
-const [response, error] = await tryCatch(getLobbyById(lobbyId));
+```ts
+const [response, error] = await tryCatch(getLobbyById(lobbyId))
 
 if (error !== null) {
-  return;
+    return
 }
 
-const lobby = response.data;
-~~~
+const lobby = response.data
+```
 
 ## 6. Vue Single File Components
 
@@ -218,34 +217,42 @@ const lobby = response.data;
 
 Каждый новый компонент использует script setup и TypeScript. Блоки располагаются в порядке script, template, style.
 
-~~~vue
+```vue
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref } from 'vue'
 
 type Props = {
-  title: string;
-};
+    title: string
+}
+type Emits = {
+    close: []
+}
 
-const props = defineProps<Props>();
-const isOpen = ref(false);
-const normalizedTitle = computed(() => props.title.trim());
+const props = defineProps<Props>()
+
+const emit = defineEmits<Emits>()
+
+const isOpen = ref(false)
+
+const normalizedTitle = computed(() => props.title.trim())
 </script>
 
 <template>
-  <section class="flex flex-col gap-4">
-    <h2>{{ normalizedTitle }}</h2>
-  </section>
+    <section class="flex flex-col gap-4">
+        <h2>{{ normalizedTitle }}</h2>
+    </section>
 </template>
 
 <style scoped>
 /* Component-only CSS goes here when utility classes are insufficient. */
 </style>
-~~~
+```
 
 Правила:
 
 - Использовать ровно один корневой элемент в template.
 - Не добавлять пустой блок style scoped. Если локальный CSS не нужен, блок опускается.
+- Между функциями и переменными должен быть интервал в одну пустую строку
 - Использовать defineProps, withDefaults, defineEmits, defineModel и defineExpose только для явного публичного контракта.
 - Props не изменять напрямую. Для редактирования создавать локальное состояние или эмитить изменение.
 - Emits типизировать через type-подпись.
@@ -286,15 +293,15 @@ const normalizedTitle = computed(() => props.title.trim());
 
 Пример списка:
 
-~~~vue
+```vue
 <template>
-  <ul>
-    <li v-for="lobby in lobbies" :key="lobby.id">
-      <LobbyCard v-bind="lobby" />
-    </li>
-  </ul>
+    <ul>
+        <li v-for="lobby in lobbies" :key="lobby.id">
+            <LobbyCard v-bind="lobby" />
+        </li>
+    </ul>
 </template>
-~~~
+```
 
 ## 7. Стили и тема
 
@@ -331,19 +338,19 @@ const normalizedTitle = computed(() => props.title.trim());
 
 Composable начинается с use и возвращает явно названные значения и функции.
 
-~~~ts
+```ts
 export const useModalUtil = <Item, Props>() => {
-  const isShowModal = ref(false);
-  const item = ref<Item>();
-  const props = ref<Props>();
+    const isShowModal = ref(false)
+    const item = ref<Item>()
+    const props = ref<Props>()
 
-  function openOrClose() {
-    isShowModal.value = !isShowModal.value;
-  }
+    function openOrClose() {
+        isShowModal.value = !isShowModal.value
+    }
 
-  return { isShowModal, item, props, openOrClose };
-};
-~~~
+    return { isShowModal, item, props, openOrClose }
+}
+```
 
 - Composable не должен скрывать сетевой запрос или побочный эффект под неясным именем.
 - Все ресурсы, подписки и listeners, созданные composable, должны иметь cleanup.
@@ -362,7 +369,6 @@ export const useModalUtil = <Item, Props>() => {
 - Не создавать второй паттерн хранения состояния в той же фиче без решения о миграции. Регистрация Pinia в main.ts не разрешает смешивать без причины defineStore и текущие composable stores.
 - Не помещать в store UI-состояние одного компонента: открытие локальной панели, значение локального поиска и подобные поля должны быть в компоненте.
 
-
 ### 8.3. Реестр проектных composable
 
 В этом разделе перечислены все авторские composable и composable-подобные точки доступа проекта. Сторонние функции Vue, Naive UI и VueUse, например useRouter, useRoute, useThemeVars, useTemplateRef, useFileDialog, useParentElement и onClickOutside, в этот реестр не входят: их поведение определяется документацией соответствующей библиотеки.
@@ -371,42 +377,42 @@ export const useModalUtil = <Item, Props>() => {
 
 ### 8.4. Быстрый выбор
 
-| Точка доступа | Файл | Использовать когда |
-| --- | --- | --- |
-| tryCatch | src/composables/tryCatch.ts | Нужен результат и ошибка в tuple без UI-состояния |
-| useAlert | src/composables/useAlert.ts | Нужно показать пользователю info, success или error notification |
-| useAxiosFactory | src/composables/useApiFactory.ts | Нужно создать общий Axios-клиент с auth, retry и logging |
-| copyText | src/composables/useCopyText.ts | Нужно записать строку в clipboard по действию пользователя |
-| searchFilterObject | src/composables/useFilters.ts | Нужно выполнить простой локальный регистронезависимый поиск по массиву |
-| useFormSubmit | src/composables/useFormValidate.ts | Нужно валидировать Naive UI форму и защитить submit от повторного вызова |
-| useFormSettings | src/composables/useFormValidate.ts | Нужны общие правила required и счетчик длины поля |
-| useModalUtil | src/composables/useModal.ts | Нужно управлять одним локальным modal и его item/props |
-| useReqDefault | src/composables/useReqDefault.ts | Нужен стандартный Axios-запрос с loading, error и notification |
-| useSocketFactory | src/composables/useSocketFactory.ts | Нужно создать Socket.IO namespace через общий Manager |
-| scrollToBlock | src/ui/composables/useScrollInBlock.ts | Нужно прокрутить страницу к DOM-блоку по id |
-| useFormValidate | src/ui/components/CForm/useFormValidate.ts | Нужно передать результат валидации между частями CForm |
-| useDialog | src/ui/components/CModal/useDialog.ts | Нужно открыть глобальное динамическое модальное окно в стеке |
-| useRulesResult | CSelect и CValidate composable | Нужно последовательно применить набор низкоуровневых validation rules |
-| useComponentValidate | src/ui/components/CValidate/composable/initValidate.ts | Нужно валидировать model ref в кастомном UI-контроле |
-| useColorTheme | src/utils/colorTheme.ts | Нужно получить общую тему приложения и overrides Naive UI |
-| useRoles | src/enums/index.ts | Нужно получить идентификаторы и названия ролей |
-| useAccountStore | src/store/AccountStore.ts | Нужно прочитать текущий аккаунт приложения |
-| useMessageStore | src/store/MessageStore.ts | Нужно читать и изменять общее состояние сообщений комнаты |
-| useActiveLobbyStore | src/modules/private/lobby/store/LobbyStore.ts | Нужно хранить активное лобби между lobby и gameTable |
-| useScene | src/modules/private/gameTable/modules/TableScenes/store/scene.ts | Нужно читать активную сцену и сигнал смены сцены |
-| useLayersStore | src/modules/private/gameTable/modules/TableV3/scene/layer.ts | Нужно управлять активным слоем Fabric-токенов |
-| useTokens | src/modules/private/gameTable/modules/TableV3/token/store/tokenStore.ts | Нужно создавать, обновлять, удалять и отображать токены холста |
-| useAuthApi | src/services/api/auth.ts | Нужно выполнить login, register, refresh или logout |
-| useLobbyApi | src/modules/private/lobby/api/lobbyApi.ts | Нужно вызвать endpoint лобби или участников |
-| useFileItemApi | src/modules/private/gallery/api/fileApi.ts | Нужно загрузить, получить, удалить изображение или собрать его URL |
-| useCollectionsApi | src/modules/private/gallery/api/collectionsApi.ts | Нужно выполнить CRUD коллекций |
-| useCharacterApi | src/modules/private/gameTable/modules/characters/api/charactersApi.ts | Нужно выполнить CRUD персонажей |
-| useSceneApi | src/modules/private/gameTable/modules/TableScenes/services/sceneApi.ts | Нужно выполнить CRUD сцен |
-| useChatSocket | src/services/webSocket/roomSocket/chatSocket.ts | Нужно подключить обработчики и отправку сообщений комнаты |
-| useTokenSocket | src/services/webSocket/roomSocket/tokenSocket.ts | Нужно подключить события CRUD токенов |
-| useRoomSocket | src/services/webSocket/roomSocket/roomSocket.ts | Нужно подключить комнату, игроков и переходы между сценами |
-| useTableCanvas | src/modules/private/gameTable/modules/TableV3/index.ts | Нужно создать и уничтожить Fabric canvas игровой таблицы |
-| useTokenModificed | src/modules/private/gameTable/modules/TableV3/token/services/useTokenModificed.ts | Нужно один раз подключить selection и modified handlers к Fabric canvas |
+| Точка доступа        | Файл                                                                              | Использовать когда                                                       |
+| -------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| tryCatch             | src/composables/tryCatch.ts                                                       | Нужен результат и ошибка в tuple без UI-состояния                        |
+| useAlert             | src/composables/useAlert.ts                                                       | Нужно показать пользователю info, success или error notification         |
+| useAxiosFactory      | src/composables/useApiFactory.ts                                                  | Нужно создать общий Axios-клиент с auth, retry и logging                 |
+| copyText             | src/composables/useCopyText.ts                                                    | Нужно записать строку в clipboard по действию пользователя               |
+| searchFilterObject   | src/composables/useFilters.ts                                                     | Нужно выполнить простой локальный регистронезависимый поиск по массиву   |
+| useFormSubmit        | src/composables/useFormValidate.ts                                                | Нужно валидировать Naive UI форму и защитить submit от повторного вызова |
+| useFormSettings      | src/composables/useFormValidate.ts                                                | Нужны общие правила required и счетчик длины поля                        |
+| useModalUtil         | src/composables/useModal.ts                                                       | Нужно управлять одним локальным modal и его item/props                   |
+| useReqDefault        | src/composables/useReqDefault.ts                                                  | Нужен стандартный Axios-запрос с loading, error и notification           |
+| useSocketFactory     | src/composables/useSocketFactory.ts                                               | Нужно создать Socket.IO namespace через общий Manager                    |
+| scrollToBlock        | src/ui/composables/useScrollInBlock.ts                                            | Нужно прокрутить страницу к DOM-блоку по id                              |
+| useFormValidate      | src/ui/components/CForm/useFormValidate.ts                                        | Нужно передать результат валидации между частями CForm                   |
+| useDialog            | src/ui/components/CModal/useDialog.ts                                             | Нужно открыть глобальное динамическое модальное окно в стеке             |
+| useRulesResult       | CSelect и CValidate composable                                                    | Нужно последовательно применить набор низкоуровневых validation rules    |
+| useComponentValidate | src/ui/components/CValidate/composable/initValidate.ts                            | Нужно валидировать model ref в кастомном UI-контроле                     |
+| useColorTheme        | src/utils/colorTheme.ts                                                           | Нужно получить общую тему приложения и overrides Naive UI                |
+| useRoles             | src/enums/index.ts                                                                | Нужно получить идентификаторы и названия ролей                           |
+| useAccountStore      | src/store/AccountStore.ts                                                         | Нужно прочитать текущий аккаунт приложения                               |
+| useMessageStore      | src/store/MessageStore.ts                                                         | Нужно читать и изменять общее состояние сообщений комнаты                |
+| useActiveLobbyStore  | src/modules/private/lobby/store/LobbyStore.ts                                     | Нужно хранить активное лобби между lobby и gameTable                     |
+| useScene             | src/modules/private/gameTable/modules/TableScenes/store/scene.ts                  | Нужно читать активную сцену и сигнал смены сцены                         |
+| useLayersStore       | src/modules/private/gameTable/modules/TableV3/scene/layer.ts                      | Нужно управлять активным слоем Fabric-токенов                            |
+| useTokens            | src/modules/private/gameTable/modules/TableV3/token/store/tokenStore.ts           | Нужно создавать, обновлять, удалять и отображать токены холста           |
+| useAuthApi           | src/services/api/auth.ts                                                          | Нужно выполнить login, register, refresh или logout                      |
+| useLobbyApi          | src/modules/private/lobby/api/lobbyApi.ts                                         | Нужно вызвать endpoint лобби или участников                              |
+| useFileItemApi       | src/modules/private/gallery/api/fileApi.ts                                        | Нужно загрузить, получить, удалить изображение или собрать его URL       |
+| useCollectionsApi    | src/modules/private/gallery/api/collectionsApi.ts                                 | Нужно выполнить CRUD коллекций                                           |
+| useCharacterApi      | src/modules/private/gameTable/modules/characters/api/charactersApi.ts             | Нужно выполнить CRUD персонажей                                          |
+| useSceneApi          | src/modules/private/gameTable/modules/TableScenes/services/sceneApi.ts            | Нужно выполнить CRUD сцен                                                |
+| useChatSocket        | src/services/webSocket/roomSocket/chatSocket.ts                                   | Нужно подключить обработчики и отправку сообщений комнаты                |
+| useTokenSocket       | src/services/webSocket/roomSocket/tokenSocket.ts                                  | Нужно подключить события CRUD токенов                                    |
+| useRoomSocket        | src/services/webSocket/roomSocket/roomSocket.ts                                   | Нужно подключить комнату, игроков и переходы между сценами               |
+| useTableCanvas       | src/modules/private/gameTable/modules/TableV3/index.ts                            | Нужно создать и уничтожить Fabric canvas игровой таблицы                 |
+| useTokenModificed    | src/modules/private/gameTable/modules/TableV3/token/services/useTokenModificed.ts | Нужно один раз подключить selection и modified handlers к Fabric canvas  |
 
 ### 8.5. Базовые composable и утилиты
 
@@ -1071,9 +1077,9 @@ API composable являются тонкими feature-обертками над
 
 Поток обычного запроса:
 
-~~~text
+```text
 component/view -> feature API wrapper -> httpClient -> Axios interceptors -> backend
-~~~
+```
 
 - src/services/clients/httpClient.ts является общим Axios-клиентом с baseURL, credentials, авторизацией, логированием и повтором после 401.
 - API фичи размещается рядом с фичей в api, например src/modules/private/lobby/api/lobbyApi.ts.
@@ -1083,21 +1089,21 @@ component/view -> feature API wrapper -> httpClient -> Axios interceptors -> bac
 
 Пример API-обертки:
 
-~~~ts
-import type { AxiosResponse } from "axios";
-import { httpClient } from "@/services/clients/httpClient";
-import type { LobbyModel } from "@/types/api/generated/models";
+```ts
+import type { AxiosResponse } from 'axios'
+import { httpClient } from '@/services/clients/httpClient'
+import type { LobbyModel } from '@/types/api/generated/models'
 
 export const useLobbyApi = () => {
-  const url = "/api/lobbies";
+    const url = '/api/lobbies'
 
-  async function getLobbies(): Promise<AxiosResponse<LobbyModel[]>> {
-    return httpClient.get(url);
-  }
+    async function getLobbies(): Promise<AxiosResponse<LobbyModel[]>> {
+        return httpClient.get(url)
+    }
 
-  return { getLobbies };
-};
-~~~
+    return { getLobbies }
+}
+```
 
 ### 9.2. Обработка запросов
 
@@ -1156,7 +1162,7 @@ export const useLobbyApi = () => {
 
 ### 13.1. Сгенерированный код
 
-Каталог src/types/api/generated генерируется Orval. Он содержит api.ts, models/*.ts и models/*.factory.ts.
+Каталог src/types/api/generated генерируется Orval. Он содержит api.ts, models/_.ts и models/_.factory.ts.
 
 Правила:
 
@@ -1225,12 +1231,12 @@ export const useLobbyApi = () => {
 
 Текущий формат сообщений коммитов использует префиксы в квадратных скобках. Для новых коммитов применять один из вариантов:
 
-~~~text
+```text
 [FEAT] add lobby collection filter
 [FIX] handle expired access token
 [REFACTOR] extract scene API wrapper
 [CHORE] update generated API types
-~~~
+```
 
 Сообщение должно кратко описывать результат изменения, а не процесс работы.
 
