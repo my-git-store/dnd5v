@@ -7,9 +7,13 @@ export type Props = {
     onConfirm?: () => void | Promise<void>
 }
 
+type Emits = {
+    close: []
+}
+
 const props = withDefaults(defineProps<Props>(), { confirmLabel: 'Подтвердить', danger: false })
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<Emits>()
 
 async function confirm() {
     await props.onConfirm?.()

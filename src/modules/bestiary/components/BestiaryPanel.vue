@@ -11,9 +11,13 @@ import {
 import { mockBestiaryAdapter } from '../data/mockBestiary.ts'
 import '../styles/bestiary.css'
 
+type Emits = {
+    status: [message: string]
+}
+
 const props = defineProps<{ onCreateNpc: (entry: BestiaryEntry) => void | Promise<void> }>()
 
-const emit = defineEmits<{ status: [message: string] }>()
+const emit = defineEmits<Emits>()
 
 type EntryModalProps = {
     onCreateNpc: (entry: BestiaryEntry) => void | Promise<void>

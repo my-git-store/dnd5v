@@ -7,6 +7,10 @@ import NpcEntryEditorModal from './NpcEntryEditorModal.vue'
 import type { CharacterSheetView } from '../types/characterView'
 import type { CharacterNpcBonus, CharacterNpcEntry, CharacterNpc } from '../types/character'
 
+type Emits = {
+    update: [npc: CharacterNpc]
+}
+
 const props = defineProps<{
     character: CharacterSheetView
     dirty: boolean
@@ -17,7 +21,7 @@ const props = defineProps<{
     onPrint: () => void
 }>()
 
-const emit = defineEmits<{ update: [npc: CharacterNpc] }>()
+const emit = defineEmits<Emits>()
 
 type EntryModalProps = {
     onSave: (entry: CharacterNpcEntry) => void

@@ -1,6 +1,11 @@
 <script setup lang="ts">
+type Emits = {
+    retry: []
+}
+
 defineProps<{ loading: boolean; error: string | null }>()
-const emit = defineEmits<{ retry: [] }>()
+
+const emit = defineEmits<Emits>()
 </script>
 <template>
     <div v-if="loading" class="load-state" role="status" aria-label="Загрузка персонажа">

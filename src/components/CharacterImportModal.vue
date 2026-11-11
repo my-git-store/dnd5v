@@ -7,9 +7,13 @@ export type Props = {
     onImport: (mode: 'add' | 'replace') => void | Promise<void>
 }
 
+type Emits = {
+    close: []
+}
+
 const props = defineProps<Props>()
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<Emits>()
 
 async function importCharacters(mode: 'add' | 'replace') {
     await props.onImport(mode)

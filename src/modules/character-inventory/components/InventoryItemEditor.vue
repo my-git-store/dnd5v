@@ -4,9 +4,14 @@ import { ref, watch } from 'vue'
 import { RULES_2024_WEAPONS } from '@/data/rules2024/index.ts'
 import type { CharacterInventoryItemRecord } from '@/types/character'
 
+type Emits = {
+    save: [item: CharacterInventoryItemRecord]
+    cancel: []
+}
+
 const props = defineProps<{ item: CharacterInventoryItemRecord; disabled?: boolean }>()
 
-const emit = defineEmits<{ save: [item: CharacterInventoryItemRecord]; cancel: [] }>()
+const emit = defineEmits<Emits>()
 
 const weaponOptions = [
     { value: '', label: 'Не оружие / без связи' },

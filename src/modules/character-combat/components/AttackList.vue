@@ -17,6 +17,10 @@ import EntryActions from '@/modules/character-inventory/components/EntryActions.
 import type { CharacterAbilities } from '@/types/character'
 import type { CharacterAttackView } from '@/types/characterView'
 
+type Emits = {
+    update: [attacks: CharacterAttackView[]]
+}
+
 const props = defineProps<{
     attacks: CharacterAttackView[]
     abilities: CharacterAbilities
@@ -24,7 +28,7 @@ const props = defineProps<{
     disabled?: boolean
 }>()
 
-const emit = defineEmits<{ update: [attacks: CharacterAttackView[]] }>()
+const emit = defineEmits<Emits>()
 
 type EditorModalProps = {
     abilities: CharacterAbilities

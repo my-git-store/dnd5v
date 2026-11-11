@@ -4,13 +4,17 @@ import { computed } from 'vue'
 import type { CharacterGender } from '@/types/character'
 import type { CharacterIdentityPatch, CharacterSheetView } from '@/types/characterView'
 
+type Emits = {
+    update: [patch: CharacterIdentityPatch]
+}
+
 const props = defineProps<{
     character: CharacterSheetView
     disabled?: boolean
     gender?: CharacterGender
 }>()
 
-const emit = defineEmits<{ update: [patch: CharacterIdentityPatch] }>()
+const emit = defineEmits<Emits>()
 
 const selectedGender = computed(() => props.gender ?? props.character.creation?.gender ?? 'female')
 

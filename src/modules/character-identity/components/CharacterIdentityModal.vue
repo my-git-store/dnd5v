@@ -15,9 +15,13 @@ export type Props = {
     onCancel?: () => void
 }
 
+type Emits = {
+    close: []
+}
+
 const props = defineProps<Props>()
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<Emits>()
 
 const draft = ref(cloneCharacterView(props.character))
 

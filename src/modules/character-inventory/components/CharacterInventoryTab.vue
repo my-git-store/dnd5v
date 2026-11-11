@@ -5,12 +5,15 @@ import type { CharacterMoney } from '@/types/character'
 import type { CharacterSheetView } from '@/types/characterView'
 import type { CharacterInventoryItemRecord } from '@/types/character'
 
-defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
-const emit = defineEmits<{
+type Emits = {
     'update:inventory': [items: CharacterInventoryItemRecord[]]
     'update:money': [money: CharacterMoney]
     'use-item': [id: string]
-}>()
+}
+
+defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
+
+const emit = defineEmits<Emits>()
 </script>
 
 <template>

@@ -10,12 +10,14 @@ import CollectionSearch from '@/modules/character-inventory/components/Collectio
 import type { CharacterInventoryItemRecord } from '@/types/character'
 import { getRules2024Weapon } from '@/data/rules2024/index.ts'
 
-const props = defineProps<{ items: CharacterInventoryItemRecord[]; disabled?: boolean }>()
-
-const emit = defineEmits<{
+type Emits = {
     update: [items: CharacterInventoryItemRecord[]]
     'use-item': [id: string]
-}>()
+}
+
+const props = defineProps<{ items: CharacterInventoryItemRecord[]; disabled?: boolean }>()
+
+const emit = defineEmits<Emits>()
 
 const query = ref('')
 

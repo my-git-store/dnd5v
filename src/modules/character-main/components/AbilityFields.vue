@@ -2,8 +2,14 @@
 import { ABILITY_FIELDS } from '@/data/characterFields'
 import { abilityModifier, signedModifier } from '@/domain/abilityModifier'
 import type { AbilityKey, CharacterAbilities } from '@/types/character'
+
+type Emits = {
+    update: [key: AbilityKey, value: number]
+}
+
 defineProps<{ abilities: CharacterAbilities; disabled?: boolean }>()
-const emit = defineEmits<{ update: [key: AbilityKey, value: number] }>()
+
+const emit = defineEmits<Emits>()
 
 function onInput(key: AbilityKey, value: unknown) {
     const numberValue = Number(value)

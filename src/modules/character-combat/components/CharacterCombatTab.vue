@@ -5,16 +5,19 @@ import RestActions from './RestActions.vue'
 import type { CharacterSheetView } from '@/types/characterView'
 import type { ShortRestResult } from '@/domain/rest'
 
+type Emits = {
+    'update:combat': [combat: CharacterSheetView['combat']]
+    'update:attacks': [attacks: CharacterSheetView['attacks']]
+}
+
 defineProps<{
     character: CharacterSheetView
     disabled?: boolean
     onShortRest: (dice: number) => ShortRestResult | null | Promise<ShortRestResult | null>
     onLongRest: () => void | Promise<void>
 }>()
-const emit = defineEmits<{
-    'update:combat': [combat: CharacterSheetView['combat']]
-    'update:attacks': [attacks: CharacterSheetView['attacks']]
-}>()
+
+const emit = defineEmits<Emits>()
 </script>
 
 <template>

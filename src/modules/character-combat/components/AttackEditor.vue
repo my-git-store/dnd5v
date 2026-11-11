@@ -11,6 +11,11 @@ import { getAttackBonusSource, getAdditionalAttackBonus } from '@/domain/attackB
 import type { CharacterAbilities } from '@/types/character'
 import type { CharacterAttackView } from '@/types/characterView'
 
+type Emits = {
+    save: [attack: CharacterAttackView]
+    cancel: []
+}
+
 const props = defineProps<{
     attack: CharacterAttackView
     abilities: CharacterAbilities
@@ -18,7 +23,7 @@ const props = defineProps<{
     disabled?: boolean
 }>()
 
-const emit = defineEmits<{ save: [attack: CharacterAttackView]; cancel: [] }>()
+const emit = defineEmits<Emits>()
 
 const attackKinds = [
     { value: 'melee', label: 'Ближняя' },

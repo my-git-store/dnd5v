@@ -9,9 +9,13 @@ type Props = {
     onCancel?: () => void
 }
 
+type Emits = {
+    close: []
+}
+
 const props = defineProps<Props>()
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<Emits>()
 
 function save(item: CharacterInventoryItemRecord) {
     props.onSave(item)

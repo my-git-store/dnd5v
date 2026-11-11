@@ -6,9 +6,13 @@ import EmptyCollection from '@/modules/character-inventory/components/EmptyColle
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
 import type { CharacterFeat } from '@/types/character'
 
+type Emits = {
+    update: [feats: CharacterFeat[]]
+}
+
 const props = defineProps<{ feats: CharacterFeat[]; disabled?: boolean }>()
 
-const emit = defineEmits<{ update: [feats: CharacterFeat[]] }>()
+const emit = defineEmits<Emits>()
 
 type EditorModalProps = {
     disabled?: boolean

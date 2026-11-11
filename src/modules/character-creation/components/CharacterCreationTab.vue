@@ -35,6 +35,11 @@ import { classIconFor } from '@/data/classIcons.ts'
 import { backgroundIconFor } from '@/data/backgroundIcons.ts'
 import { speciesIconFor } from '@/data/speciesIcons.ts'
 
+type Emits = {
+    create: [payload: CharacterCreationPayload]
+    'back-to-sheet': []
+}
+
 const props = defineProps<{
     character: CharacterSheetView
     disabled?: boolean
@@ -42,7 +47,7 @@ const props = defineProps<{
     creationError?: string | null
 }>()
 
-const emit = defineEmits<{ create: [payload: CharacterCreationPayload]; 'back-to-sheet': [] }>()
+const emit = defineEmits<Emits>()
 
 const stepNames = [
     'Имя',

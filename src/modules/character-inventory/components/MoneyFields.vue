@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import type { CharacterMoney } from '@/types/character'
+
+type Emits = {
+    update: [money: CharacterMoney]
+}
+
 const props = defineProps<{ money: CharacterMoney; disabled?: boolean }>()
 
-const emit = defineEmits<{ update: [money: CharacterMoney] }>()
+const emit = defineEmits<Emits>()
 
 const fields: Array<{ key: keyof CharacterMoney; label: string }> = [
     { key: 'copper', label: 'Медь' },

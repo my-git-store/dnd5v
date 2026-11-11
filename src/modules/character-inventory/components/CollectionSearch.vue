@@ -1,6 +1,11 @@
 <script setup lang="ts">
+type Emits = {
+    'update:query': [value: string]
+}
+
 defineProps<{ label: string; query: string }>()
-const emit = defineEmits<{ 'update:query': [value: string] }>()
+
+const emit = defineEmits<Emits>()
 </script>
 
 <template>

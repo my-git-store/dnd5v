@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { StoredCharacterSummary } from '../api/characterStorage'
 
+type Emits = {
+    create: []
+}
+
 defineProps<{
     characters: StoredCharacterSummary[]
     activeId: string | null
@@ -9,16 +13,7 @@ defineProps<{
     status?: { kind: 'success' | 'error'; text: string } | null
 }>()
 
-const emit = defineEmits<{
-    select: [id: string]
-    create: []
-    'create-npc': []
-    copy: []
-    remove: []
-    'export-current': []
-    'export-all': []
-    'import-file': [file: File]
-}>()
+const emit = defineEmits<Emits>()
 </script>
 
 <template>
@@ -30,25 +25,11 @@ const emit = defineEmits<{
             <small v-if="dirty">Есть несохранённые изменения.</small>
         </div>
         <div class="character-manager-controls">
-            <NButton type="default" :disabled="disabled" @click="emit('create')"
-                >Создать персонажа</NButton
-            >
-            <NButton
-                type="default"
-                tag="a"
-                href="https://forms.yandex.ru/u/6aec6367c45c070febaff5f5"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Пройти опрос</NButton
-            >
+            <NButton type="default" :disabled="disabled" @click="emit('create')">Создать персонажа</NButton>
+            <NButton type="default" tag="a" href="https://forms.yandex.ru/u/6aec6367c45c070febaff5f5" target="_blank"
+                rel="noopener noreferrer">Пройти опрос</NButton>
         </div>
-        <p
-            v-if="status"
-            class="character-manager-status"
-            :class="status.kind"
-            role="status"
-            aria-live="polite"
-        >
+        <p v-if="status" class="character-manager-status" :class="status.kind" role="status" aria-live="polite">
             {{ status.text }}
         </p>
     </section>
@@ -67,23 +48,28 @@ const emit = defineEmits<{
     background: rgba(255, 249, 235, 0.78);
     box-shadow: 0 4px 14px rgba(83, 59, 38, 0.06);
 }
+
 .character-manager-copy {
     display: grid;
     gap: 2px;
     min-width: 0;
 }
+
 .character-manager-copy .c-eyebrow {
     margin: 0;
     font-size: 0.62rem;
 }
+
 .character-manager-copy strong {
     color: var(--sheet-ink);
     font-family: var(--font-serif);
 }
+
 .character-manager-copy small {
     color: var(--sheet-muted);
     font-size: 0.74rem;
 }
+
 .character-manager-controls {
     display: flex;
     align-items: center;
@@ -92,6 +78,7 @@ const emit = defineEmits<{
     gap: 7px;
     min-width: 0;
 }
+
 .character-manager-status {
     flex-basis: 100%;
     margin: 0;
@@ -99,10 +86,12 @@ const emit = defineEmits<{
     border-radius: 8px;
     font-size: 0.78rem;
 }
+
 .character-manager-status.success {
     color: var(--sheet-success);
     background: #edf5eb;
 }
+
 .character-manager-status.error {
     color: var(--sheet-danger);
     background: #fff0ed;

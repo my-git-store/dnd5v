@@ -3,9 +3,14 @@ import { ref, watch } from 'vue'
 
 import type { CharacterFeat } from '@/types/character'
 
+type Emits = {
+    save: [feat: CharacterFeat]
+    cancel: []
+}
+
 const props = defineProps<{ feat: CharacterFeat; disabled?: boolean }>()
 
-const emit = defineEmits<{ save: [feat: CharacterFeat]; cancel: [] }>()
+const emit = defineEmits<Emits>()
 
 const draft = ref<CharacterFeat>({ ...props.feat })
 watch(

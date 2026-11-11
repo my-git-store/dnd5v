@@ -16,14 +16,17 @@ import { availableChoicesForProgression } from '@/domain/characterProgression.ts
 import { PROGRESSION_UI_ENABLED } from '@/domain/progressionVisibility.ts'
 import type { ChoiceDefinition } from '@/types/rules.ts'
 
-defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
-const emit = defineEmits<{
+type Emits = {
     'update:saving-throw': [key: AbilityKey, patch: CharacterSavingThrowPatch]
     'update:ability': [key: AbilityKey, value: number]
     'update:skill': [id: string, patch: CharacterSkillPatch]
     'update:feats': [feats: CharacterSheetView['feats']]
     'level-up': []
-}>()
+}
+
+defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
+
+const emit = defineEmits<Emits>()
 
 function updateSavingThrow(key: AbilityKey, patch: CharacterSavingThrowPatch) {
     emit('update:saving-throw', key, patch)

@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import type { CharacterDetails } from '@/types/character'
 
+type Emits = {
+    update: [details: CharacterDetails]
+}
+
 const props = defineProps<{ details: CharacterDetails; disabled?: boolean }>()
 
-const emit = defineEmits<{ update: [details: CharacterDetails] }>()
+const emit = defineEmits<Emits>()
 
 function updateClass(value: unknown) {
     emit('update', {

@@ -8,14 +8,16 @@ import type { CharacterSpell } from '@/types/character'
 import type { CharacterSheetView } from '@/types/characterView'
 import type { CharacterSpellLevel } from '@/types/character'
 
-const props = defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
-
-const emit = defineEmits<{
+type Emits = {
     'update:spells': [spells: CharacterSpell[]]
     'update:cantrips': [spells: CharacterSpell[]]
     'update:spellcasting': [spellcasting: CharacterSheetView['spellcasting']]
     'use-slot': [level: CharacterSpellLevel, delta: number]
-}>()
+}
+
+const props = defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
+
+const emit = defineEmits<Emits>()
 
 const spellbookTabs = [
     { name: 'Заговоры', value: 'cantrips' },

@@ -2,12 +2,16 @@
 import { ref, watch } from 'vue'
 import type { CharacterNpcEntry } from '../types/character'
 
+type Emits = {
+    close: []
+}
+
 const props = defineProps<{
     entry: CharacterNpcEntry
     onSave: (entry: CharacterNpcEntry) => void
 }>()
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<Emits>()
 
 const draft = ref<CharacterNpcEntry>({ ...props.entry })
 watch(

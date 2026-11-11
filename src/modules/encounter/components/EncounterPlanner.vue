@@ -12,16 +12,18 @@ import type { BestiaryEntry } from '@/modules/bestiary/types/bestiary.ts'
 import type { CharacterEncounterParticipant, CharacterEncounter } from '@/types/character.ts'
 import '../styles/encounter.css'
 
+type Emits = {
+    update: [encounters: CharacterEncounter[]]
+    status: [message: string]
+}
+
 const props = defineProps<{
     encounters?: CharacterEncounter[]
     dirty: boolean
     saving: boolean
 }>()
 
-const emit = defineEmits<{
-    update: [encounters: CharacterEncounter[]]
-    status: [message: string]
-}>()
+const emit = defineEmits<Emits>()
 
 type ActionModalProps = {
     title: string

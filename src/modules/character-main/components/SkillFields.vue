@@ -8,6 +8,10 @@ import type { AbilityKey, CharacterAbilities, SkillProficiency } from '@/types/c
 import type { SkillProficiencySource } from '@/types/character'
 import type { CharacterSkillPatch, CharacterSkillView } from '@/types/characterView'
 
+type Emits = {
+    update: [id: string, patch: CharacterSkillPatch]
+}
+
 const props = defineProps<{
     skills: CharacterSkillView[]
     abilities: CharacterAbilities
@@ -18,7 +22,7 @@ const props = defineProps<{
     disabled?: boolean
 }>()
 
-const emit = defineEmits<{ update: [id: string, patch: CharacterSkillPatch] }>()
+const emit = defineEmits<Emits>()
 
 const abilityLabels = Object.fromEntries(
     ABILITY_FIELDS.map(field => [field.key, field.label]),

@@ -10,6 +10,11 @@ import CollectionSearch from '@/modules/character-inventory/components/Collectio
 import type { CharacterSpell } from '@/types/character'
 import { RULES_2024_CLASSES, getRules2024Spell } from '@/data/rules2024/index.ts'
 
+type Emits = {
+    update: [spells: CharacterSpell[]]
+    'update:prepared-ids': [ids: string[]]
+}
+
 const props = defineProps<{
     title: string
     spells: CharacterSpell[]
@@ -19,10 +24,7 @@ const props = defineProps<{
     disabled?: boolean
 }>()
 
-const emit = defineEmits<{
-    update: [spells: CharacterSpell[]]
-    'update:prepared-ids': [ids: string[]]
-}>()
+const emit = defineEmits<Emits>()
 
 const query = ref('')
 

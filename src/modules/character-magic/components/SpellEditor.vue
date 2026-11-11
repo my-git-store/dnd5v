@@ -2,9 +2,15 @@
 import { ref, watch } from 'vue'
 
 import type { CharacterSpell } from '@/types/character'
+
+type Emits = {
+    save: [spell: CharacterSpell]
+    cancel: []
+}
+
 const props = defineProps<{ spell: CharacterSpell; cantrip?: boolean; disabled?: boolean }>()
 
-const emit = defineEmits<{ save: [spell: CharacterSpell]; cancel: [] }>()
+const emit = defineEmits<Emits>()
 
 const draft = ref({ ...props.spell })
 watch(

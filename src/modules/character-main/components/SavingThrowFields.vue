@@ -5,6 +5,10 @@ import { signedModifier } from '@/domain/abilityModifier'
 import type { AbilityKey, CharacterAbilities } from '@/types/character'
 import type { CharacterSavingThrows } from '@/types/character'
 
+type Emits = {
+    update: [key: AbilityKey, patch: { proficient?: boolean; additionalBonus?: number }]
+}
+
 const props = defineProps<{
     abilities: CharacterAbilities
     savingThrows: CharacterSavingThrows
@@ -12,9 +16,7 @@ const props = defineProps<{
     disabled?: boolean
 }>()
 
-const emit = defineEmits<{
-    update: [key: AbilityKey, patch: { proficient?: boolean; additionalBonus?: number }]
-}>()
+const emit = defineEmits<Emits>()
 
 function updateBonus(key: AbilityKey, value: unknown) {
     const parsed = Number(value)

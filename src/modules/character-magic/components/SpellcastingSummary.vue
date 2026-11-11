@@ -6,6 +6,10 @@ import { signedModifier } from '@/domain/abilityModifier'
 import type { AbilityKey, CharacterAbilities } from '@/types/character'
 import type { CharacterSpellcasting } from '@/types/character'
 
+type Emits = {
+    update: [spellcasting: CharacterSpellcasting]
+}
+
 const props = defineProps<{
     spellcasting: CharacterSpellcasting
     abilities: CharacterAbilities
@@ -13,7 +17,7 @@ const props = defineProps<{
     disabled?: boolean
 }>()
 
-const emit = defineEmits<{ update: [spellcasting: CharacterSpellcasting] }>()
+const emit = defineEmits<Emits>()
 
 const abilityOptions = [
     { value: '', label: 'Не настроено' },

@@ -10,9 +10,13 @@ type Props = {
     onBackToSheet: () => void
 }
 
+type Emits = {
+    close: []
+}
+
 const props = defineProps<Props>()
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<Emits>()
 
 function backToSheet() {
     props.onBackToSheet()

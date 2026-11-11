@@ -2,13 +2,17 @@
 import CharacterFeatEditor from './CharacterFeatEditor.vue'
 import type { CharacterFeat } from '@/types/character'
 
+type Emits = {
+    close: []
+}
+
 const props = defineProps<{
     feat: CharacterFeat
     disabled?: boolean
     onSave: (feat: CharacterFeat) => void
 }>()
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<Emits>()
 
 function save(feat: CharacterFeat) {
     props.onSave(feat)

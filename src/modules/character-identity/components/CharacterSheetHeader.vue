@@ -3,6 +3,12 @@ import { proficiencyBonus } from '@/domain/proficiencyBonus'
 import { signedModifier } from '@/domain/abilityModifier'
 import type { CharacterRuleset } from '@/types/character'
 
+type Emits = {
+    save: []
+    'open-details': []
+    print: []
+}
+
 defineProps<{
     dirty: boolean
     saving: boolean
@@ -19,7 +25,8 @@ defineProps<{
     level: number
     experience: number
 }>()
-const emit = defineEmits<{ save: []; 'open-details': []; print: [] }>()
+
+const emit = defineEmits<Emits>()
 
 function hideBrokenAsset(event: Event) {
     const image = event.currentTarget as HTMLImageElement | null

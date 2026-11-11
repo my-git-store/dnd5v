@@ -6,13 +6,17 @@ import {
     type BestiaryEntry,
 } from '../types/bestiary.ts'
 
+type Emits = {
+    close: []
+}
+
 const props = defineProps<{
     entry: BestiaryEntry
     onCreateNpc: (entry: BestiaryEntry) => void | Promise<void>
     onAddInitiative: (entry: BestiaryEntry) => void
 }>()
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<Emits>()
 
 const copied = ref(false)
 

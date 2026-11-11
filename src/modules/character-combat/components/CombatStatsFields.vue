@@ -6,13 +6,17 @@ import { calculateInitiative } from '@/domain/combatCalculations'
 import type { CharacterAbilities } from '@/types/character'
 import type { CharacterCombat } from '@/types/character'
 
+type Emits = {
+    update: [combat: CharacterCombat]
+}
+
 const props = defineProps<{
     combat: CharacterCombat
     abilities: CharacterAbilities
     disabled?: boolean
 }>()
 
-const emit = defineEmits<{ update: [combat: CharacterCombat] }>()
+const emit = defineEmits<Emits>()
 
 const armorClass = computed(() => {
     return props.combat.armorClass.value

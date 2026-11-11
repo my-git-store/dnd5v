@@ -13,7 +13,6 @@ import CharacterIdentityModal from '@/modules/character-identity/components/Char
 import CharacterManagerBar from '@/components/CharacterManagerBar.vue'
 import NpcSheetPanel from '@/components/NpcSheetPanel.vue'
 import CharacterActionConfirmModal from '@/components/CharacterActionConfirmModal.vue'
-import CharacterImportModal from '@/components/CharacterImportModal.vue'
 import CollapsibleSheetSection from '@/components/CollapsibleSheetSection.vue'
 import LevelUpModal from '@/modules/character-progression/components/LevelUpModal.vue'
 import TableComponentsShowcase from '@/modules/table-components/components/showcase/TableComponentsShowcase.vue'
@@ -21,20 +20,12 @@ import BestiaryPanel from '@/modules/bestiary/components/BestiaryPanel.vue'
 import { bestiaryToNpc, type BestiaryEntry } from '@/modules/bestiary/types/bestiary.ts'
 import EncounterPlanner from '@/modules/encounter/components/EncounterPlanner.vue'
 import { useCharacterSheet } from '@/composables/useCharacterSheet'
-import type { AbilityKey, Character, CharacterSpellLevel } from '@/types/character'
+import type { AbilityKey, CharacterSpellLevel } from '@/types/character'
 import type { CharacterIdentityPatch, CharacterSheetView } from '@/types/characterView'
 import type { ShortRestResult } from '@/domain/rest'
 import { classIconFor } from '@/data/classIcons.ts'
 import { speciesIconFor } from '@/data/speciesIcons.ts'
 import { backgroundIconFor } from '@/data/backgroundIcons.ts'
-import {
-    CHARACTER_TRANSFER_MAX_BYTES,
-    parseCharacterTransfer,
-    readAllStoredCharacters,
-    serializeCharacterTransfer,
-    transferFilename,
-} from '@/api/characterTransfer.ts'
-import { readStoredCharacter } from '@/api/characterStorage.ts'
 
 const featureFlags = {
     bestiary: import.meta.env.VITE_ENABLE_BESTIARY === 'true',
@@ -71,12 +62,6 @@ const printMode = ref(false)
 
 const sheet = useCharacterSheet()
 
-type ImportModalProps = {
-    characters: Character[]
-    currentAvailable: boolean
-    onImport: (mode: 'add' | 'replace') => void | Promise<void>
-}
-
 type IdentityModalProps = {
     character: CharacterSheetView
     disabled?: boolean
@@ -96,8 +81,6 @@ type ActionModalProps = {
     danger?: boolean
     onConfirm?: () => void | Promise<void>
 }
-
-const importModal = useModalUtil<undefined, ImportModalProps>()
 
 const identityModal = useModalUtil<undefined, IdentityModalProps>()
 
@@ -145,97 +128,6 @@ function tabPanelClass(tab: string) {
     return {
         'sheet-tab-panel-active': activeTab.value === tab,
         [`sheet-tab-panel-${tabDirection.value}`]: activeTab.value === tab,
-    }
-}
-function downloadJson(filename: string, value: string) {
-    const blob = new Blob([value], { type: 'application/json;charset=utf-8' })
-
-    const url = URL.createObjectURL(blob)
-
-    const link = document.createElement('a')
-    link.href = url
-    link.download = filename
-    link.click()
-    URL.revokeObjectURL(url)
-}
-async function exportCharacters(all: boolean) {
-    transferStatus.value = null
-    const activeId = sheet.activeId.value
-    if (
-        sheet.isDirty.value ||
-        (activeId && readStoredCharacter(activeId, window.localStorage) === null)
-    )
-        await sheet.save()
-    if (sheet.saveError.value) {
-        transferStatus.value = { kind: 'error', text: sheet.saveError.value }
-        return
-    }
-    const stored = all
-        ? readAllStoredCharacters(window.localStorage)
-        : activeId
-          ? [readStoredCharacter(activeId, window.localStorage)].filter(
-                (value): value is NonNullable<typeof value> => value !== null,
-            )
-          : []
-    if (!stored.length) {
-        transferStatus.value = { kind: 'error', text: 'Нет сохранённых персонажей для экспорта.' }
-        return
-    }
-    const name = all ? 'personazhi' : (stored[0]?.identity.name ?? 'personazh')
-    downloadJson(transferFilename(name), serializeCharacterTransfer(stored))
-    transferStatus.value = {
-        kind: 'success',
-        text: all ? `Экспортировано персонажей: ${stored.length}.` : 'Персонаж экспортирован.',
-    }
-}
-function openImportPreview(plan: ReturnType<typeof parseCharacterTransfer>) {
-    importModal.props.value = {
-        characters: plan.characters,
-        currentAvailable: Boolean(sheet.character.value),
-        onImport: async (mode: 'add' | 'replace') => {
-            try {
-                await sheet.importCharacters(plan.characters, mode)
-                transferStatus.value = {
-                    kind: 'success',
-                    text: `Импортировано персонажей: ${plan.characters.length}.`,
-                }
-            } catch (error) {
-                transferStatus.value = {
-                    kind: 'error',
-                    text:
-                        error instanceof Error
-                            ? error.message
-                            : 'Не удалось импортировать персонажей.',
-                }
-                throw error
-            }
-        },
-    }
-    importModal.openOrClose()
-}
-async function importFile(file: File) {
-    transferStatus.value = null
-    if (file.size > CHARACTER_TRANSFER_MAX_BYTES) {
-        transferStatus.value = { kind: 'error', text: 'Файл импорта слишком большой.' }
-        return
-    }
-    try {
-        const plan = parseCharacterTransfer(await file.text())
-
-        const showPreview = () => openImportPreview(plan)
-        if (sheet.isDirty.value) {
-            openActionConfirm(
-                'Импортировать персонажа?',
-                'Есть несохранённые изменения. Перед импортом они будут отменены, если вы продолжите.',
-                'Продолжить',
-                showPreview,
-            )
-        } else showPreview()
-    } catch (error) {
-        transferStatus.value = {
-            kind: 'error',
-            text: error instanceof Error ? error.message : 'Не удалось прочитать файл импорта.',
-        }
     }
 }
 function startPrint() {
@@ -320,19 +212,6 @@ function openActionConfirm(
     actionModal.props.value = { title, message, confirmLabel, danger, onConfirm: action }
     actionModal.openOrClose()
 }
-function selectCharacter(id: string) {
-    if (id === sheet.activeId.value) return
-    if (sheet.isDirty.value) {
-        openActionConfirm(
-            'Переключить персонажа?',
-            'Есть несохранённые изменения. При переключении они будут отменены.',
-            'Переключить',
-            () => sheet.selectCharacter(id),
-        )
-        return
-    }
-    void sheet.selectCharacter(id)
-}
 function createCharacter() {
     if (sheet.isDirty.value) {
         openActionConfirm(
@@ -346,20 +225,6 @@ function createCharacter() {
         return
     }
     void sheet.createCharacter()
-}
-function createNpcCharacter() {
-    if (sheet.isDirty.value) {
-        openActionConfirm(
-            'Создать НПС?',
-            'Есть несохранённые изменения. При создании нового НПС они будут отменены.',
-            'Создать',
-            async () => {
-                await sheet.createNpc()
-            },
-        )
-        return
-    }
-    void sheet.createNpc()
 }
 function createNpcFromBestiary(entry: BestiaryEntry) {
     const create = async () => {
@@ -376,26 +241,6 @@ function createNpcFromBestiary(entry: BestiaryEntry) {
         return
     }
     void create()
-}
-function copyCharacter() {
-    if (sheet.isDirty.value) {
-        openActionConfirm(
-            'Скопировать персонажа?',
-            'Есть несохранённые изменения. При копировании они будут сохранены в новой копии.',
-            'Копировать',
-            async () => {
-                await sheet.copyCharacter()
-            },
-        )
-        return
-    }
-    void sheet.copyCharacter()
-}
-function deleteCharacter() {
-    const message = sheet.isDirty.value
-        ? 'Есть несохранённые изменения. Удаление персонажа отменит их и удалит сохранённые данные.'
-        : 'Персонаж и его сохранённые данные будут удалены без возможности восстановления.'
-    openActionConfirm('Удалить персонажа?', message, 'Удалить', () => sheet.deleteCharacter(), true)
 }
 
 const selectedClassIcon = computed(() =>
@@ -443,14 +288,7 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
                 :dirty="sheet.isDirty.value"
                 :disabled="sheet.isSaving.value"
                 :status="transferStatus"
-                @select="selectCharacter"
                 @create="openCreationModal"
-                @create-npc="createNpcCharacter"
-                @copy="copyCharacter"
-                @remove="deleteCharacter"
-                @export-current="exportCharacters(false)"
-                @export-all="exportCharacters(true)"
-                @import-file="importFile"
             />
             <section
                 v-if="!sheet.character.value"
@@ -704,11 +542,6 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
                 </template>
             </template>
         </template>
-        <CharacterImportModal
-            v-if="importModal.isShowModal.value && importModal.props.value"
-            v-bind="importModal.props.value"
-            @close="importModal.openOrClose"
-        />
         <CharacterIdentityModal
             v-if="identityModal.isShowModal.value && identityModal.props.value"
             v-bind="identityModal.props.value"

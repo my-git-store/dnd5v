@@ -3,12 +3,14 @@ import { computed } from 'vue'
 
 import type { CharacterSpellSlot, CharacterSpellSlots } from '@/types/character'
 
-const props = defineProps<{ slots: CharacterSpellSlots; disabled?: boolean }>()
-
-const emit = defineEmits<{
+type Emits = {
     update: [slots: CharacterSpellSlots]
     'use-slot': [level: (typeof levels)[number], delta: number]
-}>()
+}
+
+const props = defineProps<{ slots: CharacterSpellSlots; disabled?: boolean }>()
+
+const emit = defineEmits<Emits>()
 
 const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const
 
