@@ -30,6 +30,7 @@ function update(key: keyof CharacterMoney, value: unknown) {
                 <NFormItem :label="field.label"
                     ><NInputNumber
                         min="0"
+                        :show-button="false"
                         :value="money[field.key]"
                         :disabled="disabled"
                         @update:value="update(field.key, $event)"

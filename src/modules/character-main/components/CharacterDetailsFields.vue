@@ -50,6 +50,7 @@ function updateNumber(key: 'level' | 'experience' | 'armorClass', value: unknown
                 ><NInputNumber
                     min="1"
                     step="1"
+                    :show-button="false"
                     :disabled="disabled"
                     :value="details.level"
                     @update:value="updateNumber('level', $event)"
@@ -58,6 +59,7 @@ function updateNumber(key: 'level' | 'experience' | 'armorClass', value: unknown
                 ><NInputNumber
                     min="0"
                     step="1"
+                    :show-button="false"
                     :disabled="disabled"
                     :value="details.experience"
                     @update:value="updateNumber('experience', $event)"
@@ -66,6 +68,7 @@ function updateNumber(key: 'level' | 'experience' | 'armorClass', value: unknown
                 ><NInputNumber
                     min="0"
                     step="1"
+                    :show-button="false"
                     :disabled="disabled"
                     :value="details.armorClass"
                     @update:value="updateNumber('armorClass', $event)"

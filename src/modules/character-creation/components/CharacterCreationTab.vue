@@ -1398,6 +1398,7 @@ function applyCreation() {
                                                 min="1"
                                                 max="30"
                                                 step="1"
+                                                :show-button="false"
                                                 :disabled="disabled"
                                                 :value="baseAbilities[field.key]"
                                                 @update:value="

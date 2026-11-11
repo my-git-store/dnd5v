@@ -161,7 +161,7 @@ onUnmounted(() => {
             </label>
             <label>
                 <span>Инициатива</span>
-                <NInputNumber v-model:value="newInitiative" :min="-99" :max="99" />
+                <NInputNumber v-model:value="newInitiative" :show-button="false" :min="-99" :max="99" />
             </label>
             <button class="primary-button" type="submit" :disabled="!newName.trim()">
                 Добавить
@@ -172,59 +172,36 @@ onUnmounted(() => {
             Добавьте первого участника, чтобы начать раунд.
         </div>
         <ol v-else class="initiative-list" aria-label="Порядок инициативы">
-            <li
-                v-for="participant in orderedParticipants"
-                :key="participant.id"
-                :class="{ current: participant.id === currentParticipant?.id }"
-            >
+            <li v-for="participant in orderedParticipants" :key="participant.id"
+                :class="{ current: participant.id === currentParticipant?.id }">
                 <span class="turn-marker" aria-hidden="true">{{
                     participant.id === currentParticipant?.id ? '◆' : '◇'
                 }}</span>
                 <div class="participant-main">
-                    <NInput
-                        class="participant-name"
-                        :aria-label="`Имя: ${participant.name}`"
-                        :value="participant.name"
-                        maxlength="60"
-                        @update:value="updateParticipant(participant.id, { name: $event })"
-                    /><small
+                    <NInput class="participant-name" :aria-label="`Имя: ${participant.name}`" :value="participant.name"
+                        maxlength="60" @update:value="updateParticipant(participant.id, { name: $event })" /><small
                         v-if="
                             participant.hitPoints !== undefined ||
                             participant.armorClass !== undefined
-                        "
-                        class="participant-stats"
-                        >{{
+                        " class="participant-stats">{{
                             participant.hitPoints !== undefined
                                 ? `HP ${participant.hitPoints}`
                                 : ''
-                        }}<span
-                            v-if="
-                                participant.hitPoints !== undefined &&
-                                participant.armorClass !== undefined
-                            "
-                        >
-                            · </span
-                        >{{
+                        }}<span v-if="
+                            participant.hitPoints !== undefined &&
                             participant.armorClass !== undefined
-                                ? `КД ${participant.armorClass}`
-                                : ''
-                        }}</small
-                    >
+                        ">
+                            · </span>{{
+                                participant.armorClass !== undefined
+                                    ? `КД ${participant.armorClass}`
+                                    : ''
+                            }}</small>
                 </div>
-                <NInputNumber
-                    class="participant-initiative"
-                    :aria-label="`Инициатива: ${participant.name}`"
-                    :min="-99"
-                    :max="99"
-                    :value="participant.initiative"
-                    @update:value="updateParticipant(participant.id, { initiative: $event ?? 0 })"
-                />
-                <button
-                    class="icon-button"
-                    type="button"
-                    :aria-label="`Удалить ${participant.name}`"
-                    @click="removeParticipant(participant.id)"
-                >
+                <NInputNumber class="participant-initiative" :show-button="false"
+                    :aria-label="`Инициатива: ${participant.name}`" :min="-99" :max="99" :value="participant.initiative"
+                    @update:value="updateParticipant(participant.id, { initiative: $event ?? 0 })" />
+                <button class="icon-button" type="button" :aria-label="`Удалить ${participant.name}`"
+                    @click="removeParticipant(participant.id)">
                     ×
                 </button>
             </li>
@@ -234,12 +211,7 @@ onUnmounted(() => {
             <p aria-live="polite">
                 <span>Текущий ход:</span> <strong>{{ currentParticipant?.name ?? '—' }}</strong>
             </p>
-            <button
-                class="primary-button"
-                type="button"
-                :disabled="orderedParticipants.length === 0"
-                @click="nextTurn"
-            >
+            <button class="primary-button" type="button" :disabled="orderedParticipants.length === 0" @click="nextTurn">
                 Следующий ход
             </button>
         </div>

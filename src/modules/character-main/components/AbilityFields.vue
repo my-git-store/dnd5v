@@ -30,6 +30,7 @@ function onInput(key: AbilityKey, value: unknown) {
             <div v-for="field in ABILITY_FIELDS" :key="field.key" class="c-field-card">
                 <NFormItem :label="field.label">
                     <NInputNumber
+                        :show-button="false"
                         :disabled="disabled"
                         :value="abilities[field.key]"
                         @update:value="onInput(field.key, $event)"

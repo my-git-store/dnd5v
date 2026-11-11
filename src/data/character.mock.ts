@@ -78,7 +78,7 @@ function createCharacter(id: string, demo: boolean): Character {
             : { ...abilities },
         proficiency: { toolProficiencies: [], languageProficiencies: [] },
         savingThrows: Object.fromEntries(
-            Object.keys(abilities).map(key => [key, { proficient: false, additionalBonus: 0 }]),
+            Object.keys(abilities).map(key => [key, { proficient: false }]),
         ) as Character['savingThrows'],
         combat: {
             armorClass: {

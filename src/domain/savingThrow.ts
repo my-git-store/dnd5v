@@ -5,7 +5,6 @@ import type { AbilityKey, CharacterAbilities } from '../types/character.ts'
 export interface SavingThrowBonusInput {
     ability: AbilityKey | null
     proficient: boolean
-    additionalBonus?: number
 }
 
 export function calculateSavingThrowBonus(
@@ -19,9 +18,5 @@ export function calculateSavingThrowBonus(
 
     const proficiency = input.proficient ? proficiencyBonus(level) : 0
     if (proficiency === null) return null
-    const additionalBonus =
-        typeof input.additionalBonus === 'number' && Number.isFinite(input.additionalBonus)
-            ? Math.trunc(input.additionalBonus)
-            : 0
-    return modifier + proficiency + additionalBonus
+    return modifier + proficiency
 }

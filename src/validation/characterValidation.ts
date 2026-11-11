@@ -478,16 +478,12 @@ function validCombat(value: unknown): boolean {
     )
 }
 
-/** Validates saving throw proficiency flags and manual bonuses. */
+/** Validates saving throw proficiency flags. */
 function validSavingThrows(value: unknown): boolean {
     if (!isRecord(value)) return false
     return ABILITY_KEYS.every(key => {
         const savingThrow = value[key]
-        return (
-            isRecord(savingThrow) &&
-            typeof savingThrow.proficient === 'boolean' &&
-            isInteger(savingThrow.additionalBonus)
-        )
+        return isRecord(savingThrow) && typeof savingThrow.proficient === 'boolean'
     })
 }
 

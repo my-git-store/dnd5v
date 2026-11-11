@@ -94,6 +94,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     ><NInputNumber
                         min="0"
                         step="1"
+                        :show-button="false"
                         :value="armorClass"
                         :disabled="disabled"
                         @update:value="updateArmorValue"
@@ -109,6 +110,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                 <NFormItem label="Доп. бонус инициативы"
                     ><NInputNumber
                         step="1"
+                        :show-button="false"
                         :value="combat.initiative.additionalBonus"
                         :disabled="disabled"
                         @update:value="updateInitiative"
@@ -123,6 +125,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     <NFormItem label="Базовая"
                         ><NInputNumber
                             min="0"
+                            :show-button="false"
                             :value="combat.speed.base"
                             :disabled="disabled"
                             @update:value="updateSpeed('base', $event)"
@@ -130,6 +133,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     <NFormItem label="Переопределение"
                         ><NInputNumber
                             min="0"
+                            :show-button="false"
                             :value="combat.speed.override ?? null"
                             :disabled="disabled"
                             @update:value="updateSpeed('override', $event)"
@@ -137,6 +141,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     <NFormItem label="Полёт"
                         ><NInputNumber
                             min="0"
+                            :show-button="false"
                             :value="combat.speed.fly ?? null"
                             :disabled="disabled"
                             @update:value="updateSpeed('fly', $event)"
@@ -144,6 +149,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     <NFormItem label="Плавание"
                         ><NInputNumber
                             min="0"
+                            :show-button="false"
                             :value="combat.speed.swim ?? null"
                             :disabled="disabled"
                             @update:value="updateSpeed('swim', $event)"
@@ -162,6 +168,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                         ><NInputNumber
                             min="0"
                             step="1"
+                            :show-button="false"
                             :value="combat.hitPoints.max"
                             :disabled="disabled"
                             @update:value="updateHitPoints('max', $event)"
@@ -170,6 +177,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                         ><NInputNumber
                             min="0"
                             step="1"
+                            :show-button="false"
                             :value="combat.hitPoints.current"
                             :disabled="disabled"
                             @update:value="updateHitPoints('current', $event)"
@@ -178,6 +186,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                         ><NInputNumber
                             min="0"
                             step="1"
+                            :show-button="false"
                             :value="combat.hitPoints.temporary"
                             :disabled="disabled"
                             @update:value="updateHitPoints('temporary', $event)"
@@ -202,6 +211,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                         ><NInputNumber
                             min="0"
                             step="1"
+                            :show-button="false"
                             :value="combat.hitDice.total"
                             :disabled="disabled"
                             @update:value="updateHitDice('total', $event)"
@@ -210,6 +220,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                         ><NInputNumber
                             min="0"
                             step="1"
+                            :show-button="false"
                             :value="combat.hitDice.spent"
                             :disabled="disabled"
                             @update:value="updateHitDice('spent', $event)"
@@ -229,6 +240,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                             min="0"
                             max="3"
                             step="1"
+                            :show-button="false"
                             :value="combat.deathSaves.successes"
                             :disabled="disabled"
                             @update:value="updateDeathSave('successes', $event)"
@@ -238,6 +250,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                             min="0"
                             max="3"
                             step="1"
+                            :show-button="false"
                             :value="combat.deathSaves.failures"
                             :disabled="disabled"
                             @update:value="updateDeathSave('failures', $event)"

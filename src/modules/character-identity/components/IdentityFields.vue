@@ -84,6 +84,7 @@ function update(key: keyof CharacterIdentityPatch, value: unknown) {
                     min="1"
                     max="20"
                     step="1"
+                    :show-button="false"
                     :disabled="disabled"
                     :value="character.level"
                     @update:value="update('level', $event)"
@@ -93,6 +94,7 @@ function update(key: keyof CharacterIdentityPatch, value: unknown) {
                 <NInputNumber
                     min="0"
                     step="1"
+                    :show-button="false"
                     :disabled="disabled"
                     :value="character.experience"
                     @update:value="update('experience', $event)"

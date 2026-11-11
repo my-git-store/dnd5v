@@ -62,51 +62,32 @@ function submit() {
 
 <template>
     <div class="c-editor-grid">
-        <NFormItem label="Название"
-            ><NInput v-model:value="draft.name" :disabled="disabled"
-        /></NFormItem>
-        <label class="c-compact-field"
-            >Связь с оружием
-            <NSelect
-                class="c-select-control"
-                :value="draft.weaponId ?? ''"
-                :options="weaponOptions"
-                :disabled="disabled"
-                @update:value="updateWeapon"
-            />
+        <NFormItem label="Название">
+            <NInput v-model:value="draft.name" :disabled="disabled" />
+        </NFormItem>
+        <label class="c-compact-field">Связь с оружием
+            <NSelect class="c-select-control" :value="draft.weaponId ?? ''" :options="weaponOptions"
+                :disabled="disabled" @update:value="updateWeapon" />
         </label>
-        <NFormItem label="Количество"
-            ><NInputNumber v-model:value="draft.quantity" min="0" step="1" :disabled="disabled"
-        /></NFormItem>
-        <NFormItem label="Вес"
-            ><NInputNumber
-                min="0"
-                step="0.01"
-                :value="draft.weight ?? null"
-                :disabled="disabled"
-                @update:value="draft.weight = weight($event)"
-        /></NFormItem>
-        <label class="c-check-control inventory-check"
-            ><NCheckbox v-model:checked="draft.equipped" :disabled="disabled"
-                >Экипировано</NCheckbox
-            ></label
-        >
-        <NFormItem label="Свойства через запятую"
-            ><NInput
-                :value="draft.properties.join(', ')"
-                :disabled="disabled"
-                @update:value="updateProperties"
-        /></NFormItem>
-        <NFormItem label="Описание"
-            ><NInput
-                v-model:value="draft.description"
-                type="textarea"
-                :disabled="disabled"
-                rows="3"
-        /></NFormItem>
+        <NFormItem label="Количество">
+            <NInputNumber v-model:value="draft.quantity" min="0" :show-button="false" step="1" :disabled="disabled" />
+        </NFormItem>
+        <NFormItem label="Вес">
+            <NInputNumber min="0" step="0.01" :value="draft.weight ?? null" :show-button="false" :disabled="disabled"
+                @update:value="draft.weight = weight($event)" />
+        </NFormItem>
+        <label class="c-check-control inventory-check">
+            <NCheckbox v-model:checked="draft.equipped" :disabled="disabled">Экипировано</NCheckbox>
+        </label>
+        <NFormItem label="Свойства через запятую">
+            <NInput :value="draft.properties.join(', ')" :disabled="disabled" @update:value="updateProperties" />
+        </NFormItem>
+        <NFormItem label="Описание">
+            <NInput v-model:value="draft.description" type="textarea" :disabled="disabled" rows="3" />
+        </NFormItem>
         <div class="c-editor-actions">
-            <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton
-            ><NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>
+            <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton>
+            <NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>
         </div>
     </div>
 </template>

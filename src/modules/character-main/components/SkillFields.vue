@@ -189,6 +189,7 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
                                     v-if="getSkillCalculationMode(skill) === 'manual'"
                                     label="Бонус вручную"
                                     ><NInputNumber
+                                        :show-button="false"
                                         :aria-label="`${skill.name}: бонус вручную`"
                                         :disabled="disabled"
                                         :value="skill.value"
@@ -197,6 +198,7 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
                                 <NFormItem v-else label="Дополнительная поправка"
                                     ><NInputNumber
                                         class="skill-additional-bonus-field"
+                                        :show-button="false"
                                         :disabled="disabled"
                                         :value="skill.additionalBonus"
                                         @update:value="updateAdditional(skill.id, $event)"

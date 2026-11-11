@@ -48,7 +48,7 @@ test('skill bonus follows explicit manual mode and computed proficiency modes', 
 
 test('saving throw bonus adds proficiency only when enabled', () => {
   assert.equal(calculateSavingThrowBonus({ ability: 'dexterity', proficient: false }, abilities, 1), 2)
-  assert.equal(calculateSavingThrowBonus({ ability: 'dexterity', proficient: true, additionalBonus: 1 }, abilities, 5), 6)
+  assert.equal(calculateSavingThrowBonus({ ability: 'dexterity', proficient: true }, abilities, 5), 5)
   assert.equal(calculateSavingThrowBonus({ ability: null, proficient: true }, abilities, 1), null)
   assert.equal(calculateSavingThrowBonus({ ability: 'dexterity', proficient: true }, abilities, 21), null)
 })

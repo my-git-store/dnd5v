@@ -184,7 +184,7 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
             <div class="npc-sheet-actions">
                 <NButton type="primary" :loading="saving" :disabled="!dirty" @click="onSave">{{
                     saved ? 'Сохранено' : 'Сохранить'
-                    }}</NButton>
+                }}</NButton>
             </div>
         </header>
         <p v-if="saveError" class="c-status-text error" role="alert" aria-live="assertive">
@@ -219,7 +219,7 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                     <NInput v-model:value="draft.challengeRating" />
                 </NFormItem>
                 <NFormItem label="Бонус мастерства">
-                    <NInputNumber min="0" :value="draft.proficiencyBonus"
+                    <NInputNumber min="0" :show-button="false" :value="draft.proficiencyBonus"
                         @update:value="updateNumber('proficiencyBonus', $event)" />
                 </NFormItem>
                 <label class="npc-mode-field"><span>Класс доспеха</span>
@@ -227,26 +227,28 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                         aria-label="Режим класса доспеха" @update:value="setCalculationMode('armorClass', $event)" />
                 </label>
                 <NFormItem label="Значение КД">
-                    <NInputNumber min="0" :value="draft.armorClass.value"
+                    <NInputNumber :show-button="false" min="0" :value="draft.armorClass.value"
                         @update:value="updateNumber('armorClass', $event)" />
                 </NFormItem>
                 <NFormItem label="Добавка к КД">
-                    <NInputNumber min="0" :value="draft.armorClass.additionalBonus"
+                    <NInputNumber min="0" :show-button="false" :value="draft.armorClass.additionalBonus"
                         @update:value="updateNumber('armorBonus', $event)" />
                 </NFormItem>
                 <NFormItem label="Максимум HP">
-                    <NInputNumber min="0" :value="draft.hitPoints.max" @update:value="updateNumber('hpMax', $event)" />
+                    <NInputNumber min="0" :show-button="false" :value="draft.hitPoints.max"
+                        @update:value="updateNumber('hpMax', $event)" />
                 </NFormItem>
                 <NFormItem label="Текущие HP">
-                    <NInputNumber min="0" :value="draft.hitPoints.current"
+                    <NInputNumber min="0" :show-button="false" :value="draft.hitPoints.current"
                         @update:value="updateNumber('hpCurrent', $event)" />
                 </NFormItem>
                 <NFormItem label="Временные HP">
-                    <NInputNumber min="0" :value="draft.hitPoints.temporary"
+                    <NInputNumber min="0" :show-button="false" :value="draft.hitPoints.temporary"
                         @update:value="updateNumber('hpTemporary', $event)" />
                 </NFormItem>
                 <NFormItem label="Скорость">
-                    <NInputNumber min="0" :value="draft.speed" @update:value="updateNumber('speed', $event)" />
+                    <NInputNumber min="0" :show-button="false" :value="draft.speed"
+                        @update:value="updateNumber('speed', $event)" />
                 </NFormItem>
                 <label class="npc-mode-field"><span>Режим инициативы</span>
                     <NSelect class="c-select-control" :value="draft.initiative.mode ?? 'computed'"
@@ -254,11 +256,12 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                         @update:value="setCalculationMode('initiative', $event)" />
                 </label>
                 <NFormItem v-if="draft.initiative.mode !== 'manual'" label="Добавка к инициативе">
-                    <NInputNumber :value="draft.initiative.additionalBonus"
+                    <NInputNumber :show-button="false" :value="draft.initiative.additionalBonus"
                         @update:value="updateNumber('initiativeBonus', $event)" />
                 </NFormItem>
                 <NFormItem v-else label="Ручная инициатива">
-                    <NInputNumber :value="draft.initiative.value ?? 0" @update:value="updateInitiativeValue($event)" />
+                    <NInputNumber :show-button="false" :value="draft.initiative.value ?? 0"
+                        @update:value="updateInitiativeValue($event)" />
                 </NFormItem>
                 <div class="npc-derived-card">
                     <span>Инициатива</span><strong>{{ initiative }}</strong><small>{{
@@ -284,11 +287,11 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
             <div class="npc-ability-grid">
                 <div v-for="key in abilityKeys" :key="key" class="c-field-card">
                     <NFormItem :label="abilityLabels[key]">
-                        <NInputNumber min="1" max="30" :value="draft.abilities[key]"
+                        <NInputNumber min="1" :show-button="false" max="30" :value="draft.abilities[key]"
                             @update:value="updateAbility(key, $event)" />
                     </NFormItem><strong class="npc-ability-modifier">{{
                         signedModifier(abilityModifier(draft.abilities[key]))
-                        }}</strong>
+                    }}</strong>
                 </div>
             </div>
         </section>
@@ -309,7 +312,8 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                             <NInput v-model:value="entry.name" />
                         </NFormItem>
                         <NFormItem label="Бонус">
-                            <NInputNumber :value="entry.value" @update:value="updateBonus(entry, $event)" />
+                            <NInputNumber :value="entry.value" :show-button="false"
+                                @update:value="updateBonus(entry, $event)" />
                         </NFormItem>
                         <NButton type="error" aria-label="Удалить навык" @click="removeBonus('skills', entry.id)">
                             Удалить</NButton>
@@ -328,7 +332,8 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                             <NInput v-model:value="entry.name" />
                         </NFormItem>
                         <NFormItem label="Бонус">
-                            <NInputNumber :value="entry.value" @update:value="updateBonus(entry, $event)" />
+                            <NInputNumber :show-button="false" :value="entry.value"
+                                @update:value="updateBonus(entry, $event)" />
                         </NFormItem>
                         <NButton type="error" aria-label="Удалить спасбросок"
                             @click="removeBonus('savingThrows', entry.id)">Удалить</NButton>
@@ -357,7 +362,7 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                     <h3>{{ entry.name || 'Без названия' }}</h3>
                     <p>{{ entry.description || 'Описание не указано.' }}</p>
                     <small v-if="entry.attackBonus || entry.damage">{{ entry.attackBonus
-                    }}<span v-if="entry.attackBonus && entry.damage"> · </span>{{ entry.damage }}</small>
+                        }}<span v-if="entry.attackBonus && entry.damage"> · </span>{{ entry.damage }}</small>
                 </div>
                 <div class="c-entry-actions">
                     <NButton @click="openEntry(kind, entry)">Изменить</NButton>

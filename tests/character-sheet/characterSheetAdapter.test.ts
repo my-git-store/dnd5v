@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { createCharacterSheetAdapter } from '../../src/api/characterSheetAdapter.ts'
 import { CHARACTER_STORAGE_PREFIX, type CharacterStorageLike } from '../../src/api/characterStorage.ts'
 import { createMockCharacter } from '../../src/data/character.mock.ts'
+import { calculateSavingThrowBonus } from '../../src/domain/savingThrow.ts'
 import type { Character } from '../../src/types/character.ts'
 
 class MemoryStorage implements CharacterStorageLike {
@@ -105,7 +106,6 @@ test('round-trips identity, saving throws and skill settings through the UI proj
   uiCharacter.background.name = 'Отшельник'
   uiCharacter.alignment = 'Нейтрально-добрый'
   uiCharacter.savingThrows.dexterity.proficient = true
-  uiCharacter.savingThrows.dexterity.additionalBonus = 1
   uiCharacter.skills[0]!.calculationMode = 'computed'
   uiCharacter.skills[0]!.additionalBonus = 2
 
@@ -117,9 +117,28 @@ test('round-trips identity, saving throws and skill settings through the UI proj
   assert.equal(saved.identity.background.name, 'Отшельник')
   assert.equal(saved.identity.alignment, 'Нейтрально-добрый')
   assert.equal(saved.savingThrows.dexterity.proficient, true)
-  assert.equal(saved.savingThrows.dexterity.additionalBonus, 1)
+  assert.deepEqual(saved.savingThrows.dexterity, { proficient: true })
   assert.equal(saved.skills[0]?.calculationMode, 'computed')
   assert.equal(saved.skills[0]?.additionalBonus, 2)
+})
+
+test('loads legacy saving throw bonuses without applying them after save and reload', async () => {
+  const storage = new MemoryStorage()
+
+  const source = createMockCharacter()
+  source.identity.level = 5
+  source.abilities.dexterity = 14
+  Object.assign(source.savingThrows.dexterity, { proficient: true, additionalBonus: 9 })
+  storage.setItem(`${CHARACTER_STORAGE_PREFIX}${source.id}`, JSON.stringify(source))
+  const adapter = createCharacterSheetAdapter({ storage })
+
+  const loaded = await adapter.load(source.id)
+  assert.equal(calculateSavingThrowBonus({ ability: 'dexterity', ...loaded.savingThrows.dexterity }, loaded.abilities, loaded.level), 5)
+
+  loaded.savingThrows.dexterity.proficient = false
+  await adapter.save(loaded)
+  const reloaded = await adapter.load(source.id)
+  assert.equal(calculateSavingThrowBonus({ ability: 'dexterity', ...reloaded.savingThrows.dexterity }, reloaded.abilities, reloaded.level), 2)
 })
 
 test('round-trips combat stats and the full attack editor shape without losing bonus text', async () => {

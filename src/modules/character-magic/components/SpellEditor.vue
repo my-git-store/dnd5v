@@ -38,6 +38,7 @@ function submit() {
                 v-model:value="draft.level"
                 min="1"
                 max="9"
+                :show-button="false"
                 :disabled="disabled" /></NFormItem
         ><NFormItem label="Описание"
             ><NInput

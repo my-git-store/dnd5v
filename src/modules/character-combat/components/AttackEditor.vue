@@ -170,6 +170,7 @@ function submit() {
         <NFormItem label="Дополнительный бонус"
             ><NInputNumber
                 step="1"
+                :show-button="false"
                 :value="draft.additionalBonus"
                 :disabled="disabled"
                 @update:value="draft.additionalBonus = numberValue($event)"

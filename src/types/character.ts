@@ -179,7 +179,6 @@ export interface CharacterProficiency {
 
 export interface CharacterSavingThrow {
     proficient: boolean
-    additionalBonus: number
 }
 
 export type CharacterSavingThrows = Record<AbilityKey, CharacterSavingThrow>

@@ -33,7 +33,7 @@ test('updates dependent skill, save, initiative and attack values from current i
   const skill = { ability: 'dexterity' as const, proficiency: 'proficient' as const, value: 0, calculationMode: 'computed' as const, additionalBonus: 1 }
   assert.equal(calculateSkillBonus(skill, abilities, 5), 6)
   assert.equal(calculateSkillBonus(skill, { ...abilities, dexterity: 18 }, 5), 8)
-  assert.equal(calculateSavingThrowBonus({ ability: 'dexterity', proficient: true, additionalBonus: 1 }, abilities, 5), 6)
+  assert.equal(calculateSavingThrowBonus({ ability: 'dexterity', proficient: true }, abilities, 5), 5)
   assert.equal(calculateInitiative(abilities, 2), 4)
   const attack = { attackBonus: '', bonusSource: 'strength' as const, proficient: true, calculationMode: 'computed' as const, additionalBonus: 1 }
   assert.equal(calculateAttackBonus(attack, abilities, 5), 7)

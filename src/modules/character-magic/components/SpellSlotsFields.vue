@@ -57,6 +57,7 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
                         ><NInputNumber
                             min="0"
                             step="1"
+                            :show-button="false"
                             :value="slots[item.level].max"
                             :disabled="disabled"
                             @update:value="update(item.level, 'max', $event)"
@@ -65,6 +66,7 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
                         ><NInputNumber
                             min="0"
                             step="1"
+                            :show-button="false"
                             :value="slots[item.level].used"
                             :disabled="disabled"
                             @update:value="update(item.level, 'used', $event)"

@@ -385,6 +385,7 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
                         ><span>Текущие HP</span
                         ><NInputNumber
                             class="number-input"
+                            :show-button="false"
                             :min="0"
                             :max="participant.maxHitPoints"
                             :value="participant.currentHitPoints"
@@ -396,6 +397,7 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
                         ><span>Инициатива</span
                         ><NInputNumber
                             class="number-input"
+                            :show-button="false"
                             :value="participant.initiative"
                             :aria-label="`Инициатива: ${participant.name}`"
                             @update:value="
