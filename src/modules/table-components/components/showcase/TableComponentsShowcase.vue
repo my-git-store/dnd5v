@@ -6,7 +6,7 @@ import '../../styles/table-components.css'
 
 <template>
     <section class="table-components-showcase" aria-labelledby="table-components-title">
-        <div class="app-shell">
+        <div>
             <header class="app-header">
                 <p class="c-eyebrow">Демо · локальные инструменты</p>
                 <h2 id="table-components-title">Игровые компоненты</h2>

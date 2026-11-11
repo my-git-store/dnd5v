@@ -320,18 +320,6 @@ onBeforeUnmount(() => {
     flex-wrap: wrap;
     gap: 8px;
 }
-@media (max-width: 560px) {
-    .attack-entry-actions {
-        width: 100%;
-        justify-items: stretch;
-    }
-    .attack-roll-actions {
-        justify-content: stretch;
-    }
-    .attack-roll-actions :deep(.n-button) {
-        flex: 1 1 auto;
-    }
-}
 .attack-entry-card {
     display: flex;
     align-items: center;
@@ -493,27 +481,6 @@ onBeforeUnmount(() => {
 .attack-roll-history li + li {
     margin-top: 4px;
 }
-@media (max-width: 800px) {
-    .attack-entry-head {
-        grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(70px, 0.55fr));
-        gap: 9px;
-    }
-}
-@media (max-width: 560px) {
-    .attack-entry-card {
-        align-items: flex-start;
-    }
-    .attack-entry-head {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
-    .attack-title {
-        grid-column: 1 / -1;
-    }
-    .attack-entry-details {
-        margin-left: 0;
-    }
-}
 .attack-entry-card {
     border-color: #dec9a4;
 }
@@ -535,15 +502,5 @@ onBeforeUnmount(() => {
 }
 .attack-entry-details {
     color: #796149;
-}
-@media print {
-    .attack-entry-actions {
-        display: none !important;
-    }
-}
-@media print {
-    .attack-entry-card {
-        border-color: #aaa;
-    }
 }
 </style>

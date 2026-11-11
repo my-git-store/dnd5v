@@ -112,17 +112,6 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
     color: #6d4f31;
     font-size: 0.85rem;
 }
-@media (max-width: 1000px) {
-    .spell-slots-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-@media (max-width: 560px) {
-    .spell-slots-grid,
-    .spell-slot-fields {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
 .spell-slot-actions {
     display: flex;
     flex-wrap: wrap;
@@ -147,23 +136,5 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
     line-height: 1.2;
     overflow-wrap: normal;
     word-break: normal;
-}
-@media (max-width: 900px) {
-    .spell-slots-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-@media (max-width: 560px) {
-    .spell-slots-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .spell-slot-fields {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-@media print {
-    .spell-slot-actions {
-        display: none !important;
-    }
 }
 </style>

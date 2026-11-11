@@ -227,15 +227,6 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
     margin-top: 7px;
     white-space: pre-wrap;
 }
-@media (max-width: 560px) {
-    .inventory-entry-actions {
-        width: 100%;
-        justify-items: stretch;
-    }
-    .inventory-entry-actions :deep(.n-button) {
-        flex: 1 1 auto;
-    }
-}
 .inventory-source-badge {
     display: inline-flex;
     align-items: center;
@@ -363,18 +354,6 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
     margin-bottom: 16px;
     padding-bottom: 8px;
 }
-@media (max-width: 560px) {
-    .inventory-entry-card:hover {
-        margin-inline: 0;
-        padding-inline: 0;
-        background: transparent;
-    }
-}
-@media (prefers-reduced-motion: reduce) {
-    .inventory-entry-card {
-        transition: none;
-    }
-}
 .inventory-entry-card {
     border-color: #dec9a4;
 }
@@ -383,15 +362,5 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
 }
 .inventory-source-badge {
     border-color: #d2b989;
-}
-@media print {
-    .inventory-entry-actions {
-        display: none !important;
-    }
-}
-@media print {
-    .inventory-entry-card {
-        border-color: #aaa;
-    }
 }
 </style>

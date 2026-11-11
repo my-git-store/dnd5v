@@ -40,16 +40,6 @@ function update(key: keyof CharacterMoney, value: unknown) {
     gap: 12px;
     grid-template-columns: repeat(5, minmax(0, 1fr));
 }
-@media (max-width: 800px) {
-    .money-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-@media (max-width: 560px) {
-    .money-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
 .money-grid {
     grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
 }

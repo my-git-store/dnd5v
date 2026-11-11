@@ -294,15 +294,4 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
 }
-@media (max-width: 1000px) {
-    .combat-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-@media (max-width: 560px) {
-    .combat-grid,
-    .combat-subgrid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
 </style>

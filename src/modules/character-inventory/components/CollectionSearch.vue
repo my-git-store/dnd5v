@@ -23,13 +23,4 @@ const emit = defineEmits<{ 'update:query': [value: string] }>()
     flex: 1;
     min-width: 0;
 }
-@media (max-width: 560px) {
-    .collection-search {
-        align-items: stretch;
-        flex-direction: column;
-    }
-    .collection-search :deep(.n-button) {
-        width: 100%;
-    }
-}
 </style>

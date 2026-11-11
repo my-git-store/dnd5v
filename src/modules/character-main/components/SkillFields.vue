@@ -257,14 +257,6 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
 }
-@media (max-width: 560px) {
-    .skill-row {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .skill-controls {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
 .skills-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -389,30 +381,6 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px dashed var(--sheet-line-soft);
-}
-@media (max-width: 800px) {
-    .skills-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .skill-settings[open] .skill-controls {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
-@media (max-width: 560px) {
-    .skills-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .skill-row-meta {
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: center;
-        gap: 5px 8px;
-    }
-    .skill-settings {
-        width: auto;
-    }
-    .skill-settings[open] .skill-controls {
-        grid-template-columns: minmax(0, 1fr);
-    }
 }
 .skills-panel .skill-row {
     border-color: #dfcba7;

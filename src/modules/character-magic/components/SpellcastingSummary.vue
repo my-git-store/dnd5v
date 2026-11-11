@@ -113,14 +113,4 @@ function updateAbility(value: string | null) {
     align-content: center;
     gap: 6px;
 }
-@media (max-width: 1000px) {
-    .spellcasting-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
-@media (max-width: 560px) {
-    .spellcasting-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
 </style>

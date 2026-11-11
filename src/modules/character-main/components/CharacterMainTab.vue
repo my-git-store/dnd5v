@@ -476,27 +476,6 @@ function choiceSource(choice: ChoiceDefinition) {
     height: 100%;
     box-sizing: border-box;
 }
-@media (max-width: 1000px) {
-    .main-sheet-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .main-sheet-grid > .c-sheet-section {
-        height: auto;
-    }
-}
-@media (max-width: 800px) {
-    .feature-summary-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .origin-summary-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-@media (max-width: 560px) {
-    .origin-summary-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
 .main-sheet-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
@@ -507,18 +486,5 @@ function choiceSource(choice: ChoiceDefinition) {
 .feature-reference-list {
     display: grid;
     gap: 8px;
-}
-@media (max-width: 560px) {
-    .progression-summary .c-section-heading :deep(.n-button) {
-        width: 100%;
-    }
-}
-@media (max-width: 1000px) {
-    .main-sheet-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .main-sheet-grid > :deep(.skills-panel) {
-        grid-column: auto;
-    }
 }
 </style>

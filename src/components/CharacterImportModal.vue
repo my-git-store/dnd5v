@@ -84,9 +84,4 @@ async function importCharacters(mode: 'add' | 'replace') {
     color: var(--sheet-muted);
     font-size: 0.78rem;
 }
-@media print {
-    .character-import-modal {
-        display: none !important;
-    }
-}
 </style>

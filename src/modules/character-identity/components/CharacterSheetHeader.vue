@@ -308,20 +308,6 @@ function hideBrokenAsset(event: Event) {
     object-position: center 38%;
     transform: translateY(-4%);
 }
-@media (max-width: 560px) {
-    .sheet-header {
-        flex-direction: column;
-        gap: 16px;
-        padding: 20px 17px 18px;
-        border-radius: 14px;
-    }
-    .sheet-header-actions {
-        width: 100%;
-    }
-    .sheet-header-actions :deep(.n-button) {
-        flex: 1 1 0;
-    }
-}
 .sheet-header {
     padding: 23px 25px 21px;
     border-color: #b99a69;
@@ -375,52 +361,6 @@ function hideBrokenAsset(event: Event) {
 }
 .c-character-sheet .sheet-save-button.is-disabled {
     opacity: 1;
-}
-@media (max-width: 560px) {
-    .sheet-header {
-        padding: 19px 15px 18px;
-    }
-    .header-summary {
-        gap: 6px;
-    }
-    .header-summary div {
-        min-width: calc(50% - 3px);
-        box-sizing: border-box;
-    }
-    .species-avatar {
-        flex-basis: 36px;
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
-    }
-    .background-avatar {
-        flex-basis: 36px;
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
-    }
-    .class-avatar {
-        flex-basis: 36px;
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
-    }
-}
-@media print {
-    .sheet-header-actions {
-        display: none !important;
-    }
-    .sheet-header {
-        margin-bottom: 14px;
-        padding: 14px 16px;
-        border-color: #999;
-        box-shadow: none;
-        break-inside: avoid;
-    }
-    .sheet-header::before,
-    .sheet-header::after {
-        display: none;
-    }
 }
 .c-character-sheet .sheet-save-button:disabled {
     box-shadow: none;

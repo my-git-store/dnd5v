@@ -75,16 +75,6 @@ function onInput(key: AbilityKey, value: unknown) {
     font-size: 0.74rem;
     text-align: center;
 }
-@media (max-width: 800px) {
-    .ability-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-@media (max-width: 560px) {
-    .ability-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
 .ability-panel .c-section-note {
     max-width: 34rem;
 }
@@ -95,11 +85,6 @@ function onInput(key: AbilityKey, value: unknown) {
 .ability-panel .modifier-caption {
     color: #805b36;
     font-weight: 700;
-}
-@media (max-width: 1000px) {
-    .ability-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
 }
 .ability-grid .c-field-card,
 .ability-grid :deep(.flex-col),

@@ -286,18 +286,6 @@ function togglePrepared(id: string, checked: boolean) {
     display: inline-flex;
     align-items: center;
 }
-@media (max-width: 560px) {
-    .spell-entry-card:hover {
-        margin-inline: 0;
-        padding-inline: 0;
-        background: transparent;
-    }
-}
-@media (prefers-reduced-motion: reduce) {
-    .spell-entry-card {
-        transition: none;
-    }
-}
 .spell-entry-card {
     border-color: #dec9a4;
 }
@@ -306,10 +294,5 @@ function togglePrepared(id: string, checked: boolean) {
 }
 .spell-kind-badge {
     border-color: #d2b989;
-}
-@media print {
-    .spell-entry-card {
-        border-color: #aaa;
-    }
 }
 </style>

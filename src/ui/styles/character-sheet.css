@@ -10,9 +10,7 @@
     --sheet-gold: var(--color-sheet-gold);
     --sheet-success: var(--color-sheet-success);
     --sheet-danger: var(--color-sheet-danger);
-    max-width: 1220px;
     min-height: 100vh;
-    margin: 0 auto;
     padding: 38px 24px 72px;
     position: relative;
     isolation: isolate;
@@ -506,35 +504,6 @@
     box-shadow: none;
 }
 
-@media (max-width: 560px) {
-    .c-character-sheet {
-        padding: 28px 12px 48px;
-        border-inline: 0;
-    }
-    .c-character-sheet::before {
-        inset: 7px;
-        border-radius: 12px;
-    }
-    .c-sheet-section {
-        padding: 16px;
-        border-radius: 12px;
-    }
-    .c-editor-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .c-editor-grid > :nth-last-child(1),
-    .c-editor-actions {
-        grid-column: auto;
-    }
-    .c-entry-card {
-        flex-direction: column;
-    }
-    .c-entry-actions {
-        align-self: stretch;
-        justify-content: flex-end;
-    }
-}
-
 .c-gender-choice {
     min-width: 0;
     margin: 0;
@@ -695,7 +664,6 @@
     --sheet-burgundy: var(--color-sheet-burgundy);
     --sheet-burgundy-dark: var(--color-sheet-burgundy-dark);
     --sheet-gold-soft: var(--color-sheet-gold-soft);
-    max-width: 1240px;
     background:
         linear-gradient(135deg, rgba(255, 251, 240, 0.74), rgba(237, 218, 185, 0.52)),
         repeating-linear-gradient(90deg, rgba(120, 82, 39, 0.025) 0 1px, transparent 1px 7px);
@@ -807,53 +775,4 @@
 .c-status-text.pending::before {
     content: '…';
     font-weight: 900;
-}
-
-@media (max-width: 560px) {
-    .c-character-sheet {
-        padding: 25px 10px 52px;
-        background: linear-gradient(135deg, rgba(255, 251, 240, 0.82), rgba(237, 218, 185, 0.64));
-    }
-    .c-sheet-section {
-        padding: 17px 14px;
-    }
-    .c-sheet-section::before {
-        inset: 5px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .c-character-sheet .n-button {
-        transition: none;
-        animation: none;
-    }
-}
-
-@media print {
-    .c-character-sheet {
-        max-width: none;
-        min-height: 0;
-        margin: 0;
-        padding: 0;
-        background: #fff;
-        box-shadow: none;
-    }
-    .c-character-sheet::before,
-    .c-character-sheet::after,
-    .c-entry-actions,
-    .c-editor-actions {
-        display: none !important;
-    }
-    .c-sheet-section {
-        box-shadow: none;
-        break-inside: avoid;
-    }
-    .c-tab-content {
-        display: block !important;
-    }
-    .c-sheet-section,
-    .c-field-card,
-    .c-entry-card {
-        border-color: #aaa;
-    }
 }

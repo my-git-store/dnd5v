@@ -76,14 +76,6 @@ function update(key: keyof CharacterPersonality, value: unknown) {
 .bio-wide {
     grid-column: 1 / -1;
 }
-@media (max-width: 560px) {
-    .bio-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .bio-wide {
-        grid-column: auto;
-    }
-}
 .bio-biography-field :deep(.n-input-textarea) {
     min-height: 240px;
     resize: vertical;

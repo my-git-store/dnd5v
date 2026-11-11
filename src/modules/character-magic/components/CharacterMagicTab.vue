@@ -110,14 +110,6 @@ function useSlot(level: CharacterSpellLevel, delta: number) {
 .magic-tab > .c-sheet-section:nth-child(-n + 2) {
     grid-column: 1 / -1;
 }
-@media (max-width: 800px) {
-    .magic-tab {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .magic-tab > .c-sheet-section:nth-child(-n + 2) {
-        grid-column: auto;
-    }
-}
 .magic-intro-panel {
     display: flex;
     align-items: center;
@@ -172,19 +164,6 @@ function useSlot(level: CharacterSpellLevel, delta: number) {
 .magic-spellbook-panel > :deep(.spellbook-section::before) {
     display: none;
 }
-@media (max-width: 560px) {
-    .magic-intro-panel {
-        align-items: flex-start;
-    }
-    .magic-intro-mark {
-        flex-basis: 36px;
-        width: 36px;
-        height: 36px;
-    }
-    .magic-intro-panel h1 {
-        font-size: 1.16rem;
-    }
-}
 .magic-intro-mark {
     border-color: #bd9a61;
     box-shadow:
@@ -197,10 +176,5 @@ function useSlot(level: CharacterSpellLevel, delta: number) {
 }
 .magic-intro-panel h1 {
     color: var(--sheet-burgundy);
-}
-@media print {
-    .magic-intro-panel {
-        border-color: #aaa;
-    }
 }
 </style>

@@ -47,14 +47,6 @@ const emit = defineEmits<{
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 9px;
 }
-@media (max-width: 1000px) {
-    .inventory-tab {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .inventory-tab > .c-sheet-section:nth-child(2) :deep(.money-grid) {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-}
 .inventory-intro-panel {
     display: flex;
     align-items: center;
@@ -89,27 +81,6 @@ const emit = defineEmits<{
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 9px;
 }
-@media (max-width: 800px) {
-    .inventory-tab > .c-sheet-section:nth-child(3) :deep(.money-grid) {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-}
-@media (max-width: 560px) {
-    .inventory-intro-panel {
-        align-items: flex-start;
-    }
-    .inventory-intro-mark {
-        flex-basis: 36px;
-        width: 36px;
-        height: 36px;
-    }
-    .inventory-intro-panel h1 {
-        font-size: 1.16rem;
-    }
-    .inventory-tab > .c-sheet-section:nth-child(3) :deep(.money-grid) {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
 .inventory-intro-mark {
     border-color: #bd9a61;
     box-shadow:
@@ -125,10 +96,5 @@ const emit = defineEmits<{
 }
 .inventory-tab > .c-sheet-section:nth-child(3) :deep(.money-grid) {
     grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
-}
-@media print {
-    .inventory-intro-panel {
-        border-color: #aaa;
-    }
 }
 </style>

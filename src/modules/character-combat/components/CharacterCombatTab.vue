@@ -99,9 +99,4 @@ const emit = defineEmits<{
 .combat-intro-panel h1 {
     color: var(--sheet-burgundy);
 }
-@media print {
-    .combat-intro-panel {
-        border-color: #aaa;
-    }
-}
 </style>

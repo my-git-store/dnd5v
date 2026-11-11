@@ -123,9 +123,4 @@ watch(expanded, value => {
 .collapsible-sheet-section.is-collapsed .collapsible-sheet-heading {
     margin-bottom: 0;
 }
-@media print {
-    .collapsible-sheet-toggle {
-        display: none !important;
-    }
-}
 </style>

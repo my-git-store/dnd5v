@@ -116,15 +116,6 @@ function openLongRest() {
 </template>
 
 <style scoped>
-@media (max-width: 560px) {
-    .rest-actions-controls {
-        align-items: stretch;
-        flex-direction: column;
-    }
-    .rest-actions-controls .c-compact-field {
-        min-width: 0;
-    }
-}
 .rest-actions-panel {
     grid-column: 1 / -1;
 }
@@ -144,10 +135,5 @@ function openLongRest() {
     border-radius: 8px;
     background: #edf3e5;
     color: #49633d;
-}
-@media print {
-    .rest-actions-controls {
-        display: none !important;
-    }
 }
 </style>

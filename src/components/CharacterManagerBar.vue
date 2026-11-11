@@ -107,28 +107,4 @@ const emit = defineEmits<{
     color: var(--sheet-danger);
     background: #fff0ed;
 }
-@media (max-width: 560px) {
-    .character-manager {
-        align-items: stretch;
-        flex-direction: column;
-        padding: 12px;
-    }
-    .character-manager-controls {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) repeat(3, auto);
-        justify-content: stretch;
-    }
-    .character-manager-controls :deep(.n-button) {
-        min-width: 0;
-        padding-inline: 10px;
-    }
-    .character-manager-controls {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-@media print {
-    .character-manager {
-        display: none !important;
-    }
-}
 </style>
