@@ -1,33 +1,27 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
-import type { CharacterGender } from '@/types/character'
 import type { CharacterIdentityPatch, CharacterSheetView } from '@/types/characterView'
 
 type Emits = {
     update: [patch: CharacterIdentityPatch]
 }
 
-const props = defineProps<{
+type Props = {
     character: CharacterSheetView
     disabled?: boolean
-    gender?: CharacterGender
-}>()
+}
+
+defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
-const selectedGender = computed(() => props.gender ?? props.character.creation?.gender ?? 'female')
-
-const genderLocked = computed(() => Boolean(props.character.creation))
-
-function update(key: keyof CharacterIdentityPatch, value: unknown) {
-    if (key === 'gender') {
-        emit('update', { gender: value === 'male' ? 'male' : 'female' })
-        return
-    }
+function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unknown) {
     if (key === 'level' || key === 'experience') {
         const parsed = Number(value)
-        emit('update', { [key]: Number.isFinite(parsed) ? Math.trunc(parsed) : 0 })
+
+        const integer = Number.isFinite(parsed) ? Math.trunc(parsed) : 0
+        emit('update', {
+            [key]: key === 'level' ? Math.min(20, Math.max(1, integer)) : Math.max(0, integer),
+        })
         return
     }
     emit('update', { [key]: String(value ?? '') } as CharacterIdentityPatch)
@@ -37,111 +31,85 @@ function update(key: keyof CharacterIdentityPatch, value: unknown) {
 <template>
     <div class="identity-fields">
         <div class="identity-grid">
-            <NFormItem label="Имя">
+            <NFormItem label="Имя" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
                     :value="character.name"
+                    :input-props="{ 'aria-label': 'Имя' }"
                     @update:value="update('name', $event)"
                 />
             </NFormItem>
-            <NFormItem label="Вид">
+            <NFormItem label="Вид" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
                     :value="character.race.name"
+                    :input-props="{ 'aria-label': 'Вид' }"
                     @update:value="update('raceName', $event)"
                 />
             </NFormItem>
-            <NFormItem label="Класс">
+            <NFormItem label="Класс" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
                     :value="character.class"
+                    :input-props="{ 'aria-label': 'Класс' }"
                     @update:value="update('className', $event)"
                 />
             </NFormItem>
-            <NFormItem label="Подкласс">
+            <NFormItem label="Подкласс" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
                     :value="character.subclass"
+                    :input-props="{ 'aria-label': 'Подкласс' }"
                     @update:value="update('subclass', $event)"
                 />
             </NFormItem>
-            <NFormItem label="Предыстория">
-                <NInput
-                    :disabled="disabled"
-                    :value="character.background.name"
-                    @update:value="update('backgroundName', $event)"
-                />
-            </NFormItem>
-            <NFormItem label="Мировоззрение">
+            <NFormItem label="Мировоззрение" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
                     :value="character.alignment"
+                    :input-props="{ 'aria-label': 'Мировоззрение' }"
                     @update:value="update('alignment', $event)"
                 />
             </NFormItem>
-            <NFormItem label="Уровень">
+            <NFormItem label="Уровень" :show-feedback="false">
                 <NInputNumber
-                    min="1"
-                    max="20"
-                    step="1"
+                    :min="1"
+                    :max="20"
+                    :step="1"
                     :show-button="false"
                     :disabled="disabled"
                     :value="character.level"
+                    :input-props="{ 'aria-label': 'Уровень' }"
                     @update:value="update('level', $event)"
                 />
             </NFormItem>
-            <NFormItem label="Опыт">
+            <NFormItem label="Опыт" :show-feedback="false">
                 <NInputNumber
-                    min="0"
-                    step="1"
+                    :min="0"
+                    :step="1"
                     :show-button="false"
                     :disabled="disabled"
                     :value="character.experience"
+                    :input-props="{ 'aria-label': 'Опыт' }"
                     @update:value="update('experience', $event)"
                 />
             </NFormItem>
-            <fieldset class="c-gender-choice identity-gender">
-                <legend>Пол персонажа</legend>
-                <div class="c-gender-choice-options" role="radiogroup" aria-label="Пол персонажа">
-                    <button
-                        type="button"
-                        class="c-gender-choice-button"
-                        :class="{ selected: selectedGender === 'female' }"
-                        :aria-pressed="selectedGender === 'female'"
-                        :disabled="disabled || genderLocked"
-                        :title="
-                            genderLocked ? 'Пол фиксируется после создания персонажа.' : undefined
-                        "
-                        @click="update('gender', 'female')"
-                    >
-                        Женский
-                    </button>
-                    <button
-                        type="button"
-                        class="c-gender-choice-button"
-                        :class="{ selected: selectedGender === 'male' }"
-                        :aria-pressed="selectedGender === 'male'"
-                        :disabled="disabled || genderLocked"
-                        :title="
-                            genderLocked ? 'Пол фиксируется после создания персонажа.' : undefined
-                        "
-                        @click="update('gender', 'male')"
-                    >
-                        Мужской
-                    </button>
-                </div>
-            </fieldset>
         </div>
     </div>
 </template>
 
 <style scoped>
 .identity-grid {
-    /* display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px; */
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: 14px;
+}
+
+.identity-grid > * {
+    min-width: 0;
+}
+
+.identity-grid :deep(.n-input-number) {
+    width: 100%;
 }
 </style>

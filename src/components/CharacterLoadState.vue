@@ -10,7 +10,9 @@ const emit = defineEmits<Emits>()
 </script>
 <template>
     <div v-if="loading" class="load-state" role="status" aria-label="Загрузка персонажа">
-        <div class="load-state-spinner"><NSpin size="large" /></div>
+        <div class="load-state-spinner">
+            <NSpin size="large" />
+        </div>
     </div>
     <div v-else-if="error" class="load-state error-state" role="alert">
         <p>{{ error }}</p>
@@ -23,6 +25,7 @@ const emit = defineEmits<Emits>()
 .error-state {
     color: var(--sheet-danger);
 }
+
 .load-state {
     min-height: clamp(320px, calc(100dvh - 110px), 720px);
     box-sizing: border-box;
@@ -31,16 +34,19 @@ const emit = defineEmits<Emits>()
     padding: 24px;
     text-align: center;
 }
+
 .load-state-spinner {
     display: grid;
     place-items: center;
     width: clamp(136px, 18vw, 184px);
     height: clamp(136px, 18vw, 184px);
 }
-.load-state-spinner > * {
+
+.load-state-spinner>* {
     width: 100%;
     height: 100%;
 }
+
 .error-state {
     gap: 12px;
 }

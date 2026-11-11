@@ -1,121 +1,77 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { proficiencyBonus } from '@/domain/proficiencyBonus'
 import { signedModifier } from '@/domain/abilityModifier'
+import type { CharacterIdentityPatch, CharacterSheetView } from '@/types/characterView'
 
-type Emits = {
-    save: []
-    'open-details': []
-}
+import IdentityFields from './IdentityFields.vue'
 
-defineProps<{
+type Props = {
+    character: CharacterSheetView
     dirty: boolean
     saving: boolean
     saved: boolean
     saveError: string | null
-    name: string
-    race: string
-    speciesIcon?: string
-    className: string
-    classIcon?: string
-    backgroundName: string
-    backgroundIcon?: string
-    level: number
-    experience: number
-}>()
+}
+
+type Emits = {
+    save: []
+    update: [patch: CharacterIdentityPatch]
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
-function hideBrokenAsset(event: Event) {
-    const image = event.currentTarget as HTMLImageElement | null
-    if (image) {
-        image.hidden = true
-        image.parentElement
-            ?.querySelector<HTMLElement>('[data-asset-fallback]')
-            ?.removeAttribute('hidden')
-    }
-}
+const proficiencyLabel = computed(() => {
+    const bonus = proficiencyBonus(props.character.level)
+    return bonus === null ? '-' : signedModifier(bonus)
+})
 </script>
+
 <template>
     <header class="sheet-header">
-        <div>
-            <h1 class="sheet-character-name">{{ name || 'Безымянный герой' }}</h1>
-            <dl class="header-summary">
-                <div class="header-species-entry">
-                    <dt>Раса</dt>
-                    <dd class="header-species-value">
-                        <span class="species-avatar" aria-hidden="true"><span data-asset-fallback
-                                :hidden="Boolean(speciesIcon)">{{
-                                    race?.slice(0, 1) || '✦'
-                                }}</span><img v-if="speciesIcon" :src="speciesIcon" class="species-avatar-image" alt=""
-                                @error="hideBrokenAsset" /></span><span>{{ race || 'Не заполнено' }}</span>
-                    </dd>
-                </div>
-                <div class="header-class-entry">
-                    <dt>Класс</dt>
-                    <dd class="header-class-value">
-                        <span class="class-avatar" aria-hidden="true"><span data-asset-fallback
-                                :hidden="Boolean(classIcon)">{{
-                                    className?.slice(0, 1) || '✦'
-                                }}</span><img v-if="classIcon" :src="classIcon" class="class-avatar-image" alt=""
-                                @error="hideBrokenAsset" /></span><span>{{ className || 'Не выбран' }}</span>
-                    </dd>
-                </div>
-                <div class="header-background-entry">
-                    <dt>Предыстория</dt>
-                    <dd class="header-background-value">
-                        <span class="background-avatar" aria-hidden="true"><span data-asset-fallback
-                                :hidden="Boolean(backgroundIcon)">{{
-                                    backgroundName?.slice(0, 1) || '✦'
-                                }}</span><img v-if="backgroundIcon" :src="backgroundIcon"
-                                class="background-avatar-image" alt="" @error="hideBrokenAsset" /></span><span>{{
-                                    backgroundName || 'Не выбрана' }}</span>
-                    </dd>
-                </div>
-                <div>
-                    <dt>Уровень</dt>
-                    <dd>{{ level }}</dd>
-                </div>
-                <div>
-                    <dt>Опыт</dt>
-                    <dd>{{ experience }}</dd>
-                </div>
-                <div>
-                    <dt>Бонус владения</dt>
-                    <dd>
-                        {{
-                            proficiencyBonus(level) === null
-                                ? '—'
-                                : signedModifier(proficiencyBonus(level)!)
-                        }}
-                    </dd>
-                </div>
-            </dl>
-        </div>
-        <div class="sheet-header-actions">
-            <NButton class="header-details-button" type="default" :disabled="saving" @click="emit('open-details')">
-                Сведения</NButton>
-            <NButton class="sheet-save-button" :class="{ 'sheet-save-button-saved': saved }" type="primary"
-                :loading="saving" :disabled="!dirty" @click="emit('save')">{{ saved ? 'Сохранено' : 'Сохранить' }}
+        <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="min-w-0 flex-1">
+                <h1 class="sheet-character-name">{{ character.name || 'Безымянный герой' }}</h1>
+                <p class="header-proficiency">
+                    Бонус владения <strong>{{ proficiencyLabel }}</strong>
+                </p>
+            </div>
+            <NButton
+                class="sheet-save-button shrink-0"
+                :class="{ 'sheet-save-button-saved': saved }"
+                type="primary"
+                :loading="saving"
+                :disabled="!dirty || saving"
+                @click="emit('save')"
+            >
+                {{ saved ? 'Сохранено' : 'Сохранить' }}
             </NButton>
         </div>
+        <IdentityFields
+            :character="character"
+            :disabled="saving"
+            @update="emit('update', $event)"
+        />
+        <p v-if="saveError" class="c-status-text error" role="alert">{{ saveError }}</p>
     </header>
 </template>
 
 <style scoped>
 .sheet-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
+    display: grid;
+    gap: 18px;
     margin-bottom: 22px;
-    padding: 24px 26px 22px;
+    padding: 23px 25px 21px;
     position: relative;
-    background: linear-gradient(135deg, rgba(255, 251, 240, 0.95), rgba(250, 235, 205, 0.82));
     border: 1px solid var(--sheet-line);
-    border-radius: 18px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(255, 251, 240, 0.94), rgba(247, 229, 195, 0.82));
     box-shadow:
-        0 10px 26px rgba(83, 59, 38, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        0 8px 22px rgba(83, 59, 38, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .sheet-header::before,
@@ -125,7 +81,13 @@ function hideBrokenAsset(event: Event) {
     left: 24px;
     right: 24px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(155, 106, 47, 0.48), transparent);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(122, 62, 67, 0.5),
+        rgba(196, 155, 92, 0.65),
+        transparent
+    );
 }
 
 .sheet-header::before {
@@ -136,178 +98,9 @@ function hideBrokenAsset(event: Event) {
     bottom: 10px;
 }
 
-.sheet-header>div:first-child {
-    flex: 1;
-    max-width: 680px;
-    min-width: 0;
-}
-
-.sheet-header-actions {
-    display: flex;
-    align-items: flex-start;
-    flex: 0 0 auto;
-    gap: 8px;
-    margin-top: 4px;
-}
-
-.sheet-header-actions :deep(.n-button) {
-    flex: 0 0 auto;
-}
-
-.header-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 22px;
-    margin: 14px 0 0;
-}
-
-.header-summary div {
-    display: grid;
-    gap: 2px;
-    min-width: 72px;
-}
-
-.header-summary dt {
-    color: var(--sheet-faded);
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
-
-.header-summary dd {
-    margin: 0;
-    font-size: 0.9rem;
-    font-weight: 700;
-    overflow-wrap: anywhere;
-}
-
-.header-class-entry {
-    min-width: 120px !important;
-}
-
-.header-class-value {
-    display: inline-flex !important;
-    align-items: center;
-    gap: 8px;
-}
-
-.header-species-entry {
-    min-width: 120px !important;
-}
-
-.header-species-value {
-    display: inline-flex !important;
-    align-items: center;
-    gap: 8px;
-}
-
-.header-background-entry {
-    min-width: 140px !important;
-}
-
-.header-background-value {
-    display: inline-flex !important;
-    align-items: center;
-    gap: 8px;
-}
-
-.species-avatar {
-    display: inline-grid;
-    place-items: center;
-    position: relative;
-    flex: 0 0 44px;
-    width: 44px;
-    height: 44px;
-    overflow: hidden;
-    border: 1px solid #b99967;
-    border-radius: 50%;
-    background: #f5e5c4;
-    color: #704b25;
-    font-family: var(--font-serif);
-    font-size: 1.1rem;
-    font-weight: 800;
-}
-
-.species-avatar-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center 38%;
-    transform: translateY(-4%);
-}
-
-.class-avatar {
-    display: inline-grid;
-    place-items: center;
-    flex: 0 0 44px;
-    width: 44px;
-    height: 44px;
-    overflow: hidden;
-    border: 1px solid #b99967;
-    border-radius: 50%;
-    background: #f5e5c4;
-    color: #704b25;
-    font-family: var(--font-serif);
-    font-size: 1.1rem;
-    font-weight: 800;
-}
-
-.class-avatar-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.background-avatar {
-    display: inline-grid;
-    place-items: center;
-    flex: 0 0 44px;
-    width: 44px;
-    height: 44px;
-    overflow: hidden;
-    border: 1px solid #b99967;
-    border-radius: 50%;
-    background: #f5e5c4;
-    color: #704b25;
-    font-family: var(--font-serif);
-    font-size: 1.1rem;
-    font-weight: 800;
-}
-
-.background-avatar-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center 38%;
-    transform: translateY(-4%);
-}
-
-.sheet-header {
-    padding: 23px 25px 21px;
-    border-color: #b99a69;
-    border-radius: 10px;
-    background: linear-gradient(135deg, rgba(255, 251, 240, 0.94), rgba(247, 229, 195, 0.82));
-    box-shadow:
-        0 8px 22px rgba(83, 59, 38, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.72);
-}
-
-.sheet-header::before,
-.sheet-header::after {
-    background: linear-gradient(90deg,
-            transparent,
-            rgba(122, 62, 67, 0.5),
-            rgba(196, 155, 92, 0.65),
-            transparent);
-}
-
 .sheet-character-name {
     margin: 0;
-    color: #3e2c1c;
+    color: var(--sheet-ink);
     font-family: var(--font-serif);
     font-size: clamp(1.35rem, 2.5vw, 1.95rem);
     font-weight: 800;
@@ -316,38 +109,21 @@ function hideBrokenAsset(event: Event) {
     overflow-wrap: anywhere;
 }
 
-.header-summary {
-    gap: 8px 11px;
+.header-proficiency {
+    margin: 8px 0 0;
+    color: var(--sheet-faded);
+    font-size: 0.8rem;
 }
 
-.header-summary div {
-    min-width: 84px;
-    padding: 7px 11px;
-    border-left: 2px solid rgba(196, 155, 92, 0.42);
-    background: rgba(255, 249, 233, 0.44);
+.header-proficiency strong {
+    margin-left: 6px;
+    color: var(--sheet-ink);
 }
 
-.header-summary dt {
-    color: #8d6a40;
-}
-
-.header-summary dd {
-    color: #49331f;
-    font-family: var(--font-serif);
-}
-
-.c-character-sheet .sheet-save-button-saved {
+.sheet-save-button-saved {
     border-color: rgba(63, 112, 73, 0.28);
     background: #edf5eb;
     color: var(--sheet-success);
     box-shadow: 0 4px 10px rgba(63, 112, 73, 0.16);
-}
-
-.c-character-sheet .sheet-save-button.is-disabled {
-    opacity: 1;
-}
-
-.c-character-sheet .sheet-save-button:disabled {
-    box-shadow: none;
 }
 </style>
