@@ -60,7 +60,12 @@ function save() {
     <NModal :show="true" class="w-[600px]!" :on-close="cancel">
         <NCard class="c-character-editor-card">
             <template #header>Основные сведения</template>
-            <IdentityFields :character="draft" :gender="draftGender" :disabled="disabled" @update="update" />
+            <IdentityFields
+                :character="draft"
+                :gender="draftGender"
+                :disabled="disabled"
+                @update="update"
+            />
             <div class="w-full justify-end flex gap-4">
                 <NButton :disabled="disabled" @click="cancel">Отмена</NButton>
                 <NButton type="primary" :disabled="disabled" @click="save">Сохранить</NButton>

@@ -37,7 +37,9 @@ async function deleteFunction(): Promise<void> {
                 <span v-if="props.entityName">{{ props.entityName }}?</span><span v-else>?</span>
             </template>
             <div class="flex w-full gap-4">
-                <NButton class="flex-1" :disabled="isLoading" @click="emit('close')">Отмена</NButton>
+                <NButton class="flex-1" :disabled="isLoading" @click="emit('close')"
+                    >Отмена</NButton
+                >
                 <NButton class="flex-1" type="error" :loading="isLoading" @click="deleteFunction"
                     >Удалить</NButton
                 >

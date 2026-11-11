@@ -63,9 +63,9 @@ const initiative = computed(() =>
     draft.value.initiative.mode === 'manual'
         ? signedModifier(draft.value.initiative.value ?? 0)
         : signedModifier(
-            abilityModifier(draft.value.abilities.dexterity) +
-            draft.value.initiative.additionalBonus,
-        ),
+              abilityModifier(draft.value.abilities.dexterity) +
+                  draft.value.initiative.additionalBonus,
+          ),
 )
 
 function snapshot(value: CharacterNpc | undefined): string {
@@ -153,12 +153,12 @@ function openEntry(kind: 'features' | 'actions', entry?: CharacterNpcEntry) {
     const next = entry
         ? { ...entry }
         : {
-            id: `npc-${kind}-${Date.now()}`,
-            name: '',
-            description: '',
-            attackBonus: '',
-            damage: '',
-        }
+              id: `npc-${kind}-${Date.now()}`,
+              name: '',
+              description: '',
+              attackBonus: '',
+              damage: '',
+          }
     entryModal.item.value = next
     entryModal.props.value = { onSave: (value: CharacterNpcEntry) => saveEntry(kind, value) }
     entryModal.openOrClose()
@@ -217,49 +217,89 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                     <NInput v-model:value="draft.challengeRating" />
                 </NFormItem>
                 <NFormItem label="Бонус мастерства">
-                    <NInputNumber min="0" :value="draft.proficiencyBonus"
-                        @update:value="updateNumber('proficiencyBonus', $event)" />
+                    <NInputNumber
+                        min="0"
+                        :value="draft.proficiencyBonus"
+                        @update:value="updateNumber('proficiencyBonus', $event)"
+                    />
                 </NFormItem>
-                <label class="npc-mode-field"><span>Класс доспеха</span>
-                    <NSelect class="c-select-control" :value="draft.armorClass.mode" :options="armorClassModeOptions"
-                        aria-label="Режим класса доспеха" @update:value="setCalculationMode('armorClass', $event)" />
+                <label class="npc-mode-field"
+                    ><span>Класс доспеха</span>
+                    <NSelect
+                        class="c-select-control"
+                        :value="draft.armorClass.mode"
+                        :options="armorClassModeOptions"
+                        aria-label="Режим класса доспеха"
+                        @update:value="setCalculationMode('armorClass', $event)"
+                    />
                 </label>
                 <NFormItem label="Значение КД">
-                    <NInputNumber min="0" :value="draft.armorClass.value"
-                        @update:value="updateNumber('armorClass', $event)" />
+                    <NInputNumber
+                        min="0"
+                        :value="draft.armorClass.value"
+                        @update:value="updateNumber('armorClass', $event)"
+                    />
                 </NFormItem>
                 <NFormItem label="Добавка к КД">
-                    <NInputNumber min="0" :value="draft.armorClass.additionalBonus"
-                        @update:value="updateNumber('armorBonus', $event)" />
+                    <NInputNumber
+                        min="0"
+                        :value="draft.armorClass.additionalBonus"
+                        @update:value="updateNumber('armorBonus', $event)"
+                    />
                 </NFormItem>
                 <NFormItem label="Максимум HP">
-                    <NInputNumber min="0" :value="draft.hitPoints.max" @update:value="updateNumber('hpMax', $event)" />
+                    <NInputNumber
+                        min="0"
+                        :value="draft.hitPoints.max"
+                        @update:value="updateNumber('hpMax', $event)"
+                    />
                 </NFormItem>
                 <NFormItem label="Текущие HP">
-                    <NInputNumber min="0" :value="draft.hitPoints.current"
-                        @update:value="updateNumber('hpCurrent', $event)" />
+                    <NInputNumber
+                        min="0"
+                        :value="draft.hitPoints.current"
+                        @update:value="updateNumber('hpCurrent', $event)"
+                    />
                 </NFormItem>
                 <NFormItem label="Временные HP">
-                    <NInputNumber min="0" :value="draft.hitPoints.temporary"
-                        @update:value="updateNumber('hpTemporary', $event)" />
+                    <NInputNumber
+                        min="0"
+                        :value="draft.hitPoints.temporary"
+                        @update:value="updateNumber('hpTemporary', $event)"
+                    />
                 </NFormItem>
                 <NFormItem label="Скорость">
-                    <NInputNumber min="0" :value="draft.speed" @update:value="updateNumber('speed', $event)" />
+                    <NInputNumber
+                        min="0"
+                        :value="draft.speed"
+                        @update:value="updateNumber('speed', $event)"
+                    />
                 </NFormItem>
-                <label class="npc-mode-field"><span>Режим инициативы</span>
-                    <NSelect class="c-select-control" :value="draft.initiative.mode ?? 'computed'"
-                        :options="initiativeModeOptions" aria-label="Режим инициативы"
-                        @update:value="setCalculationMode('initiative', $event)" />
+                <label class="npc-mode-field"
+                    ><span>Режим инициативы</span>
+                    <NSelect
+                        class="c-select-control"
+                        :value="draft.initiative.mode ?? 'computed'"
+                        :options="initiativeModeOptions"
+                        aria-label="Режим инициативы"
+                        @update:value="setCalculationMode('initiative', $event)"
+                    />
                 </label>
                 <NFormItem v-if="draft.initiative.mode !== 'manual'" label="Добавка к инициативе">
-                    <NInputNumber :value="draft.initiative.additionalBonus"
-                        @update:value="updateNumber('initiativeBonus', $event)" />
+                    <NInputNumber
+                        :value="draft.initiative.additionalBonus"
+                        @update:value="updateNumber('initiativeBonus', $event)"
+                    />
                 </NFormItem>
                 <NFormItem v-else label="Ручная инициатива">
-                    <NInputNumber :value="draft.initiative.value ?? 0" @update:value="updateInitiativeValue($event)" />
+                    <NInputNumber
+                        :value="draft.initiative.value ?? 0"
+                        @update:value="updateInitiativeValue($event)"
+                    />
                 </NFormItem>
                 <div class="npc-derived-card">
-                    <span>Инициатива</span><strong>{{ initiative }}</strong><small>{{
+                    <span>Инициатива</span><strong>{{ initiative }}</strong
+                    ><small>{{
                         draft.initiative.mode === 'manual'
                             ? 'Ручное значение'
                             : 'Расчёт: модификатор Ловкости + добавка'
@@ -282,9 +322,13 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
             <div class="npc-ability-grid">
                 <div v-for="key in abilityKeys" :key="key" class="c-field-card">
                     <NFormItem :label="abilityLabels[key]">
-                        <NInputNumber min="1" max="30" :value="draft.abilities[key]"
-                            @update:value="updateAbility(key, $event)" />
-                    </NFormItem><strong class="npc-ability-modifier">{{
+                        <NInputNumber
+                            min="1"
+                            max="30"
+                            :value="draft.abilities[key]"
+                            @update:value="updateAbility(key, $event)"
+                        /> </NFormItem
+                    ><strong class="npc-ability-modifier">{{
                         signedModifier(abilityModifier(draft.abilities[key]))
                     }}</strong>
                 </div>
@@ -307,10 +351,18 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                             <NInput v-model:value="entry.name" />
                         </NFormItem>
                         <NFormItem label="Бонус">
-                            <NInputNumber :value="entry.value" @update:value="updateBonus(entry, $event)" />
+                            <NInputNumber
+                                :value="entry.value"
+                                @update:value="updateBonus(entry, $event)"
+                            />
                         </NFormItem>
-                        <NButton type="error" aria-label="Удалить навык" @click="removeBonus('skills', entry.id)">
-                            Удалить</NButton>
+                        <NButton
+                            type="error"
+                            aria-label="Удалить навык"
+                            @click="removeBonus('skills', entry.id)"
+                        >
+                            Удалить</NButton
+                        >
                     </div>
                 </div>
                 <div>
@@ -326,17 +378,28 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                             <NInput v-model:value="entry.name" />
                         </NFormItem>
                         <NFormItem label="Бонус">
-                            <NInputNumber :value="entry.value" @update:value="updateBonus(entry, $event)" />
+                            <NInputNumber
+                                :value="entry.value"
+                                @update:value="updateBonus(entry, $event)"
+                            />
                         </NFormItem>
-                        <NButton type="error" aria-label="Удалить спасбросок"
-                            @click="removeBonus('savingThrows', entry.id)">Удалить</NButton>
+                        <NButton
+                            type="error"
+                            aria-label="Удалить спасбросок"
+                            @click="removeBonus('savingThrows', entry.id)"
+                            >Удалить</NButton
+                        >
                     </div>
                 </div>
             </div>
         </section>
 
-        <section v-for="kind in ['features', 'actions'] as const" :key="kind" class="c-sheet-section"
-            :aria-labelledby="`npc-${kind}-title`">
+        <section
+            v-for="kind in ['features', 'actions'] as const"
+            :key="kind"
+            class="c-sheet-section"
+            :aria-labelledby="`npc-${kind}-title`"
+        >
             <div class="c-section-heading">
                 <h2 :id="`npc-${kind}-title`">
                     {{ kind === 'features' ? 'Особенности' : 'Действия' }}
@@ -354,8 +417,11 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                 <div>
                     <h3>{{ entry.name || 'Без названия' }}</h3>
                     <p>{{ entry.description || 'Описание не указано.' }}</p>
-                    <small v-if="entry.attackBonus || entry.damage">{{ entry.attackBonus
-                        }}<span v-if="entry.attackBonus && entry.damage"> · </span>{{ entry.damage }}</small>
+                    <small v-if="entry.attackBonus || entry.damage"
+                        >{{ entry.attackBonus
+                        }}<span v-if="entry.attackBonus && entry.damage"> · </span
+                        >{{ entry.damage }}</small
+                    >
                 </div>
                 <div class="c-entry-actions">
                     <NButton @click="openEntry(kind, entry)">Изменить</NButton>
@@ -363,8 +429,12 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                 </div>
             </div>
         </section>
-        <NpcEntryEditorModal v-if="entryModal.isShowModal.value && entryModal.item.value && entryModal.props.value"
-            :entry="entryModal.item.value" v-bind="entryModal.props.value" @close="entryModal.openOrClose" />
+        <NpcEntryEditorModal
+            v-if="entryModal.isShowModal.value && entryModal.item.value && entryModal.props.value"
+            :entry="entryModal.item.value"
+            v-bind="entryModal.props.value"
+            @close="entryModal.openOrClose"
+        />
     </div>
 </template>
 
@@ -414,12 +484,12 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
     gap: 12px;
 }
 
-.npc-field-grid> :nth-child(1),
-.npc-field-grid> :nth-child(2),
-.npc-field-grid> :nth-child(3),
-.npc-field-grid> :nth-child(4),
-.npc-field-grid> :nth-child(15),
-.npc-field-grid> :nth-child(16) {
+.npc-field-grid > :nth-child(1),
+.npc-field-grid > :nth-child(2),
+.npc-field-grid > :nth-child(3),
+.npc-field-grid > :nth-child(4),
+.npc-field-grid > :nth-child(15),
+.npc-field-grid > :nth-child(16) {
     grid-column: span 2;
 }
 

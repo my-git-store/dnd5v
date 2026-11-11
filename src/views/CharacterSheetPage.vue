@@ -736,14 +736,17 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
     align-content: center;
     text-align: center;
 }
+
 .character-empty-state h1 {
     margin: 0;
     font-family: var(--font-serif);
 }
+
 .character-empty-state p {
     margin: 0 0 8px;
     color: var(--sheet-muted);
 }
+
 .character-creation-root {
     width: 100%;
     min-width: 0;
@@ -756,25 +759,31 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
         0 10px 26px rgba(83, 59, 38, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
+
 .character-creation-root :deep(.creation-hero) {
     margin-top: 0;
 }
+
 .character-sheet-creation-mode {
     padding-top: 24px;
 }
+
 .character-sheet-creation-mode :deep(.creation-workspace) {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
 }
+
 .character-sheet-creation-mode :deep(.creation-main-column) {
     width: 100%;
 }
+
 .sheet-tabs-row {
     display: flex;
     align-items: flex-end;
     gap: 10px;
     margin: 0 4px;
 }
+
 .sheet-tabs {
     flex: 1 1 auto;
     min-width: 0;
@@ -782,51 +791,62 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
     padding: 0 10px;
     border-bottom: 1px solid var(--sheet-line);
 }
+
 .sheet-tab-stage {
     position: relative;
     min-height: 260px;
 }
+
 .sheet-tab-panel {
     min-width: 0;
     transform-origin: 50% 0;
 }
+
 .sheet-tab-panel-active {
     animation-duration: 0.42s;
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     animation-fill-mode: both;
     will-change: opacity, transform, filter;
 }
+
 .sheet-tab-panel-forward {
     animation-name: sheet-tab-enter-forward;
 }
+
 .sheet-tab-panel-backward {
     animation-name: sheet-tab-enter-backward;
 }
+
 @keyframes sheet-tab-enter-forward {
     from {
         opacity: 0;
         transform: translate3d(22px, 8px, 0) scale(0.988);
         filter: blur(2px);
     }
+
     62% {
         opacity: 1;
         filter: blur(0);
     }
+
     to {
         opacity: 1;
         transform: translate3d(0, 0, 0) scale(1);
     }
 }
+
 @keyframes sheet-tab-enter-backward {
     from {
         opacity: 0;
         transform: translate3d(-22px, 8px, 0) scale(0.988);
         filter: blur(2px);
     }
+
     62% {
         opacity: 1;
         filter: blur(0);
     }
+
     to {
         opacity: 1;
         transform: translate3d(0, 0, 0) scale(1);
