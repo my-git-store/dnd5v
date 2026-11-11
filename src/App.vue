@@ -24,11 +24,9 @@ const themeOverrides = computed(() => ({
             <n-dialog-provider>
                 <n-modal-provider>
                     <n-message-provider placement="bottom-right" :duration="3000" :closable="true">
-                        <main class="flex w-full justify-center">
-                            <NScrollbar class="w-[1000px] h-[800px]">
-                                <CharacterSheetPage class="overflow-auto" />
-                            </NScrollbar>
-                        </main>
+                        <NScrollbar class="h-[800px]">
+                            <CharacterSheetPage class="overflow-auto w-[1000px]" />
+                        </NScrollbar>
                     </n-message-provider>
                 </n-modal-provider>
             </n-dialog-provider>
