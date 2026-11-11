@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AbilityFields from './AbilityFields.vue'
 import SkillFields from './SkillFields.vue'
-import SavingThrowFields from './SavingThrowFields.vue'
 import CharacterFeatList from './CharacterFeatList.vue'
 import type { AbilityKey } from '@/types/character'
 import type {
@@ -157,9 +156,14 @@ function choiceSource(choice: ChoiceDefinition) {
             </div>
         </section>
         <div class="main-sheet-grid">
-            <AbilityFields :abilities="character.abilities" :disabled="disabled" @update="updateAbility" />
-            <SavingThrowFields :abilities="character.abilities" :saving-throws="character.savingThrows"
-                :level="character.level" :disabled="disabled" @update="updateSavingThrow" />
+            <AbilityFields
+                :abilities="character.abilities"
+                :saving-throws="character.savingThrows"
+                :level="character.level"
+                :disabled="disabled"
+                @update="updateAbility"
+                @update:saving-throw="updateSavingThrow"
+            />
             <SkillFields :skills="character.skills" :abilities="character.abilities" :level="character.level"
                 :class-skill-ids="character.creation?.classSkillIds ?? []"
                 :race-skill-ids="character.creation?.raceSkillIds ?? []" :background-skill-ids="character.creation?.backgroundSkillIds ??
@@ -410,23 +414,14 @@ function choiceSource(choice: ChoiceDefinition) {
 
 .main-sheet-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
     align-items: start;
 }
 
 .main-sheet-grid>.c-sheet-section {
     height: 100%;
     box-sizing: border-box;
-}
-
-.main-sheet-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.main-sheet-grid> :deep(.skills-panel) {
-    grid-column: 1 / -1;
 }
 
 .feature-reference-list {

@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "format": "eslint . --fix && prettier --write \"src/**/*.{ts,vue,css}\"",
     "dev": "vite",
-    "build": "vue-tsc -b && vite build && node scripts/copy-spa-fallback.mjs",
+    "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "predeploy": "node scripts/build-pages.mjs",
     "deploy": "npx gh-pages -d dist"

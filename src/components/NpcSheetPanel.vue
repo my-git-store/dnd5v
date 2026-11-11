@@ -184,18 +184,9 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
             <div class="npc-sheet-actions">
                 <NButton type="primary" :loading="saving" :disabled="!dirty" @click="onSave">{{
                     saved ? 'Сохранено' : 'Сохранить'
-                }}</NButton>
+                    }}</NButton>
             </div>
         </header>
-        <p v-if="saveError" class="c-status-text error" role="alert" aria-live="assertive">
-            {{ saveError }}
-        </p>
-        <p v-else-if="dirty" class="c-status-text warning" role="status" aria-live="polite">
-            Есть несохранённые изменения
-        </p>
-        <p v-else-if="saved" class="c-status-text success" role="status" aria-live="polite">
-            Сохранено
-        </p>
 
         <section class="c-sheet-section npc-identity-section" aria-labelledby="npc-identity-title">
             <div class="c-section-heading">
@@ -291,7 +282,7 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                             @update:value="updateAbility(key, $event)" />
                     </NFormItem><strong class="npc-ability-modifier">{{
                         signedModifier(abilityModifier(draft.abilities[key]))
-                    }}</strong>
+                        }}</strong>
                 </div>
             </div>
         </section>
@@ -362,7 +353,7 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                     <h3>{{ entry.name || 'Без названия' }}</h3>
                     <p>{{ entry.description || 'Описание не указано.' }}</p>
                     <small v-if="entry.attackBonus || entry.damage">{{ entry.attackBonus
-                        }}<span v-if="entry.attackBonus && entry.damage"> · </span>{{ entry.damage }}</small>
+                    }}<span v-if="entry.attackBonus && entry.damage"> · </span>{{ entry.damage }}</small>
                 </div>
                 <div class="c-entry-actions">
                     <NButton @click="openEntry(kind, entry)">Изменить</NButton>

@@ -22,7 +22,6 @@ const emit = defineEmits<Emits>()
             <span class="c-eyebrow">Персонажи</span>
             <strong v-if="characters.length">Текущий лист персонажа</strong>
             <strong v-else>Персонажей пока нет</strong>
-            <small v-if="dirty">Есть несохранённые изменения.</small>
         </div>
         <div class="character-manager-controls">
             <NButton type="default" :disabled="disabled" @click="emit('create')">Создать персонажа</NButton>

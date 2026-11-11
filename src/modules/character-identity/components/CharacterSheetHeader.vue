@@ -68,7 +68,7 @@ function hideBrokenAsset(event: Event) {
                                     backgroundName?.slice(0, 1) || '✦'
                                 }}</span><img v-if="backgroundIcon" :src="backgroundIcon"
                                 class="background-avatar-image" alt="" @error="hideBrokenAsset" /></span><span>{{
-                            backgroundName || 'Не выбрана' }}</span>
+                                    backgroundName || 'Не выбрана' }}</span>
                     </dd>
                 </div>
                 <div>
@@ -89,21 +89,7 @@ function hideBrokenAsset(event: Event) {
                         }}
                     </dd>
                 </div>
-                <div>
-                    <dt>Редакция</dt>
-                    <dd>D&amp;D 2024 / 5.5</dd>
-                </div>
             </dl>
-            <p v-if="saveError" class="c-status-text error" role="alert">{{ saveError }}</p>
-            <p v-else-if="saving" class="c-status-text pending" role="status" aria-live="polite">
-                Сохраняется…
-            </p>
-            <p v-else-if="dirty" class="c-status-text warning" role="status" aria-live="polite">
-                Есть несохранённые изменения
-            </p>
-            <p v-else-if="saved" class="c-status-text success" role="status" aria-live="polite">
-                Сохранено
-            </p>
         </div>
         <div class="sheet-header-actions">
             <NButton class="header-details-button" type="default" :disabled="saving" @click="emit('open-details')">

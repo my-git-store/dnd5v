@@ -93,9 +93,9 @@ const activeEncounter = computed(
 const orderedParticipants = computed(() =>
     activeEncounter.value
         ? [...activeEncounter.value.participants].sort(
-              (left, right) =>
-                  right.initiative - left.initiative || left.name.localeCompare(right.name, 'ru'),
-          )
+            (left, right) =>
+                right.initiative - left.initiative || left.name.localeCompare(right.name, 'ru'),
+        )
         : [],
 )
 
@@ -301,128 +301,80 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
         </p>
         <template v-else-if="activeEncounter">
             <div class="encounter-toolbar">
-                <label
-                    ><span>Столкновение</span
-                    ><NSelect
-                        v-model:value="activeId"
-                        class="c-select-control"
-                        :options="encounterOptions"
-                        aria-label="Активное столкновение"
-                /></label>
+                <label><span>Столкновение</span>
+                    <NSelect v-model:value="activeId" class="c-select-control" :options="encounterOptions"
+                        aria-label="Активное столкновение" />
+                </label>
                 <div class="encounter-toolbar-actions">
-                    <NButton type="default" @click="copyEncounter">Копировать</NButton
-                    ><NButton type="error" @click="deleteEncounter">Удалить</NButton>
+                    <NButton type="default" @click="copyEncounter">Копировать</NButton>
+                    <NButton type="error" @click="deleteEncounter">Удалить</NButton>
                 </div>
             </div>
-            <NFormItem label="Название столкновения"
-                ><NInput v-model:value="activeEncounter.name"
-            /></NFormItem>
+            <NFormItem label="Название столкновения">
+                <NInput v-model:value="activeEncounter.name" />
+            </NFormItem>
             <div class="encounter-add-row">
-                <label
-                    ><span>Существо из бестиария</span
-                    ><NSelect
-                        v-model:value="selectedBestiaryId"
-                        class="c-select-control"
-                        :options="bestiaryOptions"
-                        aria-label="Существо из бестиария" /></label
-                ><label
-                    ><span>Количество</span
-                    ><NSelect
-                        v-model:value="quantity"
-                        class="c-select-control"
-                        :options="quantityOptions"
-                        aria-label="Количество экземпляров" /></label
-                ><NButton type="primary" :disabled="actionBusy" @click="addBestiaryEntry"
-                    >Добавить в бой</NButton
-                >
+                <label><span>Существо из бестиария</span>
+                    <NSelect v-model:value="selectedBestiaryId" class="c-select-control" :options="bestiaryOptions"
+                        aria-label="Существо из бестиария" />
+                </label><label><span>Количество</span>
+                    <NSelect v-model:value="quantity" class="c-select-control" :options="quantityOptions"
+                        aria-label="Количество экземпляров" />
+                </label>
+                <NButton type="primary" :disabled="actionBusy" @click="addBestiaryEntry">Добавить в бой</NButton>
             </div>
             <div class="encounter-battle-bar">
                 <div>
                     <span>Раунд</span><strong>{{ activeEncounter.round }}</strong>
                 </div>
                 <div>
-                    <span>Текущий участник</span
-                    ><strong>{{ currentParticipant?.name ?? '—' }}</strong>
+                    <span>Текущий участник</span><strong>{{ currentParticipant?.name ?? '—' }}</strong>
                 </div>
                 <div class="encounter-battle-actions">
-                    <NButton
-                        type="primary"
-                        :disabled="!orderedParticipants.length"
-                        @click="nextTurn"
-                        >Следующий ход</NButton
-                    ><NButton
-                        type="default"
-                        :disabled="!orderedParticipants.length"
-                        @click="resetBattle"
-                        >Сбросить бой</NButton
-                    >
+                    <NButton type="primary" :disabled="!orderedParticipants.length" @click="nextTurn">Следующий ход
+                    </NButton>
+                    <NButton type="default" :disabled="!orderedParticipants.length" @click="resetBattle">Сбросить бой
+                    </NButton>
                 </div>
             </div>
             <p v-if="!orderedParticipants.length" class="c-empty-collection">
                 Добавьте существо из бестиария, чтобы начать бой.
             </p>
             <div v-else class="encounter-participant-list" aria-label="Участники столкновения">
-                <article
-                    v-for="participant in orderedParticipants"
-                    :key="participant.id"
-                    class="encounter-participant"
+                <article v-for="participant in orderedParticipants" :key="participant.id" class="encounter-participant"
                     :class="{
                         current: participant.id === activeEncounter.currentParticipantId,
                         defeated: participant.defeated,
-                    }"
-                >
+                    }">
                     <div class="encounter-participant-name">
                         <span class="turn-marker" aria-hidden="true">{{
                             participant.id === activeEncounter.currentParticipantId ? '◆' : '◇'
-                        }}</span
-                        ><strong>{{ participant.name }}</strong
-                        ><small
-                            >КД {{ participant.armorClass }} · максимум HP
-                            {{ participant.maxHitPoints }}</small
-                        >
+                            }}</span><strong>{{ participant.name }}</strong><small>КД {{ participant.armorClass }} ·
+                            максимум HP
+                            {{ participant.maxHitPoints }}</small>
                     </div>
-                    <label
-                        ><span>Текущие HP</span
-                        ><NInputNumber
-                            class="number-input"
-                            :show-button="false"
-                            :min="0"
-                            :max="participant.maxHitPoints"
-                            :value="participant.currentHitPoints"
-                            :aria-label="`Текущие HP: ${participant.name}`"
+                    <label><span>Текущие HP</span>
+                        <NInputNumber class="number-input" :show-button="false" :min="0" :max="participant.maxHitPoints"
+                            :value="participant.currentHitPoints" :aria-label="`Текущие HP: ${participant.name}`"
                             @update:value="
                                 updateParticipant(participant, 'currentHitPoints', $event)
-                            " /></label
-                    ><label
-                        ><span>Инициатива</span
-                        ><NInputNumber
-                            class="number-input"
-                            :show-button="false"
-                            :value="participant.initiative"
-                            :aria-label="`Инициатива: ${participant.name}`"
-                            @update:value="
+                                " />
+                    </label><label><span>Инициатива</span>
+                        <NInputNumber class="number-input" :show-button="false" :value="participant.initiative"
+                            :aria-label="`Инициатива: ${participant.name}`" @update:value="
                                 updateParticipant(participant, 'initiative', $event)
-                            " /></label
-                    ><label class="encounter-defeated"
-                        ><NCheckbox
-                            v-model:checked="participant.defeated"
-                            :aria-label="`Побеждён: ${participant.name}`"
-                            >Побеждён</NCheckbox
-                        ></label
-                    ><NButton
-                        type="error"
-                        :aria-label="`Удалить ${participant.name}`"
-                        @click="removeParticipant(participant.id)"
-                        >Удалить</NButton
-                    >
+                                " />
+                    </label><label class="encounter-defeated">
+                        <NCheckbox v-model:checked="participant.defeated" :aria-label="`Побеждён: ${participant.name}`">
+                            Побеждён</NCheckbox>
+                    </label>
+                    <NButton type="error" :aria-label="`Удалить ${participant.name}`"
+                        @click="removeParticipant(participant.id)">Удалить</NButton>
                 </article>
             </div>
         </template>
-        <CharacterActionConfirmModal
-            v-if="actionModal.isShowModal.value && actionModal.props.value"
-            v-bind="actionModal.props.value"
-            @close="actionModal.openOrClose"
-        />
+        <CharacterActionConfirmModal v-if="actionModal.isShowModal.value && actionModal.props.value"
+            v-bind="actionModal.props.value" @close="actionModal.openOrClose" />
     </section>
 </template>
 
