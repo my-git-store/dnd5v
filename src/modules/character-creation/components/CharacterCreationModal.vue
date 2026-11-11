@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDialog } from '@/composables/useDialog'
 import CharacterCreationTab from './CharacterCreationTab.vue'
 import type { CharacterCreationPayload } from '@/domain/characterCreation'
 import type { CharacterSheetView } from '@/types/characterView'
@@ -13,16 +12,16 @@ type Props = {
 
 const props = defineProps<Props>()
 
-const { close } = useDialog()
+const emit = defineEmits<{ close: [] }>()
 
 function backToSheet() {
     props.onBackToSheet()
-    close()
+    emit('close')
 }
 </script>
 
 <template>
-    <NModal :show="true" class="character-creation-modal" :on-close="close">
+    <NModal :show="true" class="character-creation-modal" :on-close="() => emit('close')">
         <div class="character-creation-modal-content character-sheet">
             <CharacterCreationTab
                 :character="character"

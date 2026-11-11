@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDialog } from '@/composables/useDialog'
 import AttackEditor from './AttackEditor.vue'
 import type { CharacterAbilities } from '@/types/character'
 import type { CharacterAttackView } from '@/types/characterView'
@@ -15,16 +14,16 @@ type Props = {
 
 const props = defineProps<Props>()
 
-const { close } = useDialog()
+const emit = defineEmits<{ close: [] }>()
 
 function save(attack: CharacterAttackView) {
     props.onSave(attack)
-    close()
+    emit('close')
 }
 
 function cancel() {
     props.onCancel?.()
-    close()
+    emit('close')
 }
 </script>
 

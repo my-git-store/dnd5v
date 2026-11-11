@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useDialog } from '@/composables/useDialog'
+import { useModalUtil } from '@/composables/useModal'
 import CharacterSheetHeader from '@/modules/character-identity/components/CharacterSheetHeader.vue'
 import CharacterLoadState from '@/components/CharacterLoadState.vue'
 import CharacterMainTab from '@/modules/character-main/components/CharacterMainTab.vue'
@@ -21,10 +21,9 @@ import BestiaryPanel from '@/modules/bestiary/components/BestiaryPanel.vue'
 import { bestiaryToNpc, type BestiaryEntry } from '@/modules/bestiary/types/bestiary.ts'
 import EncounterPlanner from '@/modules/encounter/components/EncounterPlanner.vue'
 import { useCharacterSheet } from '@/composables/useCharacterSheet'
-import type { AbilityKey } from '@/types/character'
-import type { CharacterIdentityPatch } from '@/types/characterView'
+import type { AbilityKey, Character, CharacterSpellLevel } from '@/types/character'
+import type { CharacterIdentityPatch, CharacterSheetView } from '@/types/characterView'
 import type { ShortRestResult } from '@/domain/rest'
-import type { CharacterSpellLevel } from '@/types/character'
 import { classIconFor } from '@/data/classIcons.ts'
 import { speciesIconFor } from '@/data/speciesIcons.ts'
 import { backgroundIconFor } from '@/data/backgroundIcons.ts'
@@ -73,7 +72,39 @@ const printMode = ref(false)
 
 const sheet = useCharacterSheet()
 
-const { open } = useDialog()
+type ImportModalProps = {
+    characters: Character[]
+    currentAvailable: boolean
+    onImport: (mode: 'add' | 'replace') => void | Promise<void>
+}
+
+type IdentityModalProps = {
+    character: CharacterSheetView
+    disabled?: boolean
+    onUpdate: (patch: CharacterIdentityPatch) => void
+}
+
+type LevelUpModalProps = {
+    character: CharacterSheetView
+    disabled?: boolean
+    onConfirm: () => void
+}
+
+type ActionModalProps = {
+    title: string
+    message: string
+    confirmLabel?: string
+    danger?: boolean
+    onConfirm?: () => void | Promise<void>
+}
+
+const importModal = useModalUtil<undefined, ImportModalProps>()
+
+const identityModal = useModalUtil<undefined, IdentityModalProps>()
+
+const levelUpModal = useModalUtil<undefined, LevelUpModalProps>()
+
+const actionModal = useModalUtil<undefined, ActionModalProps>()
 
 const tabIndexes = new Map<string, number>(tabs.map((tab, index) => [tab.value, index]))
 watch(activeTab, (next, previous) => {
@@ -159,31 +190,29 @@ async function exportCharacters(all: boolean) {
     }
 }
 function openImportPreview(plan: ReturnType<typeof parseCharacterTransfer>) {
-    open({
-        component: CharacterImportModal,
-        componentProps: {
-            characters: plan.characters,
-            currentAvailable: Boolean(sheet.character.value),
-            onImport: async (mode: 'add' | 'replace') => {
-                try {
-                    await sheet.importCharacters(plan.characters, mode)
-                    transferStatus.value = {
-                        kind: 'success',
-                        text: `Импортировано персонажей: ${plan.characters.length}.`,
-                    }
-                } catch (error) {
-                    transferStatus.value = {
-                        kind: 'error',
-                        text:
-                            error instanceof Error
-                                ? error.message
-                                : 'Не удалось импортировать персонажей.',
-                    }
-                    throw error
+    importModal.props.value = {
+        characters: plan.characters,
+        currentAvailable: Boolean(sheet.character.value),
+        onImport: async (mode: 'add' | 'replace') => {
+            try {
+                await sheet.importCharacters(plan.characters, mode)
+                transferStatus.value = {
+                    kind: 'success',
+                    text: `Импортировано персонажей: ${plan.characters.length}.`,
                 }
-            },
+            } catch (error) {
+                transferStatus.value = {
+                    kind: 'error',
+                    text:
+                        error instanceof Error
+                            ? error.message
+                            : 'Не удалось импортировать персонажей.',
+                }
+                throw error
+            }
         },
-    })
+    }
+    importModal.openOrClose()
 }
 async function importFile(file: File) {
     transferStatus.value = null
@@ -245,14 +274,12 @@ function updateIdentity(patch: CharacterIdentityPatch) {
 }
 function openIdentityModal() {
     if (!sheet.character.value) return
-    open({
-        component: CharacterIdentityModal,
-        componentProps: {
-            character: sheet.character.value,
-            disabled: sheet.isSaving.value,
-            onUpdate: updateIdentity,
-        },
-    })
+    identityModal.props.value = {
+        character: sheet.character.value,
+        disabled: sheet.isSaving.value,
+        onUpdate: updateIdentity,
+    }
+    identityModal.openOrClose()
 }
 function openLevelUpModal() {
     if (
@@ -261,14 +288,12 @@ function openLevelUpModal() {
         !sheet.character.value.progression?.classLevels.length
     )
         return
-    open({
-        component: LevelUpModal,
-        componentProps: {
-            character: sheet.character.value,
-            disabled: sheet.isSaving.value,
-            onConfirm: sheet.levelUp,
-        },
-    })
+    levelUpModal.props.value = {
+        character: sheet.character.value,
+        disabled: sheet.isSaving.value,
+        onConfirm: sheet.levelUp,
+    }
+    levelUpModal.openOrClose()
 }
 async function takeShortRest(dice: number): Promise<ShortRestResult | null> {
     const result = sheet.shortRest(dice)
@@ -293,10 +318,8 @@ function openActionConfirm(
     action: () => void | Promise<void>,
     danger = false,
 ) {
-    open({
-        component: CharacterActionConfirmModal,
-        componentProps: { title, message, confirmLabel, danger, onConfirm: action },
-    })
+    actionModal.props.value = { title, message, confirmLabel, danger, onConfirm: action }
+    actionModal.openOrClose()
 }
 function selectCharacter(id: string) {
     if (id === sheet.activeId.value) return
@@ -682,5 +705,25 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
                 </template>
             </template>
         </template>
+        <CharacterImportModal
+            v-if="importModal.isShowModal.value && importModal.props.value"
+            v-bind="importModal.props.value"
+            @close="importModal.openOrClose"
+        />
+        <CharacterIdentityModal
+            v-if="identityModal.isShowModal.value && identityModal.props.value"
+            v-bind="identityModal.props.value"
+            @close="identityModal.openOrClose"
+        />
+        <LevelUpModal
+            v-if="levelUpModal.isShowModal.value && levelUpModal.props.value"
+            v-bind="levelUpModal.props.value"
+            @close="levelUpModal.openOrClose"
+        />
+        <CharacterActionConfirmModal
+            v-if="actionModal.isShowModal.value && actionModal.props.value"
+            v-bind="actionModal.props.value"
+            @close="actionModal.openOrClose"
+        />
     </main>
 </template>

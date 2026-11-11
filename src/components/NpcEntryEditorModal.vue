@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useDialog } from '@/composables/useDialog'
 import type { CharacterNpcEntry } from '../types/character'
 
 const props = defineProps<{
@@ -9,8 +8,6 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{ close: [] }>()
-
-const { close } = useDialog()
 
 const draft = ref<CharacterNpcEntry>({ ...props.entry })
 watch(
@@ -23,7 +20,7 @@ watch(
 function save() {
     if (!draft.value.name.trim()) return
     props.onSave({ ...draft.value, name: draft.value.name.trim() })
-    close()
+    emit('close')
 }
 </script>
 
@@ -47,7 +44,7 @@ function save() {
                 /></NFormItem>
             </div>
             <div class="editor-actions">
-                <NButton @click="close">Отмена</NButton>
+                <NButton @click="emit('close')">Отмена</NButton>
                 <NButton type="primary" :disabled="!draft.name.trim()" @click="save"
                     >Сохранить</NButton
                 >

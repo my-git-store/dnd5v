@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { openConfirmModal } from '@/components/modals'
-import { useDialog } from '@/composables/useDialog'
+import { useModalUtil } from '@/composables/useModal'
+import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import { searchFilterObject } from '@/composables/useFilters'
 import SpellEditorModal from './SpellEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
@@ -28,7 +28,20 @@ const query = ref('')
 
 const preparedOnly = ref(false)
 
-const { open } = useDialog()
+type EditorModalProps = {
+    cantrip?: boolean
+    disabled?: boolean
+    onSave: (spell: CharacterSpell) => void
+}
+
+type ConfirmModalProps = {
+    text: string
+    onOk: () => void | Promise<void>
+}
+
+const editorModal = useModalUtil<CharacterSpell, EditorModalProps>()
+
+const confirmModal = useModalUtil<undefined, ConfirmModalProps>()
 
 const classLabels = new Map(RULES_2024_CLASSES.map(item => [item.id, item.label]))
 
@@ -80,15 +93,13 @@ function save(spell: CharacterSpell) {
     )
 }
 function openEditor(spell: CharacterSpell) {
-    open({
-        component: SpellEditorModal,
-        componentProps: {
-            spell: { ...spell },
-            cantrip: props.cantrip,
-            disabled: props.disabled,
-            onSave: save,
-        },
-    })
+    editorModal.item.value = { ...spell }
+    editorModal.props.value = {
+        cantrip: props.cantrip,
+        disabled: props.disabled,
+        onSave: save,
+    }
+    editorModal.openOrClose()
 }
 function add() {
     openEditor({
@@ -99,14 +110,15 @@ function add() {
     })
 }
 function remove(id: string, name: string) {
-    openConfirmModal({
+    confirmModal.props.value = {
         text: `удалить запись «${name || 'без названия'}»?`,
         onOk: () =>
             emit(
                 'update',
                 props.spells.filter(item => item.id !== id),
             ),
-    })
+    }
+    confirmModal.openOrClose()
 }
 function togglePrepared(id: string, checked: boolean) {
     const prepared = new Set(props.preparedIds ?? [])
@@ -167,5 +179,16 @@ function togglePrepared(id: string, checked: boolean) {
                 @remove="remove(spell.id, spell.name)"
             />
         </div>
+        <SpellEditorModal
+            v-if="editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value"
+            :spell="editorModal.item.value"
+            v-bind="editorModal.props.value"
+            @close="editorModal.openOrClose"
+        />
+        <ConfirmModal
+            v-if="confirmModal.isShowModal.value && confirmModal.props.value"
+            v-bind="confirmModal.props.value"
+            @close="confirmModal.openOrClose"
+        />
     </section>
 </template>

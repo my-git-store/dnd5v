@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
-import { openConfirmModal } from '@/components/modals'
-import { useDialog } from '@/composables/useDialog'
+import { useModalUtil } from '@/composables/useModal'
+import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import {
     calculateAttackDamageModifier,
     formatAttackBonus,
@@ -26,7 +26,21 @@ const props = defineProps<{
 
 const emit = defineEmits<{ update: [attacks: CharacterAttackView[]] }>()
 
-const { open } = useDialog()
+type EditorModalProps = {
+    abilities: CharacterAbilities
+    level: number
+    disabled?: boolean
+    onSave: (attack: CharacterAttackView) => void
+}
+
+type ConfirmModalProps = {
+    text: string
+    onOk: () => void | Promise<void>
+}
+
+const editorModal = useModalUtil<CharacterAttackView, EditorModalProps>()
+
+const confirmModal = useModalUtil<undefined, ConfirmModalProps>()
 
 const kindLabels: Record<CharacterAttackView['kind'], string> = {
     melee: 'Ближняя',
@@ -73,16 +87,14 @@ function save(attack: CharacterAttackView) {
     )
 }
 function openEditor(attack: CharacterAttackView) {
-    open({
-        component: AttackEditorModal,
-        componentProps: {
-            attack: { ...attack, properties: [...attack.properties] },
-            abilities: props.abilities,
-            level: props.level,
-            disabled: props.disabled,
-            onSave: save,
-        },
-    })
+    editorModal.item.value = { ...attack, properties: [...attack.properties] }
+    editorModal.props.value = {
+        abilities: props.abilities,
+        level: props.level,
+        disabled: props.disabled,
+        onSave: save,
+    }
+    editorModal.openOrClose()
 }
 function add() {
     const attack: CharacterAttackView = {
@@ -105,14 +117,15 @@ function add() {
     openEditor(attack)
 }
 function remove(id: string, name: string) {
-    openConfirmModal({
+    confirmModal.props.value = {
         text: `удалить атаку «${name || 'без названия'}»?`,
         onOk: () =>
             emit(
                 'update',
                 props.attacks.filter(item => item.id !== id),
             ),
-    })
+    }
+    confirmModal.openOrClose()
 }
 function attackSummary(attack: CharacterAttackView) {
     const source = getAttackBonusSource(attack)
@@ -284,5 +297,16 @@ onBeforeUnmount(() => {
                 </li>
             </ul>
         </details>
+        <AttackEditorModal
+            v-if="editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value"
+            :attack="editorModal.item.value"
+            v-bind="editorModal.props.value"
+            @close="editorModal.openOrClose"
+        />
+        <ConfirmModal
+            v-if="confirmModal.isShowModal.value && confirmModal.props.value"
+            v-bind="confirmModal.props.value"
+            @close="confirmModal.openOrClose"
+        />
     </section>
 </template>

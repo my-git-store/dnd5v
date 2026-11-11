@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDialog } from '@/composables/useDialog'
 import {
     BESTIARY_ABILITY_KEYS,
     bestiaryAbilityModifier,
@@ -14,8 +13,6 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{ close: [] }>()
-
-const { close } = useDialog()
 
 const copied = ref(false)
 
@@ -69,7 +66,7 @@ function addToInitiative() {
                         {{ entry.size }} · {{ entry.creatureType }} · {{ entry.alignment }}
                     </p>
                 </div>
-                <NButton aria-label="Закрыть сведения о существе" @click="close">Закрыть</NButton>
+                <NButton aria-label="Закрыть сведения о существе" @click="emit('close')">Закрыть</NButton>
             </header>
             <div class="bestiary-detail-actions">
                 <NButton type="primary" :disabled="busy" @click="createNpc"

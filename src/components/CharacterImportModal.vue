@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import { useDialog } from '@/composables/useDialog'
 import type { Character } from '../types/character'
 
-const props = defineProps<{
+export type Props = {
     characters: Character[]
     currentAvailable: boolean
     onImport: (mode: 'add' | 'replace') => void | Promise<void>
-}>()
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits<{ close: [] }>()
 
-const { close } = useDialog()
-
 async function importCharacters(mode: 'add' | 'replace') {
     await props.onImport(mode)
-    close()
+    emit('close')
 }
 </script>
 
@@ -41,7 +40,7 @@ async function importCharacters(mode: 'add' | 'replace') {
                 </li>
             </ul>
             <div class="editor-actions">
-                <NButton type="default" @click="close">Отмена</NButton>
+                <NButton type="default" @click="emit('close')">Отмена</NButton>
                 <NButton :disabled="!currentAvailable" @click="importCharacters('replace')"
                     >Заменить текущего</NButton
                 >

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDialog } from '@/composables/useDialog'
 import InventoryItemEditor from './InventoryItemEditor.vue'
 import type { CharacterInventoryItemRecord } from '@/types/character'
 
@@ -12,16 +11,16 @@ type Props = {
 
 const props = defineProps<Props>()
 
-const { close } = useDialog()
+const emit = defineEmits<{ close: [] }>()
 
 function save(item: CharacterInventoryItemRecord) {
     props.onSave(item)
-    close()
+    emit('close')
 }
 
 function cancel() {
     props.onCancel?.()
-    close()
+    emit('close')
 }
 </script>
 

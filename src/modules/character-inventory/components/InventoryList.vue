@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { openConfirmModal } from '@/components/modals'
-import { useDialog } from '@/composables/useDialog'
+import { useModalUtil } from '@/composables/useModal'
+import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import { searchFilterObject } from '@/composables/useFilters'
 import InventoryItemEditorModal from './InventoryItemEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
@@ -23,7 +23,19 @@ const showEquipped = ref(true)
 
 const showUnequipped = ref(true)
 
-const { open } = useDialog()
+type EditorModalProps = {
+    disabled?: boolean
+    onSave: (item: CharacterInventoryItemRecord) => void
+}
+
+type ConfirmModalProps = {
+    text: string
+    onOk: () => void | Promise<void>
+}
+
+const editorModal = useModalUtil<CharacterInventoryItemRecord, EditorModalProps>()
+
+const confirmModal = useModalUtil<undefined, ConfirmModalProps>()
 
 const visibleItems = computed(() => {
     const search = query.value.trim()
@@ -49,14 +61,9 @@ function save(item: CharacterInventoryItemRecord) {
     )
 }
 function openEditor(item: CharacterInventoryItemRecord) {
-    open({
-        component: InventoryItemEditorModal,
-        componentProps: {
-            item: { ...item, properties: [...item.properties] },
-            disabled: props.disabled,
-            onSave: save,
-        },
-    })
+    editorModal.item.value = { ...item, properties: [...item.properties] }
+    editorModal.props.value = { disabled: props.disabled, onSave: save }
+    editorModal.openOrClose()
 }
 function add() {
     openEditor({
@@ -70,14 +77,15 @@ function add() {
     })
 }
 function remove(id: string, name: string) {
-    openConfirmModal({
+    confirmModal.props.value = {
         text: `удалить предмет «${name || 'без названия'}»?`,
         onOk: () =>
             emit(
                 'update',
                 props.items.filter(item => item.id !== id),
             ),
-    })
+    }
+    confirmModal.openOrClose()
 }
 function isConsumable(item: CharacterInventoryItemRecord): boolean {
     return item.properties.some(property => /расход|однораз|consumable/i.test(property))
@@ -173,5 +181,16 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
                 />
             </div>
         </div>
+        <InventoryItemEditorModal
+            v-if="editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value"
+            :item="editorModal.item.value"
+            v-bind="editorModal.props.value"
+            @close="editorModal.openOrClose"
+        />
+        <ConfirmModal
+            v-if="confirmModal.isShowModal.value && confirmModal.props.value"
+            v-bind="confirmModal.props.value"
+            @close="confirmModal.openOrClose"
+        />
     </section>
 </template>

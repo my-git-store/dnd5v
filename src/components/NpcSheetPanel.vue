@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useDialog } from '@/composables/useDialog'
+import { useModalUtil } from '@/composables/useModal'
 import { abilityModifier, signedModifier } from '../domain/abilityModifier'
 import { createDefaultNpcProfile } from '../domain/npc'
 import NpcEntryEditorModal from './NpcEntryEditorModal.vue'
@@ -19,7 +19,11 @@ const props = defineProps<{
 
 const emit = defineEmits<{ update: [npc: CharacterNpc] }>()
 
-const { open } = useDialog()
+type EntryModalProps = {
+    onSave: (entry: CharacterNpcEntry) => void
+}
+
+const entryModal = useModalUtil<CharacterNpcEntry, EntryModalProps>()
 
 const draft = ref<CharacterNpc>(
     JSON.parse(
@@ -155,13 +159,9 @@ function openEntry(kind: 'features' | 'actions', entry?: CharacterNpcEntry) {
               attackBonus: '',
               damage: '',
           }
-    open({
-        component: NpcEntryEditorModal,
-        componentProps: {
-            entry: next,
-            onSave: (value: CharacterNpcEntry) => saveEntry(kind, value),
-        },
-    })
+    entryModal.item.value = next
+    entryModal.props.value = { onSave: (value: CharacterNpcEntry) => saveEntry(kind, value) }
+    entryModal.openOrClose()
 }
 function removeEntry(kind: 'features' | 'actions', id: string) {
     draft.value[kind] = draft.value[kind].filter(entry => entry.id !== id)
@@ -398,5 +398,11 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                 </div>
             </div>
         </section>
+        <NpcEntryEditorModal
+            v-if="entryModal.isShowModal.value && entryModal.item.value && entryModal.props.value"
+            :entry="entryModal.item.value"
+            v-bind="entryModal.props.value"
+            @close="entryModal.openOrClose"
+        />
     </div>
 </template>

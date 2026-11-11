@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDialog } from '@/composables/useDialog'
 import CharacterFeatEditor from './CharacterFeatEditor.vue'
 import type { CharacterFeat } from '@/types/character'
 
@@ -9,14 +8,14 @@ const props = defineProps<{
     onSave: (feat: CharacterFeat) => void
 }>()
 
-const { close } = useDialog()
+const emit = defineEmits<{ close: [] }>()
 
 function save(feat: CharacterFeat) {
     props.onSave(feat)
-    close()
+    emit('close')
 }
 function cancel() {
-    close()
+    emit('close')
 }
 </script>
 

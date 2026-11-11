@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDialog } from '@/composables/useDialog'
 import SpellEditor from './SpellEditor.vue'
 import type { CharacterSpell } from '@/types/character'
 
@@ -13,16 +12,16 @@ type Props = {
 
 const props = defineProps<Props>()
 
-const { close } = useDialog()
+const emit = defineEmits<{ close: [] }>()
 
 function save(spell: CharacterSpell) {
     props.onSave(spell)
-    close()
+    emit('close')
 }
 
 function cancel() {
     props.onCancel?.()
-    close()
+    emit('close')
 }
 </script>
 

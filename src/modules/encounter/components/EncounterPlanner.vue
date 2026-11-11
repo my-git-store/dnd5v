@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useDialog } from '@/composables/useDialog'
+import { useModalUtil } from '@/composables/useModal'
 import CharacterActionConfirmModal from '@/components/CharacterActionConfirmModal.vue'
 import {
     currentParticipantIdAfterRemoval,
@@ -23,7 +23,15 @@ const emit = defineEmits<{
     status: [message: string]
 }>()
 
-const { open } = useDialog()
+type ActionModalProps = {
+    title: string
+    message: string
+    confirmLabel?: string
+    danger?: boolean
+    onConfirm?: () => void | Promise<void>
+}
+
+const actionModal = useModalUtil<undefined, ActionModalProps>()
 
 const bestiary = mockBestiaryAdapter().list()
 
@@ -131,21 +139,19 @@ function copyEncounter() {
 }
 function deleteEncounter() {
     if (!activeEncounter.value) return
-    open({
-        component: CharacterActionConfirmModal,
-        componentProps: {
-            title: 'Удалить столкновение?',
-            message: 'Сохранённое столкновение и его участники будут удалены.',
-            confirmLabel: 'Удалить',
-            danger: true,
-            onConfirm: () => {
-                const removed = activeEncounter.value?.id
-                draft.value = draft.value.filter(encounter => encounter.id !== removed)
-                activeId.value = draft.value[0]?.id ?? null
-                emit('status', 'Столкновение удалено.')
-            },
+    actionModal.props.value = {
+        title: 'Удалить столкновение?',
+        message: 'Сохранённое столкновение и его участники будут удалены.',
+        confirmLabel: 'Удалить',
+        danger: true,
+        onConfirm: () => {
+            const removed = activeEncounter.value?.id
+            draft.value = draft.value.filter(encounter => encounter.id !== removed)
+            activeId.value = draft.value[0]?.id ?? null
+            emit('status', 'Столкновение удалено.')
         },
-    })
+    }
+    actionModal.openOrClose()
 }
 function selectedEntry(): BestiaryEntry | undefined {
     return bestiary.find(entry => entry.id === selectedBestiaryId.value)
@@ -408,5 +414,10 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
                 </article>
             </div>
         </template>
+        <CharacterActionConfirmModal
+            v-if="actionModal.isShowModal.value && actionModal.props.value"
+            v-bind="actionModal.props.value"
+            @close="actionModal.openOrClose"
+        />
     </section>
 </template>

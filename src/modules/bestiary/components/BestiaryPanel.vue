@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDialog } from '@/composables/useDialog'
+import { useModalUtil } from '@/composables/useModal'
 import BestiaryEntryModal from './BestiaryEntryModal.vue'
 import {
     bestiaryInitiativeParticipant,
@@ -15,7 +15,12 @@ const props = defineProps<{ onCreateNpc: (entry: BestiaryEntry) => void | Promis
 
 const emit = defineEmits<{ status: [message: string] }>()
 
-const { open, close } = useDialog()
+type EntryModalProps = {
+    onCreateNpc: (entry: BestiaryEntry) => void | Promise<void>
+    onAddInitiative: (entry: BestiaryEntry) => void
+}
+
+const entryModal = useModalUtil<BestiaryEntry, EntryModalProps>()
 
 const adapter = mockBestiaryAdapter()
 
@@ -103,17 +108,15 @@ const filteredEntries = computed(() => {
 })
 
 function openDetails(entry: BestiaryEntry) {
-    open({
-        component: BestiaryEntryModal,
-        componentProps: {
-            entry,
-            onCreateNpc: async (value: BestiaryEntry) => {
-                await props.onCreateNpc(value)
-                close()
-            },
-            onAddInitiative: addToInitiative,
+    entryModal.item.value = entry
+    entryModal.props.value = {
+        onCreateNpc: async (value: BestiaryEntry) => {
+            await props.onCreateNpc(value)
+            entryModal.openOrClose()
         },
-    })
+        onAddInitiative: addToInitiative,
+    }
+    entryModal.openOrClose()
 }
 function addToInitiative(entry: BestiaryEntry) {
     window.dispatchEvent(
@@ -237,5 +240,11 @@ function addToInitiative(entry: BestiaryEntry) {
                 >
             </button>
         </div>
+        <BestiaryEntryModal
+            v-if="entryModal.isShowModal.value && entryModal.item.value && entryModal.props.value"
+            :entry="entryModal.item.value"
+            v-bind="entryModal.props.value"
+            @close="entryModal.openOrClose"
+        />
     </section>
 </template>

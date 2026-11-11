@@ -2,7 +2,6 @@
 import { computed, ref } from 'vue'
 
 import CharacterSheetPage from '@/views/CharacterSheetPage.vue'
-import ModalHost from '@/components/ModalHost.vue'
 import { useColorTheme } from '@/utils/colorTheme'
 
 const { naiveTheme, theme } = useColorTheme()
@@ -26,7 +25,6 @@ const themeOverrides = computed(() => ({
                     <n-message-provider placement="bottom-right" :duration="3000" :closable="true">
                         <main class="app-shell">
                             <CharacterSheetPage />
-                            <ModalHost />
                         </main>
                     </n-message-provider>
                 </n-modal-provider>

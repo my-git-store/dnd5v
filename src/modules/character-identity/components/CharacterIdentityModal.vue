@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDialog } from '@/composables/useDialog'
 import IdentityFields from './IdentityFields.vue'
 import {
     cloneCharacterView,
@@ -9,7 +8,7 @@ import {
 } from '@/types/characterView'
 import type { CharacterGender } from '@/types/character'
 
-type Props = {
+export type Props = {
     character: CharacterSheetView
     disabled?: boolean
     onUpdate: (patch: CharacterIdentityPatch) => void
@@ -18,7 +17,7 @@ type Props = {
 
 const props = defineProps<Props>()
 
-const { close } = useDialog()
+const emit = defineEmits<{ close: [] }>()
 
 const draft = ref(cloneCharacterView(props.character))
 
@@ -38,7 +37,7 @@ function update(patch: CharacterIdentityPatch) {
 
 function cancel() {
     props.onCancel?.()
-    close()
+    emit('close')
 }
 
 function save() {
@@ -53,7 +52,7 @@ function save() {
         experience: draft.value.experience,
         gender: draftGender.value,
     })
-    close()
+    emit('close')
 }
 </script>
 

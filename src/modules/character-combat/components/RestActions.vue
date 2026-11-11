@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDialog } from '@/composables/useDialog'
+import { useModalUtil } from '@/composables/useModal'
 import CharacterActionConfirmModal from '@/components/CharacterActionConfirmModal.vue'
 import type { CharacterAbilities } from '@/types/character'
 import type { CharacterCombat } from '@/types/character'
@@ -14,7 +14,15 @@ const props = defineProps<{
     onLongRest: () => void | Promise<void>
 }>()
 
-const { open } = useDialog()
+type ActionModalProps = {
+    title: string
+    message: string
+    confirmLabel?: string
+    danger?: boolean
+    onConfirm?: () => void | Promise<void>
+}
+
+const actionModal = useModalUtil<undefined, ActionModalProps>()
 
 const selectedDice = ref(1)
 
@@ -37,37 +45,33 @@ function openShortRest() {
         return
     }
     selectedDice.value = Math.min(Math.max(1, selectedDice.value), availableDice.value)
-    open({
-        component: CharacterActionConfirmModal,
-        componentProps: {
-            title: 'Короткий отдых',
-            message: `Можно потратить костей хитов: ${availableDice.value}. Будет потрачено: ${selectedDice.value}. Хиты восстановятся по броску кости и модификатору Телосложения, но не выше максимума.`,
-            confirmLabel: 'Отдохнуть',
-            onConfirm: async () => {
-                const result = await props.onShortRest(selectedDice.value)
-                status.value =
-                    result && result.spent > 0
-                        ? `Короткий отдых завершён: восстановлено ${result.healing} HP.`
-                        : 'Кость хитов не потрачена.'
-            },
+    actionModal.props.value = {
+        title: 'Короткий отдых',
+        message: `Можно потратить костей хитов: ${availableDice.value}. Будет потрачено: ${selectedDice.value}. Хиты восстановятся по броску кости и модификатору Телосложения, но не выше максимума.`,
+        confirmLabel: 'Отдохнуть',
+        onConfirm: async () => {
+            const result = await props.onShortRest(selectedDice.value)
+            status.value =
+                result && result.spent > 0
+                    ? `Короткий отдых завершён: восстановлено ${result.healing} HP.`
+                    : 'Кость хитов не потрачена.'
         },
-    })
+    }
+    actionModal.openOrClose()
 }
 
 function openLongRest() {
-    open({
-        component: CharacterActionConfirmModal,
-        componentProps: {
-            title: 'Длительный отдых',
-            message:
-                'HP восстановятся до максимума, ячейки заклинаний и часть костей хитов восстановятся, временные HP и спасброски от смерти сбросятся.',
-            confirmLabel: 'Отдохнуть',
-            onConfirm: async () => {
-                await props.onLongRest()
-                status.value = 'Длительный отдых завершён. Ресурсы восстановлены.'
-            },
+    actionModal.props.value = {
+        title: 'Длительный отдых',
+        message:
+            'HP восстановятся до максимума, ячейки заклинаний и часть костей хитов восстановятся, временные HP и спасброски от смерти сбросятся.',
+        confirmLabel: 'Отдохнуть',
+        onConfirm: async () => {
+            await props.onLongRest()
+            status.value = 'Длительный отдых завершён. Ресурсы восстановлены.'
         },
-    })
+    }
+    actionModal.openOrClose()
 }
 </script>
 
@@ -103,5 +107,10 @@ function openLongRest() {
             >
         </div>
         <p v-if="status" class="action-status" role="status" aria-live="polite">{{ status }}</p>
+        <CharacterActionConfirmModal
+            v-if="actionModal.isShowModal.value && actionModal.props.value"
+            v-bind="actionModal.props.value"
+            @close="actionModal.openOrClose"
+        />
     </section>
 </template>

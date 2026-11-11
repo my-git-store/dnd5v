@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { openConfirmModal } from '@/components/modals'
-import { useDialog } from '@/composables/useDialog'
+import { useModalUtil } from '@/composables/useModal'
+import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import CharacterFeatEditorModal from './CharacterFeatEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
@@ -10,7 +10,19 @@ const props = defineProps<{ feats: CharacterFeat[]; disabled?: boolean }>()
 
 const emit = defineEmits<{ update: [feats: CharacterFeat[]] }>()
 
-const { open } = useDialog()
+type EditorModalProps = {
+    disabled?: boolean
+    onSave: (feat: CharacterFeat) => void
+}
+
+type ConfirmModalProps = {
+    text: string
+    onOk: () => void | Promise<void>
+}
+
+const editorModal = useModalUtil<CharacterFeat, EditorModalProps>()
+
+const confirmModal = useModalUtil<undefined, ConfirmModalProps>()
 
 function save(feat: CharacterFeat) {
     const exists = props.feats.some(item => item.id === feat.id)
@@ -22,27 +34,23 @@ function save(feat: CharacterFeat) {
     )
 }
 function openEditor(feat: CharacterFeat) {
-    open({
-        component: CharacterFeatEditorModal,
-        componentProps: {
-            feat: { ...feat },
-            disabled: props.disabled,
-            onSave: save,
-        },
-    })
+    editorModal.item.value = { ...feat }
+    editorModal.props.value = { disabled: props.disabled, onSave: save }
+    editorModal.openOrClose()
 }
 function add() {
     openEditor({ id: `feat-${Date.now()}`, name: '', description: '' })
 }
 function remove(id: string, name: string) {
-    openConfirmModal({
+    confirmModal.props.value = {
         text: `удалить черту «${name || 'без названия'}»?`,
         onOk: () =>
             emit(
                 'update',
                 props.feats.filter(feat => feat.id !== id),
             ),
-    })
+    }
+    confirmModal.openOrClose()
 }
 </script>
 
@@ -70,5 +78,16 @@ function remove(id: string, name: string) {
                 @remove="remove(feat.id, feat.name)"
             />
         </div>
+        <CharacterFeatEditorModal
+            v-if="editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value"
+            :feat="editorModal.item.value"
+            v-bind="editorModal.props.value"
+            @close="editorModal.openOrClose"
+        />
+        <ConfirmModal
+            v-if="confirmModal.isShowModal.value && confirmModal.props.value"
+            v-bind="confirmModal.props.value"
+            @close="confirmModal.openOrClose"
+        />
     </section>
 </template>

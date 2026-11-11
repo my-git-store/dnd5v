@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useDialog } from '@/composables/useDialog'
 import {
     availableChoicesForProgression,
     levelUpProgression,
@@ -13,7 +12,7 @@ import type {
     ProgressionFeatureGain,
 } from '@/types/rules.ts'
 
-type Props = {
+export type Props = {
     character: CharacterSheetView
     disabled?: boolean
     onConfirm: () => void
@@ -21,7 +20,7 @@ type Props = {
 
 const props = defineProps<Props>()
 
-const { close } = useDialog()
+const emit = defineEmits<{ close: [] }>()
 
 const confirming = ref(false)
 
@@ -115,7 +114,7 @@ function choiceSource(choice: ChoiceDefinition) {
 
 function cancel() {
     if (confirming.value) return
-    close()
+    emit('close')
 }
 
 function confirmLevelUp() {
@@ -124,7 +123,7 @@ function confirmLevelUp() {
     confirmError.value = null
     try {
         props.onConfirm()
-        close()
+        emit('close')
     } catch (error) {
         confirming.value = false
         confirmError.value = error instanceof Error ? error.message : 'Не удалось повысить уровень.'
