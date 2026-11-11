@@ -36,12 +36,12 @@ function useSlot(level: CharacterSpellLevel, delta: number) {
 </script>
 
 <template>
-    <div class="tab-content magic-tab">
-        <section class="sheet-section magic-intro-panel">
+    <div class="c-tab-content magic-tab">
+        <section class="c-sheet-section magic-intro-panel">
             <div class="magic-intro-mark" aria-hidden="true">✦</div>
             <div>
                 <h1>Магия и заклинания</h1>
-                <p class="section-note">
+                <p class="c-section-note">
                     Настройте источник магии, следите за ячейками и храните заклинания в одном
                     месте.
                 </p>
@@ -60,7 +60,7 @@ function useSlot(level: CharacterSpellLevel, delta: number) {
             @update="updateSlots"
             @use-slot="useSlot"
         />
-        <section class="sheet-section magic-spellbook-shell">
+        <section class="c-sheet-section magic-spellbook-shell">
             <NTabs v-model:value="activeSpellbookTab" type="line"
                 ><NTab
                     v-for="tab in spellbookTabs"
@@ -101,3 +101,106 @@ function useSlot(level: CharacterSpellLevel, delta: number) {
         </section>
     </div>
 </template>
+
+<style scoped>
+.magic-tab {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+}
+.magic-tab > .c-sheet-section:nth-child(-n + 2) {
+    grid-column: 1 / -1;
+}
+@media (max-width: 800px) {
+    .magic-tab {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .magic-tab > .c-sheet-section:nth-child(-n + 2) {
+        grid-column: auto;
+    }
+}
+.magic-intro-panel {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(255, 250, 239, 0.96), rgba(244, 226, 194, 0.76));
+}
+.magic-intro-mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #c6a56c;
+    border-radius: 12px 12px 12px 3px;
+    background: #fff3d8;
+    color: #8c5e2b;
+    font-size: 1.25rem;
+    box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.48);
+}
+.magic-intro-panel h1 {
+    margin: 0;
+    color: var(--sheet-ink);
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+}
+.magic-intro-panel :deep(.c-eyebrow) {
+    margin-bottom: 4px;
+    font-size: 0.62rem;
+}
+.magic-tab > .c-sheet-section:nth-child(2),
+.magic-tab > .c-sheet-section:nth-child(3) {
+    grid-column: 1 / -1;
+}
+.magic-tab > :deep(.spellbook-section) {
+    min-height: 100%;
+}
+.magic-spellbook-shell {
+    grid-column: 1 / -1;
+}
+.magic-spellbook-panels {
+    min-width: 0;
+}
+.magic-spellbook-panel > :deep(.spellbook-section) {
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+.magic-spellbook-panel > :deep(.spellbook-section::before) {
+    display: none;
+}
+@media (max-width: 560px) {
+    .magic-intro-panel {
+        align-items: flex-start;
+    }
+    .magic-intro-mark {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+    }
+    .magic-intro-panel h1 {
+        font-size: 1.16rem;
+    }
+}
+.magic-intro-mark {
+    border-color: #bd9a61;
+    box-shadow:
+        inset 0 0 0 3px rgba(255, 255, 255, 0.5),
+        0 2px 5px rgba(83, 59, 38, 0.06);
+}
+.magic-intro-panel {
+    border-color: #c4a474;
+    background: linear-gradient(135deg, rgba(255, 250, 239, 0.94), rgba(243, 224, 190, 0.78));
+}
+.magic-intro-panel h1 {
+    color: var(--sheet-burgundy);
+}
+@media print {
+    .magic-intro-panel {
+        border-color: #aaa;
+    }
+}
+</style>

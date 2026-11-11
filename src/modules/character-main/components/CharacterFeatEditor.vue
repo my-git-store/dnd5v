@@ -24,7 +24,7 @@ function submit() {
 </script>
 
 <template>
-    <div class="editor-grid">
+    <div class="c-editor-grid">
         <NFormItem label="Наименование"
             ><NInput v-model:value="draft.name" :disabled="disabled"
         /></NFormItem>
@@ -35,7 +35,7 @@ function submit() {
                 :disabled="disabled"
                 rows="5"
         /></NFormItem>
-        <div class="editor-actions">
+        <div class="c-editor-actions">
             <NButton type="primary" :disabled="disabled || !draft.name.trim()" @click="submit"
                 >Сохранить</NButton
             ><NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>

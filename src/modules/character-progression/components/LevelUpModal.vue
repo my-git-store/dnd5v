@@ -133,7 +133,7 @@ function confirmLevelUp() {
 
 <template>
     <NModal :show="true" class="level-up-modal" :mask-closable="!confirming" :on-close="cancel">
-        <NCard class="character-editor-card level-up-modal-card">
+        <NCard class="c-character-editor-card level-up-modal-card">
             <template #header>Подтверждение повышения уровня</template>
             <p class="level-up-modal-lead">Уровень {{ character.level }} → {{ nextLevel }}</p>
             <p class="level-up-modal-note">
@@ -147,7 +147,7 @@ function confirmLevelUp() {
                     <article
                         v-for="gain in previewFeatures"
                         :key="gain.featureId"
-                        class="feature-reference-card"
+                        class="c-feature-reference-card"
                     >
                         <h4>{{ featureDefinition(gain)?.name ?? gain.featureId }}</h4>
                         <p>
@@ -176,12 +176,12 @@ function confirmLevelUp() {
                 <article
                     v-for="choice in previewChoices"
                     :key="choice.id"
-                    class="progression-choice-card"
+                    class="c-progression-choice-card"
                 >
                     <strong>{{ choice.name }}</strong>
                     <small>Источник: {{ choiceSource(choice) }}</small>
                     <p>Варианты: {{ choice.options.map(choiceOptionLabel).join(', ') }}</p>
-                    <p class="progression-choice-warning">
+                    <p class="c-progression-choice-warning">
                         Выбор пока не применяется: текущая модель хранит только метаданные и не
                         поддерживает безопасное сохранение этого выбора.
                     </p>
@@ -189,7 +189,7 @@ function confirmLevelUp() {
             </section>
 
             <p v-if="confirmError" class="form-error" role="alert">{{ confirmError }}</p>
-            <div class="character-identity-modal-actions level-up-modal-actions">
+            <div class="c-character-identity-modal-actions level-up-modal-actions">
                 <NButton :disabled="confirming" @click="cancel">Отмена</NButton>
                 <NButton
                     type="primary"
@@ -201,3 +201,50 @@ function confirmLevelUp() {
         </NCard>
     </NModal>
 </template>
+
+<style scoped>
+.level-up-modal {
+    width: min(720px, calc(100vw - 24px));
+    max-width: none;
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+}
+.level-up-modal-card {
+    max-height: none;
+}
+.level-up-modal-lead {
+    margin: 0;
+    color: var(--sheet-ink);
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+}
+.level-up-modal-note {
+    margin: 8px 0 0;
+    color: var(--sheet-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+.level-up-preview-section {
+    display: grid;
+    gap: 9px;
+    margin-top: 18px;
+}
+.level-up-preview-section h3 {
+    margin: 0;
+    color: var(--sheet-ink);
+    font-family: var(--font-serif);
+    font-size: 1rem;
+}
+.level-up-feature-list {
+    display: grid;
+    gap: 8px;
+}
+.level-up-empty-state {
+    margin: 0;
+    color: var(--sheet-muted);
+    font-size: 0.82rem;
+}
+.level-up-modal-actions {
+    gap: 10px;
+}
+</style>

@@ -11,8 +11,8 @@ function update(key: keyof CharacterPersonality, value: unknown) {
 </script>
 
 <template>
-    <div class="tab-content bio-tab">
-        <section class="sheet-section bio-grid">
+    <div class="c-tab-content bio-tab">
+        <section class="c-sheet-section bio-grid">
             <NFormItem label="Черты характера"
                 ><NInput
                     type="textarea"
@@ -66,3 +66,26 @@ function update(key: keyof CharacterPersonality, value: unknown) {
         </section>
     </div>
 </template>
+
+<style scoped>
+.bio-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+.bio-wide {
+    grid-column: 1 / -1;
+}
+@media (max-width: 560px) {
+    .bio-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .bio-wide {
+        grid-column: auto;
+    }
+}
+.bio-biography-field :deep(.n-input-textarea) {
+    min-height: 240px;
+    resize: vertical;
+}
+</style>

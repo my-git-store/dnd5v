@@ -60,13 +60,15 @@ function addToInitiative() {
         >
             <header class="bestiary-detail-header">
                 <div>
-                    <p class="eyebrow">Бестиарий · {{ entry.source }}</p>
+                    <p class="c-eyebrow">Бестиарий · {{ entry.source }}</p>
                     <h2>{{ entry.name }}</h2>
-                    <p class="section-note">
+                    <p class="c-section-note">
                         {{ entry.size }} · {{ entry.creatureType }} · {{ entry.alignment }}
                     </p>
                 </div>
-                <NButton aria-label="Закрыть сведения о существе" @click="emit('close')">Закрыть</NButton>
+                <NButton aria-label="Закрыть сведения о существе" @click="emit('close')"
+                    >Закрыть</NButton
+                >
             </header>
             <div class="bestiary-detail-actions">
                 <NButton type="primary" :disabled="busy" @click="createNpc"

@@ -1,6 +1,20 @@
 @import 'tailwindcss';
 
 @theme {
+    --color-sheet-ink: #3e2c1c;
+    --color-sheet-muted: #786653;
+    --color-sheet-faded: #9a8062;
+    --color-sheet-line: #d9c5a7;
+    --color-sheet-line-soft: #eadbc2;
+    --color-sheet-paper: rgba(255, 250, 239, 0.9);
+    --color-sheet-paper-deep: #fff8e9;
+    --color-sheet-gold: #9b6a2f;
+    --color-sheet-success: #3f7049;
+    --color-sheet-danger: #9f3d32;
+    --color-sheet-burgundy: #7a3e43;
+    --color-sheet-burgundy-dark: #5f3036;
+    --color-sheet-gold-soft: #c49b5c;
+
     --font-base: 'Plus Jakarta Sans', sans-serif;
     --font-serif: 'Lora', serif;
 

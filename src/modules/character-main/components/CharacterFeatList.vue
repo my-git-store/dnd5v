@@ -55,18 +55,18 @@ function remove(id: string, name: string) {
 </script>
 
 <template>
-    <section class="sheet-section feats-section">
-        <div class="section-heading">
+    <section class="c-sheet-section feats-section">
+        <div class="c-section-heading">
             <div>
                 <h2>Черты персонажа</h2>
-                <p class="section-note">
+                <p class="c-section-note">
                     Пользовательские записи без автоматического применения эффектов.
                 </p>
             </div>
             <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>
         </div>
         <EmptyCollection v-if="feats.length === 0" text="Черты пока не добавлены." />
-        <div v-for="feat in feats" :key="feat.id" class="entry-card feat-entry-card">
+        <div v-for="feat in feats" :key="feat.id" class="c-entry-card feat-entry-card">
             <div class="feat-entry-content">
                 <h3 :title="feat.name || 'Без названия'">
                     {{ feat.name || 'Без названия' }}
@@ -79,7 +79,9 @@ function remove(id: string, name: string) {
             />
         </div>
         <CharacterFeatEditorModal
-            v-if="editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value"
+            v-if="
+                editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
+            "
             :feat="editorModal.item.value"
             v-bind="editorModal.props.value"
             @close="editorModal.openOrClose"
@@ -91,3 +93,26 @@ function remove(id: string, name: string) {
         />
     </section>
 </template>
+
+<style scoped>
+.feats-section {
+    margin-top: 18px;
+}
+.feat-entry-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.feat-entry-content {
+    min-width: 0;
+    flex: 1;
+}
+.feat-entry-content h3 {
+    margin: 0;
+    font-size: 1rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>

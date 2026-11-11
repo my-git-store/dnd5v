@@ -20,7 +20,7 @@ async function importCharacters(mode: 'add' | 'replace') {
 <template>
     <NModal :show="true" :on-close="() => emit('close')">
         <section
-            class="character-import-modal sheet-section"
+            class="character-import-modal c-sheet-section"
             role="dialog"
             aria-modal="true"
             aria-label="Импорт персонажей"
@@ -39,7 +39,7 @@ async function importCharacters(mode: 'add' | 'replace') {
                     >
                 </li>
             </ul>
-            <div class="editor-actions">
+            <div class="c-editor-actions">
                 <NButton type="default" @click="emit('close')">Отмена</NButton>
                 <NButton :disabled="!currentAvailable" @click="importCharacters('replace')"
                     >Заменить текущего</NButton
@@ -51,3 +51,42 @@ async function importCharacters(mode: 'add' | 'replace') {
         </section>
     </NModal>
 </template>
+
+<style scoped>
+.character-import-modal {
+    width: min(620px, calc(100vw - 28px));
+    box-sizing: border-box;
+}
+.character-import-modal h2 {
+    margin-top: 0;
+}
+.character-import-modal > p {
+    color: var(--sheet-muted);
+}
+.character-import-preview {
+    display: grid;
+    gap: 7px;
+    max-height: 260px;
+    overflow: auto;
+    margin: 14px 0;
+    padding: 0;
+    list-style: none;
+}
+.character-import-preview li {
+    display: grid;
+    gap: 2px;
+    padding: 9px 11px;
+    border: 1px solid var(--sheet-line-soft);
+    border-radius: 8px;
+    background: rgba(255, 248, 231, 0.76);
+}
+.character-import-preview span {
+    color: var(--sheet-muted);
+    font-size: 0.78rem;
+}
+@media print {
+    .character-import-modal {
+        display: none !important;
+    }
+}
+</style>

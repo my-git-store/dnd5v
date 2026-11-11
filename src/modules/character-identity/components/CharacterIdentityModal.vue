@@ -57,19 +57,42 @@ function save() {
 </script>
 
 <template>
-    <NModal :show="true" class="character-identity-modal" :on-close="cancel">
-        <NCard class="character-editor-card character-identity-modal-card">
+    <NModal :show="true" class="w-[600px]!" :on-close="cancel">
+        <NCard class="c-character-editor-card">
             <template #header>Основные сведения</template>
-            <IdentityFields
-                :character="draft"
-                :gender="draftGender"
-                :disabled="disabled"
-                @update="update"
-            />
-            <div class="character-identity-modal-actions">
+            <IdentityFields :character="draft" :gender="draftGender" :disabled="disabled" @update="update" />
+            <div class="w-full justify-end flex gap-4">
                 <NButton :disabled="disabled" @click="cancel">Отмена</NButton>
                 <NButton type="primary" :disabled="disabled" @click="save">Сохранить</NButton>
             </div>
         </NCard>
     </NModal>
 </template>
+
+<!-- <style scoped>
+.character-identity-modal {
+    max-width: none;
+    overflow: auto;
+}
+.character-identity-modal-card,
+.character-identity-modal-card :deep(.identity-fields),
+.character-identity-modal-card :deep(.identity-grid),
+.character-identity-modal-card :deep(.identity-grid > .flex-col),
+.character-identity-modal-card :deep(.n-input-wrapper),
+.character-identity-modal-card :deep(.n-input) {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+}
+.character-identity-modal-card :deep(.identity-grid),
+.character-identity-modal-card :deep(.identity-grid > .flex-col),
+.character-identity-modal-card :deep(.n-input) {
+    width: 100%;
+}
+.character-identity-modal-card :deep(.identity-fields-note) {
+    margin: 0 0 16px;
+}
+.character-identity-modal-card :deep(.identity-gender) {
+    grid-column: 1 / -1;
+}
+</style> -->

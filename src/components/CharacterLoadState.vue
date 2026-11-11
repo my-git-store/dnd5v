@@ -11,3 +11,30 @@ const emit = defineEmits<{ retry: [] }>()
         <NButton type="primary" @click="emit('retry')">Повторить</NButton>
     </div>
 </template>
+
+<style scoped>
+.error-state {
+    color: var(--sheet-danger);
+}
+.load-state {
+    min-height: clamp(320px, calc(100dvh - 110px), 720px);
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    text-align: center;
+}
+.load-state-spinner {
+    display: grid;
+    place-items: center;
+    width: clamp(136px, 18vw, 184px);
+    height: clamp(136px, 18vw, 184px);
+}
+.load-state-spinner > * {
+    width: 100%;
+    height: 100%;
+}
+.error-state {
+    gap: 12px;
+}
+</style>

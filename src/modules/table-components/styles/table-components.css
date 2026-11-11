@@ -52,7 +52,7 @@
         inset 0 0 0 5px rgba(184, 147, 87, 0.09),
         0 12px 30px rgba(70, 45, 21, 0.1);
 }
-.table-components-showcase .eyebrow {
+.table-components-showcase .c-eyebrow {
     margin: 0 0 5px;
     color: #95682c;
     font-size: 0.74rem;
@@ -127,7 +127,7 @@
     min-width: 0;
     padding: 22px;
 }
-.table-components-showcase .section-heading,
+.table-components-showcase .c-section-heading,
 .table-components-showcase .history-heading,
 .table-components-showcase .turn-footer {
     display: flex;
@@ -135,7 +135,7 @@
     justify-content: space-between;
     gap: 12px;
 }
-.table-components-showcase .section-heading {
+.table-components-showcase .c-section-heading {
     margin-bottom: 18px;
     padding-bottom: 14px;
     border-bottom: 1px solid #e0cfad;
@@ -438,7 +438,7 @@
 .table-components-showcase .history-heading {
     margin-bottom: 9px;
 }
-.table-components-showcase .text-button {
+.table-components-showcase .c-text-button {
     border: 0;
     background: transparent;
     color: #8b592d;

@@ -28,8 +28,8 @@ function cancel() {
 </script>
 
 <template>
-    <NModal :show="true" class="character-editor-modal" :on-close="cancel">
-        <NCard class="character-editor-card">
+    <NModal :show="true" class="c-character-editor-modal" :on-close="cancel">
+        <NCard class="c-character-editor-card">
             <template #header>Атака</template>
             <AttackEditor
                 :attack="attack"

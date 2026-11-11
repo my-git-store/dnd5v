@@ -76,22 +76,22 @@ function openLongRest() {
 </script>
 
 <template>
-    <section class="sheet-section rest-actions-panel" aria-labelledby="rest-actions-title">
-        <div class="section-heading section-heading-stack">
+    <section class="c-sheet-section rest-actions-panel" aria-labelledby="rest-actions-title">
+        <div class="c-section-heading c-section-heading-stack">
             <div>
                 <h2 id="rest-actions-title">Отдых</h2>
-                <p class="section-note">
+                <p class="c-section-note">
                     Отдых меняет текущие ресурсы персонажа и сохраняется вместе с листом.
                 </p>
             </div>
-            <span class="mode-tag">Доступно костей хитов: {{ availableDice }}</span>
+            <span class="c-mode-tag">Доступно костей хитов: {{ availableDice }}</span>
         </div>
         <div class="rest-actions-controls">
-            <label class="compact-field"
+            <label class="c-compact-field"
                 >Костей для короткого отдыха
                 <NSelect
                     v-model:value="selectedDice"
-                    class="select-control"
+                    class="c-select-control"
                     :options="diceOptions"
                     :disabled="disabled || availableDice === 0"
                 />
@@ -114,3 +114,40 @@ function openLongRest() {
         />
     </section>
 </template>
+
+<style scoped>
+@media (max-width: 560px) {
+    .rest-actions-controls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+    .rest-actions-controls .c-compact-field {
+        min-width: 0;
+    }
+}
+.rest-actions-panel {
+    grid-column: 1 / -1;
+}
+.rest-actions-controls {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.rest-actions-controls .c-compact-field {
+    min-width: 190px;
+}
+.action-status {
+    margin: 12px 0 0;
+    padding: 8px 10px;
+    border: 1px solid #b8c89e;
+    border-radius: 8px;
+    background: #edf3e5;
+    color: #49633d;
+}
+@media print {
+    .rest-actions-controls {
+        display: none !important;
+    }
+}
+</style>

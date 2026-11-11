@@ -18,7 +18,7 @@ function update(key: keyof CharacterMoney, value: unknown) {
 }
 </script>
 <template>
-    <section class="sheet-section">
+    <section class="c-sheet-section">
         <h2>Деньги</h2>
         <div class="money-grid">
             <div v-for="field in fields" :key="field.key">
@@ -33,3 +33,32 @@ function update(key: keyof CharacterMoney, value: unknown) {
         </div>
     </section>
 </template>
+
+<style scoped>
+.money-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+@media (max-width: 800px) {
+    .money-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+@media (max-width: 560px) {
+    .money-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+.money-grid {
+    grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
+}
+.money-grid > div {
+    min-width: 0;
+}
+.money-grid :deep(label) {
+    overflow-wrap: normal;
+    word-break: normal;
+    white-space: nowrap;
+}
+</style>

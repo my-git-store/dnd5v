@@ -56,14 +56,14 @@ function submit() {
 </script>
 
 <template>
-    <div class="editor-grid">
+    <div class="c-editor-grid">
         <NFormItem label="Название"
             ><NInput v-model:value="draft.name" :disabled="disabled"
         /></NFormItem>
-        <label class="compact-field"
+        <label class="c-compact-field"
             >Связь с оружием
             <NSelect
-                class="select-control"
+                class="c-select-control"
                 :value="draft.weaponId ?? ''"
                 :options="weaponOptions"
                 :disabled="disabled"
@@ -81,7 +81,7 @@ function submit() {
                 :disabled="disabled"
                 @update:value="draft.weight = weight($event)"
         /></NFormItem>
-        <label class="check-control inventory-check"
+        <label class="c-check-control inventory-check"
             ><NCheckbox v-model:checked="draft.equipped" :disabled="disabled"
                 >Экипировано</NCheckbox
             ></label
@@ -99,9 +99,16 @@ function submit() {
                 :disabled="disabled"
                 rows="3"
         /></NFormItem>
-        <div class="editor-actions">
+        <div class="c-editor-actions">
             <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton
             ><NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>
         </div>
     </div>
 </template>
+
+<style scoped>
+.inventory-check {
+    align-self: end;
+    min-height: 38px;
+}
+</style>

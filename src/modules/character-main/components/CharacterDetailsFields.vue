@@ -36,7 +36,7 @@ function updateNumber(key: 'level' | 'experience' | 'armorClass', value: unknown
 </script>
 
 <template>
-    <section class="sheet-section">
+    <section class="c-sheet-section">
         <h2>Данные персонажа</h2>
         <div class="character-details-grid">
             <NFormItem label="Класс"
@@ -69,3 +69,21 @@ function updateNumber(key: 'level' | 'experience' | 'armorClass', value: unknown
         </div>
     </section>
 </template>
+
+<style scoped>
+.character-details-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+@media (max-width: 800px) {
+    .character-details-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 560px) {
+    .character-details-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+</style>

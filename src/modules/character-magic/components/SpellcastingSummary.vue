@@ -43,48 +43,84 @@ function updateAbility(value: string | null) {
 </script>
 
 <template>
-    <section class="sheet-section spellcasting-summary">
-        <div class="section-heading">
+    <section class="c-sheet-section spellcasting-summary">
+        <div class="c-section-heading">
             <div>
                 <h2>Параметры заклинаний</h2>
-                <p class="section-note">
+                <p class="c-section-note">
                     Выберите характеристику — остальные значения будут рассчитаны автоматически.
                 </p>
             </div>
             <div class="section-heading-badges">
-                <span class="mode-tag mode-ready">{{
+                <span class="c-mode-tag mode-ready">{{
                     spellcasting.spellRuleset === '2024' ? 'D&amp;D 2024' : 'D&amp;D 2014'
                 }}</span
                 ><span
-                    class="mode-tag"
+                    class="c-mode-tag"
                     :class="spellcasting.spellcastingAbility ? 'mode-ready' : 'mode-unset'"
                     >{{ spellcasting.spellcastingAbility ? 'Настроено' : 'Не настроено' }}</span
                 >
             </div>
         </div>
         <div class="spellcasting-grid">
-            <label class="compact-field spellcasting-ability-field"
+            <label class="c-compact-field spellcasting-ability-field"
                 >Характеристика заклинаний
                 <NSelect
-                    class="select-control"
+                    class="c-select-control"
                     :value="spellcasting.spellcastingAbility ?? ''"
                     :options="abilityOptions"
                     :disabled="disabled"
                     @update:value="updateAbility"
                 />
             </label>
-            <div class="field-card derived-card">
-                <span class="field-caption">Спасбросок заклинаний · {{ abilityLabel }}</span
-                ><strong class="combat-result">{{
+            <div class="c-field-card derived-card">
+                <span class="c-field-caption">Спасбросок заклинаний · {{ abilityLabel }}</span
+                ><strong class="c-combat-result">{{
                     saveDc === null ? 'Не настроено' : saveDc
                 }}</strong>
             </div>
-            <div class="field-card derived-card">
-                <span class="field-caption">Бонус атаки заклинанием · {{ abilityLabel }}</span
-                ><strong class="combat-result">{{
+            <div class="c-field-card derived-card">
+                <span class="c-field-caption">Бонус атаки заклинанием · {{ abilityLabel }}</span
+                ><strong class="c-combat-result">{{
                     attackBonus === null ? 'Не настроено' : signedModifier(attackBonus)
                 }}</strong>
             </div>
         </div>
     </section>
 </template>
+
+<style scoped>
+.c-character-sheet .spellcasting-grid .derived-card {
+    row-gap: 12px;
+}
+.section-heading-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+}
+.spellcasting-grid {
+    display: grid;
+    grid-template-columns: 1.2fr repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+}
+.spellcasting-ability-field {
+    gap: 8px;
+}
+.derived-card {
+    display: grid;
+    align-content: center;
+    gap: 6px;
+}
+@media (max-width: 1000px) {
+    .spellcasting-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+@media (max-width: 560px) {
+    .spellcasting-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+</style>

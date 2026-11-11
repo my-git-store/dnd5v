@@ -107,14 +107,14 @@ function hideBrokenAsset(event: Event) {
                     <dd>{{ ruleset === '2024' ? 'D&D 2024 / 5.5' : 'D&D 2014' }}</dd>
                 </div>
             </dl>
-            <p v-if="saveError" class="status-text error" role="alert">{{ saveError }}</p>
-            <p v-else-if="saving" class="status-text pending" role="status" aria-live="polite">
+            <p v-if="saveError" class="c-status-text error" role="alert">{{ saveError }}</p>
+            <p v-else-if="saving" class="c-status-text pending" role="status" aria-live="polite">
                 Сохраняется…
             </p>
-            <p v-else-if="dirty" class="status-text warning" role="status" aria-live="polite">
+            <p v-else-if="dirty" class="c-status-text warning" role="status" aria-live="polite">
                 Есть несохранённые изменения
             </p>
-            <p v-else-if="saved" class="status-text success" role="status" aria-live="polite">
+            <p v-else-if="saved" class="c-status-text success" role="status" aria-live="polite">
                 Сохранено
             </p>
         </div>
@@ -145,3 +145,284 @@ function hideBrokenAsset(event: Event) {
         </div>
     </header>
 </template>
+
+<style scoped>
+.sheet-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+    padding: 24px 26px 22px;
+    position: relative;
+    background: linear-gradient(135deg, rgba(255, 251, 240, 0.95), rgba(250, 235, 205, 0.82));
+    border: 1px solid var(--sheet-line);
+    border-radius: 18px;
+    box-shadow:
+        0 10px 26px rgba(83, 59, 38, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.sheet-header::before,
+.sheet-header::after {
+    content: '';
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(155, 106, 47, 0.48), transparent);
+}
+.sheet-header::before {
+    top: 10px;
+}
+.sheet-header::after {
+    bottom: 10px;
+}
+.sheet-header > div:first-child {
+    flex: 1;
+    max-width: 680px;
+    min-width: 0;
+}
+.sheet-header-actions {
+    display: flex;
+    align-items: flex-start;
+    flex: 0 0 auto;
+    gap: 8px;
+    margin-top: 4px;
+}
+.sheet-header-actions :deep(.n-button) {
+    flex: 0 0 auto;
+}
+.header-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    margin: 14px 0 0;
+}
+.header-summary div {
+    display: grid;
+    gap: 2px;
+    min-width: 72px;
+}
+.header-summary dt {
+    color: var(--sheet-faded);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.header-summary dd {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+.header-class-entry {
+    min-width: 120px !important;
+}
+.header-class-value {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+}
+.header-species-entry {
+    min-width: 120px !important;
+}
+.header-species-value {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+}
+.header-background-entry {
+    min-width: 140px !important;
+}
+.header-background-value {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+}
+.species-avatar {
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    overflow: hidden;
+    border: 1px solid #b99967;
+    border-radius: 50%;
+    background: #f5e5c4;
+    color: #704b25;
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+.species-avatar-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center 38%;
+    transform: translateY(-4%);
+}
+.class-avatar {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    overflow: hidden;
+    border: 1px solid #b99967;
+    border-radius: 50%;
+    background: #f5e5c4;
+    color: #704b25;
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+.class-avatar-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.background-avatar {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    overflow: hidden;
+    border: 1px solid #b99967;
+    border-radius: 50%;
+    background: #f5e5c4;
+    color: #704b25;
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+.background-avatar-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center 38%;
+    transform: translateY(-4%);
+}
+@media (max-width: 560px) {
+    .sheet-header {
+        flex-direction: column;
+        gap: 16px;
+        padding: 20px 17px 18px;
+        border-radius: 14px;
+    }
+    .sheet-header-actions {
+        width: 100%;
+    }
+    .sheet-header-actions :deep(.n-button) {
+        flex: 1 1 0;
+    }
+}
+.sheet-header {
+    padding: 23px 25px 21px;
+    border-color: #b99a69;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(255, 251, 240, 0.94), rgba(247, 229, 195, 0.82));
+    box-shadow:
+        0 8px 22px rgba(83, 59, 38, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+.sheet-header::before,
+.sheet-header::after {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(122, 62, 67, 0.5),
+        rgba(196, 155, 92, 0.65),
+        transparent
+    );
+}
+.sheet-character-name {
+    margin: 0;
+    color: #3e2c1c;
+    font-family: var(--font-serif);
+    font-size: clamp(1.35rem, 2.5vw, 1.95rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+    overflow-wrap: anywhere;
+}
+.header-summary {
+    gap: 8px 11px;
+}
+.header-summary div {
+    min-width: 84px;
+    padding: 7px 11px;
+    border-left: 2px solid rgba(196, 155, 92, 0.42);
+    background: rgba(255, 249, 233, 0.44);
+}
+.header-summary dt {
+    color: #8d6a40;
+}
+.header-summary dd {
+    color: #49331f;
+    font-family: var(--font-serif);
+}
+.c-character-sheet .sheet-save-button-saved {
+    border-color: rgba(63, 112, 73, 0.28);
+    background: #edf5eb;
+    color: var(--sheet-success);
+    box-shadow: 0 4px 10px rgba(63, 112, 73, 0.16);
+}
+.c-character-sheet .sheet-save-button.is-disabled {
+    opacity: 1;
+}
+@media (max-width: 560px) {
+    .sheet-header {
+        padding: 19px 15px 18px;
+    }
+    .header-summary {
+        gap: 6px;
+    }
+    .header-summary div {
+        min-width: calc(50% - 3px);
+        box-sizing: border-box;
+    }
+    .species-avatar {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+    .background-avatar {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+    .class-avatar {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+}
+@media print {
+    .sheet-header-actions {
+        display: none !important;
+    }
+    .sheet-header {
+        margin-bottom: 14px;
+        padding: 14px 16px;
+        border-color: #999;
+        box-shadow: none;
+        break-inside: avoid;
+    }
+    .sheet-header::before,
+    .sheet-header::after {
+        display: none;
+    }
+}
+.c-character-sheet .sheet-save-button:disabled {
+    box-shadow: none;
+}
+</style>

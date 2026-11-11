@@ -38,17 +38,17 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
 </script>
 
 <template>
-    <section class="sheet-section">
-        <div class="section-heading section-heading-stack">
+    <section class="c-sheet-section">
+        <div class="c-section-heading c-section-heading-stack">
             <div>
                 <h2>Ресурс заклинаний</h2>
-                <p class="section-note">
+                <p class="c-section-note">
                     Отмечайте использованные ячейки. Остаток считается автоматически.
                 </p>
             </div>
         </div>
         <div class="spell-slots-grid">
-            <div v-for="item in labels" :key="item.level" class="field-card spell-slot-card">
+            <div v-for="item in labels" :key="item.level" class="c-field-card spell-slot-card">
                 <h3>{{ item.label }}</h3>
                 <div class="spell-slot-fields">
                     <NFormItem label="Макс."
@@ -68,7 +68,7 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
                             @update:value="update(item.level, 'used', $event)"
                     /></NFormItem>
                 </div>
-                <p class="derived-value">Осталось: {{ remaining(item.level) }}</p>
+                <p class="c-derived-value">Осталось: {{ remaining(item.level) }}</p>
                 <div class="spell-slot-actions">
                     <NButton
                         :disabled="disabled || slots[item.level].used >= slots[item.level].max"
@@ -85,3 +85,85 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
         </div>
     </section>
 </template>
+
+<style scoped>
+.c-character-sheet .spell-slot-card {
+    row-gap: 12px;
+}
+.c-character-sheet .spell-slot-fields :deep(.flex-col) {
+    row-gap: 12px !important;
+}
+.spell-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+.spell-slot-card {
+    display: grid;
+    gap: 8px;
+}
+.spell-slot-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+.spell-slot-card .c-derived-value {
+    margin: 0;
+    color: #6d4f31;
+    font-size: 0.85rem;
+}
+@media (max-width: 1000px) {
+    .spell-slots-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+@media (max-width: 560px) {
+    .spell-slots-grid,
+    .spell-slot-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+.spell-slot-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+.spell-slot-card,
+.spell-slot-fields,
+.spell-slot-fields > :deep(.flex-col),
+.spell-slot-fields :deep(.n-input) {
+    min-width: 0;
+}
+.spell-slots-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.spell-slot-fields {
+    align-items: start;
+}
+.spell-slot-fields > :deep(.flex-col > label) {
+    display: block;
+    min-height: 2.4em;
+    line-height: 1.2;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+@media (max-width: 900px) {
+    .spell-slots-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 560px) {
+    .spell-slots-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .spell-slot-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media print {
+    .spell-slot-actions {
+        display: none !important;
+    }
+}
+</style>

@@ -22,7 +22,7 @@ function backToSheet() {
 
 <template>
     <NModal :show="true" class="character-creation-modal" :on-close="() => emit('close')">
-        <div class="character-creation-modal-content character-sheet">
+        <div class="character-creation-modal-content c-character-sheet">
             <CharacterCreationTab
                 :character="character"
                 :disabled="disabled"
@@ -32,3 +32,27 @@ function backToSheet() {
         </div>
     </NModal>
 </template>
+
+<style scoped>
+.character-creation-modal {
+    width: min(1180px, calc(100vw - 24px));
+    max-width: none;
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+}
+.character-creation-modal-content.c-character-sheet {
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+.character-creation-modal-content.c-character-sheet::before,
+.character-creation-modal-content.c-character-sheet::after {
+    display: none;
+}
+</style>

@@ -102,22 +102,24 @@ function choiceSource(choice: ChoiceDefinition) {
 </script>
 
 <template>
-    <div class="tab-content">
+    <div class="c-tab-content">
         <section
             v-if="character.ruleset === '2024'"
-            class="sheet-section origin-summary"
+            class="c-sheet-section origin-summary"
             aria-labelledby="origin-summary-title"
         >
-            <div class="section-heading section-heading-stack">
+            <div class="c-section-heading c-section-heading-stack">
                 <div>
                     <h2 id="origin-summary-title">Происхождение</h2>
-                    <p class="section-note">Вид, предыстория и полученные от них владения героя.</p>
+                    <p class="c-section-note">
+                        Вид, предыстория и полученные от них владения героя.
+                    </p>
                 </div>
-                <span class="mode-tag mode-ready">D&amp;D 2024</span>
+                <span class="c-mode-tag mode-ready">D&amp;D 2024</span>
             </div>
             <div class="origin-summary-grid">
                 <div class="origin-species-entry">
-                    <span class="field-caption">Вид</span
+                    <span class="c-field-caption">Вид</span
                     ><strong class="origin-species-value"
                         ><span class="species-summary-icon" aria-hidden="true"
                             ><span
@@ -140,7 +142,7 @@ function choiceSource(choice: ChoiceDefinition) {
                     >
                 </div>
                 <div>
-                    <span class="field-caption">Предыстория</span
+                    <span class="c-field-caption">Предыстория</span
                     ><strong class="origin-background-value"
                         ><span class="background-summary-icon" aria-hidden="true"
                             ><span
@@ -164,18 +166,18 @@ function choiceSource(choice: ChoiceDefinition) {
                     >
                 </div>
                 <div>
-                    <span class="field-caption">Происхожденческая черта</span
+                    <span class="c-field-caption">Происхожденческая черта</span
                     ><strong>{{ character.origin.originFeat || 'Не выбрана' }}</strong
                     ><small v-if="originFeatDetails(character)">{{
                         originFeatDetails(character)?.description
                     }}</small>
                 </div>
                 <div>
-                    <span class="field-caption">Языки</span
+                    <span class="c-field-caption">Языки</span
                     ><strong>{{ character.origin.languages.join(', ') || 'Не указаны' }}</strong>
                 </div>
                 <div>
-                    <span class="field-caption">Инструменты</span
+                    <span class="c-field-caption">Инструменты</span
                     ><strong>{{ character.origin.tools.join(', ') || 'Не указаны' }}</strong>
                 </div>
             </div>
@@ -209,13 +211,13 @@ function choiceSource(choice: ChoiceDefinition) {
         </div>
         <section
             v-if="PROGRESSION_UI_ENABLED && character.progression?.classLevels?.length"
-            class="sheet-section progression-summary"
+            class="c-sheet-section progression-summary"
             aria-labelledby="progression-summary-title"
         >
-            <div class="section-heading section-heading-stack">
+            <div class="c-section-heading c-section-heading-stack">
                 <div>
                     <h2 id="progression-summary-title">Прогрессия</h2>
-                    <p class="section-note">
+                    <p class="c-section-note">
                         Текущий уровень {{ character.level }} из 20. Повышение добавляет только
                         следующий уровень в черновик.
                     </p>
@@ -227,8 +229,10 @@ function choiceSource(choice: ChoiceDefinition) {
                     @click="emit('level-up')"
                     >Повысить до {{ character.level + 1 }}</NButton
                 >
-                <span v-else-if="character.level >= 20" class="mode-tag">Максимальный уровень</span>
-                <span v-else class="mode-tag mode-unset">Нужен выбранный класс</span>
+                <span v-else-if="character.level >= 20" class="c-mode-tag"
+                    >Максимальный уровень</span
+                >
+                <span v-else class="c-mode-tag mode-unset">Нужен выбранный класс</span>
             </div>
             <div
                 v-if="lastProgressionHistory(character)"
@@ -255,12 +259,12 @@ function choiceSource(choice: ChoiceDefinition) {
                 <article
                     v-for="choice in nextProgressionChoices(character)"
                     :key="choice.id"
-                    class="progression-choice-card"
+                    class="c-progression-choice-card"
                 >
                     <strong>{{ choice.name }}</strong>
                     <small>Источник: {{ choiceSource(choice) }}</small>
                     <p>Варианты: {{ choice.options.map(choiceOptionLabel).join(', ') }}</p>
-                    <p class="progression-choice-warning">
+                    <p class="c-progression-choice-warning">
                         Информационное описание: текущая модель не поддерживает безопасное
                         сохранение выбора, поэтому он не применяется автоматически.
                     </p>
@@ -269,7 +273,7 @@ function choiceSource(choice: ChoiceDefinition) {
         </section>
         <section
             v-if="character.creation || character.features?.length"
-            class="sheet-section feature-summary"
+            class="c-sheet-section feature-summary"
         >
             <h2>Особенности героя</h2>
             <div class="feature-summary-grid">
@@ -287,7 +291,7 @@ function choiceSource(choice: ChoiceDefinition) {
                         <article
                             v-for="featureId in character.features"
                             :key="featureId"
-                            class="feature-reference-card"
+                            class="c-feature-reference-card"
                         >
                             <h4>{{ progressionFeatureName(featureId) }}</h4>
                             <p v-if="progressionFeature(featureId)">
@@ -317,3 +321,204 @@ function choiceSource(choice: ChoiceDefinition) {
         />
     </div>
 </template>
+
+<style scoped>
+.feature-list {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding-left: 19px;
+    color: var(--sheet-ink);
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+.feature-summary-grid .feature-list {
+    list-style: none;
+    gap: 8px;
+    padding-left: 0;
+}
+.feature-summary-grid .feature-list li {
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--sheet-line-soft);
+    border-radius: 8px;
+    background: rgba(255, 248, 231, 0.72);
+}
+.feature-summary {
+    margin-top: 18px;
+}
+.progression-summary {
+    margin-top: 18px;
+}
+.progression-history {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin-top: 14px;
+    color: var(--sheet-muted);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+.progression-history strong {
+    color: var(--sheet-ink);
+}
+.progression-summary .c-section-heading {
+    flex-wrap: wrap;
+}
+.progression-choices {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+}
+.progression-choices h3 {
+    margin: 0;
+    color: var(--sheet-ink);
+    font-family: var(--font-serif);
+    font-size: 1rem;
+}
+.origin-summary {
+    margin-top: 18px;
+}
+.origin-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+}
+.origin-summary-grid > div {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--sheet-line-soft);
+    border-radius: 10px;
+    background: rgba(255, 248, 233, 0.6);
+}
+.origin-summary-grid strong {
+    overflow-wrap: anywhere;
+    font-size: 0.88rem;
+    line-height: 1.35;
+}
+.origin-species-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.species-summary-icon {
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    overflow: hidden;
+    border: 1px solid #c4a474;
+    border-radius: 50%;
+    background: #f5e5c4;
+    color: #704b25;
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+.species-summary-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center 38%;
+    transform: translateY(-4%);
+}
+.origin-background-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.background-summary-icon {
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    overflow: hidden;
+    border: 1px solid #c4a474;
+    border-radius: 50%;
+    background: #f5e5c4;
+    color: #704b25;
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+.background-summary-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center 38%;
+    transform: translateY(-4%);
+}
+.feature-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+.feature-summary-grid h3 {
+    margin: 0 0 8px;
+}
+.main-sheet-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: start;
+}
+.main-sheet-grid > .c-sheet-section {
+    height: 100%;
+    box-sizing: border-box;
+}
+@media (max-width: 1000px) {
+    .main-sheet-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .main-sheet-grid > .c-sheet-section {
+        height: auto;
+    }
+}
+@media (max-width: 800px) {
+    .feature-summary-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .origin-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 560px) {
+    .origin-summary-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+.main-sheet-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+.main-sheet-grid > :deep(.skills-panel) {
+    grid-column: 1 / -1;
+}
+.feature-reference-list {
+    display: grid;
+    gap: 8px;
+}
+@media (max-width: 560px) {
+    .progression-summary .c-section-heading :deep(.n-button) {
+        width: 100%;
+    }
+}
+@media (max-width: 1000px) {
+    .main-sheet-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .main-sheet-grid > :deep(.skills-panel) {
+        grid-column: auto;
+    }
+}
+</style>

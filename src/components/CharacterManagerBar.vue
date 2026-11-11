@@ -24,7 +24,7 @@ const emit = defineEmits<{
 <template>
     <section class="character-manager" aria-label="Управление персонажами">
         <div class="character-manager-copy">
-            <span class="eyebrow">Персонажи</span>
+            <span class="c-eyebrow">Персонажи</span>
             <strong v-if="characters.length">Текущий лист персонажа</strong>
             <strong v-else>Персонажей пока нет</strong>
             <small v-if="dirty">Есть несохранённые изменения.</small>
@@ -53,3 +53,82 @@ const emit = defineEmits<{
         </p>
     </section>
 </template>
+
+<style scoped>
+.character-manager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+    padding: 12px 15px;
+    border: 1px solid var(--sheet-line);
+    border-radius: 12px;
+    background: rgba(255, 249, 235, 0.78);
+    box-shadow: 0 4px 14px rgba(83, 59, 38, 0.06);
+}
+.character-manager-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+.character-manager-copy .c-eyebrow {
+    margin: 0;
+    font-size: 0.62rem;
+}
+.character-manager-copy strong {
+    color: var(--sheet-ink);
+    font-family: var(--font-serif);
+}
+.character-manager-copy small {
+    color: var(--sheet-muted);
+    font-size: 0.74rem;
+}
+.character-manager-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-width: 0;
+}
+.character-manager-status {
+    flex-basis: 100%;
+    margin: 0;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+}
+.character-manager-status.success {
+    color: var(--sheet-success);
+    background: #edf5eb;
+}
+.character-manager-status.error {
+    color: var(--sheet-danger);
+    background: #fff0ed;
+}
+@media (max-width: 560px) {
+    .character-manager {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 12px;
+    }
+    .character-manager-controls {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) repeat(3, auto);
+        justify-content: stretch;
+    }
+    .character-manager-controls :deep(.n-button) {
+        min-width: 0;
+        padding-inline: 10px;
+    }
+    .character-manager-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media print {
+    .character-manager {
+        display: none !important;
+    }
+}
+</style>

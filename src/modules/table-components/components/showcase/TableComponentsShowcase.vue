@@ -8,7 +8,7 @@ import '../../styles/table-components.css'
     <section class="table-components-showcase" aria-labelledby="table-components-title">
         <div class="app-shell">
             <header class="app-header">
-                <p class="eyebrow">Демо · локальные инструменты</p>
+                <p class="c-eyebrow">Демо · локальные инструменты</p>
                 <h2 id="table-components-title">Игровые компоненты</h2>
                 <p class="showcase-note">
                     Самостоятельные компоненты «Бросок кубиков» и «Трекер инициативы» для будущего

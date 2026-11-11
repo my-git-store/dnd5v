@@ -35,7 +35,6 @@ import {
     transferFilename,
 } from '@/api/characterTransfer.ts'
 import { readStoredCharacter } from '@/api/characterStorage.ts'
-import '@/styles/character-sheet.css'
 
 const featureFlags = {
     bestiary: import.meta.env.VITE_ENABLE_BESTIARY === 'true',
@@ -426,7 +425,7 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
 </script>
 <template>
     <main
-        class="character-sheet"
+        class="c-character-sheet"
         :class="{
             'character-sheet-creation-mode': creationOpen,
             'character-sheet-print-mode': printMode,
@@ -455,7 +454,7 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
             />
             <section
                 v-if="!sheet.character.value"
-                class="character-empty-state sheet-section"
+                class="character-empty-state c-sheet-section"
                 aria-live="polite"
             >
                 <h1>Персонажи не найдены</h1>
@@ -727,3 +726,160 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', finishPrint))
         />
     </main>
 </template>
+
+<style scoped>
+.character-empty-state {
+    display: grid;
+    justify-items: center;
+    gap: 9px;
+    min-height: 300px;
+    align-content: center;
+    text-align: center;
+}
+.character-empty-state h1 {
+    margin: 0;
+    font-family: var(--font-serif);
+}
+.character-empty-state p {
+    margin: 0 0 8px;
+    color: var(--sheet-muted);
+}
+.character-creation-root {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 14px;
+    border: 1px solid #c4a474;
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(255, 250, 239, 0.94), rgba(239, 220, 185, 0.72));
+    box-shadow:
+        0 10px 26px rgba(83, 59, 38, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.character-creation-root :deep(.creation-hero) {
+    margin-top: 0;
+}
+.character-sheet-creation-mode {
+    padding-top: 24px;
+}
+.character-sheet-creation-mode :deep(.creation-workspace) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+}
+.character-sheet-creation-mode :deep(.creation-main-column) {
+    width: 100%;
+}
+.sheet-tabs-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin: 0 4px;
+}
+.sheet-tabs {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0 10px;
+    border-bottom: 1px solid var(--sheet-line);
+}
+.sheet-tab-stage {
+    position: relative;
+    min-height: 260px;
+}
+.sheet-tab-panel {
+    min-width: 0;
+    transform-origin: 50% 0;
+}
+.sheet-tab-panel-active {
+    animation-duration: 0.42s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-fill-mode: both;
+    will-change: opacity, transform, filter;
+}
+.sheet-tab-panel-forward {
+    animation-name: sheet-tab-enter-forward;
+}
+.sheet-tab-panel-backward {
+    animation-name: sheet-tab-enter-backward;
+}
+@keyframes sheet-tab-enter-forward {
+    from {
+        opacity: 0;
+        transform: translate3d(22px, 8px, 0) scale(0.988);
+        filter: blur(2px);
+    }
+    62% {
+        opacity: 1;
+        filter: blur(0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+@keyframes sheet-tab-enter-backward {
+    from {
+        opacity: 0;
+        transform: translate3d(-22px, 8px, 0) scale(0.988);
+        filter: blur(2px);
+    }
+    62% {
+        opacity: 1;
+        filter: blur(0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+@media (max-width: 560px) {
+    .sheet-tabs {
+        margin-inline: 0;
+        padding-inline: 0;
+        overflow-x: auto;
+    }
+    .sheet-tabs-row {
+        align-items: stretch;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+    .sheet-tabs {
+        width: 100%;
+        flex-basis: 100%;
+        overflow: visible;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sheet-tab-panel-active {
+        transition: none;
+        animation: none;
+    }
+}
+@media print {
+    .sheet-tabs-row,
+    .table-components-panel {
+        display: none !important;
+    }
+    .sheet-tab-stage {
+        display: block;
+    }
+    .sheet-tab-panel {
+        display: block !important;
+        position: static !important;
+        transform: none !important;
+        opacity: 1 !important;
+        animation: none !important;
+    }
+    .sheet-tab-panel.table-components-panel {
+        display: none !important;
+    }
+    .sheet-tab-panel + .sheet-tab-panel {
+        margin-top: 12px;
+    }
+}
+@media (max-width: 560px) {
+    .character-sheet-creation-mode {
+        padding-top: 25px;
+    }
+}
+</style>

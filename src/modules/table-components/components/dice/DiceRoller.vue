@@ -100,9 +100,9 @@ onBeforeUnmount(cancelRoll)
 
 <template>
     <section class="panel component-card dice-card" aria-labelledby="dice-title">
-        <div class="section-heading">
+        <div class="c-section-heading">
             <div>
-                <p class="eyebrow">Локальный компонент</p>
+                <p class="c-eyebrow">Локальный компонент</p>
                 <h2 id="dice-title">Бросок кубиков</h2>
             </div>
             <span class="state-chip" :class="{ 'state-chip-active': isRolling }">{{
@@ -153,7 +153,7 @@ onBeforeUnmount(cancelRoll)
         <div class="history-heading">
             <h3>История</h3>
             <button
-                class="text-button"
+                class="c-text-button"
                 type="button"
                 :disabled="history.length === 0 && !isRolling"
                 @click="clearHistory"
@@ -170,7 +170,7 @@ onBeforeUnmount(cancelRoll)
         </ol>
         <button
             v-if="hasCollapsedHistory"
-            class="history-toggle text-button"
+            class="history-toggle c-text-button"
             type="button"
             :aria-expanded="showAllHistory"
             @click="showAllHistory = !showAllHistory"

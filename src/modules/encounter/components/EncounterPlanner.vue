@@ -282,19 +282,19 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
 </script>
 
 <template>
-    <section class="encounter-planner sheet-section" aria-labelledby="encounter-planner-title">
+    <section class="encounter-planner c-sheet-section" aria-labelledby="encounter-planner-title">
         <header class="encounter-heading">
             <div>
-                <p class="eyebrow">Тактика</p>
+                <p class="c-eyebrow">Тактика</p>
                 <h1 id="encounter-planner-title">Планировщик столкновения</h1>
-                <p class="section-note">Соберите бой из существ бестиария и управляйте ходом.</p>
+                <p class="c-section-note">Соберите бой из существ бестиария и управляйте ходом.</p>
             </div>
             <NButton type="primary" @click="createEncounter">Новое столкновение</NButton>
         </header>
-        <p v-if="dirty" class="status-text warning" role="status" aria-live="polite">
+        <p v-if="dirty" class="c-status-text warning" role="status" aria-live="polite">
             Есть несохранённые изменения. Нажмите «Сохранить» в шапке листа.
         </p>
-        <p v-if="!draft.length" class="empty-collection">
+        <p v-if="!draft.length" class="c-empty-collection">
             Столкновений пока нет. Создайте первое, чтобы добавить участников.
         </p>
         <template v-else-if="activeEncounter">
@@ -303,7 +303,7 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
                     ><span>Столкновение</span
                     ><NSelect
                         v-model:value="activeId"
-                        class="select-control"
+                        class="c-select-control"
                         :options="encounterOptions"
                         aria-label="Активное столкновение"
                 /></label>
@@ -320,14 +320,14 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
                     ><span>Существо из бестиария</span
                     ><NSelect
                         v-model:value="selectedBestiaryId"
-                        class="select-control"
+                        class="c-select-control"
                         :options="bestiaryOptions"
                         aria-label="Существо из бестиария" /></label
                 ><label
                     ><span>Количество</span
                     ><NSelect
                         v-model:value="quantity"
-                        class="select-control"
+                        class="c-select-control"
                         :options="quantityOptions"
                         aria-label="Количество экземпляров" /></label
                 ><NButton type="primary" :disabled="actionBusy" @click="addBestiaryEntry"
@@ -356,7 +356,7 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
                     >
                 </div>
             </div>
-            <p v-if="!orderedParticipants.length" class="empty-collection">
+            <p v-if="!orderedParticipants.length" class="c-empty-collection">
                 Добавьте существо из бестиария, чтобы начать бой.
             </p>
             <div v-else class="encounter-participant-list" aria-label="Участники столкновения">
@@ -421,3 +421,11 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
         />
     </section>
 </template>
+
+<style scoped>
+.c-character-sheet .encounter-toolbar :deep(label),
+.c-character-sheet .encounter-add-row :deep(label),
+.c-character-sheet .encounter-participant :deep(label) {
+    row-gap: 8px;
+}
+</style>

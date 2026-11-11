@@ -22,12 +22,35 @@ function cancel() {
 <template>
     <NModal
         :show="true"
-        class="character-editor-modal character-feat-editor-modal"
+        class="c-character-editor-modal character-feat-editor-modal"
         :on-close="cancel"
     >
-        <NCard class="character-editor-card">
+        <NCard class="c-character-editor-card">
             <template #header>Черта персонажа</template>
             <CharacterFeatEditor :feat="feat" :disabled="disabled" @save="save" @cancel="cancel" />
         </NCard>
     </NModal>
 </template>
+
+<style scoped>
+.character-feat-editor-modal {
+    width: min(760px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+}
+.character-feat-editor-modal .c-character-editor-card {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.character-feat-editor-modal :deep(.c-editor-actions) {
+    flex-wrap: wrap;
+}
+.character-feat-editor-modal :deep(.n-input-textarea) {
+    min-height: 180px;
+    height: auto;
+    line-height: 1.55;
+    resize: vertical;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+</style>

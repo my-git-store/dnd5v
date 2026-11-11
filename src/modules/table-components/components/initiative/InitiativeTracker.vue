@@ -146,9 +146,9 @@ onUnmounted(() => {
 
 <template>
     <section class="panel component-card initiative-card" aria-labelledby="initiative-title">
-        <div class="section-heading">
+        <div class="c-section-heading">
             <div>
-                <p class="eyebrow">Локальный компонент</p>
+                <p class="c-eyebrow">Локальный компонент</p>
                 <h2 id="initiative-title">Трекер инициативы</h2>
             </div>
             <span class="round-chip">Раунд {{ round }}</span>

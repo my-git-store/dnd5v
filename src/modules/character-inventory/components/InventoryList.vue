@@ -103,8 +103,8 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
 </script>
 
 <template>
-    <section class="sheet-section inventory-ledger-section">
-        <div class="section-heading">
+    <section class="c-sheet-section inventory-ledger-section">
+        <div class="c-section-heading">
             <h2>Предметы</h2>
             <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>
         </div>
@@ -124,7 +124,7 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
         </fieldset>
         <EmptyCollection v-if="items.length === 0" text="Инвентарь пока пуст." />
         <EmptyCollection v-else-if="visibleItems.length === 0" text="Совпадений не найдено." />
-        <div v-for="item in visibleItems" :key="item.id" class="entry-card inventory-entry-card">
+        <div v-for="item in visibleItems" :key="item.id" class="c-entry-card inventory-entry-card">
             <div class="inventory-entry-content">
                 <div class="inventory-title">
                     <div>
@@ -137,7 +137,7 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
                             >Оружие: {{ getRules2024Weapon(item.weaponId)?.name }}</span
                         >
                     </div>
-                    <span v-if="item.equipped" class="mode-tag mode-equipped">Экипировано</span>
+                    <span v-if="item.equipped" class="c-mode-tag mode-equipped">Экипировано</span>
                 </div>
                 <div class="inventory-facts">
                     <span class="inventory-quantity-control"
@@ -182,7 +182,9 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
             </div>
         </div>
         <InventoryItemEditorModal
-            v-if="editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value"
+            v-if="
+                editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
+            "
             :item="editorModal.item.value"
             v-bind="editorModal.props.value"
             @close="editorModal.openOrClose"
@@ -194,3 +196,202 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
         />
     </section>
 </template>
+
+<style scoped>
+.inventory-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.inventory-meta {
+    font-size: 0.78rem !important;
+}
+.inventory-description {
+    max-width: 72ch;
+    margin-top: 7px;
+    color: var(--sheet-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.inventory-description summary {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.inventory-description summary::marker {
+    color: var(--sheet-gold);
+}
+.inventory-description p {
+    margin-top: 7px;
+    white-space: pre-wrap;
+}
+@media (max-width: 560px) {
+    .inventory-entry-actions {
+        width: 100%;
+        justify-items: stretch;
+    }
+    .inventory-entry-actions :deep(.n-button) {
+        flex: 1 1 auto;
+    }
+}
+.inventory-source-badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 3px 7px;
+    border: 1px solid #d7c39f;
+    border-radius: 999px;
+    background: #fbf0d8;
+    color: #805921;
+    font-size: 0.65rem;
+    font-weight: 800;
+}
+.inventory-title h3 {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.inventory-entry-actions {
+    display: grid;
+    align-content: center;
+    justify-items: end;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+.inventory-quantity-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.inventory-quantity-control button {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--sheet-line-soft);
+    border-radius: 6px;
+    background: #fff5de;
+    color: var(--sheet-ink);
+    cursor: pointer;
+}
+.inventory-quantity-control button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.inventory-entry-card {
+    margin-top: 3px;
+    padding: 14px 0 15px;
+}
+.inventory-entry-card:hover {
+    margin-inline: -8px;
+    padding-inline: 8px;
+    border-radius: 10px;
+    background: rgba(255, 248, 231, 0.55);
+}
+.inventory-entry-content {
+    min-width: 0;
+    flex: 1;
+}
+.inventory-title > div:first-child {
+    min-width: 0;
+}
+.inventory-title h3 {
+    display: block;
+    max-width: 100%;
+}
+.inventory-source-badge {
+    margin-top: 5px;
+    border-color: #d7c39f;
+    background: #fbf0d8;
+    color: #805921;
+}
+.inventory-entry-card p {
+    max-width: 72ch;
+}
+.inventory-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin: 0 0 12px;
+    padding: 8px 10px;
+    border: 1px solid var(--sheet-line-soft);
+    border-radius: 8px;
+    color: var(--sheet-muted);
+    font-size: 0.8rem;
+}
+.inventory-filter legend {
+    margin-inline: 4px;
+    padding-inline: 5px;
+    color: var(--sheet-faded);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+.inventory-filter :deep(label) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+.inventory-filter :deep(input) {
+    accent-color: var(--sheet-gold);
+}
+.inventory-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+.inventory-facts span {
+    padding: 4px 8px;
+    border: 1px solid var(--sheet-line-soft);
+    border-radius: 7px;
+    background: rgba(255, 248, 231, 0.76);
+    color: var(--sheet-muted);
+    font-size: 0.74rem;
+}
+.inventory-ledger-section :deep(.collection-search) {
+    margin-bottom: 12px;
+}
+.inventory-ledger-section :deep(.c-entry-actions) {
+    align-self: center;
+}
+.inventory-ledger-section > .c-section-heading {
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+}
+@media (max-width: 560px) {
+    .inventory-entry-card:hover {
+        margin-inline: 0;
+        padding-inline: 0;
+        background: transparent;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .inventory-entry-card {
+        transition: none;
+    }
+}
+.inventory-entry-card {
+    border-color: #dec9a4;
+}
+.inventory-entry-card:hover {
+    background: rgba(255, 246, 221, 0.62);
+}
+.inventory-source-badge {
+    border-color: #d2b989;
+}
+@media print {
+    .inventory-entry-actions {
+        display: none !important;
+    }
+}
+@media print {
+    .inventory-entry-card {
+        border-color: #aaa;
+    }
+}
+</style>

@@ -73,3 +73,59 @@ watch(expanded, value => {
         </div>
     </section>
 </template>
+
+<style scoped>
+.collapsible-sheet-section {
+    margin: 0;
+    min-width: 0;
+}
+.collapsible-sheet-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 8px 2px 11px;
+    border-bottom: 1px solid var(--sheet-line-soft);
+}
+.collapsible-sheet-heading h2 {
+    margin: 0;
+    color: var(--sheet-ink);
+    font-family: var(--font-serif);
+    font-size: 1.18rem;
+}
+.collapsible-sheet-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 6px 10px;
+    border: 1px solid var(--sheet-line);
+    border-radius: 8px;
+    background: rgba(255, 248, 231, 0.78);
+    color: var(--sheet-muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.collapsible-sheet-toggle:hover {
+    border-color: var(--sheet-gold);
+    color: var(--sheet-ink);
+}
+.collapsible-sheet-toggle:focus-visible {
+    outline: 2px solid var(--sheet-gold);
+    outline-offset: 2px;
+}
+.collapsible-sheet-content {
+    min-width: 0;
+}
+.collapsible-sheet-section.is-collapsed .collapsible-sheet-heading {
+    margin-bottom: 0;
+}
+@media print {
+    .collapsible-sheet-toggle {
+        display: none !important;
+    }
+}
+</style>

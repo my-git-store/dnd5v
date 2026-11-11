@@ -2,5 +2,5 @@
 defineProps<{ text: string }>()
 </script>
 <template>
-    <p class="empty-collection">{{ text }}</p>
+    <p class="c-empty-collection">{{ text }}</p>
 </template>
