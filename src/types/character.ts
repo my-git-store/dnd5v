@@ -260,7 +260,6 @@ export interface CharacterSpellcasting {
     spellRuleset?: CharacterRuleset
     /** Metadata only: full slot/level progression is intentionally out of scope. */
     spellProgressionType?: SpellProgressionType
-    spellcastingAbility: AbilityKey | null
     /** Canonical 2024 catalog references. Embedded knownSpells remain the compatibility view. */
     spellIds?: string[]
     cantripIds?: string[]

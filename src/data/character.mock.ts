@@ -118,7 +118,6 @@ function createCharacter(id: string, demo: boolean): Character {
             : [],
         spellcasting: {
             spellRuleset: '2024',
-            spellcastingAbility: null,
             spellIds: [],
             cantripIds: [],
             knownSpells: demo

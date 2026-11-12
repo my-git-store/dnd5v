@@ -78,8 +78,8 @@ const { classOptions, classId, gender, skillLabels } = toRefs(props.model)
                     >Снаряжение:
                     {{ item.startingEquipment.map(kit => kit.label).join(' · ') }}</span
                 ><span>{{
-                    item.spellcastingAbility
-                        ? `Магия: ${ABILITY_FIELDS.find(field => field.key === item.spellcastingAbility)?.label} · ${spellProgressionLabel(item.spellProgressionType)}`
+                    item.spellProgressionType !== 'none'
+                        ? `Магия: ${spellProgressionLabel(item.spellProgressionType)}`
                         : 'Без заклинаний на этом шаге'
                 }}</span>
             </NButton>

@@ -494,7 +494,6 @@ function validSpellcasting(value: unknown): boolean {
                 !SPELL_PROGRESSION_TYPES.includes(
                     value.spellProgressionType as (typeof SPELL_PROGRESSION_TYPES)[number],
                 ))) ||
-        !(value.spellcastingAbility === null || isAbilityKey(value.spellcastingAbility)) ||
         !Array.isArray(value.knownSpells) ||
         !Array.isArray(value.cantrips) ||
         !isStringArray(value.preparedSpellIds) ||

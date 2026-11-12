@@ -48,7 +48,6 @@ export interface Rules2024Class extends ClassDefinition {
     label: string
     hitDie: string
     primaryAbility: AbilityKey
-    spellcastingAbility: AbilityKey | null
     spellProgressionType: SpellProgressionType
     savingThrowKeys: AbilityKey[]
     skillChoiceCount: number
@@ -762,16 +761,6 @@ const classDescriptions: Record<string, string> = {
     wizard: 'Учёный маг, постигающий заклинания через исследование и практику.',
 }
 
-const spellProgressionFor = (
-    id: string,
-    spellcastingAbility: AbilityKey | null,
-): SpellProgressionType => {
-    if (!spellcastingAbility) return 'none'
-    if (id === 'warlock') return 'pact'
-    if (id === 'bard' || id === 'ranger' || id === 'sorcerer') return 'known'
-    return 'prepared'
-}
-
 const splitProficiencies = (proficiencies: string[]): { weapon: string[]; armor: string[] } => {
     const weaponPattern = /оруж|меч|рапир|топор|арбалет|лук|кинжал|дротик|пращ|посох|дубин|серп/i
 
@@ -787,7 +776,7 @@ const classData = (
     label: string,
     hitDie: string,
     primaryAbility: AbilityKey,
-    spellcastingAbility: AbilityKey | null,
+    spellProgressionType: SpellProgressionType,
     savingThrowKeys: AbilityKey[],
     skillChoiceCount: number,
     skillOptions: string[],
@@ -814,8 +803,7 @@ const classData = (
         hitDie,
         primaryAbility,
         primaryAbilities: [primaryAbility],
-        spellcastingAbility,
-        spellProgressionType: spellProgressionFor(id, spellcastingAbility),
+        spellProgressionType,
         savingThrowKeys,
         savingThrowProficiencies: [...savingThrowKeys],
         skillChoiceCount,
@@ -838,7 +826,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Варвар',
         'd12',
         'strength',
-        null,
+        'none',
         ['strength', 'constitution'],
         2,
         ['animal-handling', 'athletics', 'intimidation', 'nature', 'perception', 'survival'],
@@ -850,7 +838,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Бард',
         'd8',
         'charisma',
-        'charisma',
+        'known',
         ['dexterity', 'charisma'],
         3,
         allSkills,
@@ -862,7 +850,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Жрец',
         'd8',
         'wisdom',
-        'wisdom',
+        'prepared',
         ['wisdom', 'charisma'],
         2,
         ['history', 'insight', 'medicine', 'persuasion', 'religion'],
@@ -874,7 +862,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Друид',
         'd8',
         'wisdom',
-        'wisdom',
+        'prepared',
         ['intelligence', 'wisdom'],
         2,
         [
@@ -895,7 +883,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Воин',
         'd10',
         'strength',
-        null,
+        'none',
         ['strength', 'constitution'],
         2,
         [
@@ -916,7 +904,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Монах',
         'd8',
         'dexterity',
-        null,
+        'none',
         ['strength', 'dexterity'],
         2,
         ['acrobatics', 'athletics', 'history', 'insight', 'religion', 'stealth'],
@@ -928,7 +916,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Паладин',
         'd10',
         'strength',
-        'charisma',
+        'prepared',
         ['wisdom', 'charisma'],
         2,
         ['athletics', 'insight', 'intimidation', 'medicine', 'persuasion', 'religion'],
@@ -940,7 +928,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Следопыт',
         'd10',
         'dexterity',
-        'wisdom',
+        'known',
         ['strength', 'dexterity'],
         3,
         [
@@ -961,7 +949,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Плут',
         'd8',
         'dexterity',
-        null,
+        'none',
         ['dexterity', 'intelligence'],
         4,
         [
@@ -985,7 +973,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Чародей',
         'd6',
         'charisma',
-        'charisma',
+        'known',
         ['constitution', 'charisma'],
         2,
         ['arcana', 'deception', 'insight', 'intimidation', 'persuasion', 'religion'],
@@ -997,7 +985,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Колдун',
         'd8',
         'charisma',
-        'charisma',
+        'pact',
         ['wisdom', 'charisma'],
         2,
         ['arcana', 'deception', 'history', 'intimidation', 'investigation', 'nature', 'religion'],
@@ -1009,7 +997,7 @@ export const RULES_2024_CLASSES: Rules2024Class[] = [
         'Волшебник',
         'd6',
         'intelligence',
-        'intelligence',
+        'prepared',
         ['intelligence', 'wisdom'],
         2,
         ['arcana', 'history', 'insight', 'investigation', 'medicine', 'religion'],

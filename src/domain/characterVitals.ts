@@ -1,11 +1,11 @@
 import { abilityModifier } from './abilityModifier.ts'
 import type { CharacterSheetView } from '../types/characterView.ts'
-import type { AbilityKey } from '../types/character.ts'
+import type { SpellProgressionType } from '../types/rules.ts'
 import type { CharacterSpellSlots } from '../types/character.ts'
 
 type CreationClassVitals = {
     hitDie: string
-    spellcastingAbility: AbilityKey | null
+    spellProgressionType: SpellProgressionType
 }
 
 function emptySpellSlots(): CharacterSpellSlots {
@@ -62,7 +62,7 @@ export function initializeCharacterVitals(
     const slots = character.spellcasting.spellSlots
 
     const noExistingSlots = Object.values(slots).every(slot => slot.max === 0 && slot.used === 0)
-    if (noExistingSlots && classOption.spellcastingAbility) {
+    if (noExistingSlots && classOption.spellProgressionType !== 'none') {
         character.spellcasting.spellSlots = emptySpellSlots()
         character.spellcasting.spellSlots[1] = { max: 2, used: 0 }
     }

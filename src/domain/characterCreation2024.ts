@@ -343,7 +343,6 @@ export function applyCharacterCreation2024(
     }
     next.combat.speed.base = species.speed
     next.spellcasting.spellRuleset = '2024'
-    next.spellcasting.spellcastingAbility = classOption.spellcastingAbility
     next.spellcasting.spellProgressionType = classOption.spellProgressionType
     initializeCharacterVitals(next, classOption, previousCreation === undefined)
     next.inventoryData.items = [...preservedItems, ...generatedItems]

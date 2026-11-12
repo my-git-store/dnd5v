@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 
 import SpellList from './SpellList.vue'
-import SpellcastingSummary from './SpellcastingSummary.vue'
 import SpellSlotsFields from './SpellSlotsFields.vue'
 import type { CharacterSpell } from '@/types/character'
 import type { CharacterSheetView } from '@/types/characterView'
@@ -39,8 +38,6 @@ function useSlot(level: CharacterSpellLevel, delta: number) {
 
 <template>
     <div class="grid gap-4">
-        <SpellcastingSummary :spellcasting="character.spellcasting" :abilities="character.abilities"
-            :level="character.level" :disabled="disabled" @update="emit('update:spellcasting', $event)" />
         <SpellSlotsFields :slots="character.spellcasting.spellSlots" :disabled="disabled" @update="updateSlots"
             @use-slot="useSlot" />
         <section>
