@@ -36,10 +36,10 @@ const { baseAbilities, finalAbility } = toRefs(props.model)
                 <div class="creation-ability-input-row">
                     <NFormItem :label="field.label"
                         ><NInputNumber
+                            button-placement="both"
                             min="1"
                             max="30"
                             step="1"
-                            :show-button="false"
                             :disabled="disabled"
                             :value="baseAbilities[field.key]"
                             @update:value="emit('updateAbility', field.key, $event)" /></NFormItem

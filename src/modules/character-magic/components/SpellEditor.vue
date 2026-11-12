@@ -30,26 +30,19 @@ function submit() {
 </script>
 <template>
     <div class="c-editor-grid">
-        <NFormItem label="Название"
-            ><NInput v-model:value="draft.name" :disabled="disabled" /></NFormItem
-        ><NFormItem label="Уровень"
-            ><NInputNumber
-                v-if="!cantrip"
-                v-model:value="draft.level"
-                min="1"
-                max="9"
-                :show-button="false"
-                :disabled="disabled" /></NFormItem
-        ><NFormItem label="Описание"
-            ><NInput
-                v-model:value="draft.description"
-                type="textarea"
-                :disabled="disabled"
-                rows="3"
-        /></NFormItem>
+        <NFormItem label="Название">
+            <NInput v-model:value="draft.name" :disabled="disabled" />
+        </NFormItem>
+        <NFormItem label="Уровень">
+            <NInputNumber button-placement="both" v-if="!cantrip" v-model:value="draft.level" min="1" max="9"
+                :disabled="disabled" />
+        </NFormItem>
+        <NFormItem label="Описание">
+            <NInput v-model:value="draft.description" type="textarea" :disabled="disabled" rows="3" />
+        </NFormItem>
         <div class="c-editor-actions">
-            <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton
-            ><NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>
+            <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton>
+            <NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>
         </div>
     </div>
 </template>

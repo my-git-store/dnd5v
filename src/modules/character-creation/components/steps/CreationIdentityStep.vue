@@ -26,46 +26,28 @@ const { name, alignment, subclass, gender } = toRefs(props.model)
 <template>
     <div class="creation-step-content">
         <div class="creator-grid creation-identity-fields">
-            <NFormItem label="Имя персонажа"
-                ><NInput
-                    :value="name"
-                    :disabled="disabled"
-                    autocomplete="off"
-                    @update:value="emit('updateName', $event)"
-            /></NFormItem>
-            <NFormItem label="Мировоззрение (необязательно)"
-                ><NInput
-                    :value="alignment"
-                    :disabled="disabled"
-                    @update:value="emit('updateAlignment', String($event ?? ''))"
-            /></NFormItem>
-            <NFormItem label="Подкласс (позже)"
-                ><NInput
-                    :value="subclass"
-                    :disabled="disabled"
-                    @update:value="emit('updateSubclass', String($event ?? ''))"
-            /></NFormItem>
+            <NFormItem label="Имя персонажа">
+                <NInput :value="name" :disabled="disabled" autocomplete="off"
+                    @update:value="emit('updateName', $event)" />
+            </NFormItem>
+            <NFormItem label="Мировоззрение (необязательно)">
+                <NInput :value="alignment" :disabled="disabled"
+                    @update:value="emit('updateAlignment', String($event ?? ''))" />
+            </NFormItem>
+            <NFormItem label="Подкласс (позже)">
+                <NInput :value="subclass" :disabled="disabled"
+                    @update:value="emit('updateSubclass', String($event ?? ''))" />
+            </NFormItem>
             <fieldset class="c-gender-choice">
                 <legend>Пол персонажа</legend>
                 <div class="c-gender-choice-options" role="radiogroup" aria-label="Пол персонажа">
-                    <button
-                        type="button"
-                        class="c-gender-choice-button"
-                        :class="{ selected: gender === 'female' }"
-                        :aria-pressed="gender === 'female'"
-                        :disabled="disabled"
-                        @click="emit('updateGender', 'female')"
-                    >
+                    <button type="button" class="c-gender-choice-button" :class="{ selected: gender === 'female' }"
+                        :aria-pressed="gender === 'female'" :disabled="disabled"
+                        @click="emit('updateGender', 'female')">
                         Женский
                     </button>
-                    <button
-                        type="button"
-                        class="c-gender-choice-button"
-                        :class="{ selected: gender === 'male' }"
-                        :aria-pressed="gender === 'male'"
-                        :disabled="disabled"
-                        @click="emit('updateGender', 'male')"
-                    >
+                    <button type="button" class="c-gender-choice-button" :class="{ selected: gender === 'male' }"
+                        :aria-pressed="gender === 'male'" :disabled="disabled" @click="emit('updateGender', 'male')">
                         Мужской
                     </button>
                 </div>
@@ -74,7 +56,7 @@ const { name, alignment, subclass, gender } = toRefs(props.model)
         <div class="creation-callout">
             <span aria-hidden="true">✧</span>
             <p>
-                Персонаж создаётся по правилам D&amp;D 2024. Имя можно изменить позднее. Ваш выбор
+                Имя можно изменить позднее. Ваш выбор
                 пока остаётся в черновике листа.
             </p>
         </div>
@@ -89,10 +71,12 @@ const { name, alignment, subclass, gender } = toRefs(props.model)
     gap: 12px;
     margin-top: 16px;
 }
+
 .creation-identity-fields {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.creation-identity-fields > :first-child {
+
+.creation-identity-fields> :first-child {
     grid-column: 1 / -1;
 }
 </style>

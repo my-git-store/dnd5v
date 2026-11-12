@@ -65,7 +65,7 @@ function savingThrowLabel(key: AbilityKey): string {
                             Владение характеристикой
                         </NTooltip>
                     </div>
-                    <NInputNumber :show-button="false" :disabled="disabled" :value="abilities[field.key]"
+                    <NInputNumber button-placement="both" :disabled="disabled" :value="abilities[field.key]"
                         @update:value="onInput(field.key, $event)" />
                 </NFormItem>
                 <p class="modifier-caption" :title="'Модификатор = ⌊(значение − 10) / 2⌋'">

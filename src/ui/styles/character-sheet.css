@@ -207,7 +207,7 @@
 
 .c-section-heading {
     position: relative;
-    padding-bottom: 13px;
+    margin-bottom: 13px;
     border-bottom: 1px solid var(--sheet-line-soft);
 }
 

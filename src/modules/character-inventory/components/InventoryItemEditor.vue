@@ -70,10 +70,10 @@ function submit() {
                 :disabled="disabled" @update:value="updateWeapon" />
         </label>
         <NFormItem label="Количество">
-            <NInputNumber v-model:value="draft.quantity" min="0" :show-button="false" step="1" :disabled="disabled" />
+            <NInputNumber button-placement="both" v-model:value="draft.quantity" min="0" step="1" :disabled="disabled" />
         </NFormItem>
         <NFormItem label="Вес">
-            <NInputNumber min="0" step="0.01" :value="draft.weight ?? null" :show-button="false" :disabled="disabled"
+            <NInputNumber button-placement="both" min="0" step="0.01" :value="draft.weight ?? null" :disabled="disabled"
                 @update:value="draft.weight = weight($event)" />
         </NFormItem>
         <label class="c-check-control inventory-check">

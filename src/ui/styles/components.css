@@ -3,3 +3,7 @@
     opacity: 0.5;
     pointer-events: none;
 }
+
+.n-input-number .n-input__input-el {
+    text-align: center;
+}

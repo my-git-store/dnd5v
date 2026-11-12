@@ -29,8 +29,8 @@ function update(key: keyof CharacterMoney, value: unknown) {
             <div v-for="field in fields" :key="field.key">
                 <NFormItem :label="field.label"
                     ><NInputNumber
+                        button-placement="both"
                         min="0"
-                        :show-button="false"
                         :value="money[field.key]"
                         :disabled="disabled"
                         @update:value="update(field.key, $event)"

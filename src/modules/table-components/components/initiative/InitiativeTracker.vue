@@ -161,7 +161,7 @@ onUnmounted(() => {
             </label>
             <label>
                 <span>Инициатива</span>
-                <NInputNumber v-model:value="newInitiative" :show-button="false" :min="-99" :max="99" />
+                <NInputNumber button-placement="both" v-model:value="newInitiative" :min="-99" :max="99" />
             </label>
             <button class="primary-button" type="submit" :disabled="!newName.trim()">
                 Добавить
@@ -197,7 +197,7 @@ onUnmounted(() => {
                                     : ''
                             }}</small>
                 </div>
-                <NInputNumber class="participant-initiative" :show-button="false"
+                <NInputNumber button-placement="both" class="participant-initiative"
                     :aria-label="`Инициатива: ${participant.name}`" :min="-99" :max="99" :value="participant.initiative"
                     @update:value="updateParticipant(participant.id, { initiative: $event ?? 0 })" />
                 <button class="icon-button" type="button" :aria-label="`Удалить ${participant.name}`"

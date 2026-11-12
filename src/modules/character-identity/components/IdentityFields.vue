@@ -73,10 +73,10 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unk
             </NFormItem>
             <NFormItem label="Уровень" :show-feedback="false">
                 <NInputNumber
+                    button-placement="both"
                     :min="1"
                     :max="20"
                     :step="1"
-                    :show-button="false"
                     :disabled="disabled"
                     :value="character.level"
                     :input-props="{ 'aria-label': 'Уровень' }"
@@ -85,9 +85,9 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unk
             </NFormItem>
             <NFormItem label="Опыт" :show-feedback="false">
                 <NInputNumber
+                    button-placement="both"
                     :min="0"
                     :step="1"
-                    :show-button="false"
                     :disabled="disabled"
                     :value="character.experience"
                     :input-props="{ 'aria-label': 'Опыт' }"

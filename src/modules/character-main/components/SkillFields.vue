@@ -99,14 +99,8 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
 
 <template>
     <section class="c-sheet-section skills-panel">
-        <div class="c-section-heading c-section-heading-stack">
-            <div>
-                <h2>Навыки</h2>
-                <p class="c-section-note">
-                    Связь навыка с характеристикой обычно задана правилами. Владение добавляется
-                    источниками, а бонус можно ввести вручную или считать автоматически.
-                </p>
-            </div>
+        <div class="c-section-heading">
+            <h2>Навыки</h2>
         </div>
         <div class="skills-grid">
             <div v-for="(column, columnIndex) in skillColumns" :key="columnIndex" class="skills-column">
@@ -125,45 +119,56 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
                                 getSkillCalculationMode(skill) === 'manual' ? 'Вручную' : 'Расчёт'
                             }}</span>
                     </div>
-                    <div class="skill-row-meta">
-                        <span v-if="skillSources(skill).length" class="skill-source-inline">Источник:
-                            {{
-                                skillSources(skill)
-                                    .map(source => sourceLabels[source])
-                                    .join(' · ')
-                            }}</span>
-                        <span v-else class="skill-source-inline muted">Без источника владения</span>
-                        <details class="skill-settings">
-                            <summary>Настроить</summary>
+                    <NCollapse class="skill-settings" arrow-placement="right">
+                        <NCollapseItem :name="skill.id">
+                            <template #header="{ collapsed }">
+                                <button type="button" class="skill-settings-toggle" :aria-expanded="!collapsed"
+                                    :aria-label="`${skill.name}: настроить`">
+                                    <span v-if="skillSources(skill).length" class="skill-source-inline">Источник:
+                                        {{
+                                            skillSources(skill)
+                                                .map(source => sourceLabels[source])
+                                                .join(' · ')
+                                        }}</span>
+                                    <span v-else class="skill-source-inline muted">Без источника владения</span>
+                                    <span class="skill-settings-label">Настроить</span>
+                                </button>
+                            </template>
                             <div class="skill-controls">
-                                <label class="c-compact-field">Связанная характеристика
-                                    <NSelect class="c-select-control" :value="skill.ability ?? ''"
+                                <NFormItem label="Связанная характеристика" label-placement="top"
+                                    :show-feedback="false">
+                                    <NSelect size="small" :value="skill.ability ?? ''"
+                                        :aria-label="`${skill.name}: связанная характеристика`"
                                         :options="abilityOptions" :disabled="disabled"
                                         @update:value="updateAbility(skill.id, $event)" />
-                                </label>
-                                <label class="c-compact-field">Уровень владения
-                                    <NSelect class="c-select-control" :value="skill.proficiency"
-                                        :options="proficiencyOptions" :disabled="disabled"
-                                        @update:value="updateProficiency(skill.id, $event)" />
-                                </label>
-                                <label class="c-compact-field">Как считать бонус
-                                    <NSelect class="c-select-control" :value="getSkillCalculationMode(skill)"
+                                </NFormItem>
+                                <NFormItem label="Уровень владения" label-placement="top" :show-feedback="false">
+                                    <NSelect size="small" :value="skill.proficiency"
+                                        :aria-label="`${skill.name}: уровень владения`" :options="proficiencyOptions"
+                                        :disabled="disabled" @update:value="updateProficiency(skill.id, $event)" />
+                                </NFormItem>
+                                <NFormItem label="Как считать бонус" label-placement="top" :show-feedback="false">
+                                    <NSelect size="small" :value="getSkillCalculationMode(skill)"
+                                        :aria-label="`${skill.name}: как считать бонус`"
                                         :options="calculationModeOptions" :disabled="disabled"
                                         @update:value="updateMode(skill.id, $event)" />
-                                </label>
-                                <NFormItem v-if="getSkillCalculationMode(skill) === 'manual'" label="Бонус вручную">
-                                    <NInputNumber :show-button="false" :aria-label="`${skill.name}: бонус вручную`"
-                                        :disabled="disabled" :value="skill.value"
-                                        @update:value="updateValue(skill.id, $event)" />
                                 </NFormItem>
-                                <NFormItem v-else label="Дополнительная поправка">
-                                    <NInputNumber class="skill-additional-bonus-field" :show-button="false"
-                                        :disabled="disabled" :value="skill.additionalBonus"
+                                <NFormItem v-if="getSkillCalculationMode(skill) === 'manual'" label="Бонус вручную"
+                                    label-placement="top" :show-feedback="false">
+                                    <NInputNumber size="small" button-placement="both"
+                                        :aria-label="`${skill.name}: бонус вручную`" :disabled="disabled"
+                                        :value="skill.value" @update:value="updateValue(skill.id, $event)" />
+                                </NFormItem>
+                                <NFormItem v-else label="Дополнительная поправка" label-placement="top"
+                                    :show-feedback="false">
+                                    <NInputNumber size="small" button-placement="both"
+                                        :aria-label="`${skill.name}: дополнительная поправка`" :disabled="disabled"
+                                        :value="skill.additionalBonus"
                                         @update:value="updateAdditional(skill.id, $event)" />
                                 </NFormItem>
                             </div>
-                        </details>
-                    </div>
+                        </NCollapseItem>
+                    </NCollapse>
                 </div>
             </div>
         </div>
@@ -171,18 +176,6 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
 </template>
 
 <style scoped>
-.skill-row {
-    min-width: 0;
-}
-
-.skill-additional-bonus-field :deep(label) {
-    color: var(--sheet-muted);
-    font-family: inherit;
-    font-size: 0.72rem;
-    font-weight: 600;
-    line-height: 1.2;
-}
-
 .skill-calculation-mode {
     display: inline-flex;
     align-items: center;
@@ -206,18 +199,11 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
     background: #f5e5d4;
 }
 
-.skills-grid {
-    display: grid;
-    gap: 10px;
-}
-
 .skill-row {
-    display: grid;
-    grid-template-columns: minmax(120px, 0.8fr) minmax(180px, 1.2fr);
-    align-items: start;
-    gap: 14px;
-    padding: 11px 0;
-    border-top: 1px solid var(--sheet-line-soft);
+    min-width: 0;
+    container: skill-row / inline-size;
+    padding: 11px 0 10px;
+    border-top: 1px solid #dfcba7;
 }
 
 .skill-row:first-child {
@@ -227,7 +213,9 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
 .skill-controls {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--sheet-line-soft);
 }
 
 .skills-grid {
@@ -238,15 +226,6 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
 
 .skills-column {
     min-width: 0;
-}
-
-.skills-panel .c-section-note {
-    max-width: 34rem;
-}
-
-.skill-row {
-    display: block;
-    padding: 11px 0 10px;
 }
 
 .skill-row-summary {
@@ -294,20 +273,52 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
     min-width: 38px;
     min-height: 28px;
     padding: 0 7px;
-    border: 1px solid #d6bd91;
+    border: 1px solid #c5a56d;
     border-radius: 8px;
-    background: #fff5de;
-    color: #704b25;
+    background: #fff1cf;
+    color: var(--sheet-burgundy-dark);
     font-weight: 800;
 }
 
-.skill-row-meta {
+.skill-settings {
+    width: auto;
+    min-width: 0;
+    margin: 5px 0 0 24px;
+}
+
+.skill-settings-toggle {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 8px 12px;
-    margin: 5px 0 0 24px;
+    gap: 12px;
+    flex: 1;
     min-width: 0;
+    padding: 3px 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.skill-settings-label {
+    color: var(--sheet-burgundy);
+    font-size: 0.68rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.skill-settings :deep(.n-collapse-item__header-main) {
+    min-width: 0;
+}
+
+.skill-settings :deep(.n-collapse-item-arrow) {
+    flex-shrink: 0;
+    color: var(--sheet-burgundy);
+}
+
+.skill-settings :deep(.n-collapse-item__content-inner) {
+    padding-top: 8px;
 }
 
 .skill-source-inline {
@@ -324,69 +335,34 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
     color: #a08e76;
 }
 
-.skill-controls {
-    gap: 9px;
+.skill-controls :deep(.n-form-item) {
+    min-width: 0;
+    grid-template-rows: 1fr auto;
 }
 
-.skill-controls .c-compact-field {
+.skill-controls :deep(.n-form-item-label) {
+    min-height: 0;
+    padding: 0 0 6px;
+    color: var(--sheet-muted);
+    font-size: 0.72rem;
+    line-height: 1.3;
+}
+
+.skill-controls :deep(.n-form-item-blank) {
+    min-width: 0;
+    min-height: 0;
+}
+
+.skill-controls :deep(.n-input-number) {
+    display: flex;
+    width: 100%;
     min-width: 0;
 }
 
-.skill-settings summary {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-    padding: 3px 0;
-    color: #805921;
-    cursor: pointer;
-    font-size: 0.68rem;
-    font-weight: 800;
-    list-style: none;
-    white-space: nowrap;
+@container skill-row (max-width: 400px) {
+    .skill-controls {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
-.skill-settings summary::before {
-    content: '▸';
-    display: inline-block;
-    margin-right: 5px;
-    transition: transform 0.18s ease;
-}
-
-.skill-settings[open] summary::before {
-    transform: rotate(90deg);
-}
-
-.skill-settings .skill-controls {
-    display: none;
-}
-
-.skill-settings[open] .skill-controls {
-    display: grid;
-    grid-column: 1 / -1;
-    grid-row: 2;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    width: 100%;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px dashed var(--sheet-line-soft);
-}
-
-.skills-panel .skill-row {
-    border-color: #dfcba7;
-}
-
-.skill-bonus-pill {
-    border-color: #c5a56d;
-    background: #fff1cf;
-    color: var(--sheet-burgundy-dark);
-}
-
-.skill-settings summary {
-    color: var(--sheet-burgundy);
-}
-
-.skill-proficiency-dot.active {
-    border-color: #54705b;
-    background: #54705b;
-}
 </style>

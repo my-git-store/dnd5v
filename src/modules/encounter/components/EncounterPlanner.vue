@@ -354,13 +354,13 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
                             {{ participant.maxHitPoints }}</small>
                     </div>
                     <label><span>Текущие HP</span>
-                        <NInputNumber class="number-input" :show-button="false" :min="0" :max="participant.maxHitPoints"
+                        <NInputNumber button-placement="both" class="number-input" :min="0" :max="participant.maxHitPoints"
                             :value="participant.currentHitPoints" :aria-label="`Текущие HP: ${participant.name}`"
                             @update:value="
                                 updateParticipant(participant, 'currentHitPoints', $event)
                                 " />
                     </label><label><span>Инициатива</span>
-                        <NInputNumber class="number-input" :show-button="false" :value="participant.initiative"
+                        <NInputNumber button-placement="both" class="number-input" :value="participant.initiative"
                             :aria-label="`Инициатива: ${participant.name}`" @update:value="
                                 updateParticipant(participant, 'initiative', $event)
                                 " />

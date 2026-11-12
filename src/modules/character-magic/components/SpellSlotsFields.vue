@@ -55,18 +55,18 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
                 <div class="spell-slot-fields">
                     <NFormItem label="Макс."
                         ><NInputNumber
+                            button-placement="both"
                             min="0"
                             step="1"
-                            :show-button="false"
                             :value="slots[item.level].max"
                             :disabled="disabled"
                             @update:value="update(item.level, 'max', $event)"
                     /></NFormItem>
                     <NFormItem label="Использовано"
                         ><NInputNumber
+                            button-placement="both"
                             min="0"
                             step="1"
-                            :show-button="false"
                             :value="slots[item.level].used"
                             :disabled="disabled"
                             @update:value="update(item.level, 'used', $event)"

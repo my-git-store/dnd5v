@@ -48,27 +48,27 @@ function updateNumber(key: 'level' | 'experience' | 'armorClass', value: unknown
             /></NFormItem>
             <NFormItem label="Уровень"
                 ><NInputNumber
+                    button-placement="both"
                     min="1"
                     step="1"
-                    :show-button="false"
                     :disabled="disabled"
                     :value="details.level"
                     @update:value="updateNumber('level', $event)"
             /></NFormItem>
             <NFormItem label="Опыт"
                 ><NInputNumber
+                    button-placement="both"
                     min="0"
                     step="1"
-                    :show-button="false"
                     :disabled="disabled"
                     :value="details.experience"
                     @update:value="updateNumber('experience', $event)"
             /></NFormItem>
             <NFormItem label="КД"
                 ><NInputNumber
+                    button-placement="both"
                     min="0"
                     step="1"
-                    :show-button="false"
                     :disabled="disabled"
                     :value="details.armorClass"
                     @update:value="updateNumber('armorClass', $event)"
