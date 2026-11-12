@@ -24,7 +24,7 @@ async function confirm() {
 <template>
     <NModal :show="true" :on-close="() => emit('close')">
         <section
-            class="character-action-confirm c-sheet-section"
+            class="character-action-confirm"
             role="dialog"
             aria-modal="true"
             :aria-label="title"

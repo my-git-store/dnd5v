@@ -54,7 +54,7 @@ const { currentStep, isCompleted, stepIssue, stepLabel, stepDescription, steps, 
                 <Transition name="creation-step" mode="out-in">
                     <section
                         :key="currentStep"
-                        class="c-sheet-section creation-step-panel"
+                        class="creation-step-panel"
                         :aria-labelledby="`creation-step-title-${currentStep}`"
                     >
                         <div class="creation-panel-heading">

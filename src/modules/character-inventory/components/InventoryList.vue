@@ -105,7 +105,7 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
 </script>
 
 <template>
-    <section class="c-sheet-section inventory-ledger-section">
+    <section class="inventory-ledger-section">
         <div class="c-section-heading">
             <h2>Предметы</h2>
             <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>

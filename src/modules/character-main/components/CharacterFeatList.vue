@@ -59,7 +59,7 @@ function remove(id: string, name: string) {
 </script>
 
 <template>
-    <section class="c-sheet-section feats-section">
+    <section class="feats-section">
         <div class="c-section-heading">
             <div>
                 <h2>Черты персонажа</h2>

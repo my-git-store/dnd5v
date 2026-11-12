@@ -16,7 +16,7 @@ function update(key: keyof CharacterPersonality, value: unknown) {
 
 <template>
     <div class="c-tab-content bio-tab">
-        <section class="c-sheet-section bio-grid">
+        <section class="bio-grid">
             <NFormItem label="Черты характера"
                 ><NInput
                     type="textarea"

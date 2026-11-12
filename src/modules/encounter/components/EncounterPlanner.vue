@@ -284,7 +284,7 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
 </script>
 
 <template>
-    <section class="encounter-planner c-sheet-section" aria-labelledby="encounter-planner-title">
+    <section class="encounter-planner" aria-labelledby="encounter-planner-title">
         <header class="encounter-heading">
             <div>
                 <p class="c-eyebrow">Тактика</p>

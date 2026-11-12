@@ -188,7 +188,7 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
             </div>
         </header>
 
-        <section class="c-sheet-section npc-identity-section" aria-labelledby="npc-identity-title">
+        <section class="npc-identity-section" aria-labelledby="npc-identity-title">
             <div class="c-section-heading">
                 <h2 id="npc-identity-title">Основные сведения НПС</h2>
                 <span class="c-mode-tag mode-ready">НПС</span>
@@ -270,7 +270,7 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
             </div>
         </section>
 
-        <section class="c-sheet-section" aria-labelledby="npc-abilities-title">
+        <section aria-labelledby="npc-abilities-title">
             <div class="c-section-heading">
                 <h2 id="npc-abilities-title">Характеристики</h2>
                 <span class="c-mode-tag mode-ready">Расчёт</span>
@@ -287,7 +287,7 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
             </div>
         </section>
 
-        <section class="c-sheet-section" aria-labelledby="npc-bonuses-title">
+        <section aria-labelledby="npc-bonuses-title">
             <div class="c-section-heading">
                 <h2 id="npc-bonuses-title">Навыки и спасброски</h2>
             </div>
@@ -333,7 +333,7 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
             </div>
         </section>
 
-        <section v-for="kind in ['features', 'actions'] as const" :key="kind" class="c-sheet-section"
+        <section v-for="kind in ['features', 'actions'] as const" :key="kind"
             :aria-labelledby="`npc-${kind}-title`">
             <div class="c-section-heading">
                 <h2 :id="`npc-${kind}-title`">

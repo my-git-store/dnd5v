@@ -23,7 +23,7 @@ function update(key: keyof CharacterMoney, value: unknown) {
 }
 </script>
 <template>
-    <section class="c-sheet-section">
+    <section>
         <h2>Деньги</h2>
         <div class="money-grid">
             <div v-for="field in fields" :key="field.key">

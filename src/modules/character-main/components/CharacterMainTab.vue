@@ -101,7 +101,7 @@ function choiceSource(choice: ChoiceDefinition) {
 
 <template>
     <div class="c-tab-content">
-        <section class="c-sheet-section origin-summary" aria-labelledby="origin-summary-title">
+        <section class="origin-summary" aria-labelledby="origin-summary-title">
             <div class="c-section-heading c-section-heading-stack">
                 <div>
                     <h2 id="origin-summary-title">Происхождение</h2>
@@ -171,7 +171,7 @@ function choiceSource(choice: ChoiceDefinition) {
                     " :disabled="disabled" @update="updateSkill" />
         </div>
         <section v-if="PROGRESSION_UI_ENABLED && character.progression?.classLevels?.length"
-            class="c-sheet-section progression-summary" aria-labelledby="progression-summary-title">
+            class="progression-summary" aria-labelledby="progression-summary-title">
             <div class="c-section-heading c-section-heading-stack">
                 <div>
                     <h2 id="progression-summary-title">Прогрессия</h2>
@@ -209,7 +209,7 @@ function choiceSource(choice: ChoiceDefinition) {
                 </article>
             </div>
         </section>
-        <section v-if="character.creation || character.features?.length" class="c-sheet-section feature-summary">
+        <section v-if="character.creation || character.features?.length" class="feature-summary">
             <h2>Особенности героя</h2>
             <div class="feature-summary-grid">
                 <div v-if="character.creation">
@@ -419,7 +419,7 @@ function choiceSource(choice: ChoiceDefinition) {
     align-items: start;
 }
 
-.main-sheet-grid>.c-sheet-section {
+.main-sheet-grid>section {
     height: 100%;
     box-sizing: border-box;
 }

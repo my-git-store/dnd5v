@@ -40,7 +40,7 @@ function updateNumber(key: 'level' | 'experience' | 'armorClass', value: unknown
 </script>
 
 <template>
-    <section class="c-sheet-section">
+    <section>
         <h2>Данные персонажа</h2>
         <div class="character-details-grid">
             <NFormItem label="Класс"

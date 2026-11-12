@@ -131,7 +131,7 @@ function togglePrepared(id: string, checked: boolean) {
 </script>
 
 <template>
-    <section class="c-sheet-section spellbook-section">
+    <section class="spellbook-section">
         <div class="c-section-heading">
             <h2>{{ title }}</h2>
             <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>

@@ -40,7 +40,7 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
 </script>
 
 <template>
-    <section class="c-sheet-section">
+    <section>
         <div class="c-section-heading c-section-heading-stack">
             <div>
                 <h2>Ресурс заклинаний</h2>

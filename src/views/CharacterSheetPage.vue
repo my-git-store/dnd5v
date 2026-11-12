@@ -8,7 +8,6 @@ import CharacterCombatTab from '@/modules/character-combat/components/CharacterC
 import CharacterMagicTab from '@/modules/character-magic/components/CharacterMagicTab.vue'
 import CharacterInventoryTab from '@/modules/character-inventory/components/CharacterInventoryTab.vue'
 import CharacterBioTab from '@/modules/character-identity/components/CharacterBioTab.vue'
-import CharacterCreationTab from '@/modules/character-creation/components/CharacterCreationTab.vue'
 import NpcSheetPanel from '@/components/NpcSheetPanel.vue'
 import CharacterActionConfirmModal from '@/components/CharacterActionConfirmModal.vue'
 import LevelUpModal from '@/modules/character-progression/components/LevelUpModal.vue'
@@ -43,12 +42,6 @@ const visibleTabValues = new Set(tabs.map(tab => tab.value))
 const activeTab = ref<string>('main')
 
 const tabDirection = ref<'forward' | 'backward'>('forward')
-
-const creationOpen = ref(false)
-
-const creationSession = ref(0)
-
-const creationError = ref<string | null>(null)
 
 const sheet = useCharacterSheet()
 
@@ -114,19 +107,6 @@ function tabPanelClass(tab: string) {
 }
 function updateAbility(key: AbilityKey, value: number) {
     sheet.updateAbility(key, value)
-}
-function applyCreation(payload: Parameters<typeof sheet.applyCreation>[0]) {
-    try {
-        sheet.applyCreation(payload)
-        creationError.value = null
-    } catch (error) {
-        creationError.value =
-            error instanceof Error ? error.message : 'Не удалось создать персонажа.'
-    }
-}
-function closeCreation() {
-    creationOpen.value = false
-    activeTab.value = 'main'
 }
 function openLevelUpModal() {
     if (
@@ -201,111 +181,78 @@ function createNpcFromBestiary(entry: BestiaryEntry) {
 
 </script>
 <template>
-    <main class="c-character-sheet" :class="{
-        'character-sheet-creation-mode': creationOpen,
-    }">
+    <main class="c-character-sheet">
         <CharacterLoadState :loading="sheet.isLoading.value" :error="sheet.loadError.value" @retry="sheet.load"
             @create="createCharacter" />
         <template v-if="!sheet.isLoading.value && !sheet.loadError.value">
-            <section v-if="!sheet.character.value" class="character-empty-state c-sheet-section" aria-live="polite">
+            <section v-if="!sheet.character.value" class="character-empty-state" aria-live="polite">
                 <h1>Персонажи не найдены</h1>
                 <p>Создайте нового персонажа, чтобы начать работу с листом.</p>
                 <NButton type="primary" @click="createCharacter">Создать персонажа</NButton>
             </section>
         </template>
         <template v-if="sheet.character.value && !sheet.isLoading.value && !sheet.loadError.value">
-            <section v-if="creationOpen" class="character-creation-root" aria-label="Создание персонажа">
-                <CharacterCreationTab :key="creationSession" :character="sheet.character.value"
-                    :disabled="sheet.isSaving.value" :creation-error="creationError" hide-preview
-                    @create="applyCreation" @back-to-sheet="closeCreation" />
-            </section>
+            <NpcSheetPanel v-if="sheet.character.value.kind === 'npc'" :character="sheet.character.value"
+                :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"
+                :save-error="sheet.saveError.value" :on-save="sheet.save" @update="sheet.updateNpc" />
             <template v-else>
-                <NpcSheetPanel v-if="sheet.character.value.kind === 'npc'" :character="sheet.character.value"
-                    :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"
-                    :save-error="sheet.saveError.value" :on-save="sheet.save" @update="sheet.updateNpc" />
-                <template v-else>
-                    <CharacterSheetHeader :character="sheet.character.value"
-                        :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value"
-                        :saved="sheet.savedNotice.value" :save-error="sheet.saveError.value" @save="sheet.save"
-                        @update="sheet.updateIdentity" />
-                    <div class="sheet-tabs-row">
-                        <div class="sheet-tabs">
-                            <NTabs v-model:value="activeTab" type="line">
-                                <NTab v-for="tab in tabs" :key="tab.value" :name="tab.value" :tab="tab.name" />
-                            </NTabs>
-                        </div>
+                <CharacterSheetHeader :character="sheet.character.value" :dirty="sheet.isDirty.value"
+                    :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value" :save-error="sheet.saveError.value"
+                    @save="sheet.save" @update="sheet.updateIdentity" />
+                <div class="sheet-tabs-row">
+                    <div class="sheet-tabs">
+                        <NTabs v-model:value="activeTab" type="line">
+                            <NTab v-for="tab in tabs" :key="tab.value" :name="tab.value" :tab="tab.name" />
+                        </NTabs>
                     </div>
-                    <div class="sheet-tab-stage">
-                        <div v-show="activeTab === 'main'" id="sheet-tab-panel-main" class="sheet-tab-panel"
-                            :class="tabPanelClass('main')">
-                            <CharacterMainTab
-                                :character="sheet.character.value"
-                                :disabled="sheet.isSaving.value"
-                                @update:saving-throw="sheet.updateSavingThrow"
-                                @update:ability="updateAbility"
-                                @update:skill="sheet.updateSkill"
-                                @update:feats="sheet.updateFeats"
-                                @level-up="openLevelUpModal"
-                            />
-                        </div>
-                        <div v-show="activeTab === 'combat'" id="sheet-tab-panel-combat" class="sheet-tab-panel"
-                            :class="tabPanelClass('combat')">
-                            <CharacterCombatTab
-                                :character="sheet.character.value"
-                                :disabled="sheet.isSaving.value"
-                                :on-short-rest="takeShortRest"
-                                :on-long-rest="takeLongRest"
-                                @update:combat="sheet.updateCombat"
-                                @update:attacks="sheet.updateAttacks"
-                            />
-                        </div>
-                        <div v-show="activeTab === 'magic'" id="sheet-tab-panel-magic" class="sheet-tab-panel"
-                            :class="tabPanelClass('magic')">
-                            <CharacterMagicTab
-                                :character="sheet.character.value"
-                                :disabled="sheet.isSaving.value"
-                                @update:spells="sheet.updateSpells"
-                                @update:cantrips="sheet.updateCantrips"
-                                @update:spellcasting="sheet.updateSpellcasting"
-                                @use-slot="useSpellSlot"
-                            />
-                        </div>
-                        <div v-show="activeTab === 'inventory'" id="sheet-tab-panel-inventory" class="sheet-tab-panel"
-                            :class="tabPanelClass('inventory')">
-                            <CharacterInventoryTab
-                                :character="sheet.character.value"
-                                :disabled="sheet.isSaving.value"
-                                @update:inventory="sheet.updateInventory"
-                                @update:money="sheet.updateMoney"
-                                @use-item="useInventoryItem"
-                            />
-                        </div>
-                        <div v-show="activeTab === 'bio'" id="sheet-tab-panel-bio" class="sheet-tab-panel"
-                            :class="tabPanelClass('bio')">
-                            <CharacterBioTab
-                                :personality="sheet.character.value.personality"
-                                :disabled="sheet.isSaving.value"
-                                @update="sheet.updatePersonality"
-                            />
-                        </div>
-                        <div v-if="
-                            featureFlags.components &&
-                            activeTab === 'table-components'
-                        " class="sheet-tab-panel table-components-panel" :class="tabPanelClass('table-components')">
-                            <TableComponentsShowcase />
-                        </div>
-                        <div v-if="featureFlags.bestiary && activeTab === 'bestiary'"
-                            class="sheet-tab-panel bestiary-tab-panel" :class="tabPanelClass('bestiary')">
-                            <BestiaryPanel :on-create-npc="createNpcFromBestiary" />
-                        </div>
-                        <div v-if="featureFlags.encounter && activeTab === 'encounter'"
-                            class="sheet-tab-panel encounter-tab-panel" :class="tabPanelClass('encounter')">
-                            <EncounterPlanner :encounters="sheet.character.value.encounters"
-                                :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value"
-                                @update="sheet.updateEncounters" />
-                        </div>
+                </div>
+                <div class="sheet-tab-stage">
+                    <div v-show="activeTab === 'main'" id="sheet-tab-panel-main" class="sheet-tab-panel"
+                        :class="tabPanelClass('main')">
+                        <CharacterMainTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
+                            @update:saving-throw="sheet.updateSavingThrow" @update:ability="updateAbility"
+                            @update:skill="sheet.updateSkill" @update:feats="sheet.updateFeats"
+                            @level-up="openLevelUpModal" />
                     </div>
-                </template>
+                    <div v-show="activeTab === 'combat'" id="sheet-tab-panel-combat" class="sheet-tab-panel"
+                        :class="tabPanelClass('combat')">
+                        <CharacterCombatTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
+                            :on-short-rest="takeShortRest" :on-long-rest="takeLongRest"
+                            @update:combat="sheet.updateCombat" @update:attacks="sheet.updateAttacks" />
+                    </div>
+                    <div v-show="activeTab === 'magic'" id="sheet-tab-panel-magic" class="sheet-tab-panel"
+                        :class="tabPanelClass('magic')">
+                        <CharacterMagicTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
+                            @update:spells="sheet.updateSpells" @update:cantrips="sheet.updateCantrips"
+                            @update:spellcasting="sheet.updateSpellcasting" @use-slot="useSpellSlot" />
+                    </div>
+                    <div v-show="activeTab === 'inventory'" id="sheet-tab-panel-inventory" class="sheet-tab-panel"
+                        :class="tabPanelClass('inventory')">
+                        <CharacterInventoryTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
+                            @update:inventory="sheet.updateInventory" @update:money="sheet.updateMoney"
+                            @use-item="useInventoryItem" />
+                    </div>
+                    <div v-show="activeTab === 'bio'" id="sheet-tab-panel-bio" class="sheet-tab-panel"
+                        :class="tabPanelClass('bio')">
+                        <CharacterBioTab :personality="sheet.character.value.personality"
+                            :disabled="sheet.isSaving.value" @update="sheet.updatePersonality" />
+                    </div>
+                    <div v-if="
+                        featureFlags.components &&
+                        activeTab === 'table-components'
+                    " class="sheet-tab-panel table-components-panel" :class="tabPanelClass('table-components')">
+                        <TableComponentsShowcase />
+                    </div>
+                    <div v-if="featureFlags.bestiary && activeTab === 'bestiary'"
+                        class="sheet-tab-panel bestiary-tab-panel" :class="tabPanelClass('bestiary')">
+                        <BestiaryPanel :on-create-npc="createNpcFromBestiary" />
+                    </div>
+                    <div v-if="featureFlags.encounter && activeTab === 'encounter'"
+                        class="sheet-tab-panel encounter-tab-panel" :class="tabPanelClass('encounter')">
+                        <EncounterPlanner :encounters="sheet.character.value.encounters" :dirty="sheet.isDirty.value"
+                            :saving="sheet.isSaving.value" @update="sheet.updateEncounters" />
+                    </div>
+                </div>
             </template>
         </template>
         <LevelUpModal v-if="levelUpModal.isShowModal.value && levelUpModal.props.value"

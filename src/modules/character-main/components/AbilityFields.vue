@@ -42,14 +42,9 @@ function savingThrowLabel(key: AbilityKey): string {
 </script>
 
 <template>
-    <section class="c-sheet-section ability-panel">
+    <section class="ability-panel">
         <div class="c-section-heading c-section-heading-stack">
-            <div>
-                <h2>Характеристики</h2>
-                <p class="c-section-note">
-                    Введите исходные значения. Модификатор справа рассчитывается автоматически.
-                </p>
-            </div>
+            <h2>Характеристики</h2>
         </div>
         <div class="ability-grid">
             <div v-for="field in ABILITY_FIELDS" :key="field.key" class="c-field-card">

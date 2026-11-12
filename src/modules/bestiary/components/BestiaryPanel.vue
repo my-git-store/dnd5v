@@ -133,7 +133,7 @@ function addToInitiative(entry: BestiaryEntry) {
 </script>
 
 <template>
-    <section class="bestiary-panel c-sheet-section" aria-labelledby="bestiary-title">
+    <section class="bestiary-panel" aria-labelledby="bestiary-title">
         <header class="bestiary-heading">
             <div>
                 <p class="c-eyebrow">Справочник</p>

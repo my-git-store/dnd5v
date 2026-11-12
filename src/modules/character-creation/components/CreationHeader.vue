@@ -21,7 +21,7 @@ const progressStyle = computed<CSSProperties>(() => ({ width: `${stepProgress.va
 </script>
 
 <template>
-    <header class="creation-hero c-sheet-section">
+    <header class="creation-hero">
         <div class="creation-hero-mark" aria-hidden="true">✦</div>
         <div class="creation-hero-copy">
             <p class="c-eyebrow">Хроники начинаются здесь</p>

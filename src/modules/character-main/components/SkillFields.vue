@@ -98,7 +98,7 @@ function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
 </script>
 
 <template>
-    <section class="c-sheet-section skills-panel">
+    <section class="skills-panel">
         <div class="c-section-heading">
             <h2>Навыки</h2>
         </div>

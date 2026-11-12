@@ -23,7 +23,7 @@ async function importCharacters(mode: 'add' | 'replace') {
 
 <template>
     <NModal :show="true" :on-close="() => emit('close')">
-        <section class="character-import-modal c-sheet-section" role="dialog" aria-modal="true"
+        <section class="character-import-modal" role="dialog" aria-modal="true"
             aria-label="Импорт персонажей">
             <h2>Импорт персонажей</h2>
             <p>

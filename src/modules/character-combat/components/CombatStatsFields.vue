@@ -78,7 +78,7 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
 </script>
 
 <template>
-    <section class="c-sheet-section">
+    <section>
         <h2>Бой</h2>
         <div class="combat-grid">
             <div class="c-field-card combat-armor">

@@ -30,7 +30,7 @@ function updateAbility(value: string | null) {
 </script>
 
 <template>
-    <section class="c-sheet-section spellcasting-summary">
+    <section class="spellcasting-summary">
         <div class="c-section-heading">
             <h2>Выберите характеристику</h2>
         </div>

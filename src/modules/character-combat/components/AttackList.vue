@@ -206,7 +206,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <section class="c-sheet-section">
+    <section>
         <div class="c-section-heading">
             <h2>Атаки</h2>
             <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>

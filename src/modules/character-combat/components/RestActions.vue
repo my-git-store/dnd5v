@@ -76,42 +76,25 @@ function openLongRest() {
 </script>
 
 <template>
-    <section class="c-sheet-section rest-actions-panel" aria-labelledby="rest-actions-title">
+    <section class="rest-actions-panel" aria-labelledby="rest-actions-title">
         <div class="c-section-heading c-section-heading-stack">
             <div>
                 <h2 id="rest-actions-title">Отдых</h2>
-                <p class="c-section-note">
-                    Отдых меняет текущие ресурсы персонажа и сохраняется вместе с листом.
-                </p>
             </div>
             <span class="c-mode-tag">Доступно костей хитов: {{ availableDice }}</span>
         </div>
         <div class="rest-actions-controls">
-            <label class="c-compact-field"
-                >Костей для короткого отдыха
-                <NSelect
-                    v-model:value="selectedDice"
-                    class="c-select-control"
-                    :options="diceOptions"
-                    :disabled="disabled || availableDice === 0"
-                />
+            <label class="c-compact-field">Костей для короткого отдыха
+                <NSelect v-model:value="selectedDice" class="c-select-control" :options="diceOptions"
+                    :disabled="disabled || availableDice === 0" />
             </label>
-            <NButton
-                type="default"
-                :disabled="disabled || availableDice === 0"
-                @click="openShortRest"
-                >Короткий отдых</NButton
-            >
-            <NButton type="primary" :disabled="disabled" @click="openLongRest"
-                >Длительный отдых</NButton
-            >
+            <NButton type="default" :disabled="disabled || availableDice === 0" @click="openShortRest">Короткий отдых
+            </NButton>
+            <NButton type="primary" :disabled="disabled" @click="openLongRest">Длительный отдых</NButton>
         </div>
         <p v-if="status" class="action-status" role="status" aria-live="polite">{{ status }}</p>
-        <CharacterActionConfirmModal
-            v-if="actionModal.isShowModal.value && actionModal.props.value"
-            v-bind="actionModal.props.value"
-            @close="actionModal.openOrClose"
-        />
+        <CharacterActionConfirmModal v-if="actionModal.isShowModal.value && actionModal.props.value"
+            v-bind="actionModal.props.value" @close="actionModal.openOrClose" />
     </section>
 </template>
 
@@ -119,15 +102,18 @@ function openLongRest() {
 .rest-actions-panel {
     grid-column: 1 / -1;
 }
+
 .rest-actions-controls {
     display: flex;
     align-items: end;
     flex-wrap: wrap;
     gap: 10px;
 }
+
 .rest-actions-controls .c-compact-field {
     min-width: 190px;
 }
+
 .action-status {
     margin: 12px 0 0;
     padding: 8px 10px;

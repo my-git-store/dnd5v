@@ -16,53 +16,6 @@
     isolation: isolate;
     box-sizing: border-box;
     color: var(--sheet-ink);
-    background:
-        linear-gradient(135deg, rgba(255, 252, 244, 0.76), rgba(237, 218, 185, 0.46)),
-        repeating-linear-gradient(90deg, rgba(120, 82, 39, 0.025) 0 1px, transparent 1px 7px);
-    box-shadow:
-        0 0 40px rgba(83, 59, 38, 0.12),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.45);
-}
-
-.c-character-sheet::before {
-    content: '';
-    position: absolute;
-    inset: 12px;
-    z-index: -1;
-    pointer-events: none;
-    border: 1px solid rgba(139, 99, 52, 0.3);
-    box-shadow: inset 0 0 0 3px rgba(255, 249, 231, 0.38);
-    border-radius: 18px;
-}
-
-.c-character-sheet::after {
-    content: '◇';
-    position: absolute;
-    top: 4px;
-    left: 24px;
-    right: 24px;
-    z-index: 2;
-    display: grid;
-    place-items: center;
-    height: 16px;
-    padding: 0;
-    color: var(--sheet-gold);
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(155, 106, 47, 0.42) 9%,
-        rgba(155, 106, 47, 0.42) 91%,
-        transparent 100%
-    );
-    font-family: var(--font-serif);
-    font-size: 0.85rem;
-    line-height: 1;
-    pointer-events: none;
-}
-
-.c-character-sheet > * {
-    position: relative;
-    z-index: 1;
 }
 
 .c-eyebrow {
@@ -113,96 +66,8 @@
     margin-top: 22px;
 }
 
-.c-sheet-section,
-.c-field-card,
-.c-editor-grid > * {
-    min-width: 0;
-}
-
-.c-character-sheet input,
-.c-character-sheet textarea,
-.c-character-sheet select {
-    min-width: 0;
-    max-width: 100%;
-}
-
-.c-character-sheet label,
-.c-entry-card p,
-.c-entry-card h3 {
-    overflow-wrap: anywhere;
-}
-
-.c-character-sheet .n-input,
-.c-character-sheet .n-input-textarea,
-.c-select-control {
-    border-color: var(--sheet-line) !important;
-    background: rgba(255, 252, 244, 0.92) !important;
-    color: var(--sheet-ink);
-    box-shadow: inset 0 1px 3px rgba(83, 59, 38, 0.06);
-}
-
-.c-character-sheet .n-input:focus,
-.c-character-sheet .n-input-textarea:focus,
-.c-select-control:focus {
-    outline: 2px solid rgba(155, 106, 47, 0.3);
-    outline-offset: 1px;
-    box-shadow: 0 0 0 3px rgba(155, 106, 47, 0.11);
-}
-
-.c-character-sheet button:focus-visible,
-.c-character-sheet select:focus-visible,
-.c-character-sheet input:focus-visible,
-.c-character-sheet textarea:focus-visible {
-    outline: 2px solid #9b6a2f;
-    outline-offset: 2px;
-}
-
-.c-character-sheet .flex-col:has(> label),
-.c-character-sheet .c-compact-field {
-    row-gap: 8px;
-}
-
-.c-character-sheet .flex-col:has(> label) {
-    gap: 8px !important;
-}
-
-.c-character-sheet .c-compact-field {
-    gap: 8px;
-}
-
-.c-character-sheet .flex-col:has(> label),
-.c-character-sheet .c-compact-field,
-.c-character-editor-modal .flex-col:has(> label),
-.c-character-editor-modal .c-compact-field {
-    row-gap: 12px !important;
-}
-
 .c-character-editor-modal .c-editor-grid .flex-col {
     row-gap: 12px !important;
-}
-
-.c-sheet-section {
-    padding: 20px;
-    background: linear-gradient(145deg, var(--sheet-paper), rgba(255, 247, 228, 0.82));
-    border: 1px solid var(--sheet-line);
-    border-radius: 15px;
-    box-shadow:
-        0 7px 20px rgba(83, 59, 38, 0.075),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-}
-
-.c-sheet-section h2 {
-    margin: 0 0 16px;
-    color: var(--sheet-ink);
-    font-family: var(--font-serif);
-    font-size: 1.1rem;
-    letter-spacing: 0.01em;
-}
-
-.c-sheet-section h3 {
-    margin: 0;
-    color: var(--sheet-ink);
-    font-size: 1rem;
 }
 
 .c-section-heading {
@@ -233,13 +98,6 @@
 
 .c-section-heading {
     align-items: center;
-}
-
-.c-section-note {
-    margin: 5px 0 0;
-    color: var(--sheet-muted);
-    font-size: 0.82rem;
-    line-height: 1.45;
 }
 
 .c-progression-choice-card {
@@ -622,67 +480,6 @@
     font-size: 0.7rem;
 }
 
-.c-character-sheet {
-    --sheet-burgundy: var(--color-sheet-burgundy);
-    --sheet-burgundy-dark: var(--color-sheet-burgundy-dark);
-    --sheet-gold-soft: var(--color-sheet-gold-soft);
-    background:
-        linear-gradient(135deg, rgba(255, 251, 240, 0.74), rgba(237, 218, 185, 0.52)),
-        repeating-linear-gradient(90deg, rgba(120, 82, 39, 0.025) 0 1px, transparent 1px 7px);
-    border-inline-color: rgba(117, 74, 44, 0.34);
-}
-
-.c-character-sheet::before {
-    border-color: rgba(122, 62, 67, 0.28);
-    box-shadow: inset 0 0 0 3px rgba(255, 249, 231, 0.32);
-}
-
-.c-character-sheet::after {
-    color: var(--sheet-burgundy);
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(122, 62, 67, 0.34) 9%,
-        rgba(196, 155, 92, 0.68) 50%,
-        rgba(122, 62, 67, 0.34) 91%,
-        transparent 100%
-    );
-}
-
-.c-sheet-section {
-    position: relative;
-    padding: 19px;
-    border-color: #c8ae80;
-    border-radius: 9px;
-    background: linear-gradient(145deg, rgba(255, 250, 239, 0.91), rgba(250, 237, 211, 0.8));
-    box-shadow:
-        0 5px 15px rgba(83, 59, 38, 0.065),
-        inset 0 1px 0 rgba(255, 255, 255, 0.68);
-}
-
-.c-sheet-section::before {
-    content: '';
-    position: absolute;
-    inset: 6px;
-    pointer-events: none;
-    border: 1px solid rgba(185, 154, 105, 0.2);
-    border-radius: 5px;
-}
-
-.c-sheet-section > * {
-    position: relative;
-    z-index: 1;
-}
-
-.c-sheet-section h2 {
-    color: var(--sheet-burgundy);
-    font-size: 1.17rem;
-}
-
-.c-sheet-section h3 {
-    color: #49331f;
-}
-
 .c-section-heading {
     border-bottom-color: #dec9a4;
 }
@@ -690,10 +487,6 @@
 .c-section-heading::after {
     width: 54px;
     background: linear-gradient(90deg, var(--sheet-burgundy), var(--sheet-gold-soft));
-}
-
-.c-section-note {
-    color: #78634c;
 }
 
 .c-field-card {
