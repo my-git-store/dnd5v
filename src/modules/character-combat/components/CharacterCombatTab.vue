@@ -22,31 +22,11 @@ const emit = defineEmits<Emits>()
 
 <template>
     <div class="grid gap-4">
-        <section>
-            <div aria-hidden="true">⚔</div>
-            <div>
-                <h1>Бой</h1>
-            </div>
-        </section>
-        <CombatStatsFields
-            :combat="character.combat"
-            :abilities="character.abilities"
-            :disabled="disabled"
-            @update="emit('update:combat', $event)"
-        />
-        <RestActions
-            :combat="character.combat"
-            :abilities="character.abilities"
-            :disabled="disabled"
-            :on-short-rest="onShortRest"
-            :on-long-rest="onLongRest"
-        />
-        <AttackList
-            :attacks="character.attacks"
-            :abilities="character.abilities"
-            :level="character.level"
-            :disabled="disabled"
-            @update="emit('update:attacks', $event)"
-        />
+        <CombatStatsFields :combat="character.combat" :abilities="character.abilities" :disabled="disabled"
+            @update="emit('update:combat', $event)" />
+        <RestActions :combat="character.combat" :abilities="character.abilities" :disabled="disabled"
+            :on-short-rest="onShortRest" :on-long-rest="onLongRest" />
+        <AttackList :attacks="character.attacks" :abilities="character.abilities" :level="character.level"
+            :disabled="disabled" @update="emit('update:attacks', $event)" />
     </div>
 </template>

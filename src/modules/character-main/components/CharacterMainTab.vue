@@ -8,9 +8,7 @@ import type {
     CharacterSheetView,
     CharacterSkillPatch,
 } from '@/types/characterView'
-import { backgroundIconFor } from '@/data/backgroundIcons.ts'
-import { getRules2024Class, getRules2024Feat, getRules2024Feature } from '@/data/rules2024/index.ts'
-import { speciesIconFor } from '@/data/speciesIcons.ts'
+import { getRules2024Class, getRules2024Feature } from '@/data/rules2024/index.ts'
 import { availableChoicesForProgression } from '@/domain/characterProgression.ts'
 import { PROGRESSION_UI_ENABLED } from '@/domain/progressionVisibility.ts'
 import type { ChoiceDefinition } from '@/types/rules.ts'
@@ -36,9 +34,6 @@ function updateAbility(key: AbilityKey, value: number) {
 function updateSkill(id: string, patch: CharacterSkillPatch) {
     emit('update:skill', id, patch)
 }
-function originFeatDetails(character: CharacterSheetView) {
-    return character.origin.featId ? getRules2024Feat(character.origin.featId) : undefined
-}
 function progressionFeatureName(id: string) {
     return getRules2024Feature(id)?.name ?? id
 }
@@ -50,25 +45,6 @@ function progressionFeatureSource(id: string) {
     return feature
         ? (getRules2024Class(feature.classId)?.label ?? feature.source)
         : 'Неизвестный источник'
-}
-function characterSpeciesIcon(character: CharacterSheetView) {
-    return speciesIconFor(character.creation?.speciesId ?? character.race.name)
-}
-function characterBackgroundIcon(character: CharacterSheetView) {
-    return backgroundIconFor(
-        character.creation?.backgroundId ??
-            character.origin.background ??
-            character.background.name,
-    )
-}
-function hideBrokenAsset(event: Event) {
-    const image = event.currentTarget as HTMLImageElement | null
-    if (image) {
-        image.hidden = true
-        image.parentElement
-            ?.querySelector<HTMLElement>('[data-asset-fallback]')
-            ?.removeAttribute('hidden')
-    }
 }
 function canLevelUp(character: CharacterSheetView) {
     return Boolean(
@@ -101,108 +77,18 @@ function choiceSource(choice: ChoiceDefinition) {
 
 <template>
     <div class="grid gap-4">
-        <section aria-labelledby="origin-summary-title">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h2 id="origin-summary-title">Происхождение</h2>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <div>
-                    <span>Вид</span
-                    ><strong
-                        ><span
-                            class="inline-flex size-8 shrink-0 items-center justify-center"
-                            aria-hidden="true"
-                            ><span
-                                data-asset-fallback
-                                :hidden="Boolean(characterSpeciesIcon(character))"
-                                >{{
-                                    (character.origin.species || character.race.name || '✦').slice(
-                                        0,
-                                        1,
-                                    )
-                                }}</span
-                            ><img
-                                v-if="characterSpeciesIcon(character)"
-                                :src="characterSpeciesIcon(character)"
-                                :alt="`Иконка вида «${character.origin.species || character.race.name}»`"
-                                @error="hideBrokenAsset" /></span
-                        ><span>{{
-                            character.origin.species || character.race.name || 'Не указан'
-                        }}</span></strong
-                    >
-                </div>
-                <div>
-                    <span>Предыстория</span
-                    ><strong
-                        ><span
-                            class="inline-flex size-8 shrink-0 items-center justify-center"
-                            aria-hidden="true"
-                            ><span
-                                data-asset-fallback
-                                :hidden="Boolean(characterBackgroundIcon(character))"
-                                >{{
-                                    (
-                                        character.origin.background ||
-                                        character.background.name ||
-                                        '✦'
-                                    ).slice(0, 1)
-                                }}</span
-                            ><img
-                                v-if="characterBackgroundIcon(character)"
-                                :src="characterBackgroundIcon(character)"
-                                :alt="`Иконка предыстории «${character.origin.background || character.background.name}»`"
-                                @error="hideBrokenAsset" /></span
-                        ><span>{{
-                            character.origin.background || character.background.name || 'Не указана'
-                        }}</span></strong
-                    >
-                </div>
-                <div>
-                    <span>Происхожденческая черта</span
-                    ><strong>{{ character.origin.originFeat || 'Не выбрана' }}</strong
-                    ><small v-if="originFeatDetails(character)">{{
-                        originFeatDetails(character)?.description
-                    }}</small>
-                </div>
-                <div>
-                    <span>Языки</span
-                    ><strong>{{ character.origin.languages.join(', ') || 'Неуказаны' }}</strong>
-                </div>
-                <div>
-                    <span>Инструменты</span
-                    ><strong>{{ character.origin.tools.join(', ') || 'Неуказаны' }}</strong>
-                </div>
-            </div>
-        </section>
         <div class="grid gap-4">
-            <AbilityFields
-                :abilities="character.abilities"
-                :saving-throws="character.savingThrows"
-                :level="character.level"
-                :disabled="disabled"
-                @update="updateAbility"
-                @update:saving-throw="updateSavingThrow"
-            />
-            <SkillFields
-                :skills="character.skills"
-                :abilities="character.abilities"
-                :level="character.level"
+            <AbilityFields :abilities="character.abilities" :saving-throws="character.savingThrows"
+                :level="character.level" :disabled="disabled" @update="updateAbility"
+                @update:saving-throw="updateSavingThrow" />
+            <SkillFields :skills="character.skills" :abilities="character.abilities" :level="character.level"
                 :class-skill-ids="character.creation?.classSkillIds ?? []"
-                :race-skill-ids="character.creation?.raceSkillIds ?? []"
-                :background-skill-ids="
-                    character.creation?.backgroundSkillIds ??
+                :race-skill-ids="character.creation?.raceSkillIds ?? []" :background-skill-ids="character.creation?.backgroundSkillIds ??
                     character.background.skillProficiencies
-                "
-                :disabled="disabled"
-                @update="updateSkill"
-            />
+                    " :disabled="disabled" @update="updateSkill" />
         </div>
-        <section
-            v-if="PROGRESSION_UI_ENABLED && character.progression?.classLevels?.length"
-            aria-labelledby="progression-summary-title"
-        >
+        <section v-if="PROGRESSION_UI_ENABLED && character.progression?.classLevels?.length"
+            aria-labelledby="progression-summary-title">
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h2 id="progression-summary-title">Прогрессия</h2>
@@ -211,31 +97,19 @@ function choiceSource(choice: ChoiceDefinition) {
                         следующий уровень в черновик.
                     </p>
                 </div>
-                <NButton
-                    v-if="canLevelUp(character)"
-                    type="default"
-                    :disabled="disabled"
-                    @click="emit('level-up')"
-                >
-                    Повысить до {{ character.level + 1 }}</NButton
-                >
+                <NButton v-if="canLevelUp(character)" type="default" :disabled="disabled" @click="emit('level-up')">
+                    Повысить до {{ character.level + 1 }}</NButton>
                 <span v-else-if="character.level >= 20">Максимальный уровень</span>
                 <span v-else>Нужен выбранный класс</span>
             </div>
             <div v-if="lastProgressionHistory(character)" aria-live="polite">
-                <strong
-                    >Последнее повышение: {{ lastProgressionHistory(character)?.fromLevel }} →
-                    {{ lastProgressionHistory(character)?.toLevel }}</strong
-                >
-                <span v-if="lastProgressionHistory(character)?.gainedFeatures.length"
-                    >Новые особенности добавлены в список ниже.</span
-                >
+                <strong>Последнее повышение: {{ lastProgressionHistory(character)?.fromLevel }} →
+                    {{ lastProgressionHistory(character)?.toLevel }}</strong>
+                <span v-if="lastProgressionHistory(character)?.gainedFeatures.length">Новые особенности добавлены в
+                    список ниже.</span>
                 <span v-else>На этом уровне особенностей класса не добавлено.</span>
             </div>
-            <div
-                v-if="nextProgressionChoices(character).length"
-                aria-labelledby="progression-choices-title"
-            >
+            <div v-if="nextProgressionChoices(character).length" aria-labelledby="progression-choices-title">
                 <h3 id="progression-choices-title">
                     Доступные выборы на уровне {{ character.level + 1 }}
                 </h3>
@@ -269,27 +143,19 @@ function choiceSource(choice: ChoiceDefinition) {
                             <p v-if="progressionFeature(featureId)">
                                 {{ progressionFeature(featureId)?.description }}
                             </p>
-                            <small v-if="progressionFeature(featureId)"
-                                >Источник: {{ progressionFeatureSource(featureId) }} · Получено на
-                                {{ progressionFeature(featureId)?.level }} уровне</small
-                            >
+                            <small v-if="progressionFeature(featureId)">Источник: {{ progressionFeatureSource(featureId)
+                            }} · Получено на
+                                {{ progressionFeature(featureId)?.level }} уровне</small>
                         </article>
                     </div>
                     <ul v-else>
-                        <li
-                            v-for="feature in character.creation?.classFeatures ?? []"
-                            :key="feature"
-                        >
+                        <li v-for="feature in character.creation?.classFeatures ?? []" :key="feature">
                             {{ feature }}
                         </li>
                     </ul>
                 </div>
             </div>
         </section>
-        <CharacterFeatList
-            :feats="character.feats"
-            :disabled="disabled"
-            @update="emit('update:feats', $event)"
-        />
+        <CharacterFeatList :feats="character.feats" :disabled="disabled" @update="emit('update:feats', $event)" />
     </div>
 </template>

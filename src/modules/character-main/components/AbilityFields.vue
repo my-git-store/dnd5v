@@ -42,44 +42,32 @@ function savingThrowLabel(key: AbilityKey): string {
 </script>
 
 <template>
-    <section>
-        <div class="flex flex-wrap items-center justify-between gap-4">
-            <h2>Характеристики</h2>
-        </div>
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div v-for="field in ABILITY_FIELDS" :key="field.key">
-                <NFormItem content-class="flex-col flex">
-                    <div class="w-full">
-                        <NTooltip>
-                            <template #trigger>
-                                <NCheckbox
-                                    :checked="savingThrows[field.key].proficient"
-                                    :disabled="disabled"
-                                    @update:checked="updateProficiency(field.key, $event)"
-                                >
-                                    {{ field.label }}
-                                </NCheckbox>
-                            </template>
-                            Владение характеристикой
-                        </NTooltip>
-                    </div>
-                    <NInputNumber
-                        button-placement="both"
-                        :disabled="disabled"
-                        :value="abilities[field.key]"
-                        @update:value="onInput(field.key, $event)"
-                    />
-                </NFormItem>
-                <p :title="'Модификатор = ⌊(значение − 10) / 2⌋'">
-                    Модификатор (расчёт):
-                    {{ signedModifier(abilityModifier(abilities[field.key])) }}
-                </p>
-                <div class="flex flex-wrap items-center gap-2">
-                    <span>
-                        Спасбросок: <strong>{{ savingThrowLabel(field.key) }}</strong>
-                    </span>
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div v-for="field in ABILITY_FIELDS" :key="field.key">
+            <NFormItem content-class="flex-col flex">
+                <div class="w-full">
+                    <NTooltip>
+                        <template #trigger>
+                            <NCheckbox :checked="savingThrows[field.key].proficient" :disabled="disabled"
+                                @update:checked="updateProficiency(field.key, $event)">
+                                {{ field.label }}
+                            </NCheckbox>
+                        </template>
+                        Владение характеристикой
+                    </NTooltip>
                 </div>
+                <NInputNumber button-placement="both" :disabled="disabled" :value="abilities[field.key]"
+                    @update:value="onInput(field.key, $event)" />
+            </NFormItem>
+            <p :title="'Модификатор = ⌊(значение − 10) / 2⌋'">
+                Модификатор (расчёт):
+                {{ signedModifier(abilityModifier(abilities[field.key])) }}
+            </p>
+            <div class="flex flex-wrap items-center gap-2">
+                <span>
+                    Спасбросок: <strong>{{ savingThrowLabel(field.key) }}</strong>
+                </span>
             </div>
         </div>
-    </section>
+    </div>
 </template>

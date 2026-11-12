@@ -3,6 +3,9 @@ import CharacterSheetPage from '@/views/CharacterSheetPage.vue'
 import { NScrollbar } from 'naive-ui'
 import { NConfigProvider, ruRU, dateRuRU } from 'naive-ui'
 
+const inputNumberAlignmentClass = '[&_.n-input-number_input]:text-center!'
+
+
 const locale = {
     ...ruRU,
     Input: {
@@ -18,7 +21,7 @@ const locale = {
 </script>
 
 <template>
-    <n-config-provider :locale="locale" :date-locale="dateRuRU">
+    <n-config-provider :locale="locale" :class="inputNumberAlignmentClass" :date-locale="dateRuRU">
         <n-notification-provider placement="bottom-right">
             <n-dialog-provider>
                 <n-modal-provider>

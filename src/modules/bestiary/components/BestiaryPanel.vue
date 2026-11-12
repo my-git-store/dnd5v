@@ -63,8 +63,8 @@ function challengeValue(value: string): number {
     return Number.isFinite(denominator) && denominator > 0
         ? numerator / denominator
         : Number.isFinite(numerator)
-          ? numerator
-          : 0
+            ? numerator
+            : 0
 }
 
 const options = computed(() => ({
@@ -104,8 +104,8 @@ const filteredEntries = computed(() => {
         sort.value === 'name'
             ? left.name.localeCompare(right.name, 'ru')
             : sort.value === 'speed'
-              ? right.speed - left.speed || left.name.localeCompare(right.name, 'ru')
-              : challengeValue(right.challengeRating) - challengeValue(left.challengeRating) ||
+                ? right.speed - left.speed || left.name.localeCompare(right.name, 'ru')
+                : challengeValue(right.challengeRating) - challengeValue(left.challengeRating) ||
                 left.name.localeCompare(right.name, 'ru'),
     )
 })
@@ -142,109 +142,57 @@ function addToInitiative(entry: BestiaryEntry) {
             <span>{{ filteredEntries.length }} записей</span>
         </header>
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Поиск и фильтры бестиария">
-            <NFormItem label="Поиск по названию"
-                ><NInput v-model:value="filters.search" placeholder="Например, разведчик"
-            /></NFormItem>
-            <label
-                ><span>Размер</span
-                ><NSelect
-                    v-model:value="filters.size"
-                    class="w-full"
-                    :options="filterOptions(options.size, 'Любой размер')"
-                    aria-label="Фильтр по размеру"
-            /></label>
-            <label
-                ><span>Тип</span
-                ><NSelect
-                    v-model:value="filters.creatureType"
-                    class="w-full"
-                    :options="filterOptions(options.creatureType, 'Любой тип')"
-                    aria-label="Фильтр по типу"
-            /></label>
-            <label
-                ><span>Мировоззрение</span
-                ><NSelect
-                    v-model:value="filters.alignment"
-                    class="w-full"
-                    :options="filterOptions(options.alignment, 'Любое')"
-                    aria-label="Фильтр по мировоззрению"
-            /></label>
-            <label
-                ><span>Рейтинг опасности</span
-                ><NSelect
-                    v-model:value="filters.challengeRating"
-                    class="w-full"
+            <NFormItem label="Поиск по названию">
+                <NInput v-model:value="filters.search" placeholder="Например, разведчик" />
+            </NFormItem>
+            <label><span>Размер</span>
+                <NSelect v-model:value="filters.size" class="w-full"
+                    :options="filterOptions(options.size, 'Любой размер')" aria-label="Фильтр по размеру" />
+            </label>
+            <label><span>Тип</span>
+                <NSelect v-model:value="filters.creatureType" class="w-full"
+                    :options="filterOptions(options.creatureType, 'Любой тип')" aria-label="Фильтр по типу" />
+            </label>
+            <label><span>Мировоззрение</span>
+                <NSelect v-model:value="filters.alignment" class="w-full"
+                    :options="filterOptions(options.alignment, 'Любое')" aria-label="Фильтр по мировоззрению" />
+            </label>
+            <label><span>Рейтинг опасности</span>
+                <NSelect v-model:value="filters.challengeRating" class="w-full"
                     :options="filterOptions(options.challengeRating, 'Любой')"
-                    aria-label="Фильтр по рейтингу опасности"
-            /></label>
-            <label
-                ><span>Среда</span
-                ><NSelect
-                    v-model:value="filters.environment"
-                    class="w-full"
-                    :options="filterOptions(options.environment, 'Любая')"
-                    aria-label="Фильтр по среде"
-            /></label>
-            <label
-                ><span>Источник</span
-                ><NSelect
-                    v-model:value="filters.source"
-                    class="w-full"
-                    :options="filterOptions(options.source, 'Любой')"
-                    aria-label="Фильтр по источнику"
-            /></label>
-            <label
-                ><span>Язык</span
-                ><NSelect
-                    v-model:value="filters.language"
-                    class="w-full"
-                    :options="filterOptions(options.language, 'Любой')"
-                    aria-label="Фильтр по языку"
-            /></label>
-            <label
-                ><span>Скорость</span
-                ><NSelect
-                    v-model:value="filters.speed"
-                    class="w-full"
-                    :options="speedOptions"
-                    aria-label="Фильтр по скорости"
-            /></label>
-            <label
-                ><span>Сортировка</span
-                ><NSelect
-                    v-model:value="sort"
-                    class="w-full"
-                    :options="sortOptions"
-                    aria-label="Сортировка бестиария"
-            /></label>
+                    aria-label="Фильтр по рейтингу опасности" />
+            </label>
+            <label><span>Среда</span>
+                <NSelect v-model:value="filters.environment" class="w-full"
+                    :options="filterOptions(options.environment, 'Любая')" aria-label="Фильтр по среде" />
+            </label>
+            <label><span>Источник</span>
+                <NSelect v-model:value="filters.source" class="w-full" :options="filterOptions(options.source, 'Любой')"
+                    aria-label="Фильтр по источнику" />
+            </label>
+            <label><span>Язык</span>
+                <NSelect v-model:value="filters.language" class="w-full"
+                    :options="filterOptions(options.language, 'Любой')" aria-label="Фильтр по языку" />
+            </label>
+            <label><span>Скорость</span>
+                <NSelect v-model:value="filters.speed" class="w-full" :options="speedOptions"
+                    aria-label="Фильтр по скорости" />
+            </label>
+            <label><span>Сортировка</span>
+                <NSelect v-model:value="sort" class="w-full" :options="sortOptions" aria-label="Сортировка бестиария" />
+            </label>
         </div>
         <p v-if="!filteredEntries.length">Существа по выбранным фильтрам не найдены.</p>
         <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <NButton
-                v-for="entry in filteredEntries"
-                :key="entry.id"
-                native-type="button"
-                :aria-label="`Открыть существо ${entry.name}`"
-                @click="openDetails(entry)"
-            >
-                <span aria-hidden="true">✦</span
-                ><span
-                    ><strong>{{ entry.name }}</strong
-                    ><small
-                        >{{ entry.size }} · {{ entry.creatureType }} · Опасность
-                        {{ entry.challengeRating }}</small
-                    ><span>{{ entry.environment.join(' · ') }}</span></span
-                ><span
-                    >КД {{ entry.armorClass }} · HP {{ entry.hitPoints }} ·
-                    {{ entry.speed }} фт.</span
-                >
+            <NButton v-for="entry in filteredEntries" :key="entry.id" native-type="button"
+                :aria-label="`Открыть существо ${entry.name}`" @click="openDetails(entry)">
+                <span><strong>{{ entry.name }}</strong><small>{{ entry.size }} · {{ entry.creatureType }} · Опасность
+                        {{ entry.challengeRating }}</small><span>{{ entry.environment.join(' · ')
+                        }}</span></span><span>КД {{ entry.armorClass }} · HP {{ entry.hitPoints }} ·
+                    {{ entry.speed }} фт.</span>
             </NButton>
         </div>
-        <BestiaryEntryModal
-            v-if="entryModal.isShowModal.value && entryModal.item.value && entryModal.props.value"
-            :entry="entryModal.item.value"
-            v-bind="entryModal.props.value"
-            @close="entryModal.openOrClose"
-        />
+        <BestiaryEntryModal v-if="entryModal.isShowModal.value && entryModal.item.value && entryModal.props.value"
+            :entry="entryModal.item.value" v-bind="entryModal.props.value" @close="entryModal.openOrClose" />
     </section>
 </template>

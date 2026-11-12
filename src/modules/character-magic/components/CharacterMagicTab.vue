@@ -39,52 +39,24 @@ function useSlot(level: CharacterSpellLevel, delta: number) {
 
 <template>
     <div class="grid gap-4">
-        <section>
-            <div aria-hidden="true">✦</div>
-            <h1>Магия и заклинания</h1>
-        </section>
-        <SpellcastingSummary
-            :spellcasting="character.spellcasting"
-            :abilities="character.abilities"
-            :level="character.level"
-            :disabled="disabled"
-            @update="emit('update:spellcasting', $event)"
-        />
-        <SpellSlotsFields
-            :slots="character.spellcasting.spellSlots"
-            :disabled="disabled"
-            @update="updateSlots"
-            @use-slot="useSlot"
-        />
+        <SpellcastingSummary :spellcasting="character.spellcasting" :abilities="character.abilities"
+            :level="character.level" :disabled="disabled" @update="emit('update:spellcasting', $event)" />
+        <SpellSlotsFields :slots="character.spellcasting.spellSlots" :disabled="disabled" @update="updateSlots"
+            @use-slot="useSlot" />
         <section>
             <NTabs v-model:value="activeSpellbookTab" type="line">
-                <NTab
-                    v-for="tab in spellbookTabs"
-                    :key="tab.value"
-                    :name="tab.value"
-                    :tab="tab.name"
-                />
+                <NTab v-for="tab in spellbookTabs" :key="tab.value" :name="tab.value" :tab="tab.name" />
             </NTabs>
             <div>
                 <div v-show="activeSpellbookTab === 'cantrips'" id="spellbook-tab-cantrips">
-                    <SpellList
-                        title="Заговоры"
-                        :spells="character.cantrips"
-                        cantrip
-                        :disabled="disabled"
-                        @update="emit('update:cantrips', $event)"
-                    />
+                    <SpellList title="Заговоры" :spells="character.cantrips" cantrip :disabled="disabled"
+                        @update="emit('update:cantrips', $event)" />
                 </div>
                 <div v-show="activeSpellbookTab === 'spells'" id="spellbook-tab-spells">
-                    <SpellList
-                        title="Заклинания"
-                        :spells="character.spells"
-                        :prepared-ids="character.spellcasting.preparedSpellIds"
-                        show-prepared-filter
-                        :disabled="disabled"
-                        @update="emit('update:spells', $event)"
-                        @update:prepared-ids="updatePrepared"
-                    />
+                    <SpellList title="Заклинания" :spells="character.spells"
+                        :prepared-ids="character.spellcasting.preparedSpellIds" show-prepared-filter
+                        :disabled="disabled" @update="emit('update:spells', $event)"
+                        @update:prepared-ids="updatePrepared" />
                 </div>
             </div>
         </section>

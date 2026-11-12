@@ -18,22 +18,9 @@ const emit = defineEmits<Emits>()
 
 <template>
     <div class="grid gap-4">
-        <section>
-            <div aria-hidden="true">◆</div>
-            <div>
-                <h1>Инвентарь</h1>
-            </div>
-        </section>
-        <InventoryList
-            :items="character.inventoryData.items"
-            :disabled="disabled"
-            @update="emit('update:inventory', $event)"
-            @use-item="emit('use-item', $event)"
-        />
-        <MoneyFields
-            :money="character.inventoryData.money"
-            :disabled="disabled"
-            @update="emit('update:money', $event)"
-        />
+        <InventoryList :items="character.inventoryData.items" :disabled="disabled"
+            @update="emit('update:inventory', $event)" @use-item="emit('use-item', $event)" />
+        <MoneyFields :money="character.inventoryData.money" :disabled="disabled"
+            @update="emit('update:money', $event)" />
     </div>
 </template>

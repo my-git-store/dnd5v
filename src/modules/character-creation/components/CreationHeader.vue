@@ -20,21 +20,15 @@ const { currentStep, steps, stepDescription, stepLabel, stepProgress } = toRefs(
 
 <template>
     <header class="grid gap-3">
-        <div aria-hidden="true">✦</div>
         <div>
             <p>Хроники начинаются здесь</p>
             <h1>Создание персонажа</h1>
             <p>{{ stepDescription(currentStep - 1) }}</p>
         </div>
         <div class="grid gap-3">
-            <strong>Шаг {{ currentStep }} из {{ steps.length }}</strong
-            ><span>{{ stepLabel(currentStep - 1) }}</span>
+            <strong>Шаг {{ currentStep }} из {{ steps.length }}</strong><span>{{ stepLabel(currentStep - 1) }}</span>
         </div>
-        <NProgress
-            type="line"
-            :percentage="stepProgress"
-            :show-indicator="false"
-            :aria-label="`Шаг ${currentStep} из ${steps.length}`"
-        />
+        <NProgress type="line" :percentage="stepProgress" :show-indicator="false"
+            :aria-label="`Шаг ${currentStep} из ${steps.length}`" />
     </header>
 </template>

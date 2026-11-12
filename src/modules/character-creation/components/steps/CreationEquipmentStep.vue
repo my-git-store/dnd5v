@@ -33,22 +33,13 @@ const { selectedClass, classEquipmentOptions, classEquipmentId, previewEquipment
                 <h3>Набор класса · {{ selectedClass.label }}</h3>
                 <p>Выберите один вариант — его предметы попадут в инвентарь при создании.</p>
             </div>
-            <CreationEquipmentChoices
-                :options="classEquipmentOptions"
-                :selected-id="classEquipmentId"
-                :disabled="disabled"
-                sigil="⚔"
-                item-count-label="позиций снаряжения"
-                @select="emit('selectClassKit', $event)"
-            />
+            <CreationEquipmentChoices :options="classEquipmentOptions" :selected-id="classEquipmentId"
+                :disabled="disabled" item-count-label="позиций снаряжения" @select="emit('selectClassKit', $event)" />
         </div>
         <div>
-            <strong>Будет добавлено в инвентарь</strong
-            ><span
-                v-for="(item, index) in previewEquipment"
-                :key="`${item.source}-${item.name}-${index}`"
-                >{{ item.name }} × {{ item.quantity }} <small>{{ item.source }}</small></span
-            >
+            <strong>Будет добавлено в инвентарь</strong><span v-for="(item, index) in previewEquipment"
+                :key="`${item.source}-${item.name}-${index}`">{{ item.name }} × {{ item.quantity }} <small>{{
+                    item.source }}</small></span>
         </div>
     </div>
 </template>

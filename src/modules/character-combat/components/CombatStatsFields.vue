@@ -79,7 +79,6 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
 
 <template>
     <section>
-        <h2>Бой</h2>
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-4">
@@ -88,15 +87,10 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     <span>Ручное значение</span>
                 </div>
                 <p>Расчёт КД не настроен — укажите итоговое значение вручную.</p>
-                <NFormItem label="КД"
-                    ><NInputNumber
-                        button-placement="both"
-                        min="0"
-                        step="1"
-                        :value="armorClass"
-                        :disabled="disabled"
-                        @update:value="updateArmorValue"
-                /></NFormItem>
+                <NFormItem label="КД">
+                    <NInputNumber button-placement="both" min="0" step="1" :value="armorClass" :disabled="disabled"
+                        @update:value="updateArmorValue" />
+                </NFormItem>
             </div>
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-4">
@@ -105,14 +99,10 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     <span>Расчёт</span>
                 </div>
                 <p>Модификатор Ловкости + добавка</p>
-                <NFormItem label="Доп. бонус инициативы"
-                    ><NInputNumber
-                        button-placement="both"
-                        step="1"
-                        :value="combat.initiative.additionalBonus"
-                        :disabled="disabled"
-                        @update:value="updateInitiative"
-                /></NFormItem>
+                <NFormItem label="Доп. бонус инициативы">
+                    <NInputNumber button-placement="both" step="1" :value="combat.initiative.additionalBonus"
+                        :disabled="disabled" @update:value="updateInitiative" />
+                </NFormItem>
             </div>
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-4">
@@ -120,38 +110,22 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     <p>{{ speed }}</p>
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <NFormItem label="Базовая"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            :value="combat.speed.base"
-                            :disabled="disabled"
-                            @update:value="updateSpeed('base', $event)"
-                    /></NFormItem>
-                    <NFormItem label="Переопределение"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            :value="combat.speed.override ?? null"
-                            :disabled="disabled"
-                            @update:value="updateSpeed('override', $event)"
-                    /></NFormItem>
-                    <NFormItem label="Полёт"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            :value="combat.speed.fly ?? null"
-                            :disabled="disabled"
-                            @update:value="updateSpeed('fly', $event)"
-                    /></NFormItem>
-                    <NFormItem label="Плавание"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            :value="combat.speed.swim ?? null"
-                            :disabled="disabled"
-                            @update:value="updateSpeed('swim', $event)"
-                    /></NFormItem>
+                    <NFormItem label="Базовая">
+                        <NInputNumber button-placement="both" min="0" :value="combat.speed.base" :disabled="disabled"
+                            @update:value="updateSpeed('base', $event)" />
+                    </NFormItem>
+                    <NFormItem label="Переопределение">
+                        <NInputNumber button-placement="both" min="0" :value="combat.speed.override ?? null"
+                            :disabled="disabled" @update:value="updateSpeed('override', $event)" />
+                    </NFormItem>
+                    <NFormItem label="Полёт">
+                        <NInputNumber button-placement="both" min="0" :value="combat.speed.fly ?? null"
+                            :disabled="disabled" @update:value="updateSpeed('fly', $event)" />
+                    </NFormItem>
+                    <NFormItem label="Плавание">
+                        <NInputNumber button-placement="both" min="0" :value="combat.speed.swim ?? null"
+                            :disabled="disabled" @update:value="updateSpeed('swim', $event)" />
+                    </NFormItem>
                 </div>
             </div>
             <div>
@@ -160,33 +134,18 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     <p>{{ combat.hitPoints.current }} / {{ combat.hitPoints.max }}</p>
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <NFormItem label="Максимум"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            step="1"
-                            :value="combat.hitPoints.max"
-                            :disabled="disabled"
-                            @update:value="updateHitPoints('max', $event)"
-                    /></NFormItem>
-                    <NFormItem label="Текущие"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            step="1"
-                            :value="combat.hitPoints.current"
-                            :disabled="disabled"
-                            @update:value="updateHitPoints('current', $event)"
-                    /></NFormItem>
-                    <NFormItem label="Временные"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            step="1"
-                            :value="combat.hitPoints.temporary"
-                            :disabled="disabled"
-                            @update:value="updateHitPoints('temporary', $event)"
-                    /></NFormItem>
+                    <NFormItem label="Максимум">
+                        <NInputNumber button-placement="both" min="0" step="1" :value="combat.hitPoints.max"
+                            :disabled="disabled" @update:value="updateHitPoints('max', $event)" />
+                    </NFormItem>
+                    <NFormItem label="Текущие">
+                        <NInputNumber button-placement="both" min="0" step="1" :value="combat.hitPoints.current"
+                            :disabled="disabled" @update:value="updateHitPoints('current', $event)" />
+                    </NFormItem>
+                    <NFormItem label="Временные">
+                        <NInputNumber button-placement="both" min="0" step="1" :value="combat.hitPoints.temporary"
+                            :disabled="disabled" @update:value="updateHitPoints('temporary', $event)" />
+                    </NFormItem>
                 </div>
             </div>
             <div>
@@ -195,30 +154,18 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     <p>{{ combat.hitDice.spent }} / {{ combat.hitDice.total }}</p>
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <NFormItem label="Размер (например, d8)"
-                        ><NInput
-                            :value="combat.hitDice.size"
-                            :disabled="disabled"
-                            @update:value="updateHitDice('size', $event)"
-                    /></NFormItem>
-                    <NFormItem label="Всего"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            step="1"
-                            :value="combat.hitDice.total"
-                            :disabled="disabled"
-                            @update:value="updateHitDice('total', $event)"
-                    /></NFormItem>
-                    <NFormItem label="Потрачено"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            step="1"
-                            :value="combat.hitDice.spent"
-                            :disabled="disabled"
-                            @update:value="updateHitDice('spent', $event)"
-                    /></NFormItem>
+                    <NFormItem label="Размер (например, d8)">
+                        <NInput :value="combat.hitDice.size" :disabled="disabled"
+                            @update:value="updateHitDice('size', $event)" />
+                    </NFormItem>
+                    <NFormItem label="Всего">
+                        <NInputNumber button-placement="both" min="0" step="1" :value="combat.hitDice.total"
+                            :disabled="disabled" @update:value="updateHitDice('total', $event)" />
+                    </NFormItem>
+                    <NFormItem label="Потрачено">
+                        <NInputNumber button-placement="both" min="0" step="1" :value="combat.hitDice.spent"
+                            :disabled="disabled" @update:value="updateHitDice('spent', $event)" />
+                    </NFormItem>
                 </div>
             </div>
             <div>
@@ -229,26 +176,16 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     </p>
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <NFormItem label="Успехи"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            max="3"
-                            step="1"
-                            :value="combat.deathSaves.successes"
-                            :disabled="disabled"
-                            @update:value="updateDeathSave('successes', $event)"
-                    /></NFormItem>
-                    <NFormItem label="Провалы"
-                        ><NInputNumber
-                            button-placement="both"
-                            min="0"
-                            max="3"
-                            step="1"
-                            :value="combat.deathSaves.failures"
-                            :disabled="disabled"
-                            @update:value="updateDeathSave('failures', $event)"
-                    /></NFormItem>
+                    <NFormItem label="Успехи">
+                        <NInputNumber button-placement="both" min="0" max="3" step="1"
+                            :value="combat.deathSaves.successes" :disabled="disabled"
+                            @update:value="updateDeathSave('successes', $event)" />
+                    </NFormItem>
+                    <NFormItem label="Провалы">
+                        <NInputNumber button-placement="both" min="0" max="3" step="1"
+                            :value="combat.deathSaves.failures" :disabled="disabled"
+                            @update:value="updateDeathSave('failures', $event)" />
+                    </NFormItem>
                 </div>
             </div>
         </div>

@@ -212,31 +212,20 @@ onBeforeUnmount(() => {
             <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>
         </div>
         <EmptyCollection v-if="attacks.length === 0" text="Атак пока нет." />
-        <div
-            v-for="attack in attacks"
-            :key="attack.id"
-            class="py-3 flex flex-wrap items-start justify-between gap-3"
-        >
+        <div v-for="attack in attacks" :key="attack.id" class="py-3 flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
                 <div>
                     <div>
-                        <span aria-hidden="true">{{
-                            attack.kind === 'ranged' ? '➶' : attack.kind === 'spell' ? '✦' : '⚔'
-                        }}</span>
                         <div>
                             <h3>{{ attack.name || 'Без названия' }}</h3>
                             <div class="flex flex-wrap items-center gap-2">
-                                <span>{{ kindLabels[attack.kind] }}</span
-                                ><span>{{
+                                <span>{{ kindLabels[attack.kind] }}</span><span>{{
                                     getAttackCalculationMode(attack) === 'manual'
                                         ? 'Вручную'
                                         : 'Расчёт'
-                                }}</span
-                                ><span>{{ attack.proficient ? 'Владение' : 'Без владения' }}</span
-                                ><span v-if="weaponLabel(attack)">{{ weaponLabel(attack) }}</span
-                                ><span v-if="masteryLabel(attack)"
-                                    >Мастерство: {{ masteryLabel(attack) }}</span
-                                >
+                                }}</span><span>{{ attack.proficient ? 'Владение' : 'Без владения' }}</span><span
+                                    v-if="weaponLabel(attack)">{{ weaponLabel(attack) }}</span><span
+                                    v-if="masteryLabel(attack)">Мастерство: {{ masteryLabel(attack) }}</span>
                             </div>
                         </div>
                     </div>
@@ -244,39 +233,30 @@ onBeforeUnmount(() => {
                         <span>Атака</span><strong>{{ attackSummary(attack).bonus }}</strong>
                     </div>
                     <div>
-                        <span>Урон</span><strong>{{ attack.damage || '—' }}</strong
-                        ><small>{{ attack.damageType || 'Тип не указан' }}</small
-                        ><small v-if="attackSummary(attack).damageModifier !== null"
-                            >Модификатор:
-                            {{ signedModifier(attackSummary(attack).damageModifier!) }}</small
-                        >
+                        <span>Урон</span><strong>{{ attack.damage || '—' }}</strong><small>{{ attack.damageType ||
+                            'Типне указан' }}</small><small
+                            v-if="attackSummary(attack).damageModifier !== null">Модификатор:
+                            {{ signedModifier(attackSummary(attack).damageModifier!) }}</small>
                     </div>
                     <div>
                         <span>Дальность</span><strong>{{ attack.range || '—' }}</strong>
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <span>{{ attackSummary(attack).source }}</span
-                    ><span v-if="attack.properties.length">{{ attack.properties.join(' · ') }}</span
-                    ><span v-if="attack.description" :title="attack.description">{{
-                        attack.description
-                    }}</span>
+                    <span>{{ attackSummary(attack).source }}</span><span v-if="attack.properties.length">{{
+                        attack.properties.join(' · ') }}</span><span v-if="attack.description"
+                        :title="attack.description">{{
+                            attack.description
+                        }}</span>
                 </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <div>
-                    <NButton :disabled="disabled || isRolling" @click="roll(attack, 'attack')"
-                        >Бросок атаки</NButton
-                    >
-                    <NButton :disabled="disabled || isRolling" @click="roll(attack, 'damage')"
-                        >Бросок урона</NButton
-                    >
+                    <NButton :disabled="disabled || isRolling" @click="roll(attack, 'attack')">Бросок атаки</NButton>
+                    <NButton :disabled="disabled || isRolling" @click="roll(attack, 'damage')">Бросок урона</NButton>
                 </div>
-                <EntryActions
-                    :disabled="disabled || isRolling"
-                    @edit="openEditor(attack)"
-                    @remove="remove(attack.id, attack.name)"
-                />
+                <EntryActions :disabled="disabled || isRolling" @edit="openEditor(attack)"
+                    @remove="remove(attack.id, attack.name)" />
             </div>
         </div>
         <p v-if="lastRoll" role="status" aria-live="polite">
@@ -291,18 +271,10 @@ onBeforeUnmount(() => {
                 </li>
             </ul>
         </details>
-        <AttackEditorModal
-            v-if="
-                editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
-            "
-            :attack="editorModal.item.value"
-            v-bind="editorModal.props.value"
-            @close="editorModal.openOrClose"
-        />
-        <ConfirmModal
-            v-if="confirmModal.isShowModal.value && confirmModal.props.value"
-            v-bind="confirmModal.props.value"
-            @close="confirmModal.openOrClose"
-        />
+        <AttackEditorModal v-if="
+            editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
+        " :attack="editorModal.item.value" v-bind="editorModal.props.value" @close="editorModal.openOrClose" />
+        <ConfirmModal v-if="confirmModal.isShowModal.value && confirmModal.props.value"
+            v-bind="confirmModal.props.value" @close="confirmModal.openOrClose" />
     </section>
 </template>
