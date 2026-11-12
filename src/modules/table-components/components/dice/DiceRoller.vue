@@ -99,34 +99,27 @@ onBeforeUnmount(cancelRoll)
 </script>
 
 <template>
-    <section class="panel component-card dice-card" aria-labelledby="dice-title">
-        <div class="c-section-heading">
+    <section aria-labelledby="dice-title">
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <p class="c-eyebrow">Локальный компонент</p>
+                <p>Локальный компонент</p>
                 <h2 id="dice-title">Бросок кубиков</h2>
             </div>
-            <span class="state-chip" :class="{ 'state-chip-active': isRolling }">{{
-                isRolling ? 'Бросок…' : 'Готово'
-            }}</span>
+            <span>{{ isRolling ? 'Бросок…' : 'Готово' }}</span>
         </div>
 
-        <div
-            class="dice-visual-stage"
-            :class="{ 'is-rolling-stage': isRolling }"
-            aria-label="Визуальный бросок кости"
-        >
-            <div class="die-shadow" aria-hidden="true"></div>
+        <div aria-label="Визуальный бросок кости">
             <RollingDie :sides="visualSides" :result="result" :rolling="isRolling" />
-            <span class="die-stage-caption" aria-live="polite">{{
+            <span aria-live="polite">{{
                 isRolling
-                    ? 'Кость вращается…'
+                    ? 'Выполняется бросок…'
                     : result === null
                       ? 'Готова к броску'
                       : 'Бросок завершён'
             }}</span>
         </div>
 
-        <div class="dice-controls" aria-label="Настройки броска">
+        <div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2" aria-label="Настройки броска">
             <label for="dice-type">Кость</label>
             <NSelect
                 id="dice-type"
@@ -134,48 +127,41 @@ onBeforeUnmount(cancelRoll)
                 :options="diceOptions"
                 :disabled="isRolling"
             />
-            <button class="primary-button" type="button" :disabled="isRolling" @click="roll">
+            <NButton native-type="button" :disabled="isRolling" @click="roll">
                 {{ isRolling ? 'Бросок…' : 'Бросить' }}
-            </button>
+            </NButton>
         </div>
 
-        <div
-            class="roll-result"
-            :class="{ rolling: isRolling, empty: result === null }"
-            aria-live="polite"
-            aria-atomic="true"
-        >
-            <span class="result-label">Результат</span>
+        <div aria-live="polite" aria-atomic="true">
+            <span>Результат</span>
             <strong>{{ result ?? '—' }}</strong>
             <span>{{ resultAnnouncement }}</span>
         </div>
 
-        <div class="history-heading">
+        <div>
             <h3>История</h3>
-            <button
-                class="c-text-button"
-                type="button"
+            <NButton
+                native-type="button"
                 :disabled="history.length === 0 && !isRolling"
                 @click="clearHistory"
             >
                 Очистить
-            </button>
+            </NButton>
         </div>
-        <p v-if="history.length === 0" class="empty-state">Броски появятся здесь.</p>
-        <ol v-else class="roll-history" aria-label="История бросков">
+        <p v-if="history.length === 0">Броски появятся здесь.</p>
+        <ol v-else aria-label="История бросков">
             <li v-for="entry in visibleHistory" :key="entry.id">
                 <span>{{ diceLabel(entry.sides) }}</span
                 ><strong>→ {{ entry.result }}</strong>
             </li>
         </ol>
-        <button
+        <NButton
             v-if="hasCollapsedHistory"
-            class="history-toggle c-text-button"
-            type="button"
+            native-type="button"
             :aria-expanded="showAllHistory"
             @click="showAllHistory = !showAllHistory"
         >
             {{ showAllHistory ? 'Свернуть историю' : `Показать ещё (${history.length - 5})` }}
-        </button>
+        </NButton>
     </section>
 </template>

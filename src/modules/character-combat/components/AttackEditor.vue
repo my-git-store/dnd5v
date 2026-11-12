@@ -106,33 +106,33 @@ function submit() {
 </script>
 
 <template>
-    <div class="c-editor-grid">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <NFormItem label="Название"
             ><NInput v-model:value="draft.name" :disabled="disabled"
         /></NFormItem>
-        <label class="c-compact-field"
+        <label class="grid gap-2"
             >Тип атаки
             <NSelect
                 v-model:value="draft.kind"
-                class="c-select-control"
+                class="w-full"
                 :options="attackKinds"
                 :disabled="disabled"
             />
         </label>
-        <label class="c-compact-field"
+        <label class="grid gap-2"
             >Оружие из справочника
             <NSelect
-                class="c-select-control"
+                class="w-full"
                 :value="draft.weaponId ?? ''"
                 :options="weaponOptions"
                 :disabled="disabled"
                 @update:value="updateWeapon"
             />
         </label>
-        <label class="c-compact-field"
+        <label class="grid gap-2"
             >Мастерство (данные)
             <NSelect
-                class="c-select-control"
+                class="w-full"
                 :value="draft.masteryId ?? ''"
                 :options="masteryOptions"
                 :disabled="disabled"
@@ -144,25 +144,25 @@ function submit() {
                 v-model:value="draft.attackBonus"
                 :disabled="disabled || draft.calculationMode !== 'manual'"
         /></NFormItem>
-        <label class="c-compact-field"
+        <label class="grid gap-2"
             >Источник способности
             <NSelect
                 v-model:value="draft.bonusSource"
-                class="c-select-control"
+                class="w-full"
                 :options="bonusSourceOptions"
                 :disabled="disabled"
             />
         </label>
-        <label class="c-compact-field"
+        <label class="grid gap-2"
             >Режим бонуса
             <NSelect
                 v-model:value="draft.calculationMode"
-                class="c-select-control"
+                class="w-full"
                 :options="calculationModeOptions"
                 :disabled="disabled"
             />
         </label>
-        <label class="c-check-control attack-check"
+        <label class="flex flex-wrap items-center gap-2"
             ><NCheckbox v-model:checked="draft.proficient" :disabled="disabled"
                 >Добавлять бонус владения</NCheckbox
             ></label
@@ -203,16 +203,9 @@ function submit() {
                 :disabled="disabled"
                 rows="2"
         /></NFormItem>
-        <div class="c-editor-actions">
+        <div class="flex flex-wrap items-center gap-2">
             <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton
             ><NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>
         </div>
     </div>
 </template>
-
-<style scoped>
-.attack-check {
-    align-self: end;
-    min-height: 38px;
-}
-</style>

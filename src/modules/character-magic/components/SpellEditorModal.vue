@@ -30,8 +30,8 @@ function cancel() {
 </script>
 
 <template>
-    <NModal :show="true" class="c-character-editor-modal" :on-close="cancel">
-        <NCard class="c-character-editor-card">
+    <NModal :show="true" class="w-full max-w-3xl max-h-[90vh] overflow-auto" :on-close="cancel">
+        <NCard class="w-full">
             <template #header>{{ cantrip ? 'Заговор' : 'Заклинание' }}</template>
             <SpellEditor
                 :spell="spell"

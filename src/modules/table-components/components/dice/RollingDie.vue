@@ -18,11 +18,6 @@ watch(
     },
 )
 
-const state = computed(() => {
-    if (props.rolling) return 'rolling'
-    return props.result === null ? 'idle' : 'landed'
-})
-
 const faceLabel = computed(() => dieFaceLabel(props.sides, props.result))
 
 const visualLabel = computed(
@@ -36,27 +31,20 @@ function useFallback() {
 
 <template>
     <div
-        class="rolling-die"
-        :class="`rolling-die--${state}`"
-        :data-shape="`d${props.sides}`"
+        class="flex flex-col items-center gap-2"
         role="img"
         :aria-label="visualLabel"
+        :aria-busy="props.rolling"
     >
         <img
             v-if="assetSource"
             :key="props.sides"
-            class="rolling-die-image"
+            class="h-24 w-24 object-contain"
             :src="assetSource"
             alt=""
             @error="useFallback"
         />
-        <div v-else class="rolling-die-fallback" aria-hidden="true">
-            <span class="rolling-die-fallback-facet rolling-die-fallback-facet-left"></span>
-            <span class="rolling-die-fallback-facet rolling-die-fallback-facet-right"></span>
-        </div>
-        <strong v-if="props.result !== null && !props.rolling" class="rolling-die-face-value">{{
-            faceLabel
-        }}</strong>
-        <small class="rolling-die-type">{{ diceLabel(props.sides) }}</small>
+        <strong v-if="props.result !== null && !props.rolling">{{ faceLabel }}</strong>
+        <small>{{ diceLabel(props.sides) }}</small>
     </div>
 </template>

@@ -10,7 +10,6 @@ import {
 import { mockBestiaryAdapter } from '@/modules/bestiary/data/mockBestiary.ts'
 import type { BestiaryEntry } from '@/modules/bestiary/types/bestiary.ts'
 import type { CharacterEncounterParticipant, CharacterEncounter } from '@/types/character.ts'
-import '../styles/encounter.css'
 
 type Emits = {
     update: [encounters: CharacterEncounter[]]
@@ -93,9 +92,9 @@ const activeEncounter = computed(
 const orderedParticipants = computed(() =>
     activeEncounter.value
         ? [...activeEncounter.value.participants].sort(
-            (left, right) =>
-                right.initiative - left.initiative || left.name.localeCompare(right.name, 'ru'),
-        )
+              (left, right) =>
+                  right.initiative - left.initiative || left.name.localeCompare(right.name, 'ru'),
+          )
         : [],
 )
 
@@ -284,28 +283,33 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
 </script>
 
 <template>
-    <section class="encounter-planner" aria-labelledby="encounter-planner-title">
-        <header class="encounter-heading">
+    <section class="grid gap-4" aria-labelledby="encounter-planner-title">
+        <header>
             <div>
-                <p class="c-eyebrow">Тактика</p>
+                <p>Тактика</p>
                 <h1 id="encounter-planner-title">Планировщик столкновения</h1>
-                <p class="c-section-note">Соберите бой из существ бестиария и управляйте ходом.</p>
+                <p>Соберите бой из существ бестиария и управляйте ходом.</p>
             </div>
             <NButton type="primary" @click="createEncounter">Новое столкновение</NButton>
         </header>
-        <p v-if="dirty" class="c-status-text warning" role="status" aria-live="polite">
+        <p v-if="dirty" role="status" aria-live="polite">
             Есть несохранённые изменения. Нажмите «Сохранить» в шапке листа.
         </p>
-        <p v-if="!draft.length" class="c-empty-collection">
+        <p v-if="!draft.length">
             Столкновений пока нет. Создайте первое, чтобы добавить участников.
         </p>
         <template v-else-if="activeEncounter">
-            <div class="encounter-toolbar">
-                <label><span>Столкновение</span>
-                    <NSelect v-model:value="activeId" class="c-select-control" :options="encounterOptions"
-                        aria-label="Активное столкновение" />
+            <div>
+                <label
+                    ><span>Столкновение</span>
+                    <NSelect
+                        v-model:value="activeId"
+                        class="w-full"
+                        :options="encounterOptions"
+                        aria-label="Активное столкновение"
+                    />
                 </label>
-                <div class="encounter-toolbar-actions">
+                <div>
                     <NButton type="default" @click="copyEncounter">Копировать</NButton>
                     <NButton type="error" @click="deleteEncounter">Удалить</NButton>
                 </div>
@@ -313,75 +317,111 @@ onUnmounted(() => window.removeEventListener('nastolka:initiative-tracker-ready'
             <NFormItem label="Название столкновения">
                 <NInput v-model:value="activeEncounter.name" />
             </NFormItem>
-            <div class="encounter-add-row">
-                <label><span>Существо из бестиария</span>
-                    <NSelect v-model:value="selectedBestiaryId" class="c-select-control" :options="bestiaryOptions"
-                        aria-label="Существо из бестиария" />
-                </label><label><span>Количество</span>
-                    <NSelect v-model:value="quantity" class="c-select-control" :options="quantityOptions"
-                        aria-label="Количество экземпляров" />
+            <div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2">
+                <label
+                    ><span>Существо из бестиария</span>
+                    <NSelect
+                        v-model:value="selectedBestiaryId"
+                        class="w-full"
+                        :options="bestiaryOptions"
+                        aria-label="Существо из бестиария"
+                    /> </label
+                ><label
+                    ><span>Количество</span>
+                    <NSelect
+                        v-model:value="quantity"
+                        class="w-full"
+                        :options="quantityOptions"
+                        aria-label="Количество экземпляров"
+                    />
                 </label>
-                <NButton type="primary" :disabled="actionBusy" @click="addBestiaryEntry">Добавить в бой</NButton>
+                <NButton type="primary" :disabled="actionBusy" @click="addBestiaryEntry"
+                    >Добавить в бой</NButton
+                >
             </div>
-            <div class="encounter-battle-bar">
+            <div>
                 <div>
                     <span>Раунд</span><strong>{{ activeEncounter.round }}</strong>
                 </div>
                 <div>
-                    <span>Текущий участник</span><strong>{{ currentParticipant?.name ?? '—' }}</strong>
+                    <span>Текущий участник</span
+                    ><strong>{{ currentParticipant?.name ?? '—' }}</strong>
                 </div>
-                <div class="encounter-battle-actions">
-                    <NButton type="primary" :disabled="!orderedParticipants.length" @click="nextTurn">Следующий ход
+                <div>
+                    <NButton
+                        type="primary"
+                        :disabled="!orderedParticipants.length"
+                        @click="nextTurn"
+                        >Следующий ход
                     </NButton>
-                    <NButton type="default" :disabled="!orderedParticipants.length" @click="resetBattle">Сбросить бой
+                    <NButton
+                        type="default"
+                        :disabled="!orderedParticipants.length"
+                        @click="resetBattle"
+                        >Сбросить бой
                     </NButton>
                 </div>
             </div>
-            <p v-if="!orderedParticipants.length" class="c-empty-collection">
+            <p v-if="!orderedParticipants.length">
                 Добавьте существо из бестиария, чтобы начать бой.
             </p>
-            <div v-else class="encounter-participant-list" aria-label="Участники столкновения">
-                <article v-for="participant in orderedParticipants" :key="participant.id" class="encounter-participant"
-                    :class="{
-                        current: participant.id === activeEncounter.currentParticipantId,
-                        defeated: participant.defeated,
-                    }">
-                    <div class="encounter-participant-name">
-                        <span class="turn-marker" aria-hidden="true">{{
+            <div v-else class="grid gap-2" aria-label="Участники столкновения">
+                <article
+                    v-for="participant in orderedParticipants"
+                    :key="participant.id"
+                    class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2"
+                >
+                    <div>
+                        <span aria-hidden="true">{{
                             participant.id === activeEncounter.currentParticipantId ? '◆' : '◇'
-                            }}</span><strong>{{ participant.name }}</strong><small>КД {{ participant.armorClass }} ·
-                            максимум HP
-                            {{ participant.maxHitPoints }}</small>
+                        }}</span
+                        ><strong>{{ participant.name }}</strong
+                        ><small
+                            >КД {{ participant.armorClass }} · максимум HP
+                            {{ participant.maxHitPoints }}</small
+                        >
                     </div>
-                    <label><span>Текущие HP</span>
-                        <NInputNumber button-placement="both" class="number-input" :min="0" :max="participant.maxHitPoints"
-                            :value="participant.currentHitPoints" :aria-label="`Текущие HP: ${participant.name}`"
+                    <label
+                        ><span>Текущие HP</span>
+                        <NInputNumber
+                            button-placement="both"
+                            :min="0"
+                            :max="participant.maxHitPoints"
+                            :value="participant.currentHitPoints"
+                            :aria-label="`Текущие HP: ${participant.name}`"
                             @update:value="
                                 updateParticipant(participant, 'currentHitPoints', $event)
-                                " />
-                    </label><label><span>Инициатива</span>
-                        <NInputNumber button-placement="both" class="number-input" :value="participant.initiative"
-                            :aria-label="`Инициатива: ${participant.name}`" @update:value="
-                                updateParticipant(participant, 'initiative', $event)
-                                " />
-                    </label><label class="encounter-defeated">
-                        <NCheckbox v-model:checked="participant.defeated" :aria-label="`Побеждён: ${participant.name}`">
-                            Побеждён</NCheckbox>
+                            "
+                        /> </label
+                    ><label
+                        ><span>Инициатива</span>
+                        <NInputNumber
+                            button-placement="both"
+                            :value="participant.initiative"
+                            :aria-label="`Инициатива: ${participant.name}`"
+                            @update:value="updateParticipant(participant, 'initiative', $event)"
+                        /> </label
+                    ><label>
+                        <NCheckbox
+                            v-model:checked="participant.defeated"
+                            :aria-label="`Побеждён: ${participant.name}`"
+                        >
+                            Побеждён</NCheckbox
+                        >
                     </label>
-                    <NButton type="error" :aria-label="`Удалить ${participant.name}`"
-                        @click="removeParticipant(participant.id)">Удалить</NButton>
+                    <NButton
+                        type="error"
+                        :aria-label="`Удалить ${participant.name}`"
+                        @click="removeParticipant(participant.id)"
+                        >Удалить</NButton
+                    >
                 </article>
             </div>
         </template>
-        <CharacterActionConfirmModal v-if="actionModal.isShowModal.value && actionModal.props.value"
-            v-bind="actionModal.props.value" @close="actionModal.openOrClose" />
+        <CharacterActionConfirmModal
+            v-if="actionModal.isShowModal.value && actionModal.props.value"
+            v-bind="actionModal.props.value"
+            @close="actionModal.openOrClose"
+        />
     </section>
 </template>
-
-<style scoped>
-.c-character-sheet .encounter-toolbar :deep(label),
-.c-character-sheet .encounter-add-row :deep(label),
-.c-character-sheet .encounter-participant :deep(label) {
-    row-gap: 8px;
-}
-</style>

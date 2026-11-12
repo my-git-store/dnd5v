@@ -59,19 +59,21 @@ function remove(id: string, name: string) {
 </script>
 
 <template>
-    <section class="feats-section">
-        <div class="c-section-heading">
+    <section>
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h2>Черты персонажа</h2>
-                <p class="c-section-note">
-                    Пользовательские записи без автоматического применения эффектов.
-                </p>
+                <p>Пользовательские записи без автоматического применения эффектов.</p>
             </div>
             <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>
         </div>
         <EmptyCollection v-if="feats.length === 0" text="Черты пока не добавлены." />
-        <div v-for="feat in feats" :key="feat.id" class="c-entry-card feat-entry-card">
-            <div class="feat-entry-content">
+        <div
+            v-for="feat in feats"
+            :key="feat.id"
+            class="py-3 flex flex-wrap items-start justify-between gap-3"
+        >
+            <div class="min-w-0">
                 <h3 :title="feat.name || 'Без названия'">
                     {{ feat.name || 'Без названия' }}
                 </h3>
@@ -97,26 +99,3 @@ function remove(id: string, name: string) {
         />
     </section>
 </template>
-
-<style scoped>
-.feats-section {
-    margin-top: 18px;
-}
-.feat-entry-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-.feat-entry-content {
-    min-width: 0;
-    flex: 1;
-}
-.feat-entry-content h3 {
-    margin: 0;
-    font-size: 1rem;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-</style>

@@ -30,11 +30,16 @@ function updateAbility(value: string | null) {
 </script>
 
 <template>
-    <section class="spellcasting-summary">
-        <div class="c-section-heading">
+    <section>
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <h2>Выберите характеристику</h2>
         </div>
-        <NSelect class="c-select-control" :value="spellcasting.spellcastingAbility ?? ''" :options="abilityOptions"
-            :disabled="disabled" @update:value="updateAbility" />
+        <NSelect
+            class="w-full"
+            :value="spellcasting.spellcastingAbility ?? ''"
+            :options="abilityOptions"
+            :disabled="disabled"
+            @update:value="updateAbility"
+        />
     </section>
 </template>

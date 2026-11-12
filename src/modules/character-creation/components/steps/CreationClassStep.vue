@@ -25,38 +25,38 @@ const { classOptions, classId, gender, skillLabels } = toRefs(props.model)
 </script>
 
 <template>
-    <div class="creation-step-content">
-        <div class="selection-grid class-selection-grid" role="group" aria-label="Выберите класс">
-            <button
+    <div class="grid gap-4">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2" role="group" aria-label="Выберите класс">
+            <NButton
                 v-for="item in classOptions"
                 :key="item.id"
-                type="button"
-                class="selection-card"
-                :class="{ selected: classId === item.id }"
+                :type="classId === item.id ? 'primary' : 'default'"
+                native-type="button"
+                class="h-auto! whitespace-normal!"
                 :aria-pressed="classId === item.id"
                 :disabled="disabled"
                 @click="emit('selectClass', item.id)"
             >
-                <span class="selection-card-top"
-                    ><span class="class-icon" aria-hidden="true"
+                <span class="flex w-full items-center justify-between gap-2"
+                    ><span
+                        class="inline-flex size-24 shrink-0 items-center justify-center"
+                        aria-hidden="true"
                         ><img
                             v-if="classIconFor(item.id, gender)"
                             :src="classIconFor(item.id, gender)"
-                            class="class-card-image"
+                            class="size-full object-contain"
                             :alt="`Иллюстрация класса «${item.label}» (${gender === 'male' ? 'мужской' : 'женский'} вариант)`"
                             loading="lazy"
-                        /><span v-else class="class-icon-fallback">{{ item.hitDie }}</span></span
-                    ><span v-if="classId === item.id" class="selection-check" aria-label="Выбрано"
-                        >✓</span
-                    ></span
+                        /><span v-else>{{ item.hitDie }}</span></span
+                    ><span v-if="classId === item.id" aria-label="Выбрано">✓</span></span
                 ><strong>{{ item.label }}</strong
-                ><span class="selection-description">{{
+                ><span>{{
                     item.description
                         ? `${item.description} Основная характеристика: ${ABILITY_FIELDS.find(field => field.key === item.primaryAbility)?.label} · Хиты ${item.hitDie}`
                         : `Основная характеристика: ${ABILITY_FIELDS.find(field => field.key === item.primaryAbility)?.label} · Хиты ${item.hitDie}`
                 }}</span
-                ><span class="selection-traits">Особенности: {{ item.features.join(' · ') }}</span
-                ><span class="selection-origin"
+                ><span>Особенности: {{ item.features.join(' · ') }}</span
+                ><span
                     >Спасброски:
                     {{
                         item.savingThrowKeys
@@ -66,67 +66,23 @@ const { classOptions, classId, gender, skillLabels } = toRefs(props.model)
                             )
                             .join(' · ')
                     }}</span
-                ><span class="selection-origin"
+                ><span
                     >Навыки:
                     {{ item.skillOptions.map(id => skillLabels[id] ?? id).join(' · ') }}
                     · выбрать {{ item.skillChoiceCount }}</span
-                ><span v-if="item.weaponProficiencies?.length" class="selection-origin"
+                ><span v-if="item.weaponProficiencies?.length"
                     >Оружие: {{ item.weaponProficiencies.join(' · ') }}</span
-                ><span v-if="item.armorProficiencies?.length" class="selection-origin"
+                ><span v-if="item.armorProficiencies?.length"
                     >Броня: {{ item.armorProficiencies.join(' · ') }}</span
-                ><span v-if="item.startingEquipment?.length" class="selection-origin"
+                ><span v-if="item.startingEquipment?.length"
                     >Снаряжение:
                     {{ item.startingEquipment.map(kit => kit.label).join(' · ') }}</span
-                ><span class="selection-origin">{{
+                ><span>{{
                     item.spellcastingAbility
                         ? `Магия: ${ABILITY_FIELDS.find(field => field.key === item.spellcastingAbility)?.label} · ${spellProgressionLabel(item.spellProgressionType)}`
                         : 'Без заклинаний на этом шаге'
                 }}</span>
-            </button>
+            </NButton>
         </div>
     </div>
 </template>
-
-<style scoped src="../styles/creation-selection.css"></style>
-<style scoped>
-.class-icon {
-    display: grid;
-    place-items: center;
-    width: 128px;
-    height: 128px;
-    overflow: hidden;
-    border: 1px solid #d5c19b;
-    border-radius: 50%;
-    background: #f8efd9;
-    color: #75552e;
-    box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.55);
-    transition:
-        border-color 0.18s ease,
-        box-shadow 0.18s ease,
-        transform 0.18s ease;
-}
-.selection-card:hover:not(:disabled) .class-icon {
-    border-color: #b18a53;
-    box-shadow:
-        inset 0 0 0 3px rgba(255, 255, 255, 0.55),
-        0 3px 8px rgba(78, 53, 26, 0.12);
-    transform: scale(1.02);
-}
-.selection-card.selected .class-icon {
-    border-color: #8b5b39;
-    box-shadow:
-        inset 0 0 0 3px rgba(255, 255, 255, 0.55),
-        0 0 0 3px rgba(155, 106, 47, 0.13);
-}
-.class-card-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-.class-icon-fallback {
-    font-family: var(--font-serif);
-    font-size: 1.15rem;
-    font-weight: 800;
-}
-</style>

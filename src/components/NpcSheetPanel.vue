@@ -66,9 +66,9 @@ const initiative = computed(() =>
     draft.value.initiative.mode === 'manual'
         ? signedModifier(draft.value.initiative.value ?? 0)
         : signedModifier(
-            abilityModifier(draft.value.abilities.dexterity) +
-            draft.value.initiative.additionalBonus,
-        ),
+              abilityModifier(draft.value.abilities.dexterity) +
+                  draft.value.initiative.additionalBonus,
+          ),
 )
 
 function snapshot(value: CharacterNpc | undefined): string {
@@ -156,12 +156,12 @@ function openEntry(kind: 'features' | 'actions', entry?: CharacterNpcEntry) {
     const next = entry
         ? { ...entry }
         : {
-            id: `npc-${kind}-${Date.now()}`,
-            name: '',
-            description: '',
-            attackBonus: '',
-            damage: '',
-        }
+              id: `npc-${kind}-${Date.now()}`,
+              name: '',
+              description: '',
+              attackBonus: '',
+              damage: '',
+          }
     entryModal.item.value = next
     entryModal.props.value = { onSave: (value: CharacterNpcEntry) => saveEntry(kind, value) }
     entryModal.openOrClose()
@@ -172,28 +172,26 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
 </script>
 
 <template>
-    <div class="npc-sheet-panel">
-        <header class="npc-sheet-header">
+    <div class="grid gap-4">
+        <header class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <p class="c-eyebrow">Режим НПС</p>
+                <p>Режим НПС</p>
                 <h1>{{ draft.name || 'Новый НПС' }}</h1>
-                <p class="c-section-note">
-                    Отдельный компактный лист существа без прогрессии персонажа.
-                </p>
+                <p>Отдельный компактный лист существа без прогрессии персонажа.</p>
             </div>
-            <div class="npc-sheet-actions">
+            <div class="flex flex-wrap items-center gap-2">
                 <NButton type="primary" :loading="saving" :disabled="!dirty" @click="onSave">{{
                     saved ? 'Сохранено' : 'Сохранить'
-                    }}</NButton>
+                }}</NButton>
             </div>
         </header>
 
-        <section class="npc-identity-section" aria-labelledby="npc-identity-title">
-            <div class="c-section-heading">
+        <section aria-labelledby="npc-identity-title">
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <h2 id="npc-identity-title">Основные сведения НПС</h2>
-                <span class="c-mode-tag mode-ready">НПС</span>
+                <span>НПС</span>
             </div>
-            <div class="npc-field-grid">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <NFormItem label="Имя">
                     <NInput v-model:value="draft.name" />
                 </NFormItem>
@@ -210,52 +208,98 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
                     <NInput v-model:value="draft.challengeRating" />
                 </NFormItem>
                 <NFormItem label="Бонус мастерства">
-                    <NInputNumber button-placement="both" min="0" :value="draft.proficiencyBonus"
-                        @update:value="updateNumber('proficiencyBonus', $event)" />
+                    <NInputNumber
+                        button-placement="both"
+                        min="0"
+                        :value="draft.proficiencyBonus"
+                        @update:value="updateNumber('proficiencyBonus', $event)"
+                    />
                 </NFormItem>
-                <label class="npc-mode-field"><span>Класс доспеха</span>
-                    <NSelect class="c-select-control" :value="draft.armorClass.mode" :options="armorClassModeOptions"
-                        aria-label="Режим класса доспеха" @update:value="setCalculationMode('armorClass', $event)" />
+                <label class="grid gap-2"
+                    ><span>Класс доспеха</span>
+                    <NSelect
+                        class="w-full"
+                        :value="draft.armorClass.mode"
+                        :options="armorClassModeOptions"
+                        aria-label="Режим класса доспеха"
+                        @update:value="setCalculationMode('armorClass', $event)"
+                    />
                 </label>
                 <NFormItem label="Значение КД">
-                    <NInputNumber button-placement="both" min="0" :value="draft.armorClass.value"
-                        @update:value="updateNumber('armorClass', $event)" />
+                    <NInputNumber
+                        button-placement="both"
+                        min="0"
+                        :value="draft.armorClass.value"
+                        @update:value="updateNumber('armorClass', $event)"
+                    />
                 </NFormItem>
                 <NFormItem label="Добавка к КД">
-                    <NInputNumber button-placement="both" min="0" :value="draft.armorClass.additionalBonus"
-                        @update:value="updateNumber('armorBonus', $event)" />
+                    <NInputNumber
+                        button-placement="both"
+                        min="0"
+                        :value="draft.armorClass.additionalBonus"
+                        @update:value="updateNumber('armorBonus', $event)"
+                    />
                 </NFormItem>
                 <NFormItem label="Максимум HP">
-                    <NInputNumber button-placement="both" min="0" :value="draft.hitPoints.max"
-                        @update:value="updateNumber('hpMax', $event)" />
+                    <NInputNumber
+                        button-placement="both"
+                        min="0"
+                        :value="draft.hitPoints.max"
+                        @update:value="updateNumber('hpMax', $event)"
+                    />
                 </NFormItem>
                 <NFormItem label="Текущие HP">
-                    <NInputNumber button-placement="both" min="0" :value="draft.hitPoints.current"
-                        @update:value="updateNumber('hpCurrent', $event)" />
+                    <NInputNumber
+                        button-placement="both"
+                        min="0"
+                        :value="draft.hitPoints.current"
+                        @update:value="updateNumber('hpCurrent', $event)"
+                    />
                 </NFormItem>
                 <NFormItem label="Временные HP">
-                    <NInputNumber button-placement="both" min="0" :value="draft.hitPoints.temporary"
-                        @update:value="updateNumber('hpTemporary', $event)" />
+                    <NInputNumber
+                        button-placement="both"
+                        min="0"
+                        :value="draft.hitPoints.temporary"
+                        @update:value="updateNumber('hpTemporary', $event)"
+                    />
                 </NFormItem>
                 <NFormItem label="Скорость">
-                    <NInputNumber button-placement="both" min="0" :value="draft.speed"
-                        @update:value="updateNumber('speed', $event)" />
+                    <NInputNumber
+                        button-placement="both"
+                        min="0"
+                        :value="draft.speed"
+                        @update:value="updateNumber('speed', $event)"
+                    />
                 </NFormItem>
-                <label class="npc-mode-field"><span>Режим инициативы</span>
-                    <NSelect class="c-select-control" :value="draft.initiative.mode ?? 'computed'"
-                        :options="initiativeModeOptions" aria-label="Режим инициативы"
-                        @update:value="setCalculationMode('initiative', $event)" />
+                <label class="grid gap-2"
+                    ><span>Режим инициативы</span>
+                    <NSelect
+                        class="w-full"
+                        :value="draft.initiative.mode ?? 'computed'"
+                        :options="initiativeModeOptions"
+                        aria-label="Режим инициативы"
+                        @update:value="setCalculationMode('initiative', $event)"
+                    />
                 </label>
                 <NFormItem v-if="draft.initiative.mode !== 'manual'" label="Добавка к инициативе">
-                    <NInputNumber button-placement="both" :value="draft.initiative.additionalBonus"
-                        @update:value="updateNumber('initiativeBonus', $event)" />
+                    <NInputNumber
+                        button-placement="both"
+                        :value="draft.initiative.additionalBonus"
+                        @update:value="updateNumber('initiativeBonus', $event)"
+                    />
                 </NFormItem>
                 <NFormItem v-else label="Ручная инициатива">
-                    <NInputNumber button-placement="both" :value="draft.initiative.value ?? 0"
-                        @update:value="updateInitiativeValue($event)" />
+                    <NInputNumber
+                        button-placement="both"
+                        :value="draft.initiative.value ?? 0"
+                        @update:value="updateInitiativeValue($event)"
+                    />
                 </NFormItem>
-                <div class="npc-derived-card">
-                    <span>Инициатива</span><strong>{{ initiative }}</strong><small>{{
+                <div>
+                    <span>Инициатива</span><strong>{{ initiative }}</strong
+                    ><small>{{
                         draft.initiative.mode === 'manual'
                             ? 'Ручное значение'
                             : 'Расчёт: модификатор Ловкости + добавка'
@@ -271,247 +315,123 @@ function removeEntry(kind: 'features' | 'actions', id: string) {
         </section>
 
         <section aria-labelledby="npc-abilities-title">
-            <div class="c-section-heading">
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <h2 id="npc-abilities-title">Характеристики</h2>
-                <span class="c-mode-tag mode-ready">Расчёт</span>
+                <span>Расчёт</span>
             </div>
-            <div class="npc-ability-grid">
-                <div v-for="key in abilityKeys" :key="key" class="c-field-card">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div v-for="key in abilityKeys" :key="key">
                     <NFormItem :label="abilityLabels[key]">
-                        <NInputNumber button-placement="both" min="1" max="30" :value="draft.abilities[key]"
-                            @update:value="updateAbility(key, $event)" />
-                    </NFormItem><strong class="npc-ability-modifier">{{
-                        signedModifier(abilityModifier(draft.abilities[key]))
-                        }}</strong>
+                        <NInputNumber
+                            button-placement="both"
+                            min="1"
+                            max="30"
+                            :value="draft.abilities[key]"
+                            @update:value="updateAbility(key, $event)"
+                        /> </NFormItem
+                    ><strong>{{ signedModifier(abilityModifier(draft.abilities[key])) }}</strong>
                 </div>
             </div>
         </section>
 
         <section aria-labelledby="npc-bonuses-title">
-            <div class="c-section-heading">
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <h2 id="npc-bonuses-title">Навыки и спасброски</h2>
             </div>
-            <div class="npc-bonus-columns">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                    <div class="npc-subheading">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
                         <h3>Навыки</h3>
                         <NButton @click="addBonus('skills')">Добавить</NButton>
                     </div>
-                    <p v-if="!draft.skills.length" class="c-empty-collection">Навыки не указаны.</p>
-                    <div v-for="entry in draft.skills" :key="entry.id" class="npc-bonus-row">
+                    <p v-if="!draft.skills.length">Навыки не указаны.</p>
+                    <div v-for="entry in draft.skills" :key="entry.id">
                         <NFormItem label="Название">
                             <NInput v-model:value="entry.name" />
                         </NFormItem>
                         <NFormItem label="Бонус">
-                            <NInputNumber button-placement="both" :value="entry.value"
-                                @update:value="updateBonus(entry, $event)" />
+                            <NInputNumber
+                                button-placement="both"
+                                :value="entry.value"
+                                @update:value="updateBonus(entry, $event)"
+                            />
                         </NFormItem>
-                        <NButton type="error" aria-label="Удалить навык" @click="removeBonus('skills', entry.id)">
-                            Удалить</NButton>
+                        <NButton
+                            type="error"
+                            aria-label="Удалить навык"
+                            @click="removeBonus('skills', entry.id)"
+                        >
+                            Удалить</NButton
+                        >
                     </div>
                 </div>
                 <div>
-                    <div class="npc-subheading">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
                         <h3>Спасброски</h3>
                         <NButton @click="addBonus('savingThrows')">Добавить</NButton>
                     </div>
-                    <p v-if="!draft.savingThrows.length" class="c-empty-collection">
-                        Спасброски не указаны.
-                    </p>
-                    <div v-for="entry in draft.savingThrows" :key="entry.id" class="npc-bonus-row">
+                    <p v-if="!draft.savingThrows.length">Спасброски не указаны.</p>
+                    <div v-for="entry in draft.savingThrows" :key="entry.id">
                         <NFormItem label="Название">
                             <NInput v-model:value="entry.name" />
                         </NFormItem>
                         <NFormItem label="Бонус">
-                            <NInputNumber button-placement="both" :value="entry.value"
-                                @update:value="updateBonus(entry, $event)" />
+                            <NInputNumber
+                                button-placement="both"
+                                :value="entry.value"
+                                @update:value="updateBonus(entry, $event)"
+                            />
                         </NFormItem>
-                        <NButton type="error" aria-label="Удалить спасбросок"
-                            @click="removeBonus('savingThrows', entry.id)">Удалить</NButton>
+                        <NButton
+                            type="error"
+                            aria-label="Удалить спасбросок"
+                            @click="removeBonus('savingThrows', entry.id)"
+                            >Удалить</NButton
+                        >
                     </div>
                 </div>
             </div>
         </section>
 
-        <section v-for="kind in ['features', 'actions'] as const" :key="kind"
-            :aria-labelledby="`npc-${kind}-title`">
-            <div class="c-section-heading">
+        <section
+            v-for="kind in ['features', 'actions'] as const"
+            :key="kind"
+            :aria-labelledby="`npc-${kind}-title`"
+        >
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <h2 :id="`npc-${kind}-title`">
                     {{ kind === 'features' ? 'Особенности' : 'Действия' }}
                 </h2>
                 <NButton type="default" @click="openEntry(kind)">Добавить</NButton>
             </div>
-            <p v-if="!draft[kind].length" class="c-empty-collection">
+            <p v-if="!draft[kind].length">
                 {{
                     kind === 'features'
                         ? 'Особенности пока не добавлены.'
                         : 'Действия пока не добавлены.'
                 }}
             </p>
-            <div v-for="entry in draft[kind]" :key="entry.id" class="c-entry-card npc-entry-card">
+            <div v-for="entry in draft[kind]" :key="entry.id" class="py-3">
                 <div>
                     <h3>{{ entry.name || 'Без названия' }}</h3>
                     <p>{{ entry.description || 'Описание не указано.' }}</p>
-                    <small v-if="entry.attackBonus || entry.damage">{{ entry.attackBonus
-                    }}<span v-if="entry.attackBonus && entry.damage"> · </span>{{ entry.damage }}</small>
+                    <small v-if="entry.attackBonus || entry.damage"
+                        >{{ entry.attackBonus
+                        }}<span v-if="entry.attackBonus && entry.damage"> · </span
+                        >{{ entry.damage }}</small
+                    >
                 </div>
-                <div class="c-entry-actions">
+                <div class="flex flex-wrap items-center gap-2">
                     <NButton @click="openEntry(kind, entry)">Изменить</NButton>
                     <NButton type="error" @click="removeEntry(kind, entry.id)">Удалить</NButton>
                 </div>
             </div>
         </section>
-        <NpcEntryEditorModal v-if="entryModal.isShowModal.value && entryModal.item.value && entryModal.props.value"
-            :entry="entryModal.item.value" v-bind="entryModal.props.value" @close="entryModal.openOrClose" />
+        <NpcEntryEditorModal
+            v-if="entryModal.isShowModal.value && entryModal.item.value && entryModal.props.value"
+            :entry="entryModal.item.value"
+            v-bind="entryModal.props.value"
+            @close="entryModal.openOrClose"
+        />
     </div>
 </template>
-
-<style scoped>
-.c-character-sheet .npc-mode-field {
-    row-gap: 8px;
-    gap: 8px;
-    row-gap: 12px !important;
-}
-
-.npc-sheet-panel {
-    display: grid;
-    gap: 16px;
-    width: 100%;
-    min-width: 0;
-}
-
-.npc-sheet-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 18px;
-    padding: 20px;
-    border: 1px solid #c8ae80;
-    border-radius: 12px;
-    background: linear-gradient(145deg, rgba(255, 250, 239, 0.96), rgba(247, 232, 201, 0.78));
-    box-shadow: 0 5px 15px rgba(83, 59, 38, 0.065);
-}
-
-.npc-sheet-header h1 {
-    margin: 2px 0 5px;
-    color: var(--sheet-ink);
-    font-family: var(--font-serif);
-    font-size: clamp(1.35rem, 2.6vw, 2rem);
-}
-
-.npc-sheet-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.npc-field-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.npc-field-grid> :nth-child(1),
-.npc-field-grid> :nth-child(2),
-.npc-field-grid> :nth-child(3),
-.npc-field-grid> :nth-child(4),
-.npc-field-grid> :nth-child(15),
-.npc-field-grid> :nth-child(16) {
-    grid-column: span 2;
-}
-
-.npc-derived-card {
-    display: flex;
-    min-height: 74px;
-    flex-direction: column;
-    justify-content: center;
-    gap: 3px;
-    padding: 10px 12px;
-    border: 1px solid #c9ac79;
-    border-radius: 8px;
-    background: #fff4d9;
-}
-
-.npc-mode-field {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    gap: 6px;
-    color: var(--sheet-ink);
-    font-size: 0.82rem;
-    font-weight: 700;
-}
-
-.npc-mode-field .c-select-control {
-    width: 100%;
-    min-width: 0;
-}
-
-.npc-derived-card strong {
-    color: var(--sheet-burgundy);
-    font-size: 1.45rem;
-}
-
-.npc-derived-card small {
-    color: var(--sheet-muted);
-    line-height: 1.3;
-}
-
-.npc-ability-grid {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 10px;
-}
-
-.npc-ability-grid .c-field-card {
-    position: relative;
-    display: grid;
-    gap: 4px;
-    padding: 10px;
-}
-
-.npc-ability-modifier {
-    color: var(--sheet-burgundy);
-    font-size: 1.2rem;
-    text-align: center;
-}
-
-.npc-bonus-columns {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-}
-
-.npc-subheading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.npc-bonus-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(80px, 120px) auto;
-    align-items: end;
-    gap: 8px;
-    padding: 10px 0;
-    border-top: 1px solid var(--sheet-line-soft);
-}
-
-.npc-entry-card p {
-    max-width: 100%;
-    margin: 4px 0 0;
-    overflow: hidden;
-    color: var(--sheet-muted);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.npc-entry-card h3 {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-</style>

@@ -41,8 +41,6 @@ const visibleTabValues = new Set(tabs.map(tab => tab.value))
 
 const activeTab = ref<string>('main')
 
-const tabDirection = ref<'forward' | 'backward'>('forward')
-
 const sheet = useCharacterSheet()
 
 type LevelUpModalProps = {
@@ -63,14 +61,11 @@ const levelUpModal = useModalUtil<undefined, LevelUpModalProps>()
 
 const actionModal = useModalUtil<undefined, ActionModalProps>()
 
-const tabIndexes = new Map<string, number>(tabs.map((tab, index) => [tab.value, index]))
-watch(activeTab, (next, previous) => {
+watch(activeTab, next => {
     if (!visibleTabValues.has(next as (typeof tabs)[number]['value'])) {
         activeTab.value = 'main'
         return
     }
-    tabDirection.value =
-        (tabIndexes.get(next) ?? 0) >= (tabIndexes.get(previous) ?? 0) ? 'forward' : 'backward'
     const scrollPosition = window.scrollY
     void nextTick(() => window.scrollTo({ top: scrollPosition, behavior: 'auto' }))
 })
@@ -99,12 +94,6 @@ watch(activeTab, tab => {
         /* ignore unavailable session storage */
     }
 })
-function tabPanelClass(tab: string) {
-    return {
-        'sheet-tab-panel-active': activeTab.value === tab,
-        [`sheet-tab-panel-${tabDirection.value}`]: activeTab.value === tab,
-    }
-}
 function updateAbility(key: AbilityKey, value: number) {
     sheet.updateAbility(key, value)
 }
@@ -178,213 +167,129 @@ function createNpcFromBestiary(entry: BestiaryEntry) {
     }
     void create()
 }
-
 </script>
 <template>
-    <main class="c-character-sheet">
-        <CharacterLoadState :loading="sheet.isLoading.value" :error="sheet.loadError.value" @retry="sheet.load"
-            @create="createCharacter" />
+    <main class="p-6">
+        <CharacterLoadState
+            :loading="sheet.isLoading.value"
+            :error="sheet.loadError.value"
+            @retry="sheet.load"
+            @create="createCharacter"
+        />
         <template v-if="!sheet.isLoading.value && !sheet.loadError.value">
-            <section v-if="!sheet.character.value" class="character-empty-state" aria-live="polite">
+            <section v-if="!sheet.character.value" aria-live="polite">
                 <h1>Персонажи не найдены</h1>
                 <p>Создайте нового персонажа, чтобы начать работу с листом.</p>
                 <NButton type="primary" @click="createCharacter">Создать персонажа</NButton>
             </section>
         </template>
         <template v-if="sheet.character.value && !sheet.isLoading.value && !sheet.loadError.value">
-            <NpcSheetPanel v-if="sheet.character.value.kind === 'npc'" :character="sheet.character.value"
-                :dirty="sheet.isDirty.value" :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value"
-                :save-error="sheet.saveError.value" :on-save="sheet.save" @update="sheet.updateNpc" />
+            <NpcSheetPanel
+                v-if="sheet.character.value.kind === 'npc'"
+                :character="sheet.character.value"
+                :dirty="sheet.isDirty.value"
+                :saving="sheet.isSaving.value"
+                :saved="sheet.savedNotice.value"
+                :save-error="sheet.saveError.value"
+                :on-save="sheet.save"
+                @update="sheet.updateNpc"
+            />
             <template v-else>
-                <CharacterSheetHeader :character="sheet.character.value" :dirty="sheet.isDirty.value"
-                    :saving="sheet.isSaving.value" :saved="sheet.savedNotice.value" :save-error="sheet.saveError.value"
-                    @save="sheet.save" @update="sheet.updateIdentity" />
-                <div class="sheet-tabs-row">
-                    <div class="sheet-tabs">
+                <CharacterSheetHeader
+                    :character="sheet.character.value"
+                    :dirty="sheet.isDirty.value"
+                    :saving="sheet.isSaving.value"
+                    :saved="sheet.savedNotice.value"
+                    :save-error="sheet.saveError.value"
+                    @save="sheet.save"
+                    @update="sheet.updateIdentity"
+                />
+                <div>
+                    <div>
                         <NTabs v-model:value="activeTab" type="line">
-                            <NTab v-for="tab in tabs" :key="tab.value" :name="tab.value" :tab="tab.name" />
+                            <NTab
+                                v-for="tab in tabs"
+                                :key="tab.value"
+                                :name="tab.value"
+                                :tab="tab.name"
+                            />
                         </NTabs>
                     </div>
                 </div>
-                <div class="sheet-tab-stage">
-                    <div v-show="activeTab === 'main'" id="sheet-tab-panel-main" class="sheet-tab-panel"
-                        :class="tabPanelClass('main')">
-                        <CharacterMainTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
-                            @update:saving-throw="sheet.updateSavingThrow" @update:ability="updateAbility"
-                            @update:skill="sheet.updateSkill" @update:feats="sheet.updateFeats"
-                            @level-up="openLevelUpModal" />
+                <div>
+                    <div v-show="activeTab === 'main'" id="sheet-tab-panel-main">
+                        <CharacterMainTab
+                            :character="sheet.character.value"
+                            :disabled="sheet.isSaving.value"
+                            @update:saving-throw="sheet.updateSavingThrow"
+                            @update:ability="updateAbility"
+                            @update:skill="sheet.updateSkill"
+                            @update:feats="sheet.updateFeats"
+                            @level-up="openLevelUpModal"
+                        />
                     </div>
-                    <div v-show="activeTab === 'combat'" id="sheet-tab-panel-combat" class="sheet-tab-panel"
-                        :class="tabPanelClass('combat')">
-                        <CharacterCombatTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
-                            :on-short-rest="takeShortRest" :on-long-rest="takeLongRest"
-                            @update:combat="sheet.updateCombat" @update:attacks="sheet.updateAttacks" />
+                    <div v-show="activeTab === 'combat'" id="sheet-tab-panel-combat">
+                        <CharacterCombatTab
+                            :character="sheet.character.value"
+                            :disabled="sheet.isSaving.value"
+                            :on-short-rest="takeShortRest"
+                            :on-long-rest="takeLongRest"
+                            @update:combat="sheet.updateCombat"
+                            @update:attacks="sheet.updateAttacks"
+                        />
                     </div>
-                    <div v-show="activeTab === 'magic'" id="sheet-tab-panel-magic" class="sheet-tab-panel"
-                        :class="tabPanelClass('magic')">
-                        <CharacterMagicTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
-                            @update:spells="sheet.updateSpells" @update:cantrips="sheet.updateCantrips"
-                            @update:spellcasting="sheet.updateSpellcasting" @use-slot="useSpellSlot" />
+                    <div v-show="activeTab === 'magic'" id="sheet-tab-panel-magic">
+                        <CharacterMagicTab
+                            :character="sheet.character.value"
+                            :disabled="sheet.isSaving.value"
+                            @update:spells="sheet.updateSpells"
+                            @update:cantrips="sheet.updateCantrips"
+                            @update:spellcasting="sheet.updateSpellcasting"
+                            @use-slot="useSpellSlot"
+                        />
                     </div>
-                    <div v-show="activeTab === 'inventory'" id="sheet-tab-panel-inventory" class="sheet-tab-panel"
-                        :class="tabPanelClass('inventory')">
-                        <CharacterInventoryTab :character="sheet.character.value" :disabled="sheet.isSaving.value"
-                            @update:inventory="sheet.updateInventory" @update:money="sheet.updateMoney"
-                            @use-item="useInventoryItem" />
+                    <div v-show="activeTab === 'inventory'" id="sheet-tab-panel-inventory">
+                        <CharacterInventoryTab
+                            :character="sheet.character.value"
+                            :disabled="sheet.isSaving.value"
+                            @update:inventory="sheet.updateInventory"
+                            @update:money="sheet.updateMoney"
+                            @use-item="useInventoryItem"
+                        />
                     </div>
-                    <div v-show="activeTab === 'bio'" id="sheet-tab-panel-bio" class="sheet-tab-panel"
-                        :class="tabPanelClass('bio')">
-                        <CharacterBioTab :personality="sheet.character.value.personality"
-                            :disabled="sheet.isSaving.value" @update="sheet.updatePersonality" />
+                    <div v-show="activeTab === 'bio'" id="sheet-tab-panel-bio">
+                        <CharacterBioTab
+                            :personality="sheet.character.value.personality"
+                            :disabled="sheet.isSaving.value"
+                            @update="sheet.updatePersonality"
+                        />
                     </div>
-                    <div v-if="
-                        featureFlags.components &&
-                        activeTab === 'table-components'
-                    " class="sheet-tab-panel table-components-panel" :class="tabPanelClass('table-components')">
+                    <div v-if="featureFlags.components && activeTab === 'table-components'">
                         <TableComponentsShowcase />
                     </div>
-                    <div v-if="featureFlags.bestiary && activeTab === 'bestiary'"
-                        class="sheet-tab-panel bestiary-tab-panel" :class="tabPanelClass('bestiary')">
+                    <div v-if="featureFlags.bestiary && activeTab === 'bestiary'">
                         <BestiaryPanel :on-create-npc="createNpcFromBestiary" />
                     </div>
-                    <div v-if="featureFlags.encounter && activeTab === 'encounter'"
-                        class="sheet-tab-panel encounter-tab-panel" :class="tabPanelClass('encounter')">
-                        <EncounterPlanner :encounters="sheet.character.value.encounters" :dirty="sheet.isDirty.value"
-                            :saving="sheet.isSaving.value" @update="sheet.updateEncounters" />
+                    <div v-if="featureFlags.encounter && activeTab === 'encounter'">
+                        <EncounterPlanner
+                            :encounters="sheet.character.value.encounters"
+                            :dirty="sheet.isDirty.value"
+                            :saving="sheet.isSaving.value"
+                            @update="sheet.updateEncounters"
+                        />
                     </div>
                 </div>
             </template>
         </template>
-        <LevelUpModal v-if="levelUpModal.isShowModal.value && levelUpModal.props.value"
-            v-bind="levelUpModal.props.value" @close="levelUpModal.openOrClose" />
-        <CharacterActionConfirmModal v-if="actionModal.isShowModal.value && actionModal.props.value"
-            v-bind="actionModal.props.value" @close="actionModal.openOrClose" />
+        <LevelUpModal
+            v-if="levelUpModal.isShowModal.value && levelUpModal.props.value"
+            v-bind="levelUpModal.props.value"
+            @close="levelUpModal.openOrClose"
+        />
+        <CharacterActionConfirmModal
+            v-if="actionModal.isShowModal.value && actionModal.props.value"
+            v-bind="actionModal.props.value"
+            @close="actionModal.openOrClose"
+        />
     </main>
 </template>
-
-<style scoped>
-.character-empty-state {
-    display: grid;
-    justify-items: center;
-    gap: 9px;
-    min-height: 300px;
-    align-content: center;
-    text-align: center;
-}
-
-.character-empty-state h1 {
-    margin: 0;
-    font-family: var(--font-serif);
-}
-
-.character-empty-state p {
-    margin: 0 0 8px;
-    color: var(--sheet-muted);
-}
-
-.character-creation-root {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    padding: 14px;
-    border: 1px solid #c4a474;
-    border-radius: 18px;
-    background: linear-gradient(145deg, rgba(255, 250, 239, 0.94), rgba(239, 220, 185, 0.72));
-    box-shadow:
-        0 10px 26px rgba(83, 59, 38, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-
-.character-creation-root :deep(.creation-hero) {
-    margin-top: 0;
-}
-
-.character-sheet-creation-mode {
-    padding-top: 24px;
-}
-
-.character-sheet-creation-mode :deep(.creation-workspace) {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-}
-
-.character-sheet-creation-mode :deep(.creation-main-column) {
-    width: 100%;
-}
-
-.sheet-tabs-row {
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
-    margin: 0 4px;
-}
-
-.sheet-tabs {
-    flex: 1 1 auto;
-    min-width: 0;
-    margin: 0;
-    padding: 0 10px;
-    border-bottom: 1px solid var(--sheet-line);
-}
-
-.sheet-tab-stage {
-    position: relative;
-    min-height: 260px;
-}
-
-.sheet-tab-panel {
-    min-width: 0;
-    transform-origin: 50% 0;
-}
-
-.sheet-tab-panel-active {
-    animation-duration: 0.42s;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    animation-fill-mode: both;
-    will-change: opacity, transform, filter;
-}
-
-.sheet-tab-panel-forward {
-    animation-name: sheet-tab-enter-forward;
-}
-
-.sheet-tab-panel-backward {
-    animation-name: sheet-tab-enter-backward;
-}
-
-@keyframes sheet-tab-enter-forward {
-    from {
-        opacity: 0;
-        transform: translate3d(22px, 8px, 0) scale(0.988);
-        filter: blur(2px);
-    }
-
-    62% {
-        opacity: 1;
-        filter: blur(0);
-    }
-
-    to {
-        opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
-    }
-}
-
-@keyframes sheet-tab-enter-backward {
-    from {
-        opacity: 0;
-        transform: translate3d(-22px, 8px, 0) scale(0.988);
-        filter: blur(2px);
-    }
-
-    62% {
-        opacity: 1;
-        filter: blur(0);
-    }
-
-    to {
-        opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
-    }
-}
-</style>

@@ -29,8 +29,8 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unk
 </script>
 
 <template>
-    <div class="identity-fields">
-        <div class="identity-grid">
+    <div>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <NFormItem label="Имя" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
@@ -97,19 +97,3 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unk
         </div>
     </div>
 </template>
-
-<style scoped>
-.identity-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-    gap: 14px;
-}
-
-.identity-grid > * {
-    min-width: 0;
-}
-
-.identity-grid :deep(.n-input-number) {
-    width: 100%;
-}
-</style>

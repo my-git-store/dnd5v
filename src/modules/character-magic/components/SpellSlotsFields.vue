@@ -41,18 +41,16 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
 
 <template>
     <section>
-        <div class="c-section-heading c-section-heading-stack">
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h2>Ресурс заклинаний</h2>
-                <p class="c-section-note">
-                    Отмечайте использованные ячейки. Остаток считается автоматически.
-                </p>
+                <p>Отмечайте использованные ячейки. Остаток считается автоматически.</p>
             </div>
         </div>
-        <div class="spell-slots-grid">
-            <div v-for="item in labels" :key="item.level" class="c-field-card spell-slot-card">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div v-for="item in labels" :key="item.level">
                 <h3>{{ item.label }}</h3>
-                <div class="spell-slot-fields">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <NFormItem label="Макс."
                         ><NInputNumber
                             button-placement="both"
@@ -72,8 +70,8 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
                             @update:value="update(item.level, 'used', $event)"
                     /></NFormItem>
                 </div>
-                <p class="c-derived-value">Осталось: {{ remaining(item.level) }}</p>
-                <div class="spell-slot-actions">
+                <p>Осталось: {{ remaining(item.level) }}</p>
+                <div class="flex flex-wrap items-center gap-2">
                     <NButton
                         :disabled="disabled || slots[item.level].used >= slots[item.level].max"
                         @click="emit('use-slot', item.level, 1)"
@@ -89,56 +87,3 @@ const labels = computed(() => levels.map(level => ({ level, label: `Уровен
         </div>
     </section>
 </template>
-
-<style scoped>
-.c-character-sheet .spell-slot-card {
-    row-gap: 12px;
-}
-.c-character-sheet .spell-slot-fields :deep(.flex-col) {
-    row-gap: 12px !important;
-}
-.spell-slots-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-}
-.spell-slot-card {
-    display: grid;
-    gap: 8px;
-}
-.spell-slot-fields {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-}
-.spell-slot-card .c-derived-value {
-    margin: 0;
-    color: #6d4f31;
-    font-size: 0.85rem;
-}
-.spell-slot-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 10px;
-}
-.spell-slot-card,
-.spell-slot-fields,
-.spell-slot-fields > :deep(.flex-col),
-.spell-slot-fields :deep(.n-input) {
-    min-width: 0;
-}
-.spell-slots-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.spell-slot-fields {
-    align-items: start;
-}
-.spell-slot-fields > :deep(.flex-col > label) {
-    display: block;
-    min-height: 2.4em;
-    line-height: 1.2;
-    overflow-wrap: normal;
-    word-break: normal;
-}
-</style>

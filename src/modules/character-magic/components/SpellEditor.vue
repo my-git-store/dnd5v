@@ -29,18 +29,29 @@ function submit() {
 }
 </script>
 <template>
-    <div class="c-editor-grid">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <NFormItem label="Название">
             <NInput v-model:value="draft.name" :disabled="disabled" />
         </NFormItem>
         <NFormItem label="Уровень">
-            <NInputNumber button-placement="both" v-if="!cantrip" v-model:value="draft.level" min="1" max="9"
-                :disabled="disabled" />
+            <NInputNumber
+                v-if="!cantrip"
+                v-model:value="draft.level"
+                button-placement="both"
+                min="1"
+                max="9"
+                :disabled="disabled"
+            />
         </NFormItem>
         <NFormItem label="Описание">
-            <NInput v-model:value="draft.description" type="textarea" :disabled="disabled" rows="3" />
+            <NInput
+                v-model:value="draft.description"
+                type="textarea"
+                :disabled="disabled"
+                rows="3"
+            />
         </NFormItem>
-        <div class="c-editor-actions">
+        <div class="flex flex-wrap items-center gap-2">
             <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton>
             <NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>
         </div>

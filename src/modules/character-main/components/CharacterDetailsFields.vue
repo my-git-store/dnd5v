@@ -42,7 +42,7 @@ function updateNumber(key: 'level' | 'experience' | 'armorClass', value: unknown
 <template>
     <section>
         <h2>Данные персонажа</h2>
-        <div class="character-details-grid">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <NFormItem label="Класс"
                 ><NInput :disabled="disabled" :value="details.class" @update:value="updateClass"
             /></NFormItem>
@@ -76,11 +76,3 @@ function updateNumber(key: 'level' | 'experience' | 'armorClass', value: unknown
         </div>
     </section>
 </template>
-
-<style scoped>
-.character-details-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-}
-</style>

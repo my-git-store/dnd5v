@@ -9,17 +9,12 @@ defineProps<{ disabled?: boolean }>()
 const emit = defineEmits<Emits>()
 </script>
 <template>
-    <div class="c-entry-actions">
-        <button type="button" class="c-text-button" :disabled="disabled" @click="emit('edit')">
+    <div class="flex flex-wrap items-center gap-2">
+        <NButton native-type="button" :disabled="disabled" @click="emit('edit')">
             Изменить
-        </button>
-        <button
-            type="button"
-            class="c-text-button danger"
-            :disabled="disabled"
-            @click="emit('remove')"
-        >
+        </NButton>
+        <NButton native-type="button" :disabled="disabled" @click="emit('remove')">
             Удалить
-        </button>
+        </NButton>
     </div>
 </template>

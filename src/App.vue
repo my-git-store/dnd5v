@@ -1,22 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-
 import CharacterSheetPage from '@/views/CharacterSheetPage.vue'
-import { useColorTheme } from '@/utils/colorTheme'
 import { NScrollbar } from 'naive-ui'
 import { NConfigProvider, ruRU, dateRuRU } from 'naive-ui'
-
-const { naiveTheme, theme } = useColorTheme()
-
-const primaryColor = ref(theme.colors.primary.primary950)
-
-const themeOverrides = computed(() => ({
-    ...naiveTheme.value,
-    common: {
-        ...naiveTheme.value.common,
-        primaryColor: primaryColor.value,
-    },
-}))
 
 const locale = {
     ...ruRU,
@@ -33,7 +18,7 @@ const locale = {
 </script>
 
 <template>
-    <n-config-provider :theme-overrides="themeOverrides" :locale="locale" :date-locale="dateRuRU">
+    <n-config-provider :locale="locale" :date-locale="dateRuRU">
         <n-notification-provider placement="bottom-right">
             <n-dialog-provider>
                 <n-modal-provider>
@@ -47,9 +32,3 @@ const locale = {
         </n-notification-provider>
     </n-config-provider>
 </template>
-
-<style>
-body {
-    background-color: #e9dbc2;
-}
-</style>

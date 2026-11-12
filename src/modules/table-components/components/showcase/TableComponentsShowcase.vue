@@ -1,21 +1,23 @@
 <script setup lang="ts">
 import DiceRoller from '../dice/DiceRoller.vue'
 import InitiativeTracker from '../initiative/InitiativeTracker.vue'
-import '../../styles/table-components.css'
 </script>
 
 <template>
-    <section class="table-components-showcase" aria-labelledby="table-components-title">
+    <section aria-labelledby="table-components-title">
         <div>
-            <header class="app-header">
-                <p class="c-eyebrow">Демо · локальные инструменты</p>
+            <header>
+                <p>Демо · локальные инструменты</p>
                 <h2 id="table-components-title">Игровые компоненты</h2>
-                <p class="showcase-note">
+                <p>
                     Самостоятельные компоненты «Бросок кубиков» и «Трекер инициативы» для будущего
                     игрового стола. Состояние прототипа хранится локально в компоненте.
                 </p>
             </header>
-            <div class="component-grid" aria-label="Компоненты игрового стола">
+            <div
+                class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2"
+                aria-label="Компоненты игрового стола"
+            >
                 <DiceRoller />
                 <InitiativeTracker />
             </div>

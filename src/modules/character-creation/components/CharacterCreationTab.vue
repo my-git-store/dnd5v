@@ -41,7 +41,7 @@ const { currentStep, isCompleted, stepIssue, stepLabel, stepDescription, steps, 
 </script>
 
 <template>
-    <div class="c-tab-content creation-tab">
+    <div class="grid gap-4">
         <CreationHeader :model="creation" />
         <CreationStepNavigation
             :model="creation"
@@ -49,34 +49,25 @@ const { currentStep, isCompleted, stepIssue, stepLabel, stepDescription, steps, 
             @select-step="creation.goToStep"
         />
 
-        <div class="creation-workspace">
-            <div class="creation-main-column">
-                <Transition name="creation-step" mode="out-in">
+        <div class="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+            <div class="lg:col-span-2">
+                <Transition :css="false" mode="out-in">
                     <section
                         :key="currentStep"
-                        class="creation-step-panel"
                         :aria-labelledby="`creation-step-title-${currentStep}`"
                     >
-                        <div class="creation-panel-heading">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
                             <div>
-                                <p class="c-eyebrow">
-                                    Этап {{ String(currentStep).padStart(2, '0') }}
-                                </p>
+                                <p>Этап {{ String(currentStep).padStart(2, '0') }}</p>
                                 <h2 :id="`creation-step-title-${currentStep}`">
                                     {{ stepLabel(currentStep - 1) }}
                                 </h2>
-                                <p class="c-section-note">{{ stepDescription(currentStep - 1) }}</p>
+                                <p>{{ stepDescription(currentStep - 1) }}</p>
                             </div>
-                            <span class="creation-rune" aria-hidden="true">{{
-                                currentStep === 9 ? '✧' : '✦'
-                            }}</span>
+                            <span aria-hidden="true">{{ currentStep === 9 ? '✧' : '✦' }}</span>
                         </div>
 
-                        <div
-                            v-if="stepIssue || props.creationError"
-                            class="creation-error"
-                            role="alert"
-                        >
+                        <div v-if="stepIssue || props.creationError" role="alert">
                             {{ props.creationError || stepIssue }}
                         </div>
 
@@ -139,13 +130,15 @@ const { currentStep, isCompleted, stepIssue, stepLabel, stepDescription, steps, 
                             @back-to-sheet="emit('back-to-sheet')"
                             @edit="creation.editCreation"
                         />
-                        <footer v-if="!isCompleted" class="creation-navigation">
+                        <footer
+                            v-if="!isCompleted"
+                            class="mt-4 flex flex-wrap items-center justify-between gap-3"
+                        >
                             <NButton
                                 :disabled="disabled || currentStep === 1"
                                 @click="creation.previousStep"
                                 >Назад</NButton
-                            ><span class="navigation-step-caption"
-                                >{{ currentStep }} / {{ steps.length }}</span
+                            ><span>{{ currentStep }} / {{ steps.length }}</span
                             ><NButton
                                 v-if="currentStep < steps.length"
                                 type="default"
@@ -168,74 +161,3 @@ const { currentStep, isCompleted, stepIssue, stepLabel, stepDescription, steps, 
         </div>
     </div>
 </template>
-
-<style scoped src="./styles/creation-sections.css"></style>
-<style scoped>
-.creation-navigation {
-    align-items: center;
-}
-.creation-tab {
-    display: block;
-}
-.creation-workspace {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(260px, 322px);
-    align-items: start;
-    gap: 18px;
-}
-.creation-main-column {
-    min-width: 0;
-}
-.creation-step-panel {
-    min-height: 540px;
-}
-.creation-navigation {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 24px;
-    padding-top: 15px;
-    border-top: 1px solid #eadcc3;
-}
-.navigation-step-caption {
-    color: #88745c;
-    font-size: 0.78rem;
-    font-weight: 700;
-}
-.creation-error {
-    margin: 0 0 16px;
-    padding: 11px 13px;
-    border: 1px solid #d7aaa1;
-    border-left: 4px solid #9c4842;
-    border-radius: 8px;
-    background: #fff0eb;
-    color: #74352e;
-    font-size: 0.86rem;
-    line-height: 1.4;
-}
-.creation-step-enter-active,
-.creation-step-leave-active {
-    transition:
-        opacity 0.16s ease,
-        transform 0.16s ease;
-}
-.creation-step-enter-from {
-    opacity: 0;
-    transform: translateY(7px);
-}
-.creation-step-leave-to {
-    opacity: 0;
-    transform: translateY(-4px);
-}
-.creation-step-panel {
-    border-radius: 10px;
-    border-color: #c4a474;
-    box-shadow:
-        0 7px 18px rgba(83, 59, 38, 0.08),
-        inset 0 1px rgba(255, 255, 255, 0.7);
-}
-.creation-step-panel {
-    background: linear-gradient(145deg, rgba(255, 250, 239, 0.93), rgba(249, 235, 207, 0.8));
-}
-</style>

@@ -131,29 +131,27 @@ function togglePrepared(id: string, checked: boolean) {
 </script>
 
 <template>
-    <section class="spellbook-section">
-        <div class="c-section-heading">
+    <section>
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <h2>{{ title }}</h2>
             <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>
         </div>
         <CollectionSearch v-model:query="query" :label="`Поиск: ${title.toLowerCase()}`" />
-        <label v-if="showPreparedFilter" class="prepared-filter"
+        <label v-if="showPreparedFilter"
             ><NCheckbox v-model:checked="preparedOnly" :disabled="disabled"
                 >Только подготовленные</NCheckbox
             ></label
         >
         <EmptyCollection v-if="spells.length === 0" :text="`${title} пока нет.`" />
         <EmptyCollection v-else-if="visibleSpells.length === 0" text="Совпадений не найдено." />
-        <div v-for="spell in visibleSpells" :key="spell.id" class="c-entry-card spell-entry-card">
-            <div class="spell-entry-content">
-                <div class="spell-title">
+        <div v-for="spell in visibleSpells" :key="spell.id" class="py-3">
+            <div>
+                <div>
                     <div>
                         <h3>{{ spell.name || 'Без названия' }}</h3>
-                        <span class="spell-kind-badge">{{
-                            cantrip ? 'Заговор' : `Уровень ${spell.level}`
-                        }}</span>
+                        <span>{{ cantrip ? 'Заговор' : `Уровень ${spell.level}` }}</span>
                     </div>
-                    <label v-if="showPreparedFilter" class="prepared-toggle"
+                    <label v-if="showPreparedFilter"
                         ><NCheckbox
                             :checked="(preparedIds ?? []).includes(spell.id)"
                             :disabled="disabled"
@@ -162,16 +160,12 @@ function togglePrepared(id: string, checked: boolean) {
                         ></label
                     >
                 </div>
-                <div class="spell-meta-line">
+                <div class="flex flex-wrap items-center gap-2">
                     <span v-if="schoolLabel(spell)">Школа: {{ schoolLabel(spell) }}</span
                     ><span v-if="classLabel(spell)">Классы: {{ classLabel(spell) }}</span
                     ><span v-if="metadataLabel(spell)">{{ metadataLabel(spell) }}</span>
                 </div>
-                <p
-                    v-if="spell.description"
-                    class="spell-description-preview"
-                    :title="spell.description"
-                >
+                <p v-if="spell.description" :title="spell.description">
                     {{ spell.description }}
                 </p>
             </div>
@@ -196,105 +190,3 @@ function togglePrepared(id: string, checked: boolean) {
         />
     </section>
 </template>
-
-<style scoped>
-.spell-title {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-.prepared-filter,
-.prepared-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--sheet-muted);
-    font-size: 0.8rem;
-}
-.prepared-filter {
-    margin: -6px 0 14px;
-}
-.prepared-filter :deep(input),
-.prepared-toggle :deep(input) {
-    accent-color: var(--sheet-gold);
-}
-.spell-kind-badge {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-    padding: 3px 7px;
-    border: 1px solid #d7c39f;
-    border-radius: 999px;
-    background: #fbf0d8;
-    color: #805921;
-    font-size: 0.65rem;
-    font-weight: 800;
-}
-.spell-title h3 {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.spellbook-section .c-section-heading {
-    margin-bottom: 14px;
-}
-.spell-entry-card {
-    margin-top: 3px;
-    padding: 14px 0 15px;
-}
-.spell-entry-card:hover {
-    margin-inline: -8px;
-    padding-inline: 8px;
-    border-radius: 10px;
-    background: rgba(255, 248, 231, 0.55);
-}
-.spell-entry-content {
-    min-width: 0;
-    flex: 1;
-}
-.spell-title > div:first-child {
-    min-width: 0;
-}
-.spell-title h3 {
-    display: block;
-    max-width: 100%;
-}
-.spell-kind-badge {
-    margin-top: 5px;
-    border-color: #d7c39f;
-    background: #fbf0d8;
-    color: #805921;
-}
-.spell-entry-card p {
-    max-width: 72ch;
-}
-.spell-description-preview {
-    display: block;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.spell-meta-line {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 12px;
-    margin-top: 7px;
-    color: var(--sheet-muted);
-    font-size: 0.74rem;
-}
-.spell-meta-line span {
-    display: inline-flex;
-    align-items: center;
-}
-.spell-entry-card {
-    border-color: #dec9a4;
-}
-.spell-entry-card:hover {
-    background: rgba(255, 246, 221, 0.62);
-}
-.spell-kind-badge {
-    border-color: #d2b989;
-}
-</style>

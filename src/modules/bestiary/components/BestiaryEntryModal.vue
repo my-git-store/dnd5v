@@ -55,26 +55,24 @@ function addToInitiative() {
 </script>
 
 <template>
-    <NModal :show="true" class="bestiary-entry-modal" :on-close="() => emit('close')">
+    <NModal :show="true" :on-close="() => emit('close')">
         <article
-            class="bestiary-detail-card"
+            class="w-full max-w-4xl max-h-[90vh] overflow-auto"
             role="dialog"
             aria-modal="true"
             :aria-label="`Существо: ${entry.name}`"
         >
-            <header class="bestiary-detail-header">
+            <header>
                 <div>
-                    <p class="c-eyebrow">Бестиарий · {{ entry.source }}</p>
+                    <p>Бестиарий · {{ entry.source }}</p>
                     <h2>{{ entry.name }}</h2>
-                    <p class="c-section-note">
-                        {{ entry.size }} · {{ entry.creatureType }} · {{ entry.alignment }}
-                    </p>
+                    <p>{{ entry.size }} · {{ entry.creatureType }} · {{ entry.alignment }}</p>
                 </div>
                 <NButton aria-label="Закрыть сведения о существе" @click="emit('close')"
                     >Закрыть</NButton
                 >
             </header>
-            <div class="bestiary-detail-actions">
+            <div class="flex flex-wrap items-center gap-2">
                 <NButton type="primary" :disabled="busy" @click="createNpc"
                     >Создать НПС на основе существа</NButton
                 >
@@ -85,7 +83,7 @@ function addToInitiative() {
                     copied ? 'Данные скопированы' : 'Скопировать данные'
                 }}</NButton>
             </div>
-            <dl class="bestiary-stat-grid">
+            <dl class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <div>
                     <dt>Размер и тип</dt>
                     <dd>{{ entry.size }} · {{ entry.creatureType }}</dd>
@@ -119,9 +117,9 @@ function addToInitiative() {
                     <dd>{{ entry.languages.length ? entry.languages.join(' · ') : 'Нет' }}</dd>
                 </div>
             </dl>
-            <section class="bestiary-detail-section">
+            <section>
                 <h3>Характеристики</h3>
-                <div class="bestiary-ability-grid">
+                <div>
                     <div v-for="key in BESTIARY_ABILITY_KEYS" :key="key">
                         <span>{{ abilityLabels[key] }}</span
                         ><strong>{{ entry.abilities[key] }}</strong
@@ -132,10 +130,7 @@ function addToInitiative() {
                     </div>
                 </div>
             </section>
-            <section
-                v-if="entry.savingThrows.length || entry.skills.length"
-                class="bestiary-detail-section"
-            >
+            <section v-if="entry.savingThrows.length || entry.skills.length">
                 <h3>Навыки и спасброски</h3>
                 <p v-if="entry.skills.length">
                     Навыки:
@@ -154,7 +149,7 @@ function addToInitiative() {
                     }}
                 </p>
             </section>
-            <section class="bestiary-detail-section">
+            <section>
                 <h3>Чувства</h3>
                 <p>{{ entry.senses || 'Не указаны' }}</p>
             </section>
@@ -167,10 +162,9 @@ function addToInitiative() {
                 ]"
                 v-show="section.entries.length"
                 :key="section.title"
-                class="bestiary-detail-section"
             >
                 <h3>{{ section.title }}</h3>
-                <details v-for="item in section.entries" :key="item.id" class="bestiary-long-entry">
+                <details v-for="item in section.entries" :key="item.id">
                     <summary>
                         {{ item.name
                         }}<span v-if="item.attackBonus || item.damage">

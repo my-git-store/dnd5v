@@ -9,7 +9,6 @@ import {
     type BestiarySort,
 } from '../types/bestiary.ts'
 import { mockBestiaryAdapter } from '../data/mockBestiary.ts'
-import '../styles/bestiary.css'
 
 type Emits = {
     status: [message: string]
@@ -133,16 +132,16 @@ function addToInitiative(entry: BestiaryEntry) {
 </script>
 
 <template>
-    <section class="bestiary-panel" aria-labelledby="bestiary-title">
-        <header class="bestiary-heading">
+    <section class="grid gap-4" aria-labelledby="bestiary-title">
+        <header>
             <div>
-                <p class="c-eyebrow">Справочник</p>
+                <p>Справочник</p>
                 <h1 id="bestiary-title">Бестиарий</h1>
-                <p class="c-section-note">Небольшой локальный каталог демонстрационных существ.</p>
+                <p>Небольшой локальный каталог демонстрационных существ.</p>
             </div>
-            <span class="c-mode-tag mode-ready">{{ filteredEntries.length }} записей</span>
+            <span>{{ filteredEntries.length }} записей</span>
         </header>
-        <div class="bestiary-controls" aria-label="Поиск и фильтры бестиария">
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Поиск и фильтры бестиария">
             <NFormItem label="Поиск по названию"
                 ><NInput v-model:value="filters.search" placeholder="Например, разведчик"
             /></NFormItem>
@@ -150,7 +149,7 @@ function addToInitiative(entry: BestiaryEntry) {
                 ><span>Размер</span
                 ><NSelect
                     v-model:value="filters.size"
-                    class="c-select-control"
+                    class="w-full"
                     :options="filterOptions(options.size, 'Любой размер')"
                     aria-label="Фильтр по размеру"
             /></label>
@@ -158,7 +157,7 @@ function addToInitiative(entry: BestiaryEntry) {
                 ><span>Тип</span
                 ><NSelect
                     v-model:value="filters.creatureType"
-                    class="c-select-control"
+                    class="w-full"
                     :options="filterOptions(options.creatureType, 'Любой тип')"
                     aria-label="Фильтр по типу"
             /></label>
@@ -166,7 +165,7 @@ function addToInitiative(entry: BestiaryEntry) {
                 ><span>Мировоззрение</span
                 ><NSelect
                     v-model:value="filters.alignment"
-                    class="c-select-control"
+                    class="w-full"
                     :options="filterOptions(options.alignment, 'Любое')"
                     aria-label="Фильтр по мировоззрению"
             /></label>
@@ -174,7 +173,7 @@ function addToInitiative(entry: BestiaryEntry) {
                 ><span>Рейтинг опасности</span
                 ><NSelect
                     v-model:value="filters.challengeRating"
-                    class="c-select-control"
+                    class="w-full"
                     :options="filterOptions(options.challengeRating, 'Любой')"
                     aria-label="Фильтр по рейтингу опасности"
             /></label>
@@ -182,7 +181,7 @@ function addToInitiative(entry: BestiaryEntry) {
                 ><span>Среда</span
                 ><NSelect
                     v-model:value="filters.environment"
-                    class="c-select-control"
+                    class="w-full"
                     :options="filterOptions(options.environment, 'Любая')"
                     aria-label="Фильтр по среде"
             /></label>
@@ -190,7 +189,7 @@ function addToInitiative(entry: BestiaryEntry) {
                 ><span>Источник</span
                 ><NSelect
                     v-model:value="filters.source"
-                    class="c-select-control"
+                    class="w-full"
                     :options="filterOptions(options.source, 'Любой')"
                     aria-label="Фильтр по источнику"
             /></label>
@@ -198,7 +197,7 @@ function addToInitiative(entry: BestiaryEntry) {
                 ><span>Язык</span
                 ><NSelect
                     v-model:value="filters.language"
-                    class="c-select-control"
+                    class="w-full"
                     :options="filterOptions(options.language, 'Любой')"
                     aria-label="Фильтр по языку"
             /></label>
@@ -206,7 +205,7 @@ function addToInitiative(entry: BestiaryEntry) {
                 ><span>Скорость</span
                 ><NSelect
                     v-model:value="filters.speed"
-                    class="c-select-control"
+                    class="w-full"
                     :options="speedOptions"
                     aria-label="Фильтр по скорости"
             /></label>
@@ -214,35 +213,32 @@ function addToInitiative(entry: BestiaryEntry) {
                 ><span>Сортировка</span
                 ><NSelect
                     v-model:value="sort"
-                    class="c-select-control"
+                    class="w-full"
                     :options="sortOptions"
                     aria-label="Сортировка бестиария"
             /></label>
         </div>
-        <p v-if="!filteredEntries.length" class="c-empty-collection">
-            Существа по выбранным фильтрам не найдены.
-        </p>
-        <div v-else class="bestiary-grid">
-            <button
+        <p v-if="!filteredEntries.length">Существа по выбранным фильтрам не найдены.</p>
+        <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <NButton
                 v-for="entry in filteredEntries"
                 :key="entry.id"
-                type="button"
-                class="bestiary-card"
+                native-type="button"
                 :aria-label="`Открыть существо ${entry.name}`"
                 @click="openDetails(entry)"
             >
-                <span class="bestiary-card-mark" aria-hidden="true">✦</span
-                ><span class="bestiary-card-main"
+                <span aria-hidden="true">✦</span
+                ><span
                     ><strong>{{ entry.name }}</strong
                     ><small
                         >{{ entry.size }} · {{ entry.creatureType }} · Опасность
                         {{ entry.challengeRating }}</small
                     ><span>{{ entry.environment.join(' · ') }}</span></span
-                ><span class="bestiary-card-stats"
+                ><span
                     >КД {{ entry.armorClass }} · HP {{ entry.hitPoints }} ·
                     {{ entry.speed }} фт.</span
                 >
-            </button>
+            </NButton>
         </div>
         <BestiaryEntryModal
             v-if="entryModal.isShowModal.value && entryModal.item.value && entryModal.props.value"
@@ -252,9 +248,3 @@ function addToInitiative(entry: BestiaryEntry) {
         />
     </section>
 </template>
-
-<style scoped>
-.c-character-sheet .bestiary-controls :deep(label) {
-    row-gap: 8px;
-}
-</style>

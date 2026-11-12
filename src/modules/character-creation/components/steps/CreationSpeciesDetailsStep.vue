@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-    <div class="creation-step-content">
+    <div class="grid gap-4">
         <h3>{{ model.selected2024Species.name }}</h3>
         <p>{{ model.selected2024Species.description }}</p>
         <ul>

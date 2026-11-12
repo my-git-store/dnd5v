@@ -80,16 +80,14 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
 <template>
     <section>
         <h2>Бой</h2>
-        <div class="combat-grid">
-            <div class="c-field-card combat-armor">
-                <div class="combat-card-heading">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div>
+                <div class="flex flex-wrap items-center justify-between gap-4">
                     <h3>Класс доспеха</h3>
-                    <p class="c-derived-value c-combat-result">{{ armorClass }}</p>
-                    <span class="c-mode-tag mode-unset">Ручное значение</span>
+                    <p>{{ armorClass }}</p>
+                    <span>Ручное значение</span>
                 </div>
-                <p class="c-field-caption">
-                    Расчёт КД не настроен — укажите итоговое значение вручную.
-                </p>
+                <p>Расчёт КД не настроен — укажите итоговое значение вручную.</p>
                 <NFormItem label="КД"
                     ><NInputNumber
                         button-placement="both"
@@ -100,13 +98,13 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                         @update:value="updateArmorValue"
                 /></NFormItem>
             </div>
-            <div class="c-field-card">
-                <div class="combat-card-heading">
+            <div>
+                <div class="flex flex-wrap items-center justify-between gap-4">
                     <h3>Инициатива</h3>
-                    <p class="c-derived-value c-combat-result">{{ signedModifier(initiative) }}</p>
-                    <span class="c-mode-tag mode-ready">Расчёт</span>
+                    <p>{{ signedModifier(initiative) }}</p>
+                    <span>Расчёт</span>
                 </div>
-                <p class="c-field-caption">Модификатор Ловкости + добавка</p>
+                <p>Модификатор Ловкости + добавка</p>
                 <NFormItem label="Доп. бонус инициативы"
                     ><NInputNumber
                         button-placement="both"
@@ -116,12 +114,12 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                         @update:value="updateInitiative"
                 /></NFormItem>
             </div>
-            <div class="c-field-card">
-                <div class="combat-card-heading">
+            <div>
+                <div class="flex flex-wrap items-center justify-between gap-4">
                     <h3>Скорость</h3>
-                    <p class="c-derived-value c-combat-result">{{ speed }}</p>
+                    <p>{{ speed }}</p>
                 </div>
-                <div class="combat-subgrid">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <NFormItem label="Базовая"
                         ><NInputNumber
                             button-placement="both"
@@ -156,14 +154,12 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     /></NFormItem>
                 </div>
             </div>
-            <div class="c-field-card">
-                <div class="combat-card-heading">
+            <div>
+                <div class="flex flex-wrap items-center justify-between gap-4">
                     <h3>Хиты</h3>
-                    <p class="c-derived-value c-combat-result">
-                        {{ combat.hitPoints.current }} / {{ combat.hitPoints.max }}
-                    </p>
+                    <p>{{ combat.hitPoints.current }} / {{ combat.hitPoints.max }}</p>
                 </div>
-                <div class="combat-subgrid">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <NFormItem label="Максимум"
                         ><NInputNumber
                             button-placement="both"
@@ -193,14 +189,12 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     /></NFormItem>
                 </div>
             </div>
-            <div class="c-field-card">
-                <div class="combat-card-heading">
+            <div>
+                <div class="flex flex-wrap items-center justify-between gap-4">
                     <h3>Кости хитов</h3>
-                    <p class="c-derived-value c-combat-result">
-                        {{ combat.hitDice.spent }} / {{ combat.hitDice.total }}
-                    </p>
+                    <p>{{ combat.hitDice.spent }} / {{ combat.hitDice.total }}</p>
                 </div>
-                <div class="combat-subgrid">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <NFormItem label="Размер (например, d8)"
                         ><NInput
                             :value="combat.hitDice.size"
@@ -227,14 +221,14 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                     /></NFormItem>
                 </div>
             </div>
-            <div class="c-field-card">
-                <div class="combat-card-heading">
+            <div>
+                <div class="flex flex-wrap items-center justify-between gap-4">
                     <h3>Спасброски от смерти</h3>
-                    <p class="c-derived-value c-combat-result">
+                    <p>
                         {{ combat.deathSaves.successes }} / 3 · {{ combat.deathSaves.failures }} / 3
                     </p>
                 </div>
-                <div class="combat-subgrid">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <NFormItem label="Успехи"
                         ><NInputNumber
                             button-placement="both"
@@ -260,55 +254,3 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
         </div>
     </section>
 </template>
-
-<style scoped>
-.combat-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-}
-.combat-grid .c-field-card {
-    display: grid;
-    align-content: start;
-    gap: 8px;
-}
-.combat-grid .c-field-card > h3 {
-    min-height: 2.4em;
-    display: flex;
-    align-items: flex-start;
-}
-.combat-card-heading {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    min-width: 0;
-}
-.combat-card-heading h3 {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.combat-card-heading .c-combat-result {
-    flex: 0 0 auto;
-    white-space: nowrap;
-}
-.combat-grid .c-field-card > .c-field-caption {
-    min-height: 2.5em;
-}
-.combat-grid .c-field-card > .c-combat-result {
-    display: flex;
-    align-items: center;
-    min-height: 1.8em;
-}
-.combat-grid .c-field-card > :deep(.n-input-wrapper),
-.combat-grid .c-field-card > .combat-subgrid {
-    margin-top: auto;
-}
-.combat-subgrid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-}
-</style>

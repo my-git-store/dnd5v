@@ -14,45 +14,24 @@ const emit = defineEmits<Emits>()
 </script>
 
 <template>
-    <div class="selection-grid equipment-selection-grid">
-        <button
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <NButton
             v-for="kit in options"
             :key="kit.id"
-            type="button"
-            class="selection-card equipment-card"
-            :class="{ selected: selectedId === kit.id }"
+            :type="selectedId === kit.id ? 'primary' : 'default'"
+            native-type="button"
+            class="h-auto! whitespace-normal!"
             :aria-pressed="selectedId === kit.id"
             :disabled="disabled"
             @click="emit('select', kit.id)"
         >
-            <span class="selection-card-top"
-                ><span class="selection-sigil" aria-hidden="true">{{ sigil }}</span
-                ><span v-if="selectedId === kit.id" class="selection-check" aria-label="Выбрано"
-                    >✓</span
-                ></span
+            <span class="flex w-full items-center justify-between gap-2"
+                ><span aria-hidden="true">{{ sigil }}</span
+                ><span v-if="selectedId === kit.id" aria-label="Выбрано">✓</span></span
             >
             <strong>{{ kit.label }}</strong>
-            <span class="equipment-card-items">{{
-                kit.items.map(item => `${item.name} × ${item.quantity}`).join(' · ')
-            }}</span>
-            <span class="selection-description">{{ kit.items.length }} {{ itemCountLabel }}</span>
-        </button>
+            <span>{{ kit.items.map(item => `${item.name} × ${item.quantity}`).join(' · ') }}</span>
+            <span>{{ kit.items.length }} {{ itemCountLabel }}</span>
+        </NButton>
     </div>
 </template>
-
-<style scoped src="./styles/creation-selection.css"></style>
-<style scoped>
-.equipment-selection-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.equipment-card {
-    min-height: 150px;
-}
-.equipment-card-items {
-    display: block;
-    margin-top: 8px;
-    color: #584532;
-    font-size: 0.76rem;
-    line-height: 1.45;
-}
-</style>

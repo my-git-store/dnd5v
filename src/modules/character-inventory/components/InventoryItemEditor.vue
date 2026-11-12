@@ -61,40 +61,60 @@ function submit() {
 </script>
 
 <template>
-    <div class="c-editor-grid">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <NFormItem label="Название">
             <NInput v-model:value="draft.name" :disabled="disabled" />
         </NFormItem>
-        <label class="c-compact-field">Связь с оружием
-            <NSelect class="c-select-control" :value="draft.weaponId ?? ''" :options="weaponOptions"
-                :disabled="disabled" @update:value="updateWeapon" />
+        <label class="grid gap-2"
+            >Связь с оружием
+            <NSelect
+                class="w-full"
+                :value="draft.weaponId ?? ''"
+                :options="weaponOptions"
+                :disabled="disabled"
+                @update:value="updateWeapon"
+            />
         </label>
         <NFormItem label="Количество">
-            <NInputNumber button-placement="both" v-model:value="draft.quantity" min="0" step="1" :disabled="disabled" />
+            <NInputNumber
+                v-model:value="draft.quantity"
+                button-placement="both"
+                min="0"
+                step="1"
+                :disabled="disabled"
+            />
         </NFormItem>
         <NFormItem label="Вес">
-            <NInputNumber button-placement="both" min="0" step="0.01" :value="draft.weight ?? null" :disabled="disabled"
-                @update:value="draft.weight = weight($event)" />
+            <NInputNumber
+                button-placement="both"
+                min="0"
+                step="0.01"
+                :value="draft.weight ?? null"
+                :disabled="disabled"
+                @update:value="draft.weight = weight($event)"
+            />
         </NFormItem>
-        <label class="c-check-control inventory-check">
+        <label class="flex flex-wrap items-center gap-2">
             <NCheckbox v-model:checked="draft.equipped" :disabled="disabled">Экипировано</NCheckbox>
         </label>
         <NFormItem label="Свойства через запятую">
-            <NInput :value="draft.properties.join(', ')" :disabled="disabled" @update:value="updateProperties" />
+            <NInput
+                :value="draft.properties.join(', ')"
+                :disabled="disabled"
+                @update:value="updateProperties"
+            />
         </NFormItem>
         <NFormItem label="Описание">
-            <NInput v-model:value="draft.description" type="textarea" :disabled="disabled" rows="3" />
+            <NInput
+                v-model:value="draft.description"
+                type="textarea"
+                :disabled="disabled"
+                rows="3"
+            />
         </NFormItem>
-        <div class="c-editor-actions">
+        <div class="flex flex-wrap items-center gap-2">
             <NButton type="primary" :disabled="disabled" @click="submit">Применить</NButton>
             <NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>
         </div>
     </div>
 </template>
-
-<style scoped>
-.inventory-check {
-    align-self: end;
-    min-height: 38px;
-}
-</style>

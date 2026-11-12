@@ -29,7 +29,7 @@ function submit() {
 </script>
 
 <template>
-    <div class="c-editor-grid">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <NFormItem label="Наименование"
             ><NInput v-model:value="draft.name" :disabled="disabled"
         /></NFormItem>
@@ -40,7 +40,7 @@ function submit() {
                 :disabled="disabled"
                 rows="5"
         /></NFormItem>
-        <div class="c-editor-actions">
+        <div class="flex flex-wrap items-center gap-2">
             <NButton type="primary" :disabled="disabled || !draft.name.trim()" @click="submit"
                 >Сохранить</NButton
             ><NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>

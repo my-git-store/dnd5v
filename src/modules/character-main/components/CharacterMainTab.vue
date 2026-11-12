@@ -57,8 +57,8 @@ function characterSpeciesIcon(character: CharacterSheetView) {
 function characterBackgroundIcon(character: CharacterSheetView) {
     return backgroundIconFor(
         character.creation?.backgroundId ??
-        character.origin.background ??
-        character.background.name,
+            character.origin.background ??
+            character.background.name,
     )
 }
 function hideBrokenAsset(event: Event) {
@@ -100,62 +100,83 @@ function choiceSource(choice: ChoiceDefinition) {
 </script>
 
 <template>
-    <div class="c-tab-content">
-        <section class="origin-summary" aria-labelledby="origin-summary-title">
-            <div class="c-section-heading c-section-heading-stack">
+    <div class="grid gap-4">
+        <section aria-labelledby="origin-summary-title">
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h2 id="origin-summary-title">Происхождение</h2>
                 </div>
             </div>
-            <div class="origin-summary-grid">
-                <div class="origin-species-entry">
-                    <span class="c-field-caption">Вид</span><strong class="origin-species-value"><span
-                            class="species-summary-icon" aria-hidden="true"><span data-asset-fallback
-                                :hidden="Boolean(characterSpeciesIcon(character))">{{
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div>
+                    <span>Вид</span
+                    ><strong
+                        ><span
+                            class="inline-flex size-8 shrink-0 items-center justify-center"
+                            aria-hidden="true"
+                            ><span
+                                data-asset-fallback
+                                :hidden="Boolean(characterSpeciesIcon(character))"
+                                >{{
                                     (character.origin.species || character.race.name || '✦').slice(
                                         0,
                                         1,
                                     )
-                                }}</span><img v-if="characterSpeciesIcon(character)"
+                                }}</span
+                            ><img
+                                v-if="characterSpeciesIcon(character)"
                                 :src="characterSpeciesIcon(character)"
                                 :alt="`Иконка вида «${character.origin.species || character.race.name}»`"
-                                @error="hideBrokenAsset" /></span><span>{{
-                                    character.origin.species || character.race.name || 'Не указан'
-                                }}</span></strong>
+                                @error="hideBrokenAsset" /></span
+                        ><span>{{
+                            character.origin.species || character.race.name || 'Не указан'
+                        }}</span></strong
+                    >
                 </div>
                 <div>
-                    <span class="c-field-caption">Предыстория</span><strong class="origin-background-value"><span
-                            class="background-summary-icon" aria-hidden="true"><span data-asset-fallback
-                                :hidden="Boolean(characterBackgroundIcon(character))">{{
+                    <span>Предыстория</span
+                    ><strong
+                        ><span
+                            class="inline-flex size-8 shrink-0 items-center justify-center"
+                            aria-hidden="true"
+                            ><span
+                                data-asset-fallback
+                                :hidden="Boolean(characterBackgroundIcon(character))"
+                                >{{
                                     (
                                         character.origin.background ||
                                         character.background.name ||
                                         '✦'
                                     ).slice(0, 1)
-                                }}</span><img v-if="characterBackgroundIcon(character)"
+                                }}</span
+                            ><img
+                                v-if="characterBackgroundIcon(character)"
                                 :src="characterBackgroundIcon(character)"
                                 :alt="`Иконка предыстории «${character.origin.background || character.background.name}»`"
-                                @error="hideBrokenAsset" /></span><span>{{
-                                    character.origin.background || character.background.name || 'Не указана'
-                                }}</span></strong>
+                                @error="hideBrokenAsset" /></span
+                        ><span>{{
+                            character.origin.background || character.background.name || 'Не указана'
+                        }}</span></strong
+                    >
                 </div>
                 <div>
-                    <span class="c-field-caption">Происхожденческая черта</span><strong>{{ character.origin.originFeat
-                        || 'Не выбрана' }}</strong><small v-if="originFeatDetails(character)">{{
-                            originFeatDetails(character)?.description
-                        }}</small>
+                    <span>Происхожденческая черта</span
+                    ><strong>{{ character.origin.originFeat || 'Не выбрана' }}</strong
+                    ><small v-if="originFeatDetails(character)">{{
+                        originFeatDetails(character)?.description
+                    }}</small>
                 </div>
                 <div>
-                    <span class="c-field-caption">Языки</span><strong>{{ character.origin.languages.join(', ') ||
-                        'Неуказаны' }}</strong>
+                    <span>Языки</span
+                    ><strong>{{ character.origin.languages.join(', ') || 'Неуказаны' }}</strong>
                 </div>
                 <div>
-                    <span class="c-field-caption">Инструменты</span><strong>{{ character.origin.tools.join(', ') ||
-                        'Неуказаны' }}</strong>
+                    <span>Инструменты</span
+                    ><strong>{{ character.origin.tools.join(', ') || 'Неуказаны' }}</strong>
                 </div>
             </div>
         </section>
-        <div class="main-sheet-grid">
+        <div class="grid gap-4">
             <AbilityFields
                 :abilities="character.abilities"
                 :saving-throws="character.savingThrows"
@@ -164,57 +185,77 @@ function choiceSource(choice: ChoiceDefinition) {
                 @update="updateAbility"
                 @update:saving-throw="updateSavingThrow"
             />
-            <SkillFields :skills="character.skills" :abilities="character.abilities" :level="character.level"
+            <SkillFields
+                :skills="character.skills"
+                :abilities="character.abilities"
+                :level="character.level"
                 :class-skill-ids="character.creation?.classSkillIds ?? []"
-                :race-skill-ids="character.creation?.raceSkillIds ?? []" :background-skill-ids="character.creation?.backgroundSkillIds ??
+                :race-skill-ids="character.creation?.raceSkillIds ?? []"
+                :background-skill-ids="
+                    character.creation?.backgroundSkillIds ??
                     character.background.skillProficiencies
-                    " :disabled="disabled" @update="updateSkill" />
+                "
+                :disabled="disabled"
+                @update="updateSkill"
+            />
         </div>
-        <section v-if="PROGRESSION_UI_ENABLED && character.progression?.classLevels?.length"
-            class="progression-summary" aria-labelledby="progression-summary-title">
-            <div class="c-section-heading c-section-heading-stack">
+        <section
+            v-if="PROGRESSION_UI_ENABLED && character.progression?.classLevels?.length"
+            aria-labelledby="progression-summary-title"
+        >
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h2 id="progression-summary-title">Прогрессия</h2>
-                    <p class="c-section-note">
+                    <p>
                         Текущий уровень {{ character.level }} из 20. Повышение добавляет только
                         следующий уровень в черновик.
                     </p>
                 </div>
-                <NButton v-if="canLevelUp(character)" type="default" :disabled="disabled" @click="emit('level-up')">
-                    Повысить до {{ character.level + 1 }}</NButton>
-                <span v-else-if="character.level >= 20" class="c-mode-tag">Максимальный уровень</span>
-                <span v-else class="c-mode-tag mode-unset">Нужен выбранный класс</span>
+                <NButton
+                    v-if="canLevelUp(character)"
+                    type="default"
+                    :disabled="disabled"
+                    @click="emit('level-up')"
+                >
+                    Повысить до {{ character.level + 1 }}</NButton
+                >
+                <span v-else-if="character.level >= 20">Максимальный уровень</span>
+                <span v-else>Нужен выбранный класс</span>
             </div>
-            <div v-if="lastProgressionHistory(character)" class="progression-history" aria-live="polite">
-                <strong>Последнее повышение: {{ lastProgressionHistory(character)?.fromLevel }} →
-                    {{ lastProgressionHistory(character)?.toLevel }}</strong>
-                <span v-if="lastProgressionHistory(character)?.gainedFeatures.length">Новые особенности добавлены в
-                    список ниже.</span>
+            <div v-if="lastProgressionHistory(character)" aria-live="polite">
+                <strong
+                    >Последнее повышение: {{ lastProgressionHistory(character)?.fromLevel }} →
+                    {{ lastProgressionHistory(character)?.toLevel }}</strong
+                >
+                <span v-if="lastProgressionHistory(character)?.gainedFeatures.length"
+                    >Новые особенности добавлены в список ниже.</span
+                >
                 <span v-else>На этом уровне особенностей класса не добавлено.</span>
             </div>
-            <div v-if="nextProgressionChoices(character).length" class="progression-choices"
-                aria-labelledby="progression-choices-title">
+            <div
+                v-if="nextProgressionChoices(character).length"
+                aria-labelledby="progression-choices-title"
+            >
                 <h3 id="progression-choices-title">
                     Доступные выборы на уровне {{ character.level + 1 }}
                 </h3>
-                <article v-for="choice in nextProgressionChoices(character)" :key="choice.id"
-                    class="c-progression-choice-card">
+                <article v-for="choice in nextProgressionChoices(character)" :key="choice.id">
                     <strong>{{ choice.name }}</strong>
                     <small>Источник: {{ choiceSource(choice) }}</small>
                     <p>Варианты: {{ choice.options.map(choiceOptionLabel).join(', ') }}</p>
-                    <p class="c-progression-choice-warning">
+                    <p>
                         Информационное описание: текущая модель не поддерживает безопасное
                         сохранение выбора, поэтому он не применяется автоматически.
                     </p>
                 </article>
             </div>
         </section>
-        <section v-if="character.creation || character.features?.length" class="feature-summary">
+        <section v-if="character.creation || character.features?.length">
             <h2>Особенности героя</h2>
-            <div class="feature-summary-grid">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div v-if="character.creation">
                     <h3>{{ character.race.name || 'Раса' }}</h3>
-                    <ul class="feature-list">
+                    <ul>
                         <li v-for="feature in character.creation.raceFeatures" :key="feature">
                             {{ feature }}
                         </li>
@@ -222,210 +263,33 @@ function choiceSource(choice: ChoiceDefinition) {
                 </div>
                 <div>
                     <h3>{{ character.class || 'Класс' }}</h3>
-                    <div v-if="character.features?.length" class="feature-reference-list">
-                        <article v-for="featureId in character.features" :key="featureId"
-                            class="c-feature-reference-card">
+                    <div v-if="character.features?.length" class="grid gap-2">
+                        <article v-for="featureId in character.features" :key="featureId">
                             <h4>{{ progressionFeatureName(featureId) }}</h4>
                             <p v-if="progressionFeature(featureId)">
                                 {{ progressionFeature(featureId)?.description }}
                             </p>
-                            <small v-if="progressionFeature(featureId)">Источник: {{ progressionFeatureSource(featureId)
-                            }} · Получено на
-                                {{ progressionFeature(featureId)?.level }} уровне</small>
+                            <small v-if="progressionFeature(featureId)"
+                                >Источник: {{ progressionFeatureSource(featureId) }} · Получено на
+                                {{ progressionFeature(featureId)?.level }} уровне</small
+                            >
                         </article>
                     </div>
-                    <ul v-else class="feature-list">
-                        <li v-for="feature in character.creation?.classFeatures ?? []" :key="feature">
+                    <ul v-else>
+                        <li
+                            v-for="feature in character.creation?.classFeatures ?? []"
+                            :key="feature"
+                        >
                             {{ feature }}
                         </li>
                     </ul>
                 </div>
             </div>
         </section>
-        <CharacterFeatList :feats="character.feats" :disabled="disabled" @update="emit('update:feats', $event)" />
+        <CharacterFeatList
+            :feats="character.feats"
+            :disabled="disabled"
+            @update="emit('update:feats', $event)"
+        />
     </div>
 </template>
-
-<style scoped>
-.feature-list {
-    display: grid;
-    gap: 6px;
-    margin: 0;
-    padding-left: 19px;
-    color: var(--sheet-ink);
-    font-size: 0.88rem;
-    line-height: 1.45;
-}
-
-.feature-summary-grid .feature-list {
-    list-style: none;
-    gap: 8px;
-    padding-left: 0;
-}
-
-.feature-summary-grid .feature-list li {
-    min-width: 0;
-    padding: 10px 12px;
-    border: 1px solid var(--sheet-line-soft);
-    border-radius: 8px;
-    background: rgba(255, 248, 231, 0.72);
-}
-
-.feature-summary {
-    margin-top: 18px;
-}
-
-.progression-summary {
-    margin-top: 18px;
-}
-
-.progression-history {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 14px;
-    margin-top: 14px;
-    color: var(--sheet-muted);
-    font-size: 0.8rem;
-    line-height: 1.4;
-}
-
-.progression-history strong {
-    color: var(--sheet-ink);
-}
-
-.progression-summary .c-section-heading {
-    flex-wrap: wrap;
-}
-
-.progression-choices {
-    display: grid;
-    gap: 10px;
-    margin-top: 16px;
-}
-
-.progression-choices h3 {
-    margin: 0;
-    color: var(--sheet-ink);
-    font-family: var(--font-serif);
-    font-size: 1rem;
-}
-
-.origin-summary {
-    margin-top: 18px;
-}
-
-.origin-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.origin-summary-grid>div {
-    display: grid;
-    gap: 4px;
-    min-width: 0;
-    padding: 10px 12px;
-    border: 1px solid var(--sheet-line-soft);
-    border-radius: 10px;
-    background: rgba(255, 248, 233, 0.6);
-}
-
-.origin-summary-grid strong {
-    overflow-wrap: anywhere;
-    font-size: 0.88rem;
-    line-height: 1.35;
-}
-
-.origin-species-value {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-}
-
-.species-summary-icon {
-    display: inline-grid;
-    place-items: center;
-    position: relative;
-    flex: 0 0 36px;
-    width: 36px;
-    height: 36px;
-    overflow: hidden;
-    border: 1px solid #c4a474;
-    border-radius: 50%;
-    background: #f5e5c4;
-    color: #704b25;
-    font-family: var(--font-serif);
-    font-size: 0.9rem;
-    font-weight: 800;
-}
-
-.species-summary-icon img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center 38%;
-    transform: translateY(-4%);
-}
-
-.origin-background-value {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-}
-
-.background-summary-icon {
-    display: inline-grid;
-    place-items: center;
-    position: relative;
-    flex: 0 0 36px;
-    width: 36px;
-    height: 36px;
-    overflow: hidden;
-    border: 1px solid #c4a474;
-    border-radius: 50%;
-    background: #f5e5c4;
-    color: #704b25;
-    font-family: var(--font-serif);
-    font-size: 0.9rem;
-    font-weight: 800;
-}
-
-.background-summary-icon img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center 38%;
-    transform: translateY(-4%);
-}
-
-.feature-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
-}
-
-.feature-summary-grid h3 {
-    margin: 0 0 8px;
-}
-
-.main-sheet-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
-    align-items: start;
-}
-
-.main-sheet-grid>section {
-    height: 100%;
-    box-sizing: border-box;
-}
-
-.feature-reference-list {
-    display: grid;
-    gap: 8px;
-}
-</style>

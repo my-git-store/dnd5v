@@ -145,75 +145,101 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <section class="panel component-card initiative-card" aria-labelledby="initiative-title">
-        <div class="c-section-heading">
+    <section aria-labelledby="initiative-title">
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <p class="c-eyebrow">Локальный компонент</p>
+                <p>Локальный компонент</p>
                 <h2 id="initiative-title">Трекер инициативы</h2>
             </div>
-            <span class="round-chip">Раунд {{ round }}</span>
+            <span>Раунд {{ round }}</span>
         </div>
 
-        <form class="add-participant" @submit.prevent="addParticipant">
+        <form
+            class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2"
+            @submit.prevent="addParticipant"
+        >
             <label>
                 <span>Имя участника</span>
                 <NInput v-model:value="newName" placeholder="Например, Гоблин" maxlength="60" />
             </label>
             <label>
                 <span>Инициатива</span>
-                <NInputNumber button-placement="both" v-model:value="newInitiative" :min="-99" :max="99" />
+                <NInputNumber
+                    v-model:value="newInitiative"
+                    button-placement="both"
+                    :min="-99"
+                    :max="99"
+                />
             </label>
-            <button class="primary-button" type="submit" :disabled="!newName.trim()">
-                Добавить
-            </button>
+            <NButton native-type="submit" :disabled="!newName.trim()"> Добавить </NButton>
         </form>
 
-        <div v-if="orderedParticipants.length === 0" class="empty-state">
+        <div v-if="orderedParticipants.length === 0">
             Добавьте первого участника, чтобы начать раунд.
         </div>
-        <ol v-else class="initiative-list" aria-label="Порядок инициативы">
-            <li v-for="participant in orderedParticipants" :key="participant.id"
-                :class="{ current: participant.id === currentParticipant?.id }">
-                <span class="turn-marker" aria-hidden="true">{{
+        <ol v-else aria-label="Порядок инициативы">
+            <li v-for="participant in orderedParticipants" :key="participant.id">
+                <span aria-hidden="true">{{
                     participant.id === currentParticipant?.id ? '◆' : '◇'
                 }}</span>
-                <div class="participant-main">
-                    <NInput class="participant-name" :aria-label="`Имя: ${participant.name}`" :value="participant.name"
-                        maxlength="60" @update:value="updateParticipant(participant.id, { name: $event })" /><small
+                <div>
+                    <NInput
+                        :aria-label="`Имя: ${participant.name}`"
+                        :value="participant.name"
+                        maxlength="60"
+                        @update:value="updateParticipant(participant.id, { name: $event })"
+                    /><small
                         v-if="
                             participant.hitPoints !== undefined ||
                             participant.armorClass !== undefined
-                        " class="participant-stats">{{
+                        "
+                        >{{
                             participant.hitPoints !== undefined
                                 ? `HP ${participant.hitPoints}`
                                 : ''
-                        }}<span v-if="
-                            participant.hitPoints !== undefined &&
-                            participant.armorClass !== undefined
-                        ">
-                            · </span>{{
+                        }}<span
+                            v-if="
+                                participant.hitPoints !== undefined &&
                                 participant.armorClass !== undefined
-                                    ? `КД ${participant.armorClass}`
-                                    : ''
-                            }}</small>
+                            "
+                        >
+                            · </span
+                        >{{
+                            participant.armorClass !== undefined
+                                ? `КД ${participant.armorClass}`
+                                : ''
+                        }}</small
+                    >
                 </div>
-                <NInputNumber button-placement="both" class="participant-initiative"
-                    :aria-label="`Инициатива: ${participant.name}`" :min="-99" :max="99" :value="participant.initiative"
-                    @update:value="updateParticipant(participant.id, { initiative: $event ?? 0 })" />
-                <button class="icon-button" type="button" :aria-label="`Удалить ${participant.name}`"
-                    @click="removeParticipant(participant.id)">
+                <NInputNumber
+                    button-placement="both"
+                    :aria-label="`Инициатива: ${participant.name}`"
+                    :min="-99"
+                    :max="99"
+                    :value="participant.initiative"
+                    @update:value="updateParticipant(participant.id, { initiative: $event ?? 0 })"
+                />
+                <NButton
+                    native-type="button"
+                    :aria-label="`Удалить ${participant.name}`"
+                    @click="removeParticipant(participant.id)"
+                >
                     ×
-                </button>
+                </NButton>
             </li>
         </ol>
 
-        <div class="turn-footer">
+        <div>
             <p aria-live="polite">
                 <span>Текущий ход:</span> <strong>{{ currentParticipant?.name ?? '—' }}</strong>
             </p>
-            <button class="primary-button" type="button" :disabled="orderedParticipants.length === 0" @click="nextTurn">
+            <NButton
+                native-type="button"
+                :disabled="orderedParticipants.length === 0"
+                @click="nextTurn"
+            >
                 Следующий ход
-            </button>
+            </NButton>
         </div>
     </section>
 </template>

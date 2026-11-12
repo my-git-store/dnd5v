@@ -25,7 +25,7 @@ function update(key: keyof CharacterMoney, value: unknown) {
 <template>
     <section>
         <h2>Деньги</h2>
-        <div class="money-grid">
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
             <div v-for="field in fields" :key="field.key">
                 <NFormItem :label="field.label"
                     ><NInputNumber
@@ -39,22 +39,3 @@ function update(key: keyof CharacterMoney, value: unknown) {
         </div>
     </section>
 </template>
-
-<style scoped>
-.money-grid {
-    display: grid;
-    gap: 12px;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-.money-grid {
-    grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
-}
-.money-grid > div {
-    min-width: 0;
-}
-.money-grid :deep(label) {
-    overflow-wrap: normal;
-    word-break: normal;
-    white-space: nowrap;
-}
-</style>
