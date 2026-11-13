@@ -35,14 +35,7 @@ type EditorModalProps = {
     onSave: (spell: CharacterSpellRecord) => void
 }
 
-type ConfirmModalProps = {
-    text: string
-    onOk: () => void | Promise<void>
-}
-
 const editorModal = useModalUtil<CharacterSpellRecord, EditorModalProps>()
-
-const confirmModal = useModalUtil<undefined, ConfirmModalProps>()
 
 const classLabels = new Map(RULES_2024_CLASSES.map(item => [item.id, item.label]))
 
@@ -117,16 +110,11 @@ function add() {
         ritual: false,
     })
 }
-function remove(id: string, name: string) {
-    confirmModal.props.value = {
-        text: `удалить запись «${name || 'без названия'}»?`,
-        onOk: () =>
-            emit(
-                'update',
-                props.spells.filter(item => item.id !== id),
-            ),
-    }
-    confirmModal.openOrClose()
+function remove(id: string) {
+    emit(
+        'update',
+        props.spells.filter(spell => spell.id !== id),
+    )
 }
 function togglePrepared(id: string, checked: boolean) {
     const prepared = new Set(props.preparedIds ?? [])
@@ -169,12 +157,10 @@ function togglePrepared(id: string, checked: boolean) {
                     {{ spell.description }}
                 </p>
             </div>
-            <EntryActions :disabled="disabled" @edit="openEditor(spell)" @remove="remove(spell.id, spell.name)" />
+            <EntryActions :disabled="disabled" @edit="openEditor(spell)" @remove="remove(spell.id)" />
         </div>
         <SpellEditorModal v-if="
             editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
         " :spell="editorModal.item.value" v-bind="editorModal.props.value" @close="editorModal.openOrClose" />
-        <ConfirmModal v-if="confirmModal.isShowModal.value && confirmModal.props.value"
-            v-bind="confirmModal.props.value" @close="confirmModal.openOrClose" />
     </section>
 </template>

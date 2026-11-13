@@ -22,7 +22,6 @@ import type {
     CharacterIdentityPatch,
     CharacterInventoryItemRecord,
     CharacterMoney,
-    CharacterNpc,
     CharacterPersonality,
     CharacterSavingThrowPatch,
     CharacterSkillPatch,
@@ -97,13 +96,6 @@ export function useCharacterSheet() {
                 patch.level,
             )
         }
-    }
-
-    function updateNpc(npc: CharacterNpc) {
-        if (!character.value) return
-        character.value.kind = 'npc'
-        character.value.identity.name = npc.name
-        character.value.npc = npc
     }
 
     function updateAbility(key: AbilityKey, value: number) {
@@ -237,7 +229,6 @@ export function useCharacterSheet() {
         save,
         createCharacter,
         updateIdentity,
-        updateNpc,
         updateAbility,
         updateSkill,
         updateSavingThrow,

@@ -20,45 +20,10 @@ export type CharacterCollection = 'attacks' | 'spells' | 'cantrips' | 'inventory
 import type { CharacterProgression, RuleSourceRef, SpellProgressionType } from './rules.ts'
 
 export type CharacterSchema = 3
-export type CharacterKind = 'character' | 'npc'
 export type CharacterCalculationMode = 'manual' | 'computed'
 export type SkillProficiencySource = 'race' | 'class' | 'background' | 'manual' | 'feat'
 export type CharacterAbilityBonusSource = 'species' | 'background' | 'manual' | 'feat' | 'class'
 export type CharacterSpellLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
-export interface CharacterNpcBonus {
-    id: string
-    name: string
-    value: number
-}
-
-export interface CharacterNpcEntry {
-    id: string
-    name: string
-    description: string
-    attackBonus: string
-    damage: string
-}
-
-export interface CharacterNpc {
-    name: string
-    creatureType: string
-    size: string
-    alignment: string
-    challengeRating: string
-    proficiencyBonus: number
-    armorClass: { mode: CharacterCalculationMode; value: number; additionalBonus: number }
-    hitPoints: { max: number; current: number; temporary: number }
-    speed: number
-    initiative: { mode?: CharacterCalculationMode; additionalBonus: number; value?: number }
-    senses: string
-    languages: string
-    abilities: CharacterAbilities
-    skills: CharacterNpcBonus[]
-    savingThrows: CharacterNpcBonus[]
-    features: CharacterNpcEntry[]
-    actions: CharacterNpcEntry[]
-}
 
 export interface CharacterEncounterParticipant {
     id: string
@@ -298,8 +263,8 @@ export interface CharacterCreation {
 export interface Character {
     id: string
     schemaVersion: CharacterSchema
-    /** Optional discriminator; omitted legacy records are ordinary characters. */
-    kind?: CharacterKind
+    /** Optional marker retained for compatibility with stored characters. */
+    kind?: 'character'
     identity: CharacterIdentity
     abilities: CharacterAbilities
     proficiency: CharacterProficiency
@@ -318,8 +283,6 @@ export interface Character {
     /** Optional additive foundation; absent on older records and filled with safe defaults at runtime. */
     progression?: CharacterProgression
     extensions: Record<string, unknown> & { characterCreation?: CharacterCreation }
-    /** Optional NPC-specific data; character records do not need this field. */
-    npc?: CharacterNpc
     /** Optional encounter planner state; absent on older records. */
     encounters?: CharacterEncounter[]
 }

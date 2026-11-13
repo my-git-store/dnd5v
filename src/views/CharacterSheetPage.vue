@@ -8,7 +8,6 @@ import CharacterCombatTab from '@/modules/character-combat/components/CharacterC
 import CharacterMagicTab from '@/modules/character-magic/components/CharacterMagicTab.vue'
 import CharacterInventoryTab from '@/modules/character-inventory/components/CharacterInventoryTab.vue'
 import CharacterBioTab from '@/modules/character-identity/components/CharacterBioTab.vue'
-import NpcSheetPanel from '@/components/NpcSheetPanel.vue'
 import CharacterActionConfirmModal from '@/components/CharacterActionConfirmModal.vue'
 import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import type { AbilityKey, CharacterSpellLevel } from '@/types/character'
@@ -124,87 +123,75 @@ function createCharacter() {
             </section>
         </template>
         <template v-if="sheet.character.value && !sheet.isLoading.value && !sheet.loadError.value">
-            <NpcSheetPanel
-                v-if="sheet.character.value.kind === 'npc'"
+            <CharacterSheetHeader
                 :character="sheet.character.value"
                 :dirty="sheet.isDirty.value"
                 :saving="sheet.isSaving.value"
                 :saved="sheet.savedNotice.value"
                 :save-error="sheet.saveError.value"
-                :on-save="sheet.save"
-                @update="sheet.updateNpc"
+                @save="sheet.save"
+                @update="sheet.updateIdentity"
             />
-            <template v-else>
-                <CharacterSheetHeader
-                    :character="sheet.character.value"
-                    :dirty="sheet.isDirty.value"
-                    :saving="sheet.isSaving.value"
-                    :saved="sheet.savedNotice.value"
-                    :save-error="sheet.saveError.value"
-                    @save="sheet.save"
-                    @update="sheet.updateIdentity"
-                />
+            <div>
                 <div>
-                    <div>
-                        <NTabs v-model:value="activeTab" type="line">
-                            <NTab
-                                v-for="tab in tabs"
-                                :key="tab.value"
-                                :name="tab.value"
-                                :tab="tab.name"
-                            />
-                        </NTabs>
-                    </div>
+                    <NTabs v-model:value="activeTab" type="line">
+                        <NTab
+                            v-for="tab in tabs"
+                            :key="tab.value"
+                            :name="tab.value"
+                            :tab="tab.name"
+                        />
+                    </NTabs>
                 </div>
-                <div>
-                    <div v-show="activeTab === 'main'" id="sheet-tab-panel-main">
-                        <CharacterMainTab
-                            :character="sheet.character.value"
-                            :disabled="sheet.isSaving.value"
-                            @update:saving-throw="sheet.updateSavingThrow"
-                            @update:ability="updateAbility"
-                            @update:skill="sheet.updateSkill"
-                            @update:feats="sheet.updateFeats"
-                        />
-                    </div>
-                    <div v-show="activeTab === 'combat'" id="sheet-tab-panel-combat">
-                        <CharacterCombatTab
-                            :character="sheet.character.value"
-                            :disabled="sheet.isSaving.value"
-                            :on-short-rest="takeShortRest"
-                            :on-long-rest="takeLongRest"
-                            @update:combat="sheet.updateCombat"
-                            @update:attacks="sheet.updateAttacks"
-                        />
-                    </div>
-                    <div v-show="activeTab === 'magic'" id="sheet-tab-panel-magic">
-                        <CharacterMagicTab
-                            :character="sheet.character.value"
-                            :disabled="sheet.isSaving.value"
-                            @update:spells="sheet.updateSpells"
-                            @update:cantrips="sheet.updateCantrips"
-                            @update:spellcasting="sheet.updateSpellcasting"
-                            @use-slot="useSpellSlot"
-                        />
-                    </div>
-                    <div v-show="activeTab === 'inventory'" id="sheet-tab-panel-inventory">
-                        <CharacterInventoryTab
-                            :character="sheet.character.value"
-                            :disabled="sheet.isSaving.value"
-                            @update:inventory="sheet.updateInventory"
-                            @update:money="sheet.updateMoney"
-                            @use-item="useInventoryItem"
-                        />
-                    </div>
-                    <div v-show="activeTab === 'bio'" id="sheet-tab-panel-bio">
-                        <CharacterBioTab
-                            :personality="sheet.character.value.personality"
-                            :disabled="sheet.isSaving.value"
-                            @update="sheet.updatePersonality"
-                        />
-                    </div>
+            </div>
+            <div>
+                <div v-show="activeTab === 'main'" id="sheet-tab-panel-main">
+                    <CharacterMainTab
+                        :character="sheet.character.value"
+                        :disabled="sheet.isSaving.value"
+                        @update:saving-throw="sheet.updateSavingThrow"
+                        @update:ability="updateAbility"
+                        @update:skill="sheet.updateSkill"
+                        @update:feats="sheet.updateFeats"
+                    />
                 </div>
-            </template>
+                <div v-show="activeTab === 'combat'" id="sheet-tab-panel-combat">
+                    <CharacterCombatTab
+                        :character="sheet.character.value"
+                        :disabled="sheet.isSaving.value"
+                        :on-short-rest="takeShortRest"
+                        :on-long-rest="takeLongRest"
+                        @update:combat="sheet.updateCombat"
+                        @update:attacks="sheet.updateAttacks"
+                    />
+                </div>
+                <div v-show="activeTab === 'magic'" id="sheet-tab-panel-magic">
+                    <CharacterMagicTab
+                        :character="sheet.character.value"
+                        :disabled="sheet.isSaving.value"
+                        @update:spells="sheet.updateSpells"
+                        @update:cantrips="sheet.updateCantrips"
+                        @update:spellcasting="sheet.updateSpellcasting"
+                        @use-slot="useSpellSlot"
+                    />
+                </div>
+                <div v-show="activeTab === 'inventory'" id="sheet-tab-panel-inventory">
+                    <CharacterInventoryTab
+                        :character="sheet.character.value"
+                        :disabled="sheet.isSaving.value"
+                        @update:inventory="sheet.updateInventory"
+                        @update:money="sheet.updateMoney"
+                        @use-item="useInventoryItem"
+                    />
+                </div>
+                <div v-show="activeTab === 'bio'" id="sheet-tab-panel-bio">
+                    <CharacterBioTab
+                        :personality="sheet.character.value.personality"
+                        :disabled="sheet.isSaving.value"
+                        @update="sheet.updatePersonality"
+                    />
+                </div>
+            </div>
         </template>
         <CharacterActionConfirmModal
             v-if="actionModal.isShowModal.value && actionModal.props.value"

@@ -35,14 +35,7 @@ type EditorModalProps = {
     onSave: (attack: CharacterAttackRecord) => void
 }
 
-type ConfirmModalProps = {
-    text: string
-    onOk: () => void | Promise<void>
-}
-
 const editorModal = useModalUtil<CharacterAttackRecord, EditorModalProps>()
-
-const confirmModal = useModalUtil<undefined, ConfirmModalProps>()
 
 const kindLabels: Record<CharacterAttackRecord['kind'], string> = {
     melee: 'Ближняя',
@@ -114,16 +107,11 @@ function add() {
     }
     openEditor(attack)
 }
-function remove(id: string, name: string) {
-    confirmModal.props.value = {
-        text: `удалить атаку «${name || 'без названия'}»?`,
-        onOk: () =>
-            emit(
-                'update',
-                props.attacks.filter(item => item.id !== id),
-            ),
-    }
-    confirmModal.openOrClose()
+function remove(id: string) {
+    emit(
+        'update',
+        props.attacks.filter(attack => attack.id !== id),
+    )
 }
 function attackSummary(attack: CharacterAttackRecord) {
     const source = getAttackBonusSource(attack)
@@ -197,7 +185,7 @@ function masteryLabel(attack: CharacterAttackRecord): string {
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <EntryActions :disabled="disabled || isRolling" @edit="openEditor(attack)"
-                    @remove="remove(attack.id, attack.name)" />
+                    @remove="remove(attack.id)" />
             </div>
         </div>
         <p v-if="lastRoll" role="status" aria-live="polite">
@@ -215,7 +203,5 @@ function masteryLabel(attack: CharacterAttackRecord): string {
         <AttackEditorModal v-if="
             editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
         " :attack="editorModal.item.value" v-bind="editorModal.props.value" @close="editorModal.openOrClose" />
-        <ConfirmModal v-if="confirmModal.isShowModal.value && confirmModal.props.value"
-            v-bind="confirmModal.props.value" @close="confirmModal.openOrClose" />
     </section>
 </template>

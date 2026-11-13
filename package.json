@@ -4,14 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "postinstall": "node scripts/patch-editorjs-types.mjs",
     "typecheck": "vue-tsc -b",
     "lint": "eslint .",
     "format": "eslint . --fix && prettier --write \"src/**/*.{ts,vue,css}\"",
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "predeploy": "node scripts/build-pages.mjs",
     "deploy": "npx gh-pages -d dist"
   },
   "dependencies": {

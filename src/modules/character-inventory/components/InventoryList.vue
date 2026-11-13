@@ -29,14 +29,7 @@ type EditorModalProps = {
     onSave: (item: CharacterInventoryItemRecord) => void
 }
 
-type ConfirmModalProps = {
-    text: string
-    onOk: () => void | Promise<void>
-}
-
 const editorModal = useModalUtil<CharacterInventoryItemRecord, EditorModalProps>()
-
-const confirmModal = useModalUtil<undefined, ConfirmModalProps>()
 
 const visibleItems = computed(() => {
     const search = query.value.trim()
@@ -77,16 +70,11 @@ function add() {
         properties: [],
     })
 }
-function remove(id: string, name: string) {
-    confirmModal.props.value = {
-        text: `удалить предмет «${name || 'без названия'}»?`,
-        onOk: () =>
-            emit(
-                'update',
-                props.items.filter(item => item.id !== id),
-            ),
-    }
-    confirmModal.openOrClose()
+function remove(id: string) {
+    emit(
+        'update',
+        props.items.filter(item => item.id !== id),
+    )
 }
 function isConsumable(item: CharacterInventoryItemRecord): boolean {
     return item.properties.some(property => /расход|однораз|consumable/i.test(property))
@@ -154,13 +142,11 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
             <div class="flex flex-wrap items-center gap-2">
                 <NButton v-if="isConsumable(item)" :disabled="disabled || item.quantity <= 0"
                     @click="emit('use-item', item.id)">Использовать</NButton>
-                <EntryActions :disabled="disabled" @edit="openEditor(item)" @remove="remove(item.id, item.name)" />
+                <EntryActions :disabled="disabled" @edit="openEditor(item)" @remove="remove(item.id)" />
             </div>
         </div>
         <InventoryItemEditorModal v-if="
             editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
         " :item="editorModal.item.value" v-bind="editorModal.props.value" @close="editorModal.openOrClose" />
-        <ConfirmModal v-if="confirmModal.isShowModal.value && confirmModal.props.value"
-            v-bind="confirmModal.props.value" @close="confirmModal.openOrClose" />
     </section>
 </template>

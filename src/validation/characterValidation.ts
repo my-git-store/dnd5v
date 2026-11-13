@@ -432,60 +432,6 @@ function validMoney(value: unknown): boolean {
     )
 }
 
-/** Validates combat resources and their bounded counters. */
-function validCombat(value: unknown): boolean {
-    if (
-        !isRecord(value) ||
-        !isRecord(value.armorClass) ||
-        !isRecord(value.initiative) ||
-        !isRecord(value.speed) ||
-        !isRecord(value.hitPoints) ||
-        !isRecord(value.hitDice) ||
-        !isRecord(value.deathSaves)
-    )
-        return false
-    const armorClass = value.armorClass
-
-    const speed = value.speed
-
-    const hitPoints = value.hitPoints
-
-    const hitDice = value.hitDice
-
-    const deathSaves = value.deathSaves
-    return (
-        isCalculationMode(armorClass.mode) &&
-        isInteger(armorClass.value) &&
-        (armorClass.armorBase === null || isFiniteNumber(armorClass.armorBase)) &&
-        (armorClass.armorDexCap === null || isFiniteNumber(armorClass.armorDexCap)) &&
-        isInteger(armorClass.shieldBonus) &&
-        isInteger(armorClass.additionalBonus) &&
-        isInteger(value.initiative.additionalBonus) &&
-        isFiniteNumber(speed.base) &&
-        (speed.fly === null || isFiniteNumber(speed.fly)) &&
-        (speed.swim === null || isFiniteNumber(speed.swim)) &&
-        (speed.override === null || isFiniteNumber(speed.override)) &&
-        isInteger(hitPoints.max) &&
-        Number(hitPoints.max) >= 0 &&
-        isInteger(hitPoints.current) &&
-        Number(hitPoints.current) >= 0 &&
-        isInteger(hitPoints.temporary) &&
-        Number(hitPoints.temporary) >= 0 &&
-        isString(hitDice.size) &&
-        isInteger(hitDice.total) &&
-        Number(hitDice.total) >= 0 &&
-        isInteger(hitDice.spent) &&
-        Number(hitDice.spent) >= 0 &&
-        Number(hitDice.spent) <= Number(hitDice.total) &&
-        isInteger(deathSaves.successes) &&
-        Number(deathSaves.successes) >= 0 &&
-        Number(deathSaves.successes) <= 3 &&
-        isInteger(deathSaves.failures) &&
-        Number(deathSaves.failures) >= 0 &&
-        Number(deathSaves.failures) <= 3
-    )
-}
-
 /** Validates saving throw proficiency flags. */
 function validSavingThrows(value: unknown): boolean {
     if (!isRecord(value)) return false
@@ -561,69 +507,6 @@ function validInventory(value: unknown): boolean {
     )
 }
 
-function validNpcEntry(value: unknown): boolean {
-    return (
-        isRecord(value) &&
-        isString(value.id) &&
-        value.id.length > 0 &&
-        isString(value.name) &&
-        isString(value.description) &&
-        isString(value.attackBonus) &&
-        isString(value.damage)
-    )
-}
-
-function validNpc(value: unknown): boolean {
-    if (
-        !isRecord(value) ||
-        !isString(value.name) ||
-        !isString(value.creatureType) ||
-        !isString(value.size) ||
-        !isString(value.alignment) ||
-        !isString(value.challengeRating) ||
-        !isInteger(value.proficiencyBonus) ||
-        value.proficiencyBonus < 0 ||
-        !isRecord(value.armorClass) ||
-        !isCalculationMode(value.armorClass.mode) ||
-        !isInteger(value.armorClass.value) ||
-        !isInteger(value.armorClass.additionalBonus) ||
-        !isRecord(value.hitPoints) ||
-        !isInteger(value.hitPoints.max) ||
-        value.hitPoints.max < 0 ||
-        !isInteger(value.hitPoints.current) ||
-        value.hitPoints.current < 0 ||
-        value.hitPoints.current > value.hitPoints.max ||
-        !isInteger(value.hitPoints.temporary) ||
-        value.hitPoints.temporary < 0 ||
-        !isFiniteNumber(value.speed) ||
-        value.speed < 0 ||
-        !isRecord(value.initiative) ||
-        (value.initiative.mode !== undefined && !isCalculationMode(value.initiative.mode)) ||
-        !isInteger(value.initiative.additionalBonus) ||
-        (value.initiative.value !== undefined && !isInteger(value.initiative.value)) ||
-        !isString(value.senses) ||
-        !isString(value.languages) ||
-        !validAbilities(value.abilities) ||
-        !Array.isArray(value.skills) ||
-        !Array.isArray(value.savingThrows) ||
-        !Array.isArray(value.features) ||
-        !Array.isArray(value.actions)
-    )
-        return false
-    const validBonus = (entry: unknown): boolean =>
-        isRecord(entry) &&
-        isString(entry.id) &&
-        entry.id.length > 0 &&
-        isString(entry.name) &&
-        isInteger(entry.value)
-    return (
-        value.skills.every(validBonus) &&
-        value.savingThrows.every(validBonus) &&
-        value.features.every(validNpcEntry) &&
-        value.actions.every(validNpcEntry)
-    )
-}
-
 function validEncounter(value: unknown): boolean {
     if (
         !isRecord(value) ||
@@ -667,9 +550,8 @@ export function validateCharacter(value: unknown): string[] {
     const identity = value.identity
     if (value.schemaVersion !== 3) errors.push('Неподдерживаемая версия схемы персонажа.')
     if (!isString(value.id) || !value.id) errors.push('Не указан идентификатор персонажа.')
-    if (value.kind !== undefined && value.kind !== 'character' && value.kind !== 'npc')
+    if (value.kind !== undefined && value.kind !== 'character')
         errors.push('Неизвестный тип листа.')
-    if (value.kind === 'npc' && !validNpc(value.npc)) errors.push('Некорректные данные НПС.')
     if (
         value.encounters !== undefined &&
         (!Array.isArray(value.encounters) || !value.encounters.every(validEncounter))
@@ -701,7 +583,6 @@ export function validateCharacter(value: unknown): string[] {
     )
         errors.push('Некорректная proficiency-секция.')
     if (!validSavingThrows(value.savingThrows)) errors.push('Некорректные спасброски.')
-    if (!validCombat(value.combat)) errors.push('Некорректные combat-данные.')
     if (!Array.isArray(value.skills) || !value.skills.every(validSkill))
         errors.push('Некорректные навыки.')
     if (!Array.isArray(value.attacks) || !value.attacks.every(attack => validAttack(attack)))
