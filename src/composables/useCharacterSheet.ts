@@ -16,15 +16,13 @@ import {
 } from '../types/characterView'
 import type {
     CharacterCombat,
-    CharacterEncounter,
     CharacterFeat,
     CharacterInventoryItemRecord,
     CharacterPersonality,
     CharacterSpellcasting,
     Character,
 } from '../types/character'
-import { applyCharacterCreation, type CharacterCreationPayload } from '../domain/characterCreation'
-import { levelUpProgression, progressionAtLevel } from '../domain/characterProgression'
+import { progressionAtLevel } from '@/domain/characterProgressionData'
 import {
     listStoredCharacterIds,
     listStoredCharacterSummaries,
@@ -89,7 +87,6 @@ export function useCharacterSheet(id = 'demo-character') {
                 id: character.value.id,
                 name: character.value.name,
                 className: character.value.class,
-                ruleset: character.value.ruleset,
                 kind: character.value.kind === 'npc' ? 'npc' : 'character',
             })
         }
@@ -277,11 +274,6 @@ export function useCharacterSheet(id = 'demo-character') {
         >
         savedNotice.value = false
     }
-    function updateEncounters(encounters: CharacterEncounter[]) {
-        if (!character.value) return
-        character.value.encounters = JSON.parse(JSON.stringify(encounters)) as CharacterEncounter[]
-        savedNotice.value = false
-    }
     function updateDetails(details: CharacterDetails) {
         if (character.value) Object.assign(character.value, details)
         savedNotice.value = false
@@ -426,26 +418,6 @@ export function useCharacterSheet(id = 'demo-character') {
         }
         savedNotice.value = false
     }
-    function levelUp() {
-        if (!character.value?.progression) return
-        const nextLevel = character.value.level + 1
-        character.value.progression = levelUpProgression(
-            character.value.progression,
-            nextLevel,
-            character.value.ruleset,
-        )
-        character.value.features = [...character.value.progression.features]
-        character.value.level = nextLevel
-        savedNotice.value = false
-        saveError.value = null
-    }
-    function applyCreation(payload: CharacterCreationPayload) {
-        if (!character.value) return
-        character.value = applyCharacterCreation(character.value, payload)
-        savedNotice.value = false
-        saveError.value = null
-    }
-
     onMounted(() => {
         if (activeId.value === null) {
             suppressVirtualCharacter.value = true
@@ -486,7 +458,6 @@ export function useCharacterSheet(id = 'demo-character') {
         importCharacters,
         updateIdentity,
         updateNpc,
-        updateEncounters,
         updateDetails,
         updateAbility,
         updateSkill,
@@ -505,7 +476,5 @@ export function useCharacterSheet(id = 'demo-character') {
         updatePersonality,
         updateFeats,
         updateBio,
-        levelUp,
-        applyCreation,
     }
 }

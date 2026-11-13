@@ -1,4 +1,4 @@
-import { cloneCharacter, type Character, type CharacterRuleset } from '../types/character.ts'
+import { cloneCharacter, type Character } from '../types/character.ts'
 import { assertValidCharacter, InvalidCharacterError } from '../validation/characterValidation.ts'
 
 export const CHARACTER_STORAGE_PREFIX = 'nastolka:character-sheet:'
@@ -17,7 +17,6 @@ export interface StoredCharacterSummary {
     id: string
     name: string
     className: string
-    ruleset: CharacterRuleset
     kind: 'character' | 'npc'
 }
 
@@ -110,7 +109,6 @@ export function listStoredCharacterSummaries(
                 id,
                 name: character.identity.name,
                 className: character.identity.class,
-                ruleset: character.ruleset,
                 kind: character.kind === 'npc' ? 'npc' : 'character',
             },
         ]

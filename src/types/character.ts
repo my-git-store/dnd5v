@@ -70,7 +70,6 @@ import type { CharacterProgression, RuleSourceRef, SpellProgressionType } from '
 
 export type CharacterSchema = 3
 export type CharacterKind = 'character' | 'npc'
-export type CharacterRuleset = '2024'
 export type CharacterCalculationMode = 'manual' | 'computed'
 export type SkillProficiencySource = 'race' | 'class' | 'background' | 'manual' | 'feat'
 export type CharacterAbilityBonusSource = 'species' | 'background' | 'manual' | 'feat' | 'class'
@@ -257,7 +256,6 @@ export interface CharacterSpellSlot {
 export type CharacterSpellSlots = Record<CharacterSpellLevel, CharacterSpellSlot>
 
 export interface CharacterSpellcasting {
-    spellRuleset?: CharacterRuleset
     /** Metadata only: full slot/level progression is intentionally out of scope. */
     spellProgressionType?: SpellProgressionType
     /** Canonical 2024 catalog references. Embedded knownSpells remain the compatibility view. */
@@ -305,7 +303,6 @@ export interface CharacterFeat {
 }
 
 export interface CharacterCreation {
-    ruleset?: CharacterRuleset
     /** Optional presentation choice; omitted by old records and treated as female. */
     gender?: CharacterGender
     speciesId?: string
@@ -352,7 +349,6 @@ export interface Character {
     schemaVersion: CharacterSchema
     /** Optional discriminator; omitted legacy records are ordinary characters. */
     kind?: CharacterKind
-    ruleset: CharacterRuleset
     identity: CharacterIdentity
     abilities: CharacterAbilities
     proficiency: CharacterProficiency

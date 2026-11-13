@@ -12,6 +12,7 @@ export default typescriptEslint.config(
       "**/src/assets/**",
       "**/.pnpm-store/**",
       "**/coverage/**",
+      "features modules/**",
     ],
   },
   eslint.configs.recommended,

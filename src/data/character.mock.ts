@@ -1,4 +1,4 @@
-import { defaultProgressionForCharacter } from '../domain/characterProgression.ts'
+import { defaultProgressionForCharacter } from '@/domain/characterProgressionData'
 import { DEFAULT_SKILLS } from './characterFields.ts'
 import type { CharacterSkillRecord, CharacterSpellRecord, Character } from '../types/character.ts'
 
@@ -40,7 +40,6 @@ function createCharacter(id: string, demo: boolean): Character {
         id,
         schemaVersion: 3,
         kind: 'character',
-        ruleset: '2024',
         identity: {
             name: demo ? 'Элара Лунный Свет' : 'Новый персонаж',
             race: {
@@ -117,7 +116,6 @@ function createCharacter(id: string, demo: boolean): Character {
               ]
             : [],
         spellcasting: {
-            spellRuleset: '2024',
             spellIds: [],
             cantripIds: [],
             knownSpells: demo

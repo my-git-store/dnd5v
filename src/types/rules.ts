@@ -1,5 +1,4 @@
 import type { AbilityKey, CharacterGender } from './character.ts'
-import type { CharacterRuleset } from './character.ts'
 
 /** Common vocabulary for the current character record and future rule data. */
 export type RuleSourceKind =
@@ -81,11 +80,6 @@ export interface CharacterProgression {
     featureIds?: string[]
 }
 
-export interface RulesetTaggedDefinition {
-    id: string
-    ruleset: CharacterRuleset
-}
-
 export type FeatCategory = 'origin' | 'general' | 'class' | 'species'
 export type FeatEffectType = 'abilityBonus' | 'proficiency' | 'language' | 'feature'
 
@@ -97,7 +91,8 @@ export interface FeatEffectMetadata {
     requiresChoice?: boolean
 }
 
-export interface FeatDefinition extends RulesetTaggedDefinition {
+export interface FeatDefinition {
+    id: string
     name: string
     description: string
     source: 'background' | 'species' | 'class'
@@ -109,7 +104,8 @@ export interface FeatDefinition extends RulesetTaggedDefinition {
 /** Class/species/feat feature metadata. Effects remain data-only for now. */
 export type FeatureCategory = 'class' | 'subclass' | 'choice' | 'passive'
 
-export interface FeatureDefinition extends RulesetTaggedDefinition {
+export interface FeatureDefinition {
+    id: string
     name: string
     description: string
     source: RuleSourceKind
@@ -123,7 +119,8 @@ export interface FeatureDefinition extends RulesetTaggedDefinition {
 export type WeaponCategory = 'melee' | 'ranged'
 
 /** Canonical weapon metadata. Mastery is a reference only; no combat effect is evaluated yet. */
-export interface WeaponDefinition extends RulesetTaggedDefinition {
+export interface WeaponDefinition {
+    id: string
     name: string
     category: WeaponCategory
     damage: string
@@ -140,7 +137,8 @@ export interface WeaponMasteryDefinition {
 }
 
 /** Canonical spell metadata. Effects and progression are intentionally not evaluated. */
-export interface SpellDefinition extends RulesetTaggedDefinition {
+export interface SpellDefinition {
+    id: string
     name: string
     level: number
     school: string
@@ -187,8 +185,9 @@ export interface RuleFeatureMetadata {
     label: string
 }
 
-/** Canonical class definition used by future ruleset catalogues. */
-export interface ClassDefinition extends RulesetTaggedDefinition {
+/** Canonical class definition for the D&D 2024 catalog. */
+export interface ClassDefinition {
+    id: string
     name: string
     /** Optional portrait asset. Older class records can omit it safely. */
     icon?: string

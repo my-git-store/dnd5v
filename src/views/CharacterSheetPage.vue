@@ -10,21 +10,9 @@ import CharacterInventoryTab from '@/modules/character-inventory/components/Char
 import CharacterBioTab from '@/modules/character-identity/components/CharacterBioTab.vue'
 import NpcSheetPanel from '@/components/NpcSheetPanel.vue'
 import CharacterActionConfirmModal from '@/components/CharacterActionConfirmModal.vue'
-import LevelUpModal from '@/modules/character-progression/components/LevelUpModal.vue'
-import TableComponentsShowcase from '@/modules/table-components/components/showcase/TableComponentsShowcase.vue'
-import BestiaryPanel from '@/modules/bestiary/components/BestiaryPanel.vue'
-import { bestiaryToNpc, type BestiaryEntry } from '@/modules/bestiary/types/bestiary.ts'
-import EncounterPlanner from '@/modules/encounter/components/EncounterPlanner.vue'
 import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import type { AbilityKey, CharacterSpellLevel } from '@/types/character'
-import type { CharacterSheetView } from '@/types/characterView'
 import type { ShortRestResult } from '@/domain/rest'
-
-const featureFlags = {
-    bestiary: import.meta.env.VITE_ENABLE_BESTIARY === 'true',
-    encounter: import.meta.env.VITE_ENABLE_ENCOUNTER_PLANNER === 'true',
-    components: import.meta.env.VITE_ENABLE_COMPONENTS === 'true',
-}
 
 const tabs = [
     { name: 'Основное', value: 'main' },
@@ -32,9 +20,6 @@ const tabs = [
     { name: 'Магия / Заклинания', value: 'magic' },
     { name: 'Инвентарь', value: 'inventory' },
     { name: 'БИО', value: 'bio' },
-    ...(featureFlags.bestiary ? [{ name: 'Бестиарий', value: 'bestiary' }] : []),
-    ...(featureFlags.encounter ? [{ name: 'Планировщик столкновения', value: 'encounter' }] : []),
-    ...(featureFlags.components ? [{ name: 'Игровые компоненты', value: 'table-components' }] : []),
 ] as const
 
 const visibleTabValues = new Set(tabs.map(tab => tab.value))
@@ -43,12 +28,6 @@ const activeTab = ref<string>('main')
 
 const sheet = useCharacterSheet()
 
-type LevelUpModalProps = {
-    character: CharacterSheetView
-    disabled?: boolean
-    onConfirm: () => void
-}
-
 type ActionModalProps = {
     title: string
     message: string
@@ -56,8 +35,6 @@ type ActionModalProps = {
     danger?: boolean
     onConfirm?: () => void | Promise<void>
 }
-
-const levelUpModal = useModalUtil<undefined, LevelUpModalProps>()
 
 const actionModal = useModalUtil<undefined, ActionModalProps>()
 
@@ -96,20 +73,6 @@ watch(activeTab, tab => {
 })
 function updateAbility(key: AbilityKey, value: number) {
     sheet.updateAbility(key, value)
-}
-function openLevelUpModal() {
-    if (
-        !sheet.character.value ||
-        sheet.character.value.level >= 20 ||
-        !sheet.character.value.progression?.classLevels.length
-    )
-        return
-    levelUpModal.props.value = {
-        character: sheet.character.value,
-        disabled: sheet.isSaving.value,
-        onConfirm: sheet.levelUp,
-    }
-    levelUpModal.openOrClose()
 }
 async function takeShortRest(dice: number): Promise<ShortRestResult | null> {
     const result = sheet.shortRest(dice)
@@ -150,22 +113,6 @@ function createCharacter() {
         return
     }
     void sheet.createCharacter()
-}
-function createNpcFromBestiary(entry: BestiaryEntry) {
-    const create = async () => {
-        await sheet.createNpcFromProfile(bestiaryToNpc(entry))
-        activeTab.value = 'main'
-    }
-    if (sheet.isDirty.value) {
-        openActionConfirm(
-            'Создать НПС из бестиария?',
-            'Есть несохранённые изменения. При создании отдельной копии они будут отменены.',
-            'Создать НПС',
-            create,
-        )
-        return
-    }
-    void create()
 }
 </script>
 <template>
@@ -225,7 +172,6 @@ function createNpcFromBestiary(entry: BestiaryEntry) {
                             @update:ability="updateAbility"
                             @update:skill="sheet.updateSkill"
                             @update:feats="sheet.updateFeats"
-                            @level-up="openLevelUpModal"
                         />
                     </div>
                     <div v-show="activeTab === 'combat'" id="sheet-tab-panel-combat">
@@ -264,28 +210,9 @@ function createNpcFromBestiary(entry: BestiaryEntry) {
                             @update="sheet.updatePersonality"
                         />
                     </div>
-                    <div v-if="featureFlags.components && activeTab === 'table-components'">
-                        <TableComponentsShowcase />
-                    </div>
-                    <div v-if="featureFlags.bestiary && activeTab === 'bestiary'">
-                        <BestiaryPanel :on-create-npc="createNpcFromBestiary" />
-                    </div>
-                    <div v-if="featureFlags.encounter && activeTab === 'encounter'">
-                        <EncounterPlanner
-                            :encounters="sheet.character.value.encounters"
-                            :dirty="sheet.isDirty.value"
-                            :saving="sheet.isSaving.value"
-                            @update="sheet.updateEncounters"
-                        />
-                    </div>
                 </div>
             </template>
         </template>
-        <LevelUpModal
-            v-if="levelUpModal.isShowModal.value && levelUpModal.props.value"
-            v-bind="levelUpModal.props.value"
-            @close="levelUpModal.openOrClose"
-        />
         <CharacterActionConfirmModal
             v-if="actionModal.isShowModal.value && actionModal.props.value"
             v-bind="actionModal.props.value"

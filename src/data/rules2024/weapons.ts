@@ -59,7 +59,6 @@ const weapon = (
     mastery: string,
 ): WeaponDefinition => ({
     id,
-    ruleset: '2024',
     name,
     category,
     damage,

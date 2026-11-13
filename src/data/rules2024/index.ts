@@ -5,16 +5,12 @@ import type {
     FeatDefinition,
     RuleChoice,
     RuleFeatureMetadata,
-    RulesetTaggedDefinition,
     SpellProgressionType,
 } from '../../types/rules.ts'
 import type { RuleEquipmentOption } from '../../types/rules.ts'
-import { classIconFor, classIconVariantsFor } from '../classIcons.ts'
-import { BACKGROUND_ICON_PATHS } from '../backgroundIcons.ts'
-import { SPECIES_ICON_PATHS } from '../speciesIcons.ts'
 
-export interface Rules2024Species extends RulesetTaggedDefinition {
-    ruleset: '2024'
+export interface Rules2024Species {
+    id: string
     name: string
     label: string
     size: 'Малый' | 'Средний'
@@ -28,7 +24,6 @@ export interface Rules2024Species extends RulesetTaggedDefinition {
 
 export interface Rules2024Background {
     id: string
-    ruleset: '2024'
     name: string
     label: string
     description: string
@@ -44,7 +39,6 @@ export interface Rules2024Background {
 }
 
 export interface Rules2024Class extends ClassDefinition {
-    ruleset: '2024'
     label: string
     hitDie: string
     primaryAbility: AbilityKey
@@ -58,7 +52,6 @@ export interface Rules2024Class extends ClassDefinition {
 }
 
 export interface Rules2024OriginFeat extends FeatDefinition {
-    ruleset: '2024'
     category: 'origin'
     label: string
 }
@@ -89,12 +82,10 @@ const backgroundAbilityChoice = (options: AbilityKey[]): RuleChoice => ({
 })
 
 function species(
-    value: Omit<Rules2024Species, 'ruleset' | 'name' | 'choices'> & { choices?: RuleChoice[] },
+    value: Omit<Rules2024Species, 'name' | 'choices'> & { choices?: RuleChoice[] },
 ): Rules2024Species {
     return {
         ...value,
-        icon: value.icon ?? SPECIES_ICON_PATHS[value.id as keyof typeof SPECIES_ICON_PATHS],
-        ruleset: '2024',
         name: value.label,
         choices: value.choices ?? [],
     }
@@ -193,7 +184,6 @@ const ORIGIN_FEAT_RECORDS: Array<
 
 export const RULES_2024_FEATS: Rules2024OriginFeat[] = ORIGIN_FEAT_RECORDS.map(feat => ({
     ...feat,
-    ruleset: '2024',
     name: feat.label,
     category: 'origin',
     prerequisites: [],
@@ -479,7 +469,7 @@ const backgroundEquipment = (id: string, label: string, item: string): RuleEquip
     gold(`${id}-gold`),
 ]
 
-type Rules2024BackgroundRecord = Omit<Rules2024Background, 'ruleset' | 'name' | 'choices'>
+type Rules2024BackgroundRecord = Omit<Rules2024Background, 'name' | 'choices'>
 
 const RULES_2024_BACKGROUND_RECORDS: Rules2024BackgroundRecord[] = [
     {
@@ -715,8 +705,6 @@ const RULES_2024_BACKGROUND_RECORDS: Rules2024BackgroundRecord[] = [
 function background(value: Rules2024BackgroundRecord): Rules2024Background {
     return {
         ...value,
-        icon: value.icon ?? BACKGROUND_ICON_PATHS[value.id as keyof typeof BACKGROUND_ICON_PATHS],
-        ruleset: '2024',
         name: value.label,
         choices: [backgroundAbilityChoice(value.abilityOptions)],
     }
@@ -794,11 +782,8 @@ const classData = (
     }))
     return {
         id,
-        ruleset: '2024',
         name: label,
         label,
-        icon: classIconFor(id),
-        iconByGender: classIconVariantsFor(id),
         description: classDescriptions[id] ?? `${label}: класс первого уровня D&D 2024.`,
         hitDie,
         primaryAbility,
@@ -1014,7 +999,6 @@ export const RULES_2024_FEATURES: FeatureDefinition[] = RULES_2024_CLASSES.flatM
     classDefinition =>
         classDefinition.levelFeaturesMetadata.map(feature => ({
             id: feature.id,
-            ruleset: '2024' as const,
             name: feature.label,
             description: `${feature.label} — метаданные способности ${feature.level} уровня класса «${classDefinition.name}».`,
             source: 'class' as const,

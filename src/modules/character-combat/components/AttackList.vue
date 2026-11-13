@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue'
+import { ref } from 'vue'
 import { useModalUtil } from '@/composables/useModal'
 import {
     calculateAttackDamageModifier,
@@ -8,7 +8,6 @@ import {
     getAttackCalculationMode,
 } from '@/domain/attackBonus'
 import { signedModifier } from '@/domain/abilityModifier'
-import { numericBonus, rollDiceFormula } from '@/domain/rollFormula'
 import { getRules2024Weapon, getRules2024WeaponMastery } from '@/data/rules2024/index.ts'
 import AttackEditorModal from './AttackEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
@@ -75,10 +74,6 @@ const isRolling = ref(false)
 const rollHistory = ref<AttackRollRecord[]>([])
 
 const lastRoll = ref<AttackRollRecord | null>(null)
-
-let rollTimer: number | undefined
-
-let nextRollId = 1
 
 function save(attack: CharacterAttackView) {
     const exists = props.attacks.some(item => item.id === attack.id)
@@ -153,55 +148,6 @@ function masteryLabel(attack: CharacterAttackView): string {
         ? (getRules2024WeaponMastery(attack.masteryId)?.name ?? attack.masteryId)
         : (attack.weaponMastery ?? '')
 }
-function damageFormula(attack: CharacterAttackView): string {
-    const base = attack.damage.trim() || 'd4'
-
-    const summary = attackSummary(attack)
-    if (summary.damageModifier === null || !/^[^+-]+$/.test(base)) return base
-    return `${base} ${summary.damageModifier >= 0 ? '+' : '-'} ${Math.abs(summary.damageModifier)}`
-}
-function roll(attack: CharacterAttackView, kind: RollKind) {
-    if (isRolling.value) return
-    const summary = attackSummary(attack)
-
-    const bonus = numericBonus(summary.bonus)
-
-    const formula =
-        kind === 'attack'
-            ? `d20${bonus === null || bonus === 0 ? '' : bonus > 0 ? `+${bonus}` : `${bonus}`}`
-            : damageFormula(attack)
-
-    const rolled = rollDiceFormula(formula)
-    if (!rolled) {
-        lastRoll.value = {
-            id: nextRollId++,
-            attackId: attack.id,
-            name: attack.name || 'Без названия',
-            kind,
-            formula: 'Формула не распознана',
-            result: 0,
-        }
-        return
-    }
-    isRolling.value = true
-    rollTimer = window.setTimeout(() => {
-        const record = {
-            id: nextRollId++,
-            attackId: attack.id,
-            name: attack.name || 'Без названия',
-            kind,
-            formula,
-            result: rolled.result,
-        }
-        lastRoll.value = record
-        rollHistory.value = [record, ...rollHistory.value].slice(0, 20)
-        isRolling.value = false
-        rollTimer = undefined
-    }, 280)
-}
-onBeforeUnmount(() => {
-    if (rollTimer !== undefined) window.clearTimeout(rollTimer)
-})
 </script>
 
 <template>
@@ -250,10 +196,6 @@ onBeforeUnmount(() => {
                 </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <div>
-                    <NButton :disabled="disabled || isRolling" @click="roll(attack, 'attack')">Бросок атаки</NButton>
-                    <NButton :disabled="disabled || isRolling" @click="roll(attack, 'damage')">Бросок урона</NButton>
-                </div>
                 <EntryActions :disabled="disabled || isRolling" @edit="openEditor(attack)"
                     @remove="remove(attack.id, attack.name)" />
             </div>

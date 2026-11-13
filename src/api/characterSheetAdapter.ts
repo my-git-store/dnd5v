@@ -8,7 +8,7 @@ import {
     defaultProgressionForCharacter,
     normalizeProgression,
     progressionAtLevel,
-} from '../domain/characterProgression.ts'
+} from '@/domain/characterProgressionData'
 import { getRules2024Spell, isRules2024SpellId } from '../data/rules2024/index.ts'
 import type { CharacterSpell } from '../types/character.ts'
 import {
@@ -119,7 +119,6 @@ function toUiCharacter(value: Character): CharacterSheetView {
         kind: value.kind === 'npc' ? 'npc' : 'character',
         npc: value.npc ? clone(value.npc) : undefined,
         encounters: value.encounters ? clone(value.encounters) : [],
-        ruleset: value.ruleset,
         name: value.identity.name,
         class: value.identity.class,
         level: value.identity.level,
@@ -336,7 +335,6 @@ function toRecord(value: CharacterSheetView, base: Character): Character {
     if (value.npc) next.npc = clone(value.npc)
     else delete next.npc
     if (value.encounters !== undefined) next.encounters = clone(value.encounters)
-    next.ruleset = value.ruleset
     next.identity.name = value.name
     next.identity.class = value.class
     next.identity.race = clone(value.race)
@@ -396,13 +394,9 @@ function toRecord(value: CharacterSheetView, base: Character): Character {
             clone(value.progression ?? defaultProgressionForCharacter(base)),
             value.level,
         ),
-        next.ruleset,
     )
     next.features = progressionFeaturesForSave(value, next.progression, base)
-    next.progression = normalizeProgression(
-        { ...next.progression, features: [...next.features] },
-        next.ruleset,
-    )
+    next.progression = normalizeProgression({ ...next.progression, features: [...next.features] })
     if (value.creation) next.extensions.characterCreation = clone(value.creation)
     return next
 }

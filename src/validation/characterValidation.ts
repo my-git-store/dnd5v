@@ -1,5 +1,4 @@
 import { isAttackBonusSource } from '../domain/attackBonus.ts'
-import { isCharacterRuleset } from '../domain/ruleset.ts'
 import {
     getRules2024Feature,
     isBackground2024Id,
@@ -279,10 +278,9 @@ function validSourceMap(value: unknown): boolean {
     )
 }
 
-/** Validates additive character-creation extensions for the selected ruleset. */
+/** Validates additive character-creation extensions against the D&D 2024 catalog. */
 function validCreationExtension(value: unknown): boolean {
     if (!isRecord(value)) return true
-    if (value.ruleset !== undefined && !isCharacterRuleset(value.ruleset)) return false
     if (value.gender !== undefined && value.gender !== 'female' && value.gender !== 'male')
         return false
     if (
@@ -488,7 +486,6 @@ function validSavingThrows(value: unknown): boolean {
 function validSpellcasting(value: unknown): boolean {
     if (
         !isRecord(value) ||
-        (value.spellRuleset !== undefined && !isCharacterRuleset(value.spellRuleset)) ||
         (value.spellProgressionType !== undefined &&
             (typeof value.spellProgressionType !== 'string' ||
                 !SPELL_PROGRESSION_TYPES.includes(
@@ -500,7 +497,7 @@ function validSpellcasting(value: unknown): boolean {
         !isRecord(value.spellSlots)
     )
         return false
-    /** Validates optional references into the ruleset spell catalog. */
+    /** Validates optional references into the D&D 2024 spell catalog. */
     const validCatalogIds = (ids: unknown): boolean =>
         ids === undefined ||
         (isStringArray(ids) && ids.every(id => id.length > 0 && isRules2024SpellId(id)))
@@ -656,7 +653,6 @@ export function validateCharacter(value: unknown): string[] {
 
     const identity = value.identity
     if (value.schemaVersion !== 3) errors.push('Неподдерживаемая версия схемы персонажа.')
-    if (!isCharacterRuleset(value.ruleset)) errors.push('Поддерживается только редакция D&D 2024.')
     if (!isString(value.id) || !value.id) errors.push('Не указан идентификатор персонажа.')
     if (value.kind !== undefined && value.kind !== 'character' && value.kind !== 'npc')
         errors.push('Неизвестный тип листа.')
@@ -733,7 +729,7 @@ export function validateCharacter(value: unknown): string[] {
         errors.push('Некорректная personality-секция.')
     if (!isRecord(value.extensions)) errors.push('Некорректные extension-данные.')
     else if (!validCreationExtension(value.extensions.characterCreation))
-        errors.push('Некорректная редакция, вид, класс или предыстория D&D 2024 в данных создания.')
+        errors.push('Некорректный вид, класс или предыстория D&D 2024 в данных создания.')
     if (!validOrigin(value.origin)) errors.push('Некорректная origin-секция.')
     return errors
 }

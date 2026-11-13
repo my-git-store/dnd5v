@@ -14,7 +14,6 @@ const spell = (
     metadata: Record<string, unknown> = { source: 'PHB 2024', referenceOnly: true },
 ): SpellDefinition => ({
     id,
-    ruleset: '2024',
     name,
     level,
     school,

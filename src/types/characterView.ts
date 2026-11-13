@@ -12,7 +12,6 @@ import type {
     CharacterOrigin,
     CharacterPersonality,
     CharacterProficiency,
-    CharacterRuleset,
     CharacterSavingThrows,
     CharacterSpellcasting,
     RaceProfile,
@@ -44,7 +43,6 @@ export interface CharacterSheetView {
     kind?: CharacterKind
     npc?: CharacterNpc
     encounters?: CharacterEncounter[]
-    ruleset: CharacterRuleset
     name: string
     class: string
     level: number
