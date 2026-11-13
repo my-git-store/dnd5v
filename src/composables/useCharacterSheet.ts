@@ -12,8 +12,6 @@ const isLoading = ref(true)
 
 const loadError = ref<string | null>(null)
 
-const saveError = ref<string | null>(null)
-
 const isDirty = computed(
     () => character.value !== null && JSON.stringify(character.value) !== savedSnapshot.value,
 )
@@ -22,7 +20,6 @@ export function useCharacterSheet() {
     function load() {
         isLoading.value = true
         loadError.value = null
-        saveError.value = null
         try {
             const stored = readStoredCharacter()
             character.value = stored ?? createEmptyCharacter()
@@ -37,13 +34,11 @@ export function useCharacterSheet() {
 
     function save() {
         if (!character.value) return
-        saveError.value = null
         try {
             writeStoredCharacter(character.value)
             savedSnapshot.value = JSON.stringify(character.value)
-        } catch (error) {
-            saveError.value =
-                error instanceof Error ? error.message : 'Не удалось сохранить персонажа.'
+        } catch {
+            console.log('Произошла ошибка сохранения')
         }
     }
 
@@ -58,7 +53,6 @@ export function useCharacterSheet() {
         character,
         isLoading,
         loadError,
-        saveError,
         isDirty,
         load,
         save,

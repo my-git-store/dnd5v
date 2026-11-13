@@ -8,7 +8,7 @@ import { useCharacterSheet } from '@/composables/useCharacterSheet'
 
 import IdentityFields from './IdentityFields.vue'
 
-const { character, isDirty, saveError, save } = useCharacterSheet()
+const { character, isDirty, save } = useCharacterSheet()
 
 const proficiencyLabel = computed(() => {
     if (!character.value) return '-'
@@ -26,12 +26,10 @@ const proficiencyLabel = computed(() => {
                     Бонус владения <strong>{{ proficiencyLabel }}</strong>
                 </p>
             </div>
-            <NButton class="shrink-0" type="primary" :disabled="!isDirty"
-                @click="save">
+            <NButton class="shrink-0" type="primary" :disabled="!isDirty" @click="save">
                 Сохранить
             </NButton>
         </div>
         <IdentityFields />
-        <p v-if="saveError" role="alert">{{ saveError }}</p>
     </header>
 </template>
