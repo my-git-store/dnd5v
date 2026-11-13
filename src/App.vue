@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import CharacterSheetPage from '@/views/CharacterSheetPage.vue'
-import { NScrollbar } from 'naive-ui'
-import { NConfigProvider, ruRU, dateRuRU } from 'naive-ui'
+import {
+    NConfigProvider,
+    NDialogProvider,
+    NMessageProvider,
+    NModalProvider,
+    NNotificationProvider,
+    NScrollbar,
+    ruRU,
+    dateRuRU,
+} from 'naive-ui'
 
 const inputNumberAlignmentClass = '[&_.n-input-number_input]:text-center!'
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { NFormItem, NInput } from 'naive-ui'
+
 import type { CharacterPersonality } from '@/types/character'
 
 type Emits = {

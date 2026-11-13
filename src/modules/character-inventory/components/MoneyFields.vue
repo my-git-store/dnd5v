@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { NFormItem, NInputNumber } from 'naive-ui'
+
 import type { CharacterMoney } from '@/types/character'
 
 type Emits = {

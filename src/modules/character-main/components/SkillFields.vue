@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { NCollapse, NCollapseItem, NFormItem, NInputNumber, NSelect } from 'naive-ui'
 
 import { ABILITY_FIELDS } from '@/data/characterFields'
 import { calculateSkillBonus, getSkillCalculationMode } from '@/domain/skillBonus'
 import { signedModifier } from '@/domain/abilityModifier'
-import type { AbilityKey, CharacterAbilities, SkillProficiency } from '@/types/character'
-import type { SkillProficiencySource } from '@/types/character'
-import type { CharacterSkillPatch, CharacterSkillRecord } from '@/types/character'
+import type {
+    AbilityKey,
+    CharacterAbilities,
+    CharacterCalculationMode,
+    CharacterSkillPatch,
+    CharacterSkillRecord,
+    SkillProficiency,
+    SkillProficiencySource,
+} from '@/types/character'
 
 type Emits = {
     update: [id: string, patch: CharacterSkillPatch]
@@ -26,7 +33,7 @@ const emit = defineEmits<Emits>()
 
 const abilityLabels = Object.fromEntries(
     ABILITY_FIELDS.map(field => [field.key, field.label]),
-) as Record<AbilityKey, string>
+)
 
 const proficiencyOptions: Array<{ value: SkillProficiency; label: string }> = [
     { value: 'none', label: 'Без владения' },
@@ -66,36 +73,40 @@ const skillColumns = computed(() => [
     props.skills.filter((_, index) => index % 2 === 1),
 ])
 
-function updateValue(id: string, value: unknown) {
-    const parsed = Number(value)
-    emit('update', id, { value: Number.isFinite(parsed) ? parsed : 0 })
+function updateValue(id: string, value: number | null) {
+    const bonus = value ?? 0
+    emit('update', id, { value: Number.isFinite(bonus) ? bonus : 0 })
 }
-function updateAdditional(id: string, value: unknown) {
-    const parsed = Number(value)
-    emit('update', id, { additionalBonus: Number.isFinite(parsed) ? Math.trunc(parsed) : 0 })
+function updateAdditional(id: string, value: number | null) {
+    const bonus = value ?? 0
+    emit('update', id, { additionalBonus: Number.isFinite(bonus) ? Math.trunc(bonus) : 0 })
 }
-function updateAbility(id: string, value: string | null) {
-    emit('update', id, { ability: value ? (value as AbilityKey) : null })
+function updateAbility(id: string, ability: AbilityKey | '' | null) {
+    emit('update', id, { ability: ability || null })
 }
-function updateProficiency(id: string, value: string | null) {
-    emit('update', id, { proficiency: value as SkillProficiency })
+function updateProficiency(id: string, proficiency: SkillProficiency) {
+    emit('update', id, { proficiency })
 }
-function updateMode(id: string, value: string | null) {
-    emit('update', id, { calculationMode: value === 'computed' ? 'computed' : 'manual' })
+function updateMode(id: string, calculationMode: CharacterCalculationMode) {
+    emit('update', id, { calculationMode })
 }
 function displayBonus(skill: CharacterSkillRecord) {
     const bonus = calculateSkillBonus(skill, props.abilities, props.level)
     return bonus === null ? '—' : signedModifier(bonus)
 }
-function skillSources(skill: CharacterSkillRecord): SkillProficiencySource[] {
-    if (skill.proficiencySources) return skill.proficiencySources
-    if (skill.proficiency === 'none') return []
-    const sources: SkillProficiencySource[] = []
-    if (props.raceSkillIds?.includes(skill.id)) sources.push('race')
-    if (props.classSkillIds?.includes(skill.id)) sources.push('class')
-    if (props.backgroundSkillIds?.includes(skill.id)) sources.push('background')
-    if (!sources.length) sources.push('manual')
-    return sources
+function skillSourceLabel(skill: CharacterSkillRecord) {
+    const sources = skill.proficiencySources ?? []
+
+    if (!skill.proficiencySources && skill.proficiency !== 'none') {
+        if (props.raceSkillIds?.includes(skill.id)) sources.push('race')
+        if (props.classSkillIds?.includes(skill.id)) sources.push('class')
+        if (props.backgroundSkillIds?.includes(skill.id)) sources.push('background')
+        if (!sources.length) sources.push('manual')
+    }
+
+    return sources.length
+        ? `Источник: ${sources.map(source => sourceLabels[source]).join(' · ')}`
+        : 'Без источника владения'
 }
 </script>
 
@@ -134,15 +145,7 @@ function skillSources(skill: CharacterSkillRecord): SkillProficiencySource[] {
                                     :aria-expanded="!collapsed"
                                     :aria-label="`${skill.name}: настроить`"
                                 >
-                                    <span v-if="skillSources(skill).length" class="min-w-0"
-                                        >Источник:
-                                        {{
-                                            skillSources(skill)
-                                                .map(source => sourceLabels[source])
-                                                .join(' · ')
-                                        }}</span
-                                    >
-                                    <span v-else class="min-w-0">Без источника владения</span>
+                                    <span class="min-w-0">{{ skillSourceLabel(skill) }}</span>
                                     <span>Настроить</span>
                                 </button>
                             </template>

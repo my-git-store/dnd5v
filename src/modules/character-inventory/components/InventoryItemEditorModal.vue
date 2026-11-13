@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { NCard, NModal } from 'naive-ui'
+
 import InventoryItemEditor from './InventoryItemEditor.vue'
 import type { CharacterInventoryItemRecord } from '@/types/character'
 

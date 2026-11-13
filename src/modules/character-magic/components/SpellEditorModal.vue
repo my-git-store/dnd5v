@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { NCard, NModal } from 'naive-ui'
+
 import SpellEditor from './SpellEditor.vue'
 import type { CharacterSpellRecord } from '@/types/character'
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { NCard, NModal } from 'naive-ui'
+
 import AttackEditor from './AttackEditor.vue'
 import type { CharacterAbilities } from '@/types/character'
 import type { CharacterAttackRecord } from '@/types/character'

@@ -18,18 +18,6 @@ export interface RuleSourceRef {
     label?: string
 }
 
-export type RuleEffectType =
-    'ability-bonus' | 'proficiency' | 'speed' | 'armor-class' | 'spellcasting' | 'custom'
-export type RuleEffectDuration = 'permanent' | 'temporary' | 'until-rest' | 'until-long-rest'
-
-/** Contract only: effects are not evaluated by the current prototype. */
-export interface RuleEffectDescriptor {
-    source: RuleSourceRef
-    type: RuleEffectType
-    value: number | string
-    duration?: RuleEffectDuration
-}
-
 /** One class entry in the progression envelope. Multiple entries are reserved for multiclassing. */
 export interface ClassLevelEntry {
     classId: string
@@ -55,14 +43,6 @@ export interface ProgressionHistoryEntry {
     toLevel: number
     gainedFeatures: ProgressionFeatureGain[]
     choices: Record<string, string[]>
-}
-
-/** Metadata contract for a future class, feat, or ASI selection. */
-export interface ChoiceDefinition {
-    id: string
-    name: string
-    options: string[]
-    source: RuleSourceRef
 }
 
 /** Additive progression envelope. It stores references and choices, never evaluated effects. */

@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { NButton } from 'naive-ui'
+
 import { useModalUtil } from '@/composables/useModal'
-import CharacterFeatEditorModal from './CharacterFeatEditorModal.vue'
+import CharacterFeatEditorModal, {
+    type Props as EditorModalProps,
+} from './CharacterFeatEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
 import type { CharacterFeat } from '@/types/character'
@@ -13,25 +17,19 @@ const props = defineProps<{ feats: CharacterFeat[]; disabled?: boolean }>()
 
 const emit = defineEmits<Emits>()
 
-type EditorModalProps = {
-    disabled?: boolean
-    onSave: (feat: CharacterFeat) => void
-}
-
-const editorModal = useModalUtil<CharacterFeat, EditorModalProps>()
+const editorModal = useModalUtil<undefined, EditorModalProps>()
 
 function save(feat: CharacterFeat) {
-    const exists = props.feats.some(item => item.id === feat.id)
+    const exists = props.feats.some(current => current.id === feat.id)
     emit(
         'update',
         exists
-            ? props.feats.map(item => (item.id === feat.id ? feat : item))
+            ? props.feats.map(current => (current.id === feat.id ? feat : current))
             : [...props.feats, feat],
     )
 }
 function openEditor(feat: CharacterFeat) {
-    editorModal.item.value = { ...feat }
-    editorModal.props.value = { disabled: props.disabled, onSave: save }
+    editorModal.props.value = { feat, onSave: save }
     editorModal.openOrClose()
 }
 function add() {
@@ -60,8 +58,11 @@ function remove(id: string) {
             </div>
             <EntryActions :disabled="disabled" @edit="openEditor(feat)" @remove="remove(feat.id)" />
         </div>
-        <CharacterFeatEditorModal v-if="
-            editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
-        " :feat="editorModal.item.value" v-bind="editorModal.props.value" @close="editorModal.openOrClose" />
+        <CharacterFeatEditorModal
+            v-if="editorModal.isShowModal.value && editorModal.props.value"
+            v-bind="editorModal.props.value"
+            :disabled="disabled"
+            @close="editorModal.openOrClose"
+        />
     </section>
 </template>

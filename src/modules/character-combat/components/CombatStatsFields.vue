@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { NFormItem, NInput, NInputNumber } from 'naive-ui'
 
 import { signedModifier } from '@/domain/abilityModifier'
 import { calculateInitiative } from '@/domain/combatCalculations'

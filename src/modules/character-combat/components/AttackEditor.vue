@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { NButton, NCheckbox, NFormItem, NInput, NInputNumber, NSelect } from 'naive-ui'
 
 import { ATTACK_BONUS_SOURCES } from '@/data/characterFields'
 import {

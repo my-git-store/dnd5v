@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { NButton, NSpin } from 'naive-ui'
+
 type Emits = {
     retry: []
     create: []

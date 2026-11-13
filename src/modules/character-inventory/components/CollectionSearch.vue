@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { NButton, NFormItem, NInput } from 'naive-ui'
+
 type Emits = {
     'update:query': [value: string]
 }

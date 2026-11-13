@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { NButton, NFormItem, NInput, NInputNumber } from 'naive-ui'
 
 import type { CharacterSpellRecord } from '@/types/character'
 

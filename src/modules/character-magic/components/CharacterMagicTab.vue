@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { NTab, NTabs } from 'naive-ui'
 
 import SpellList from './SpellList.vue'
 import SpellSlotsFields from './SpellSlotsFields.vue'

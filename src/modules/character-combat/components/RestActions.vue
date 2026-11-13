@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { NButton, NSelect } from 'naive-ui'
 import { useModalUtil } from '@/composables/useModal'
 import CharacterActionConfirmModal from '@/components/CharacterActionConfirmModal.vue'
 import type { CharacterAbilities } from '@/types/character'

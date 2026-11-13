@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { NButton, NCheckbox, NFormItem, NInput, NInputNumber, NSelect } from 'naive-ui'
 
 import { RULES_2024_WEAPONS } from '@/data/rules2024/index.ts'
 import type { CharacterInventoryItemRecord } from '@/types/character'

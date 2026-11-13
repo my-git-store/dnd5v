@@ -15,8 +15,6 @@ export interface CharacterMoney {
     platinum: number
 }
 
-export type CharacterCollection = 'attacks' | 'spells' | 'cantrips' | 'inventory'
-
 import type { CharacterProgression, RuleSourceRef, SpellProgressionType } from './rules.ts'
 
 export type CharacterSchema = 3
@@ -34,14 +32,6 @@ export interface CharacterEncounterParticipant {
     armorClass: number
     initiative: number
     defeated: boolean
-}
-
-export interface CharacterEncounter {
-    id: string
-    name: string
-    round: number
-    currentParticipantId: string | null
-    participants: CharacterEncounterParticipant[]
 }
 
 export interface RaceProfile {
@@ -283,14 +273,15 @@ export interface Character {
     /** Optional additive foundation; absent on older records and filled with safe defaults at runtime. */
     progression?: CharacterProgression
     extensions: Record<string, unknown> & { characterCreation?: CharacterCreation }
-    /** Optional encounter planner state; absent on older records. */
-    encounters?: CharacterEncounter[]
 }
 
 export type CharacterIdentityPatch = Partial<CharacterIdentity>
 
 export type CharacterSkillPatch = Partial<
-    Pick<CharacterSkillRecord, 'value' | 'ability' | 'proficiency' | 'calculationMode' | 'additionalBonus'>
+    Pick<
+        CharacterSkillRecord,
+        'value' | 'ability' | 'proficiency' | 'calculationMode' | 'additionalBonus'
+    >
 >
 
 export type CharacterSavingThrowPatch = Partial<CharacterSavingThrow>

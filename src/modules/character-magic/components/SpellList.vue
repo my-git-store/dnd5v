@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { NButton, NCheckbox } from 'naive-ui'
 import { useModalUtil } from '@/composables/useModal'
 import { searchFilterObject } from '@/composables/useFilters'
 import SpellEditorModal from './SpellEditorModal.vue'

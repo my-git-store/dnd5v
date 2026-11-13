@@ -1,5 +1,4 @@
 import { abilityModifier } from './abilityModifier.ts'
-import { DICE_TYPES, rollDie, type DiceSides } from './dice'
 import type { CharacterAbilities } from '../types/character.ts'
 import type { CharacterCombat, CharacterSpellSlots } from '../types/character.ts'
 
@@ -14,9 +13,9 @@ function clone<T>(value: T): T {
     return JSON.parse(JSON.stringify(value)) as T
 }
 
-function hitDieSides(size: string): DiceSides | null {
+function hitDieSides(size: string): number | null {
     const sides = Number(size.match(/^d(\d+)$/i)?.[1] ?? 0)
-    return DICE_TYPES.includes(sides as DiceSides) ? (sides as DiceSides) : null
+    return [4, 6, 8, 10, 12, 20, 100].includes(sides) ? sides : null
 }
 
 /** Applies a short rest without changing unrelated combat fields. */
@@ -47,7 +46,7 @@ export function takeShortRest(
 
     let healing = 0
     for (let index = 0; index < count; index += 1) {
-        const roll = rollDie(sides, random)
+        const roll = Math.floor(random() * sides) + 1
         rolls.push(roll)
         healing += Math.max(1, roll + constitutionModifier)
     }

@@ -76,7 +76,7 @@ export function unique(values: string[]): string[] {
     return [...new Set(values)]
 }
 
-function sourceForFeature(_featureId: string, classId: string | undefined): RuleSourceRef {
+function sourceForFeature(classId: string | undefined): RuleSourceRef {
     const classDefinition = getRules2024Class(classId ?? '')
     return {
         kind: 'class',
@@ -96,70 +96,9 @@ export function featureGains(
         return {
             featureId,
             level: definition?.level ?? fallbackLevel,
-            source: sourceForFeature(featureId, classId),
+            source: sourceForFeature(classId),
         }
     })
-}
-
-export function cloneChoices(value: Record<string, string[]> | undefined): Record<string, string[]> {
-    return Object.fromEntries(
-        Object.entries(value ?? {}).map(([key, options]) => [key, [...options]]),
-    )
-}
-
-export function featureGainsFromExisting(
-    value: CharacterProgression,
-    classId: string | undefined,
-): ProgressionFeatureGain[] {
-    const featureIds = new Set(value.features ?? value.featureIds ?? [])
-    if (Array.isArray(value.gainedFeatures)) {
-        const seen = new Set<string>()
-
-        const existing = value.gainedFeatures
-            .filter(gain => {
-                if (
-                    !gain ||
-                    typeof gain.featureId !== 'string' ||
-                    !featureIds.has(gain.featureId) ||
-                    seen.has(gain.featureId)
-                )
-                    return false
-                seen.add(gain.featureId)
-                return true
-            })
-            .map(gain => ({
-                featureId: gain.featureId,
-                level: gain.level,
-                source: { ...gain.source },
-            }))
-
-        const missing = [...featureIds].filter(featureId => !seen.has(featureId))
-        return [...existing, ...featureGains(missing, classId, value.level)]
-    }
-    return featureGains(value.features ?? value.featureIds ?? [], classId, value.level)
-}
-
-/** Add safe runtime defaults to progression metadata without applying any effects. */
-export function normalizeProgression(value: CharacterProgression): CharacterProgression {
-    const classId = value.classLevels[0]?.classId
-    return {
-        ...value,
-        features: unique(value.features ?? value.featureIds ?? []),
-        choices: cloneChoices(value.choices),
-        gainedFeatures: featureGainsFromExisting(value, classId),
-        history: Array.isArray(value.history)
-            ? value.history.map(entry => ({
-                  ...entry,
-                  gainedFeatures: Array.isArray(entry.gainedFeatures)
-                      ? entry.gainedFeatures.map(gain => ({ ...gain, source: { ...gain.source } }))
-                      : [],
-                  choices: cloneChoices(entry.choices),
-              }))
-            : [],
-        ...(value.choiceMetadata === undefined
-            ? { choiceMetadata: defaultProgressionChoiceMetadata() }
-            : {}),
-    }
 }
 
 /** Build a progression envelope from the current character without applying any rules. */

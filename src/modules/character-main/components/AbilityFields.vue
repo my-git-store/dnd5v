@@ -2,9 +2,13 @@
 import { ABILITY_FIELDS } from '@/data/characterFields'
 import { abilityModifier, signedModifier } from '@/domain/abilityModifier'
 import { calculateSavingThrowBonus } from '@/domain/savingThrow'
-import type { AbilityKey, CharacterAbilities, CharacterSavingThrows } from '@/types/character'
-import type { CharacterSavingThrowPatch } from '@/types/character'
-import { NTooltip } from 'naive-ui'
+import type {
+    AbilityKey,
+    CharacterAbilities,
+    CharacterSavingThrows,
+    CharacterSavingThrowPatch,
+} from '@/types/character'
+import { NCheckbox, NFormItem, NInputNumber, NTooltip } from 'naive-ui'
 
 type Props = {
     abilities: CharacterAbilities
@@ -22,16 +26,16 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
-function onInput(key: AbilityKey, value: unknown): void {
-    const numberValue = Number(value)
-    emit('update', key, Number.isFinite(numberValue) ? numberValue : 0)
+function updateAbility(key: AbilityKey, value: number | null) {
+    const score = value ?? 0
+    emit('update', key, Number.isFinite(score) ? score : 0)
 }
 
-function updateProficiency(key: AbilityKey, proficient: boolean): void {
+function updateProficiency(key: AbilityKey, proficient: boolean) {
     emit('update:saving-throw', key, { proficient })
 }
 
-function savingThrowLabel(key: AbilityKey): string {
+function savingThrowLabel(key: AbilityKey) {
     const bonus = calculateSavingThrowBonus(
         { ability: key, proficient: props.savingThrows[key].proficient },
         props.abilities,
@@ -48,18 +52,25 @@ function savingThrowLabel(key: AbilityKey): string {
                 <div class="w-full">
                     <NTooltip>
                         <template #trigger>
-                            <NCheckbox :checked="savingThrows[field.key].proficient" :disabled="disabled"
-                                @update:checked="updateProficiency(field.key, $event)">
+                            <NCheckbox
+                                :checked="savingThrows[field.key].proficient"
+                                :disabled="disabled"
+                                @update:checked="updateProficiency(field.key, $event)"
+                            >
                                 {{ field.label }}
                             </NCheckbox>
                         </template>
                         Владение характеристикой
                     </NTooltip>
                 </div>
-                <NInputNumber button-placement="both" :disabled="disabled" :value="abilities[field.key]"
-                    @update:value="onInput(field.key, $event)" />
+                <NInputNumber
+                    button-placement="both"
+                    :disabled="disabled"
+                    :value="abilities[field.key]"
+                    @update:value="updateAbility(field.key, $event)"
+                />
             </NFormItem>
-            <p :title="'Модификатор = ⌊(значение − 10) / 2⌋'">
+            <p title="Модификатор = ⌊(значение − 10) / 2⌋">
                 Модификатор (расчёт):
                 {{ signedModifier(abilityModifier(abilities[field.key])) }}
             </p>

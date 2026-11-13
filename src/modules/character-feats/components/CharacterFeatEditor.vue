@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
+import { NButton, NFormItem, NInput } from 'naive-ui'
 
 import type { CharacterFeat } from '@/types/character'
 
@@ -12,14 +13,7 @@ const props = defineProps<{ feat: CharacterFeat; disabled?: boolean }>()
 
 const emit = defineEmits<Emits>()
 
-const draft = ref<CharacterFeat>({ ...props.feat })
-watch(
-    () => props.feat,
-    value => {
-        draft.value = { ...value }
-    },
-    { deep: true },
-)
+const draft = ref({ ...props.feat })
 
 function submit() {
     const name = draft.value.name.trim()

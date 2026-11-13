@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { NButton } from 'naive-ui'
 import { useModalUtil } from '@/composables/useModal'
+import { useAttacks } from '../composables/useAttacks'
 import {
     calculateAttackDamageModifier,
     formatAttackBonus,
@@ -27,6 +29,11 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<Emits>()
+
+const { attacks, createAttackDraft, saveAttack, removeAttack } = useAttacks(
+    () => props.attacks,
+    attacks => emit('update', attacks),
+)
 
 type EditorModalProps = {
     abilities: CharacterAbilities
@@ -68,50 +75,18 @@ const rollHistory = ref<AttackRollRecord[]>([])
 
 const lastRoll = ref<AttackRollRecord | null>(null)
 
-function save(attack: CharacterAttackRecord) {
-    const exists = props.attacks.some(item => item.id === attack.id)
-    emit(
-        'update',
-        exists
-            ? props.attacks.map(item => (item.id === attack.id ? attack : item))
-            : [...props.attacks, attack],
-    )
-}
 function openEditor(attack: CharacterAttackRecord) {
     editorModal.item.value = { ...attack, properties: [...attack.properties] }
     editorModal.props.value = {
         abilities: props.abilities,
         level: props.level,
         disabled: props.disabled,
-        onSave: save,
+        onSave: saveAttack,
     }
     editorModal.openOrClose()
 }
 function add() {
-    const attack: CharacterAttackRecord = {
-        id: `attack-${Date.now()}`,
-        name: '',
-        kind: 'other',
-        attackBonus: '',
-        abilitySource: 'manual',
-        proficient: false,
-        calculationMode: 'manual',
-        additionalBonus: 0,
-        damage: '',
-        damageType: '',
-        properties: [],
-        range: '',
-        description: '',
-        weaponId: undefined,
-        masteryId: undefined,
-    }
-    openEditor(attack)
-}
-function remove(id: string) {
-    emit(
-        'update',
-        props.attacks.filter(attack => attack.id !== id),
-    )
+    openEditor(createAttackDraft())
 }
 function attackSummary(attack: CharacterAttackRecord) {
     const source = getAttackBonusSource(attack)
@@ -185,7 +160,7 @@ function masteryLabel(attack: CharacterAttackRecord): string {
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <EntryActions :disabled="disabled || isRolling" @edit="openEditor(attack)"
-                    @remove="remove(attack.id)" />
+                    @remove="removeAttack(attack.id)" />
             </div>
         </div>
         <p v-if="lastRoll" role="status" aria-live="polite">

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { NButton, NCard, NModal } from 'naive-ui'
+
 export type Props = {
     title: string
     message: string
