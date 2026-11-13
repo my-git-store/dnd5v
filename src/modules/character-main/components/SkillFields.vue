@@ -6,14 +6,14 @@ import { calculateSkillBonus, getSkillCalculationMode } from '@/domain/skillBonu
 import { signedModifier } from '@/domain/abilityModifier'
 import type { AbilityKey, CharacterAbilities, SkillProficiency } from '@/types/character'
 import type { SkillProficiencySource } from '@/types/character'
-import type { CharacterSkillPatch, CharacterSkillView } from '@/types/characterView'
+import type { CharacterSkillPatch, CharacterSkillRecord } from '@/types/character'
 
 type Emits = {
     update: [id: string, patch: CharacterSkillPatch]
 }
 
 const props = defineProps<{
-    skills: CharacterSkillView[]
+    skills: CharacterSkillRecord[]
     abilities: CharacterAbilities
     level: number
     classSkillIds?: string[]
@@ -83,16 +83,18 @@ function updateProficiency(id: string, value: string | null) {
 function updateMode(id: string, value: string | null) {
     emit('update', id, { calculationMode: value === 'computed' ? 'computed' : 'manual' })
 }
-function displayBonus(skill: CharacterSkillView) {
+function displayBonus(skill: CharacterSkillRecord) {
     const bonus = calculateSkillBonus(skill, props.abilities, props.level)
     return bonus === null ? '—' : signedModifier(bonus)
 }
-function skillSources(skill: CharacterSkillView): SkillProficiencySource[] {
-    if (skill.proficiencySources?.length) return skill.proficiencySources
+function skillSources(skill: CharacterSkillRecord): SkillProficiencySource[] {
+    if (skill.proficiencySources) return skill.proficiencySources
+    if (skill.proficiency === 'none') return []
     const sources: SkillProficiencySource[] = []
     if (props.raceSkillIds?.includes(skill.id)) sources.push('race')
     if (props.classSkillIds?.includes(skill.id)) sources.push('class')
     if (props.backgroundSkillIds?.includes(skill.id)) sources.push('background')
+    if (!sources.length) sources.push('manual')
     return sources
 }
 </script>

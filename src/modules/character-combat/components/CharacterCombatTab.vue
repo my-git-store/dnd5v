@@ -2,16 +2,16 @@
 import CombatStatsFields from './CombatStatsFields.vue'
 import AttackList from './AttackList.vue'
 import RestActions from './RestActions.vue'
-import type { CharacterSheetView } from '@/types/characterView'
+import type { Character } from '@/types/character'
 import type { ShortRestResult } from '@/domain/rest'
 
 type Emits = {
-    'update:combat': [combat: CharacterSheetView['combat']]
-    'update:attacks': [attacks: CharacterSheetView['attacks']]
+    'update:combat': [combat: Character['combat']]
+    'update:attacks': [attacks: Character['attacks']]
 }
 
 defineProps<{
-    character: CharacterSheetView
+    character: Character
     disabled?: boolean
     onShortRest: (dice: number) => ShortRestResult | null | Promise<ShortRestResult | null>
     onLongRest: () => void | Promise<void>
@@ -26,7 +26,7 @@ const emit = defineEmits<Emits>()
             @update="emit('update:combat', $event)" />
         <RestActions :combat="character.combat" :abilities="character.abilities" :disabled="disabled"
             :on-short-rest="onShortRest" :on-long-rest="onLongRest" />
-        <AttackList :attacks="character.attacks" :abilities="character.abilities" :level="character.level"
+        <AttackList :attacks="character.attacks" :abilities="character.abilities" :level="character.identity.level"
             :disabled="disabled" @update="emit('update:attacks', $event)" />
     </div>
 </template>

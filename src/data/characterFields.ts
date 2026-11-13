@@ -1,4 +1,4 @@
-import type { AbilityKey, AttackBonusSource, CharacterSkill } from '../types/character.ts'
+import type { AbilityKey, AttackBonusSource, CharacterSkillRecord } from '../types/character.ts'
 
 export const ABILITY_FIELDS: Array<{ key: AbilityKey; label: string }> = [
     { key: 'strength', label: 'Сила' },
@@ -30,7 +30,7 @@ export const SKILL_ABILITIES: Record<string, AbilityKey> = {
     survival: 'wisdom',
 }
 
-export const DEFAULT_SKILLS: CharacterSkill[] = (
+export const DEFAULT_SKILLS: CharacterSkillRecord[] = (
     [
         ['acrobatics', 'Акробатика'],
         ['animal-handling', 'Уход за животными'],
@@ -57,6 +57,8 @@ export const DEFAULT_SKILLS: CharacterSkill[] = (
     value: 0,
     ability: SKILL_ABILITIES[id] ?? null,
     proficiency: 'none',
+    calculationMode: 'computed',
+    additionalBonus: 0,
 }))
 
 export const ATTACK_BONUS_SOURCES: Array<{ value: AttackBonusSource; label: string }> = [

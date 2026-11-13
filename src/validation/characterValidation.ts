@@ -280,7 +280,20 @@ function validSourceMap(value: unknown): boolean {
 
 /** Validates additive character-creation extensions against the D&D 2024 catalog. */
 function validCreationExtension(value: unknown): boolean {
-    if (!isRecord(value)) return true
+    if (value === undefined) return true
+    if (
+        !isRecord(value) ||
+        !isString(value.raceId) ||
+        !isString(value.classId) ||
+        !validAbilities(value.baseAbilityScores) ||
+        !isStringArray(value.classSkillIds) ||
+        !Array.isArray(value.classSavingThrowKeys) ||
+        !value.classSavingThrowKeys.every(isAbilityKey) ||
+        !isStringArray(value.classFeatures) ||
+        !isStringArray(value.raceFeatures) ||
+        !isStringArray(value.classProficiencies)
+    )
+        return false
     if (value.gender !== undefined && value.gender !== 'female' && value.gender !== 'male')
         return false
     if (

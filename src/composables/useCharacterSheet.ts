@@ -1,61 +1,40 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { createCharacterSheetAdapter } from '../api/characterSheetAdapter'
+
+import { readStoredCharacter, writeStoredCharacter } from '@/api/characterStorage'
+import { createEmptyCharacter } from '@/data/character.mock'
+import { isRules2024SpellId } from '@/data/rules2024'
 import {
-    type AbilityKey,
-    type CharacterBio,
-    type CharacterDetails,
-    type CharacterMoney,
-    type CharacterSpell,
-} from '../types/character'
-import {
-    cloneCharacterView,
-    type CharacterIdentityPatch,
-    type CharacterSavingThrowPatch,
-    type CharacterSheetView,
-    type CharacterSkillPatch,
-} from '../types/characterView'
-import type {
-    CharacterCombat,
-    CharacterFeat,
-    CharacterInventoryItemRecord,
-    CharacterPersonality,
-    CharacterSpellcasting,
-    Character,
-} from '../types/character'
-import { progressionAtLevel } from '@/domain/characterProgressionData'
-import {
-    listStoredCharacterIds,
-    listStoredCharacterSummaries,
-    readStoredActiveCharacterId,
-    removeStoredCharacter,
-    writeStoredActiveCharacterId,
-    writeStoredCharacter,
-    type StoredCharacterSummary,
-} from '../api/characterStorage'
-import { createDefaultNpcProfile } from '../domain/npc'
+    defaultProgressionForCharacter,
+    progressionAtLevel,
+} from '@/domain/characterProgressionData'
 import {
     changeSpellSlot,
     restoreSpellSlots,
     takeLongRest,
     takeShortRest,
     type ShortRestResult,
-} from '../domain/rest'
-import type { CharacterSpellLevel } from '../types/character'
+} from '@/domain/rest'
+import type {
+    AbilityKey,
+    Character,
+    CharacterCombat,
+    CharacterFeat,
+    CharacterIdentityPatch,
+    CharacterInventoryItemRecord,
+    CharacterMoney,
+    CharacterNpc,
+    CharacterPersonality,
+    CharacterSavingThrowPatch,
+    CharacterSkillPatch,
+    CharacterSpellcasting,
+    CharacterSpellLevel,
+    CharacterSpellRecord,
+} from '@/types/character'
 
-export function useCharacterSheet(id = 'demo-character') {
-    const adapter = createCharacterSheetAdapter()
+export function useCharacterSheet() {
+    const character = ref<Character | null>(null)
 
-    const storedActiveId = readStoredActiveCharacterId()
-
-    const activeId = ref<string | null>(storedActiveId === undefined ? id : storedActiveId)
-
-    const characters = ref<StoredCharacterSummary[]>([])
-
-    const suppressVirtualCharacter = ref(false)
-
-    const character = ref<CharacterSheetView | null>(null)
-
-    const savedCharacter = ref<CharacterSheetView | null>(null)
+    const savedSnapshot = ref<string | null>(null)
 
     const isLoading = ref(true)
 
@@ -65,47 +44,20 @@ export function useCharacterSheet(id = 'demo-character') {
 
     const saveError = ref<string | null>(null)
 
-    const savedNotice = ref(false)
-
     const isDirty = computed(
-        () =>
-            character.value !== null &&
-            savedCharacter.value !== null &&
-            JSON.stringify(character.value) !== JSON.stringify(savedCharacter.value),
+        () => character.value !== null && JSON.stringify(character.value) !== savedSnapshot.value,
     )
 
-    let unloadHandler: ((event: BeforeUnloadEvent) => void) | undefined
+    const savedNotice = computed(() => savedSnapshot.value !== null && !isDirty.value)
 
-    function refreshCharacters() {
-        const stored = listStoredCharacterSummaries()
-        if (
-            !suppressVirtualCharacter.value &&
-            character.value &&
-            !stored.some(entry => entry.id === character.value?.id)
-        ) {
-            stored.unshift({
-                id: character.value.id,
-                name: character.value.name,
-                className: character.value.class,
-                kind: character.value.kind === 'npc' ? 'npc' : 'character',
-            })
-        }
-        characters.value = stored
-    }
-
-    async function load(nextId = activeId.value ?? id) {
-        activeId.value = nextId
+    function load() {
         isLoading.value = true
         loadError.value = null
-        savedNotice.value = false
+        saveError.value = null
         try {
-            const result = await adapter.load(nextId)
-            character.value = cloneCharacterView(result)
-            savedCharacter.value = cloneCharacterView(result)
-            savedNotice.value = true
-            writeStoredActiveCharacterId(nextId)
-            suppressVirtualCharacter.value = false
-            refreshCharacters()
+            const stored = readStoredCharacter()
+            character.value = stored ?? createEmptyCharacter('1')
+            savedSnapshot.value = stored ? JSON.stringify(stored) : null
         } catch (error) {
             loadError.value =
                 error instanceof Error ? error.message : 'Не удалось загрузить персонажа.'
@@ -114,20 +66,13 @@ export function useCharacterSheet(id = 'demo-character') {
         }
     }
 
-    async function save() {
+    function save() {
         if (!character.value || isSaving.value) return
-        savedNotice.value = false
         isSaving.value = true
         saveError.value = null
-        savedNotice.value = false
         try {
-            const result = await adapter.save(character.value)
-            character.value = cloneCharacterView(result)
-            savedCharacter.value = cloneCharacterView(result)
-            savedNotice.value = true
-            suppressVirtualCharacter.value = false
-            refreshCharacters()
-            writeStoredActiveCharacterId(result.id)
+            writeStoredCharacter(character.value)
+            savedSnapshot.value = JSON.stringify(character.value)
         } catch (error) {
             saveError.value =
                 error instanceof Error ? error.message : 'Не удалось сохранить персонажа.'
@@ -136,311 +81,152 @@ export function useCharacterSheet(id = 'demo-character') {
         }
     }
 
-    function newCharacterId() {
-        const uuid = globalThis.crypto?.randomUUID?.()
-        return uuid
-            ? `character-${uuid}`
-            : `character-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-    }
-
-    async function createCharacter() {
-        const nextId = newCharacterId()
-        suppressVirtualCharacter.value = false
-        await load(nextId)
-        await save()
-        return nextId
-    }
-
-    async function createNpc() {
-        const nextId = newCharacterId()
-        suppressVirtualCharacter.value = false
-        await load(nextId)
-        if (character.value) {
-            character.value.kind = 'npc'
-            character.value.name = 'Новый НПС'
-            character.value.npc = createDefaultNpcProfile()
-        }
-        await save()
-        return nextId
-    }
-
-    async function createNpcFromProfile(profile: NonNullable<CharacterSheetView['npc']>) {
-        const nextId = newCharacterId()
-        suppressVirtualCharacter.value = false
-        await load(nextId)
-        if (character.value) {
-            character.value.kind = 'npc'
-            character.value.name = profile.name
-            character.value.npc = JSON.parse(JSON.stringify(profile)) as NonNullable<
-                CharacterSheetView['npc']
-            >
-        }
-        await save()
-        return nextId
-    }
-
-    async function copyCharacter() {
-        if (!character.value) return null
-        // Persist the source first so copying the initial virtual demo character
-        // cannot silently replace it in the character list.
-        await save()
-        if (!character.value) return null
-        const copy = cloneCharacterView(character.value)
-        copy.id = newCharacterId()
-        copy.name = `${copy.name || 'Новый персонаж'} (копия)`
-        character.value = copy
-        activeId.value = copy.id
-        savedNotice.value = false
-        suppressVirtualCharacter.value = false
-        await save()
-        return copy.id
-    }
-
-    async function deleteCharacter(targetId = activeId.value) {
-        if (!targetId) return
-        removeStoredCharacter(targetId)
-        const remaining = listStoredCharacterSummaries().filter(entry => entry.id !== targetId)
-        if (activeId.value === targetId) {
-            const next = remaining[0]
-            if (next) {
-                suppressVirtualCharacter.value = false
-                await load(next.id)
-            } else {
-                activeId.value = null
-                writeStoredActiveCharacterId(null)
-                character.value = null
-                savedCharacter.value = null
-                savedNotice.value = false
-                suppressVirtualCharacter.value = true
-                characters.value = []
-            }
-        } else {
-            refreshCharacters()
-        }
-    }
-
-    async function selectCharacter(targetId: string) {
-        if (!targetId || targetId === activeId.value) return
-        suppressVirtualCharacter.value = false
-        await load(targetId)
-    }
-
-    async function importCharacters(imported: Character[]): Promise<string[]> {
-        const usedIds = new Set(listStoredCharacterIds())
-
-        const ids: string[] = []
-        for (const [, importedCharacter] of imported.entries()) {
-            const next = JSON.parse(JSON.stringify(importedCharacter)) as Character
-
-            const targetId = '1'
-            next.id = targetId
-            writeStoredCharacter(next)
-            usedIds.add(targetId)
-            ids.push(targetId)
-        }
-        const active = ids[0]
-        if (active) await load(active)
-        return ids
+    function createCharacter() {
+        character.value = createEmptyCharacter('1')
+        savedSnapshot.value = null
+        loadError.value = null
+        save()
     }
 
     function updateIdentity(patch: CharacterIdentityPatch) {
         if (!character.value) return
-        if (patch.name !== undefined) character.value.name = patch.name
-        if (patch.raceName !== undefined) character.value.race.name = patch.raceName
-        if (patch.className !== undefined) character.value.class = patch.className
-        if (patch.subclass !== undefined) character.value.subclass = patch.subclass
-        if (patch.backgroundName !== undefined)
-            character.value.background.name = patch.backgroundName
-        if (patch.alignment !== undefined) character.value.alignment = patch.alignment
+        Object.assign(character.value.identity, patch)
         if (patch.level !== undefined) {
-            character.value.level = patch.level
-            if (character.value.progression)
-                character.value.progression = progressionAtLevel(
-                    character.value.progression,
-                    patch.level,
-                )
+            character.value.progression = progressionAtLevel(
+                character.value.progression ?? defaultProgressionForCharacter(character.value),
+                patch.level,
+            )
         }
-        if (patch.experience !== undefined) character.value.experience = patch.experience
-        if (patch.gender !== undefined && character.value.creation)
-            character.value.creation.gender = patch.gender
-        savedNotice.value = false
     }
-    function updateNpc(npc: NonNullable<CharacterSheetView['npc']>) {
+
+    function updateNpc(npc: CharacterNpc) {
         if (!character.value) return
         character.value.kind = 'npc'
-        character.value.name = npc.name
-        character.value.npc = JSON.parse(JSON.stringify(npc)) as NonNullable<
-            CharacterSheetView['npc']
-        >
-        savedNotice.value = false
+        character.value.identity.name = npc.name
+        character.value.npc = npc
     }
-    function updateDetails(details: CharacterDetails) {
-        if (character.value) Object.assign(character.value, details)
-        savedNotice.value = false
-    }
+
     function updateAbility(key: AbilityKey, value: number) {
         if (character.value) character.value.abilities[key] = value
-        savedNotice.value = false
     }
+
     function updateSkill(id: string, patch: CharacterSkillPatch) {
         const item = character.value?.skills.find(skill => skill.id === id)
         if (item) Object.assign(item, patch)
-        savedNotice.value = false
     }
+
     function updateSavingThrow(key: AbilityKey, patch: CharacterSavingThrowPatch) {
         if (!character.value) return
         Object.assign(character.value.savingThrows[key], patch)
+        const creation = character.value.extensions.characterCreation
         if (
             patch.proficient !== undefined &&
-            character.value.creation &&
-            !character.value.creation.classSavingThrowKeys.includes(key)
+            creation &&
+            !creation.classSavingThrowKeys.includes(key)
         ) {
-            const manualKeys = new Set(character.value.creation.manualSavingThrowKeys ?? [])
+            const manualKeys = new Set(creation.manualSavingThrowKeys ?? [])
             if (patch.proficient) manualKeys.add(key)
             else manualKeys.delete(key)
-            character.value.creation.manualSavingThrowKeys = [...manualKeys]
+            creation.manualSavingThrowKeys = [...manualKeys]
         }
-        savedNotice.value = false
     }
+
     function updateCombat(combat: CharacterCombat) {
-        if (!character.value) return
-        character.value.combat = JSON.parse(JSON.stringify(combat)) as CharacterCombat
-        character.value.armorClass = combat.armorClass.value
-        savedNotice.value = false
+        if (character.value) character.value.combat = combat
     }
-    function updateAttacks(attacks: CharacterSheetView['attacks']) {
+
+    function updateAttacks(attacks: Character['attacks']) {
         if (character.value) character.value.attacks = attacks
-        savedNotice.value = false
     }
-    function updateSpells(spells: CharacterSpell[]) {
-        if (character.value) character.value.spells = spells
-        savedNotice.value = false
-    }
-    function updateCantrips(cantrips: CharacterSpell[]) {
-        if (character.value) character.value.cantrips = cantrips
-        savedNotice.value = false
-    }
-    function updateSpellcasting(spellcasting: CharacterSpellcasting) {
+
+    function updateSpells(spells: CharacterSpellRecord[]) {
         if (!character.value) return
-        character.value.spellcasting = JSON.parse(
-            JSON.stringify(spellcasting),
-        ) as CharacterSpellcasting
-        savedNotice.value = false
+        const spellcasting = character.value.spellcasting
+        spellcasting.knownSpells = spells
+        spellcasting.spellIds = [
+            ...new Set(spells.map(spell => spell.id).filter(isRules2024SpellId)),
+        ]
+        const knownIds = new Set(spells.map(spell => spell.id))
+        spellcasting.preparedSpellIds = spellcasting.preparedSpellIds.filter(id => knownIds.has(id))
     }
+
+    function updateCantrips(cantrips: CharacterSpellRecord[]) {
+        if (!character.value) return
+        character.value.spellcasting.cantrips = cantrips
+        character.value.spellcasting.cantripIds = [
+            ...new Set(cantrips.map(spell => spell.id).filter(isRules2024SpellId)),
+        ]
+    }
+
+    function updateSpellcasting(spellcasting: CharacterSpellcasting) {
+        if (character.value) character.value.spellcasting = spellcasting
+    }
+
     function shortRest(dice: number): ShortRestResult | null {
         if (!character.value) return null
         const result = takeShortRest(character.value.combat, character.value.abilities, dice)
         character.value.combat = result.combat
-        savedNotice.value = false
         saveError.value = null
         return result
     }
+
     function longRest() {
         if (!character.value) return
         character.value.combat = takeLongRest(character.value.combat)
-        character.value.spellcasting = {
-            ...character.value.spellcasting,
-            spellSlots: restoreSpellSlots(character.value.spellcasting.spellSlots),
-        }
-        savedNotice.value = false
+        character.value.spellcasting.spellSlots = restoreSpellSlots(
+            character.value.spellcasting.spellSlots,
+        )
         saveError.value = null
     }
+
     function adjustSpellSlot(level: CharacterSpellLevel, delta: number) {
         if (!character.value) return
-        character.value.spellcasting = {
-            ...character.value.spellcasting,
-            spellSlots: changeSpellSlot(character.value.spellcasting.spellSlots, level, delta),
-        }
-        savedNotice.value = false
+        character.value.spellcasting.spellSlots = changeSpellSlot(
+            character.value.spellcasting.spellSlots,
+            level,
+            delta,
+        )
         saveError.value = null
     }
+
     function useInventoryItem(id: string): boolean {
-        const item = character.value?.inventoryData.items.find(entry => entry.id === id)
+        const item = character.value?.inventory.items.find(entry => entry.id === id)
         if (!item || item.quantity <= 0) return false
         item.quantity -= 1
-        if (character.value)
-            character.value.inventory = character.value.inventoryData.items.map(
-                ({ id: itemId, name, quantity, description }) => ({
-                    id: itemId,
-                    name,
-                    quantity,
-                    description,
-                }),
-            )
-        savedNotice.value = false
         saveError.value = null
         return true
     }
-    function updateInventory(inventory: CharacterInventoryItemRecord[]) {
-        if (!character.value) return
-        character.value.inventoryData.items = JSON.parse(
-            JSON.stringify(inventory),
-        ) as CharacterInventoryItemRecord[]
-        character.value.inventory = inventory.map(({ id, name, quantity, description }) => ({
-            id,
-            name,
-            quantity,
-            description,
-        }))
-        savedNotice.value = false
+
+    function updateInventory(items: CharacterInventoryItemRecord[]) {
+        if (character.value) character.value.inventory.items = items
     }
+
     function updateMoney(money: CharacterMoney) {
-        if (!character.value) return
-        character.value.money = { ...money }
-        character.value.inventoryData.money = { ...money }
-        savedNotice.value = false
+        if (character.value) character.value.inventory.money = money
     }
+
     function updatePersonality(personality: CharacterPersonality) {
-        if (!character.value) return
-        character.value.personality = JSON.parse(
-            JSON.stringify(personality),
-        ) as CharacterPersonality
-        character.value.bio = {
-            biography: personality.biography,
-            traits: personality.traits,
-            features: personality.features,
-        }
-        savedNotice.value = false
+        if (character.value) character.value.personality = personality
     }
+
     function updateFeats(feats: CharacterFeat[]) {
-        if (!character.value) return
-        character.value.feats = JSON.parse(JSON.stringify(feats)) as CharacterFeat[]
-        savedNotice.value = false
+        if (character.value) character.value.feats = feats
     }
-    function updateBio(bio: CharacterBio) {
-        if (!character.value) return
-        character.value.bio = { ...bio }
-        character.value.personality = {
-            ...character.value.personality,
-            biography: bio.biography,
-            traits: bio.traits,
-            features: bio.features,
-        }
-        savedNotice.value = false
+
+    function warnBeforeUnload(event: BeforeUnloadEvent) {
+        if (!isDirty.value) return
+        event.preventDefault()
+        event.returnValue = ''
     }
+
     onMounted(() => {
-        if (activeId.value === null) {
-            suppressVirtualCharacter.value = true
-            isLoading.value = false
-            refreshCharacters()
-        } else {
-            void load()
-        }
-        unloadHandler = event => {
-            if (!isDirty.value) return
-            event.preventDefault()
-            event.returnValue = ''
-        }
-        window.addEventListener('beforeunload', unloadHandler)
+        load()
+        window.addEventListener('beforeunload', warnBeforeUnload)
     })
-    onBeforeUnmount(() => {
-        if (unloadHandler) window.removeEventListener('beforeunload', unloadHandler)
-    })
+    onBeforeUnmount(() => window.removeEventListener('beforeunload', warnBeforeUnload))
 
     return {
         character,
-        activeId,
-        characters,
         isLoading,
         loadError,
         isSaving,
@@ -450,15 +236,8 @@ export function useCharacterSheet(id = 'demo-character') {
         load,
         save,
         createCharacter,
-        createNpc,
-        createNpcFromProfile,
-        copyCharacter,
-        deleteCharacter,
-        selectCharacter,
-        importCharacters,
         updateIdentity,
         updateNpc,
-        updateDetails,
         updateAbility,
         updateSkill,
         updateSavingThrow,
@@ -475,6 +254,5 @@ export function useCharacterSheet(id = 'demo-character') {
         updateMoney,
         updatePersonality,
         updateFeats,
-        updateBio,
     }
 }

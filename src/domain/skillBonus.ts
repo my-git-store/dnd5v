@@ -3,13 +3,13 @@ import { proficiencyBonus } from './proficiencyBonus.ts'
 import type {
     AbilityKey,
     CharacterAbilities,
-    CharacterSkill,
+    CharacterSkillRecord,
     SkillProficiency,
 } from '../types/character.ts'
 
 export type CalculationMode = 'manual' | 'computed'
 
-export interface SkillBonusInput extends Pick<CharacterSkill, 'ability' | 'proficiency' | 'value'> {
+export interface SkillBonusInput extends Pick<CharacterSkillRecord, 'ability' | 'proficiency' | 'value'> {
     calculationMode?: CalculationMode
     additionalBonus?: number
 }

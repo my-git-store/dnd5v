@@ -3,12 +3,12 @@ import { computed } from 'vue'
 
 import { proficiencyBonus } from '@/domain/proficiencyBonus'
 import { signedModifier } from '@/domain/abilityModifier'
-import type { CharacterIdentityPatch, CharacterSheetView } from '@/types/characterView'
+import type { CharacterIdentityPatch, Character } from '@/types/character'
 
 import IdentityFields from './IdentityFields.vue'
 
 type Props = {
-    character: CharacterSheetView
+    character: Character
     dirty: boolean
     saving: boolean
     saved: boolean
@@ -25,7 +25,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const proficiencyLabel = computed(() => {
-    const bonus = proficiencyBonus(props.character.level)
+    const bonus = proficiencyBonus(props.character.identity.level)
     return bonus === null ? '-' : signedModifier(bonus)
 })
 </script>
@@ -34,7 +34,7 @@ const proficiencyLabel = computed(() => {
     <header class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="min-w-0 flex-1">
-                <h1>{{ character.name || 'Безымянный герой' }}</h1>
+                <h1>{{ character.identity.name || 'Безымянный герой' }}</h1>
                 <p>
                     Бонус владения <strong>{{ proficiencyLabel }}</strong>
                 </p>

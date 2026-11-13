@@ -7,61 +7,12 @@ export type SkillProficiency = 'none' | 'proficient' | 'expertise'
 /** Presentation choice used by the character builder for class portraits. */
 export type CharacterGender = 'female' | 'male'
 
-export interface CharacterSkill {
-    id: string
-    name: string
-    value: number
-    ability: AbilityKey | null
-    proficiency: SkillProficiency
-}
-
-export interface CharacterAttack {
-    id: string
-    name: string
-    attackBonus: string
-    bonusSource: AttackBonusSource
-    additionalBonus: number
-    damage: string
-    description: string
-}
-
-export interface CharacterSpell {
-    id: string
-    name: string
-    level: number
-    description: string
-    /** Optional catalog metadata; legacy spell records may omit these fields. */
-    school?: string
-    classes?: string[]
-    metadata?: Record<string, unknown>
-}
-
-export interface InventoryItem {
-    id: string
-    name: string
-    quantity: number
-    description: string
-}
-
 export interface CharacterMoney {
     copper: number
     silver: number
     electrum: number
     gold: number
     platinum: number
-}
-
-export interface CharacterBio {
-    biography: string
-    traits: string
-    features: string
-}
-
-export interface CharacterDetails {
-    class: string
-    level: number
-    experience: number
-    armorClass: number
 }
 
 export type CharacterCollection = 'attacks' | 'spells' | 'cantrips' | 'inventory'
@@ -366,12 +317,20 @@ export interface Character {
     features?: string[]
     /** Optional additive foundation; absent on older records and filled with safe defaults at runtime. */
     progression?: CharacterProgression
-    extensions: Record<string, unknown>
+    extensions: Record<string, unknown> & { characterCreation?: CharacterCreation }
     /** Optional NPC-specific data; character records do not need this field. */
     npc?: CharacterNpc
     /** Optional encounter planner state; absent on older records. */
     encounters?: CharacterEncounter[]
 }
+
+export type CharacterIdentityPatch = Partial<CharacterIdentity>
+
+export type CharacterSkillPatch = Partial<
+    Pick<CharacterSkillRecord, 'value' | 'ability' | 'proficiency' | 'calculationMode' | 'additionalBonus'>
+>
+
+export type CharacterSavingThrowPatch = Partial<CharacterSavingThrow>
 
 export function cloneCharacter(character: Character): Character {
     return JSON.parse(JSON.stringify(character)) as Character

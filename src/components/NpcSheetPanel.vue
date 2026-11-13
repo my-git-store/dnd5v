@@ -4,7 +4,7 @@ import { useModalUtil } from '@/composables/useModal'
 import { abilityModifier, signedModifier } from '../domain/abilityModifier'
 import { createDefaultNpcProfile } from '../domain/npc'
 import NpcEntryEditorModal from './NpcEntryEditorModal.vue'
-import type { CharacterSheetView } from '../types/characterView'
+import type { Character } from '../types/character'
 import type { CharacterNpcBonus, CharacterNpcEntry, CharacterNpc } from '../types/character'
 
 type Emits = {
@@ -12,7 +12,7 @@ type Emits = {
 }
 
 const props = defineProps<{
-    character: CharacterSheetView
+    character: Character
     dirty: boolean
     saving: boolean
     saved: boolean
@@ -30,7 +30,7 @@ const entryModal = useModalUtil<CharacterNpcEntry, EntryModalProps>()
 
 const draft = ref<CharacterNpc>(
     JSON.parse(
-        JSON.stringify(props.character.npc ?? createDefaultNpcProfile(props.character.name)),
+        JSON.stringify(props.character.npc ?? createDefaultNpcProfile(props.character.identity.name)),
     ) as CharacterNpc,
 )
 

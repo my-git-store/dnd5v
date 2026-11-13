@@ -1,6 +1,6 @@
 import { defaultProgressionForCharacter } from '@/domain/characterProgressionData'
 import { DEFAULT_SKILLS } from './characterFields.ts'
-import type { CharacterSkillRecord, CharacterSpellRecord, Character } from '../types/character.ts'
+import type { CharacterSpellRecord, Character } from '../types/character.ts'
 
 const abilities = {
     strength: 10,
@@ -9,14 +9,6 @@ const abilities = {
     intelligence: 10,
     wisdom: 10,
     charisma: 10,
-}
-
-function skillRecords(): CharacterSkillRecord[] {
-    return DEFAULT_SKILLS.map(skill => ({
-        ...skill,
-        calculationMode: 'computed' as const,
-        additionalBonus: 0,
-    }))
 }
 
 function spell(id: string, name: string, level: number, description: string): CharacterSpellRecord {
@@ -94,7 +86,7 @@ function createCharacter(id: string, demo: boolean): Character {
             hitDice: { size: '', total: 0, spent: 0 },
             deathSaves: { successes: 0, failures: 0 },
         },
-        skills: skillRecords(),
+        skills: DEFAULT_SKILLS.map(skill => ({ ...skill })),
         attacks: demo
             ? [
                   {

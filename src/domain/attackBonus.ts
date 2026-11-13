@@ -1,12 +1,11 @@
 import { abilityModifier, signedModifier } from './abilityModifier.ts'
 import { proficiencyBonus } from './proficiencyBonus.ts'
-import type { CharacterAbilities, CharacterAttack, AttackBonusSource } from '../types/character'
+import type { CharacterAbilities, CharacterAttackRecord, AttackBonusSource } from '../types/character'
 
 export type AttackCalculationMode = 'manual' | 'computed'
 
 export interface AttackBonusInput {
     attackBonus?: unknown
-    bonusSource?: unknown
     abilitySource?: unknown
     additionalBonus?: unknown
     proficient?: unknown
@@ -27,7 +26,7 @@ export function isAttackBonusSource(value: unknown): value is AttackBonusSource 
 }
 
 export function getAttackBonusSource(attack: AttackBonusInput): AttackBonusSource {
-    const source = 'abilitySource' in attack ? attack.abilitySource : attack.bonusSource
+    const source = attack.abilitySource
     return isAttackBonusSource(source) ? source : 'manual'
 }
 
@@ -39,7 +38,7 @@ export function getAdditionalAttackBonus(attack: AttackBonusInput): number {
 export function getAttackCalculationMode(attack: AttackBonusInput): AttackCalculationMode {
     if (attack.calculationMode === 'manual') return 'manual'
     if (attack.calculationMode === 'computed') return 'computed'
-    const source = 'abilitySource' in attack ? attack.abilitySource : attack.bonusSource
+    const source = attack.abilitySource
     return isAttackBonusSource(source) && source !== 'manual' ? 'computed' : 'manual'
 }
 
@@ -49,7 +48,7 @@ export function calculateAttackBonus(
     level: unknown,
 ): number | null {
     if (getAttackCalculationMode(attack) === 'manual') return null
-    const source = 'abilitySource' in attack ? attack.abilitySource : attack.bonusSource
+    const source = attack.abilitySource
     if (!isAttackBonusSource(source) || source === 'manual') return null
     const value = abilities[source]
     if (typeof value !== 'number' || !Number.isFinite(value)) return null
@@ -80,7 +79,7 @@ export function calculateAttackDamageModifier(
 }
 
 export function formatAttackBonus(
-    attack: CharacterAttack,
+    attack: CharacterAttackRecord,
     abilities: CharacterAbilities,
     level = 1,
 ): string {

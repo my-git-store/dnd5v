@@ -2,7 +2,7 @@
 import InventoryList from './InventoryList.vue'
 import MoneyFields from './MoneyFields.vue'
 import type { CharacterMoney } from '@/types/character'
-import type { CharacterSheetView } from '@/types/characterView'
+import type { Character } from '@/types/character'
 import type { CharacterInventoryItemRecord } from '@/types/character'
 
 type Emits = {
@@ -11,16 +11,16 @@ type Emits = {
     'use-item': [id: string]
 }
 
-defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
+defineProps<{ character: Character; disabled?: boolean }>()
 
 const emit = defineEmits<Emits>()
 </script>
 
 <template>
     <div class="grid gap-4">
-        <InventoryList :items="character.inventoryData.items" :disabled="disabled"
+        <InventoryList :items="character.inventory.items" :disabled="disabled"
             @update="emit('update:inventory', $event)" @use-item="emit('use-item', $event)" />
-        <MoneyFields :money="character.inventoryData.money" :disabled="disabled"
+        <MoneyFields :money="character.inventory.money" :disabled="disabled"
             @update="emit('update:money', $event)" />
     </div>
 </template>

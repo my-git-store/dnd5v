@@ -24,7 +24,19 @@ const tabs = [
 
 const visibleTabValues = new Set(tabs.map(tab => tab.value))
 
-const activeTab = ref<string>('main')
+function readActiveTab(): string {
+    try {
+        return sessionStorage.getItem('nastolka:sheet:active-tab') ?? 'main'
+    } catch {
+        return 'main'
+    }
+}
+
+const storedTab = readActiveTab()
+
+const activeTab = ref<string>(
+    visibleTabValues.has(storedTab as (typeof tabs)[number]['value']) ? storedTab : 'main',
+)
 
 const sheet = useCharacterSheet()
 
@@ -46,27 +58,10 @@ watch(activeTab, next => {
     const scrollPosition = window.scrollY
     void nextTick(() => window.scrollTo({ top: scrollPosition, behavior: 'auto' }))
 })
-watch(
-    () => sheet.activeId.value,
-    id => {
-        if (!id) return
-        try {
-            const storedTab = sessionStorage.getItem(`nastolka:sheet:active-tab:${id}`) ?? 'main'
-            activeTab.value = visibleTabValues.has(storedTab as (typeof tabs)[number]['value'])
-                ? storedTab
-                : 'main'
-        } catch {
-            activeTab.value = 'main'
-        }
-    },
-    { immediate: true },
-)
 watch(activeTab, tab => {
     if (!visibleTabValues.has(tab as (typeof tabs)[number]['value'])) return
-    const id = sheet.activeId.value
-    if (!id) return
     try {
-        sessionStorage.setItem(`nastolka:sheet:active-tab:${id}`, tab)
+        sessionStorage.setItem('nastolka:sheet:active-tab', tab)
     } catch {
         /* ignore unavailable session storage */
     }
@@ -74,21 +69,21 @@ watch(activeTab, tab => {
 function updateAbility(key: AbilityKey, value: number) {
     sheet.updateAbility(key, value)
 }
-async function takeShortRest(dice: number): Promise<ShortRestResult | null> {
+function takeShortRest(dice: number): ShortRestResult | null {
     const result = sheet.shortRest(dice)
-    if (result) await sheet.save()
+    if (result) sheet.save()
     return result
 }
-async function takeLongRest() {
+function takeLongRest() {
     sheet.longRest()
-    await sheet.save()
+    sheet.save()
 }
-async function useSpellSlot(level: CharacterSpellLevel, delta: number) {
+function useSpellSlot(level: CharacterSpellLevel, delta: number) {
     sheet.adjustSpellSlot(level, delta)
-    await sheet.save()
+    sheet.save()
 }
-async function useInventoryItem(id: string) {
-    if (sheet.useInventoryItem(id)) await sheet.save()
+function useInventoryItem(id: string) {
+    if (sheet.useInventoryItem(id)) sheet.save()
 }
 function openActionConfirm(
     title: string,
@@ -101,18 +96,16 @@ function openActionConfirm(
     actionModal.openOrClose()
 }
 function createCharacter() {
-    if (sheet.isDirty.value) {
+    if (sheet.character.value || sheet.loadError.value) {
         openActionConfirm(
             'Создать нового персонажа?',
-            'Есть несохранённые изменения. При создании нового персонажа они будут отменены.',
+            'Новый персонаж заменит текущий лист и его сохранённые данные.',
             'Создать',
-            async () => {
-                await sheet.createCharacter()
-            },
+            sheet.createCharacter,
         )
         return
     }
-    void sheet.createCharacter()
+    sheet.createCharacter()
 }
 </script>
 <template>
@@ -125,7 +118,7 @@ function createCharacter() {
         />
         <template v-if="!sheet.isLoading.value && !sheet.loadError.value">
             <section v-if="!sheet.character.value" aria-live="polite">
-                <h1>Персонажи не найдены</h1>
+                <h1>Персонаж не создан</h1>
                 <p>Создайте нового персонажа, чтобы начать работу с листом.</p>
                 <NButton type="primary" @click="createCharacter">Создать персонажа</NButton>
             </section>

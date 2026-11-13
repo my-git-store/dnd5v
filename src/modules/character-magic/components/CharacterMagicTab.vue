@@ -3,18 +3,18 @@ import { ref } from 'vue'
 
 import SpellList from './SpellList.vue'
 import SpellSlotsFields from './SpellSlotsFields.vue'
-import type { CharacterSpell } from '@/types/character'
-import type { CharacterSheetView } from '@/types/characterView'
+import type { CharacterSpellRecord } from '@/types/character'
+import type { Character } from '@/types/character'
 import type { CharacterSpellLevel } from '@/types/character'
 
 type Emits = {
-    'update:spells': [spells: CharacterSpell[]]
-    'update:cantrips': [spells: CharacterSpell[]]
-    'update:spellcasting': [spellcasting: CharacterSheetView['spellcasting']]
+    'update:spells': [spells: CharacterSpellRecord[]]
+    'update:cantrips': [spells: CharacterSpellRecord[]]
+    'update:spellcasting': [spellcasting: Character['spellcasting']]
     'use-slot': [level: CharacterSpellLevel, delta: number]
 }
 
-const props = defineProps<{ character: CharacterSheetView; disabled?: boolean }>()
+const props = defineProps<{ character: Character; disabled?: boolean }>()
 
 const emit = defineEmits<Emits>()
 
@@ -25,7 +25,7 @@ const spellbookTabs = [
 
 const activeSpellbookTab = ref<(typeof spellbookTabs)[number]['value']>('cantrips')
 
-function updateSlots(spellSlots: CharacterSheetView['spellcasting']['spellSlots']) {
+function updateSlots(spellSlots: Character['spellcasting']['spellSlots']) {
     emit('update:spellcasting', { ...props.character.spellcasting, spellSlots })
 }
 function updatePrepared(preparedSpellIds: string[]) {
@@ -46,11 +46,11 @@ function useSlot(level: CharacterSpellLevel, delta: number) {
             </NTabs>
             <div>
                 <div v-show="activeSpellbookTab === 'cantrips'" id="spellbook-tab-cantrips">
-                    <SpellList title="Заговоры" :spells="character.cantrips" cantrip :disabled="disabled"
+                    <SpellList title="Заговоры" :spells="character.spellcasting.cantrips" cantrip :disabled="disabled"
                         @update="emit('update:cantrips', $event)" />
                 </div>
                 <div v-show="activeSpellbookTab === 'spells'" id="spellbook-tab-spells">
-                    <SpellList title="Заклинания" :spells="character.spells"
+                    <SpellList title="Заклинания" :spells="character.spellcasting.knownSpells"
                         :prepared-ids="character.spellcasting.preparedSpellIds" show-prepared-filter
                         :disabled="disabled" @update="emit('update:spells', $event)"
                         @update:prepared-ids="updatePrepared" />

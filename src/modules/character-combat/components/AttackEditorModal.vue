@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import AttackEditor from './AttackEditor.vue'
 import type { CharacterAbilities } from '@/types/character'
-import type { CharacterAttackView } from '@/types/characterView'
+import type { CharacterAttackRecord } from '@/types/character'
 
 type Props = {
-    attack: CharacterAttackView
+    attack: CharacterAttackRecord
     abilities: CharacterAbilities
     level: number
     disabled?: boolean
-    onSave: (attack: CharacterAttackView) => void
+    onSave: (attack: CharacterAttackRecord) => void
     onCancel?: () => void
 }
 
@@ -20,7 +20,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
-function save(attack: CharacterAttackView) {
+function save(attack: CharacterAttackRecord) {
     props.onSave(attack)
     emit('close')
 }

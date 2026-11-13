@@ -3,7 +3,7 @@ import { ABILITY_FIELDS } from '@/data/characterFields'
 import { abilityModifier, signedModifier } from '@/domain/abilityModifier'
 import { calculateSavingThrowBonus } from '@/domain/savingThrow'
 import type { AbilityKey, CharacterAbilities, CharacterSavingThrows } from '@/types/character'
-import type { CharacterSavingThrowPatch } from '@/types/characterView'
+import type { CharacterSavingThrowPatch } from '@/types/character'
 import { NTooltip } from 'naive-ui'
 
 type Props = {

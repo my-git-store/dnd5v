@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import type { CharacterSpell } from '@/types/character'
+import type { CharacterSpellRecord } from '@/types/character'
 
 type Emits = {
-    save: [spell: CharacterSpell]
+    save: [spell: CharacterSpellRecord]
     cancel: []
 }
 
-const props = defineProps<{ spell: CharacterSpell; cantrip?: boolean; disabled?: boolean }>()
+const props = defineProps<{ spell: CharacterSpellRecord; cantrip?: boolean; disabled?: boolean }>()
 
 const emit = defineEmits<Emits>()
 

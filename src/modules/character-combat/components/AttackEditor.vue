@@ -9,15 +9,15 @@ import {
 } from '@/data/rules2024/index.ts'
 import { getAttackBonusSource, getAdditionalAttackBonus } from '@/domain/attackBonus'
 import type { CharacterAbilities } from '@/types/character'
-import type { CharacterAttackView } from '@/types/characterView'
+import type { CharacterAttackRecord } from '@/types/character'
 
 type Emits = {
-    save: [attack: CharacterAttackView]
+    save: [attack: CharacterAttackRecord]
     cancel: []
 }
 
 const props = defineProps<{
-    attack: CharacterAttackView
+    attack: CharacterAttackRecord
     abilities: CharacterAbilities
     level: number
     disabled?: boolean
@@ -55,11 +55,11 @@ const calculationModeOptions = [
     { value: 'computed', label: 'Расчёт' },
 ]
 
-function createDraft(attack: CharacterAttackView): CharacterAttackView {
+function createDraft(attack: CharacterAttackRecord): CharacterAttackRecord {
     return {
         ...attack,
         properties: [...attack.properties],
-        bonusSource: getAttackBonusSource(attack),
+        abilitySource: getAttackBonusSource(attack),
         additionalBonus: getAdditionalAttackBonus(attack),
     }
 }
@@ -99,7 +99,7 @@ function submit() {
         properties: [...draft.value.properties],
         weaponId: draft.value.weaponId || undefined,
         masteryId: draft.value.masteryId || undefined,
-        bonusSource: getAttackBonusSource(draft.value),
+        abilitySource: getAttackBonusSource(draft.value),
         additionalBonus: getAdditionalAttackBonus(draft.value),
     })
 }
@@ -147,7 +147,7 @@ function submit() {
         <label class="grid gap-2"
             >Источник способности
             <NSelect
-                v-model:value="draft.bonusSource"
+                v-model:value="draft.abilitySource"
                 class="w-full"
                 :options="bonusSourceOptions"
                 :disabled="disabled"

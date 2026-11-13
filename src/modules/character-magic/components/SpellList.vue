@@ -6,17 +6,17 @@ import SpellEditorModal from './SpellEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
 import CollectionSearch from '@/modules/character-inventory/components/CollectionSearch.vue'
-import type { CharacterSpell } from '@/types/character'
+import type { CharacterSpellRecord } from '@/types/character'
 import { RULES_2024_CLASSES, getRules2024Spell } from '@/data/rules2024/index.ts'
 
 type Emits = {
-    update: [spells: CharacterSpell[]]
+    update: [spells: CharacterSpellRecord[]]
     'update:prepared-ids': [ids: string[]]
 }
 
 const props = defineProps<{
     title: string
-    spells: CharacterSpell[]
+    spells: CharacterSpellRecord[]
     cantrip?: boolean
     preparedIds?: string[]
     showPreparedFilter?: boolean
@@ -32,7 +32,7 @@ const preparedOnly = ref(false)
 type EditorModalProps = {
     cantrip?: boolean
     disabled?: boolean
-    onSave: (spell: CharacterSpell) => void
+    onSave: (spell: CharacterSpellRecord) => void
 }
 
 type ConfirmModalProps = {
@@ -40,26 +40,26 @@ type ConfirmModalProps = {
     onOk: () => void | Promise<void>
 }
 
-const editorModal = useModalUtil<CharacterSpell, EditorModalProps>()
+const editorModal = useModalUtil<CharacterSpellRecord, EditorModalProps>()
 
 const confirmModal = useModalUtil<undefined, ConfirmModalProps>()
 
 const classLabels = new Map(RULES_2024_CLASSES.map(item => [item.id, item.label]))
 
-function catalogSpell(spell: CharacterSpell) {
+function catalogSpell(spell: CharacterSpellRecord) {
     return getRules2024Spell(spell.id)
 }
 
-function schoolLabel(spell: CharacterSpell): string {
+function schoolLabel(spell: CharacterSpellRecord): string {
     return spell.school || catalogSpell(spell)?.school || ''
 }
 
-function classLabel(spell: CharacterSpell): string {
+function classLabel(spell: CharacterSpellRecord): string {
     const classes = spell.classes ?? catalogSpell(spell)?.classes ?? []
     return classes.map(id => classLabels.get(id) ?? id).join(' · ')
 }
 
-function metadataLabel(spell: CharacterSpell): string {
+function metadataLabel(spell: CharacterSpellRecord): string {
     const metadata = spell.metadata ?? catalogSpell(spell)?.metadata
     if (!metadata) return ''
     return Object.entries(metadata)
@@ -84,7 +84,7 @@ const visibleSpells = computed(() => {
     )
 })
 
-function save(spell: CharacterSpell) {
+function save(spell: CharacterSpellRecord) {
     const exists = props.spells.some(item => item.id === spell.id)
     emit(
         'update',
@@ -93,7 +93,7 @@ function save(spell: CharacterSpell) {
             : [...props.spells, spell],
     )
 }
-function openEditor(spell: CharacterSpell) {
+function openEditor(spell: CharacterSpellRecord) {
     editorModal.item.value = { ...spell }
     editorModal.props.value = {
         cantrip: props.cantrip,
@@ -108,6 +108,13 @@ function add() {
         name: '',
         level: props.cantrip ? 0 : 1,
         description: '',
+        school: '',
+        castingTime: '',
+        range: '',
+        components: '',
+        duration: '',
+        concentration: false,
+        ritual: false,
     })
 }
 function remove(id: string, name: string) {

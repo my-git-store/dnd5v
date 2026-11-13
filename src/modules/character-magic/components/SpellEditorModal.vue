@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import SpellEditor from './SpellEditor.vue'
-import type { CharacterSpell } from '@/types/character'
+import type { CharacterSpellRecord } from '@/types/character'
 
 type Props = {
-    spell: CharacterSpell
+    spell: CharacterSpellRecord
     cantrip?: boolean
     disabled?: boolean
-    onSave: (spell: CharacterSpell) => void
+    onSave: (spell: CharacterSpellRecord) => void
     onCancel?: () => void
 }
 
@@ -18,7 +18,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
-function save(spell: CharacterSpell) {
+function save(spell: CharacterSpellRecord) {
     props.onSave(spell)
     emit('close')
 }

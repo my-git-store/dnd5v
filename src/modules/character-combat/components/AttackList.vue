@@ -13,14 +13,14 @@ import AttackEditorModal from './AttackEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
 import type { CharacterAbilities } from '@/types/character'
-import type { CharacterAttackView } from '@/types/characterView'
+import type { CharacterAttackRecord } from '@/types/character'
 
 type Emits = {
-    update: [attacks: CharacterAttackView[]]
+    update: [attacks: CharacterAttackRecord[]]
 }
 
 const props = defineProps<{
-    attacks: CharacterAttackView[]
+    attacks: CharacterAttackRecord[]
     abilities: CharacterAbilities
     level: number
     disabled?: boolean
@@ -32,7 +32,7 @@ type EditorModalProps = {
     abilities: CharacterAbilities
     level: number
     disabled?: boolean
-    onSave: (attack: CharacterAttackView) => void
+    onSave: (attack: CharacterAttackRecord) => void
 }
 
 type ConfirmModalProps = {
@@ -40,11 +40,11 @@ type ConfirmModalProps = {
     onOk: () => void | Promise<void>
 }
 
-const editorModal = useModalUtil<CharacterAttackView, EditorModalProps>()
+const editorModal = useModalUtil<CharacterAttackRecord, EditorModalProps>()
 
 const confirmModal = useModalUtil<undefined, ConfirmModalProps>()
 
-const kindLabels: Record<CharacterAttackView['kind'], string> = {
+const kindLabels: Record<CharacterAttackRecord['kind'], string> = {
     melee: 'Ближняя',
     ranged: 'Дальняя',
     spell: 'Заклинание',
@@ -75,7 +75,7 @@ const rollHistory = ref<AttackRollRecord[]>([])
 
 const lastRoll = ref<AttackRollRecord | null>(null)
 
-function save(attack: CharacterAttackView) {
+function save(attack: CharacterAttackRecord) {
     const exists = props.attacks.some(item => item.id === attack.id)
     emit(
         'update',
@@ -84,7 +84,7 @@ function save(attack: CharacterAttackView) {
             : [...props.attacks, attack],
     )
 }
-function openEditor(attack: CharacterAttackView) {
+function openEditor(attack: CharacterAttackRecord) {
     editorModal.item.value = { ...attack, properties: [...attack.properties] }
     editorModal.props.value = {
         abilities: props.abilities,
@@ -95,12 +95,12 @@ function openEditor(attack: CharacterAttackView) {
     editorModal.openOrClose()
 }
 function add() {
-    const attack: CharacterAttackView = {
+    const attack: CharacterAttackRecord = {
         id: `attack-${Date.now()}`,
         name: '',
         kind: 'other',
         attackBonus: '',
-        bonusSource: 'manual',
+        abilitySource: 'manual',
         proficient: false,
         calculationMode: 'manual',
         additionalBonus: 0,
@@ -125,7 +125,7 @@ function remove(id: string, name: string) {
     }
     confirmModal.openOrClose()
 }
-function attackSummary(attack: CharacterAttackView) {
+function attackSummary(attack: CharacterAttackRecord) {
     const source = getAttackBonusSource(attack)
 
     const mode = getAttackCalculationMode(attack)
@@ -140,10 +140,10 @@ function attackSummary(attack: CharacterAttackView) {
         damageModifier,
     }
 }
-function weaponLabel(attack: CharacterAttackView): string {
+function weaponLabel(attack: CharacterAttackRecord): string {
     return attack.weaponId ? (getRules2024Weapon(attack.weaponId)?.name ?? attack.weaponId) : ''
 }
-function masteryLabel(attack: CharacterAttackView): string {
+function masteryLabel(attack: CharacterAttackRecord): string {
     return attack.masteryId
         ? (getRules2024WeaponMastery(attack.masteryId)?.name ?? attack.masteryId)
         : (attack.weaponMastery ?? '')

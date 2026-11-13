@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { CharacterIdentityPatch, CharacterSheetView } from '@/types/characterView'
+import type { CharacterIdentityPatch, Character } from '@/types/character'
 
 type Emits = {
     update: [patch: CharacterIdentityPatch]
 }
 
 type Props = {
-    character: CharacterSheetView
+    character: Character
     disabled?: boolean
 }
 
@@ -14,7 +14,7 @@ defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
-function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unknown) {
+function update(key: Exclude<keyof CharacterIdentityPatch, 'race' | 'background'>, value: unknown) {
     if (key === 'level' || key === 'experience') {
         const parsed = Number(value)
 
@@ -34,7 +34,7 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unk
             <NFormItem label="Имя" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
-                    :value="character.name"
+                    :value="character.identity.name"
                     :input-props="{ 'aria-label': 'Имя' }"
                     @update:value="update('name', $event)"
                 />
@@ -42,23 +42,23 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unk
             <NFormItem label="Вид" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
-                    :value="character.race.name"
+                    :value="character.identity.race.name"
                     :input-props="{ 'aria-label': 'Вид' }"
-                    @update:value="update('raceName', $event)"
+                    @update:value="emit('update', { race: { ...character.identity.race, name: $event } })"
                 />
             </NFormItem>
             <NFormItem label="Класс" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
-                    :value="character.class"
+                    :value="character.identity.class"
                     :input-props="{ 'aria-label': 'Класс' }"
-                    @update:value="update('className', $event)"
+                    @update:value="update('class', $event)"
                 />
             </NFormItem>
             <NFormItem label="Подкласс" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
-                    :value="character.subclass"
+                    :value="character.identity.subclass"
                     :input-props="{ 'aria-label': 'Подкласс' }"
                     @update:value="update('subclass', $event)"
                 />
@@ -66,7 +66,7 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unk
             <NFormItem label="Мировоззрение" :show-feedback="false">
                 <NInput
                     :disabled="disabled"
-                    :value="character.alignment"
+                    :value="character.identity.alignment"
                     :input-props="{ 'aria-label': 'Мировоззрение' }"
                     @update:value="update('alignment', $event)"
                 />
@@ -78,7 +78,7 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unk
                     :max="20"
                     :step="1"
                     :disabled="disabled"
-                    :value="character.level"
+                    :value="character.identity.level"
                     :input-props="{ 'aria-label': 'Уровень' }"
                     @update:value="update('level', $event)"
                 />
@@ -89,7 +89,7 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'gender'>, value: unk
                     :min="0"
                     :step="1"
                     :disabled="disabled"
-                    :value="character.experience"
+                    :value="character.identity.experience"
                     :input-props="{ 'aria-label': 'Опыт' }"
                     @update:value="update('experience', $event)"
                 />
