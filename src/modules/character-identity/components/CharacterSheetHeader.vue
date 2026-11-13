@@ -4,7 +4,8 @@ import { NButton } from 'naive-ui'
 
 import { proficiencyBonus } from '@/domain/proficiencyBonus'
 import { signedModifier } from '@/domain/abilityModifier'
-import type { CharacterIdentityPatch, Character } from '@/types/character'
+import { useCharacterIdentity } from '../composables/useCharacterIdentity'
+import type { Character } from '@/types/character'
 
 import IdentityFields from './IdentityFields.vue'
 
@@ -12,18 +13,18 @@ type Props = {
     character: Character
     dirty: boolean
     saving: boolean
-    saved: boolean
     saveError: string | null
 }
 
 type Emits = {
     save: []
-    update: [patch: CharacterIdentityPatch]
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
+
+const { updateIdentity } = useCharacterIdentity()
 
 const proficiencyLabel = computed(() => {
     const bonus = proficiencyBonus(props.character.identity.level)
@@ -40,21 +41,12 @@ const proficiencyLabel = computed(() => {
                     Бонус владения <strong>{{ proficiencyLabel }}</strong>
                 </p>
             </div>
-            <NButton
-                class="shrink-0"
-                type="primary"
-                :loading="saving"
-                :disabled="!dirty || saving"
-                @click="emit('save')"
-            >
-                {{ saved ? 'Сохранено' : 'Сохранить' }}
+            <NButton class="shrink-0" type="primary" :loading="saving" :disabled="!dirty || saving"
+                @click="emit('save')">
+                Сохранить
             </NButton>
         </div>
-        <IdentityFields
-            :character="character"
-            :disabled="saving"
-            @update="emit('update', $event)"
-        />
+        <IdentityFields :character="character" :disabled="saving" @update="updateIdentity" />
         <p v-if="saveError" role="alert">{{ saveError }}</p>
     </header>
 </template>

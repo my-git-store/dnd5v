@@ -1,32 +1,22 @@
 <script setup lang="ts">
 import CombatStatsFields from './CombatStatsFields.vue'
 import AttackList from './AttackList.vue'
-import RestActions from './RestActions.vue'
+import { useCharacterCombat } from '../composables/useCharacterCombat'
 import type { Character } from '@/types/character'
-import type { ShortRestResult } from '@/domain/rest'
-
-type Emits = {
-    'update:combat': [combat: Character['combat']]
-    'update:attacks': [attacks: Character['attacks']]
-}
 
 defineProps<{
     character: Character
     disabled?: boolean
-    onShortRest: (dice: number) => ShortRestResult | null | Promise<ShortRestResult | null>
-    onLongRest: () => void | Promise<void>
 }>()
 
-const emit = defineEmits<Emits>()
+const { updateCombat, updateAttacks } = useCharacterCombat()
 </script>
 
 <template>
     <div class="grid gap-4">
         <CombatStatsFields :combat="character.combat" :abilities="character.abilities" :disabled="disabled"
-            @update="emit('update:combat', $event)" />
-        <RestActions :combat="character.combat" :abilities="character.abilities" :disabled="disabled"
-            :on-short-rest="onShortRest" :on-long-rest="onLongRest" />
+            @update="updateCombat" />
         <AttackList :attacks="character.attacks" :abilities="character.abilities" :level="character.identity.level"
-            :disabled="disabled" @update="emit('update:attacks', $event)" />
+            :disabled="disabled" @update="updateAttacks" />
     </div>
 </template>

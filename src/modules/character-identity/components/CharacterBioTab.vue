@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { NFormItem, NInput } from 'naive-ui'
 
+import { useCharacterIdentity } from '../composables/useCharacterIdentity'
 import type { CharacterPersonality } from '@/types/character'
-
-type Emits = {
-    update: [personality: CharacterPersonality]
-}
 
 const props = defineProps<{ personality: CharacterPersonality; disabled?: boolean }>()
 
-const emit = defineEmits<Emits>()
+const { updatePersonality } = useCharacterIdentity()
 
 function update(key: keyof CharacterPersonality, value: unknown) {
-    emit('update', { ...props.personality, [key]: String(value ?? '') })
+    updatePersonality({ ...props.personality, [key]: String(value ?? '') })
 }
 </script>
 

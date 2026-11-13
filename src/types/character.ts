@@ -251,8 +251,6 @@ export interface CharacterCreation {
 }
 
 export interface Character {
-    id: string
-    schemaVersion: CharacterSchema
     /** Optional marker retained for compatibility with stored characters. */
     kind?: 'character'
     identity: CharacterIdentity

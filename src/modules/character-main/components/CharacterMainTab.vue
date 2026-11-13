@@ -3,25 +3,16 @@ import { computed } from 'vue'
 import AbilityFields from './AbilityFields.vue'
 import SkillFields from './SkillFields.vue'
 import CharacterFeatList from '@/modules/character-feats/components/CharacterFeatList.vue'
-import type {
-    AbilityKey,
-    Character,
-    CharacterFeat,
-    CharacterSavingThrowPatch,
-    CharacterSkillPatch,
-} from '@/types/character'
+import { useCharacterMain } from '../composables/useCharacterMain'
+import { useCharacterFeats } from '@/modules/character-feats/composables/useCharacterFeats'
+import type { Character } from '@/types/character'
 import { getRules2024Class, getRules2024Feature } from '@/data/rules2024/index.ts'
-
-type Emits = {
-    'update:saving-throw': [key: AbilityKey, patch: CharacterSavingThrowPatch]
-    'update:ability': [key: AbilityKey, value: number]
-    'update:skill': [id: string, patch: CharacterSkillPatch]
-    'update:feats': [feats: CharacterFeat[]]
-}
 
 const props = defineProps<{ character: Character; disabled?: boolean }>()
 
-const emit = defineEmits<Emits>()
+const { updateAbility, updateSkill, updateSavingThrow } = useCharacterMain()
+
+const { updateFeats } = useCharacterFeats()
 
 const characterCreation = computed(() => props.character.extensions.characterCreation)
 
@@ -48,16 +39,6 @@ const progressionFeatures = computed(() => {
         }
     })
 })
-
-function updateSavingThrow(key: AbilityKey, patch: CharacterSavingThrowPatch) {
-    emit('update:saving-throw', key, patch)
-}
-function updateAbility(key: AbilityKey, value: number) {
-    emit('update:ability', key, value)
-}
-function updateSkill(id: string, patch: CharacterSkillPatch) {
-    emit('update:skill', id, patch)
-}
 </script>
 
 <template>
@@ -110,6 +91,6 @@ function updateSkill(id: string, patch: CharacterSkillPatch) {
                 </div>
             </div>
         </section>
-        <CharacterFeatList :feats="character.feats ?? []" :disabled="disabled" @update="emit('update:feats', $event)" />
+        <CharacterFeatList :feats="character.feats ?? []" :disabled="disabled" @update="updateFeats" />
     </div>
 </template>

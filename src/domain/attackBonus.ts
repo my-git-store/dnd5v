@@ -1,6 +1,10 @@
 import { abilityModifier, signedModifier } from './abilityModifier.ts'
 import { proficiencyBonus } from './proficiencyBonus.ts'
-import type { CharacterAbilities, CharacterAttackRecord, AttackBonusSource } from '../types/character'
+import type {
+    CharacterAbilities,
+    CharacterAttackRecord,
+    AttackBonusSource,
+} from '../types/character'
 
 export type AttackCalculationMode = 'manual' | 'computed'
 

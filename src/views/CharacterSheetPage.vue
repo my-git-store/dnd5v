@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { NButton, NTab, NTabs } from 'naive-ui'
 import { useModalUtil } from '@/composables/useModal'
 import CharacterSheetHeader from '@/modules/character-identity/components/CharacterSheetHeader.vue'
@@ -13,7 +13,6 @@ import CharacterActionConfirmModal, {
     type Props as ActionModalProps,
 } from '@/components/CharacterActionConfirmModal.vue'
 import { useCharacterSheet } from '@/composables/useCharacterSheet'
-import type { CharacterSpellLevel } from '@/types/character'
 
 const tabs = [
     { name: 'Основное', value: 'main' },
@@ -29,22 +28,6 @@ const sheet = reactive(useCharacterSheet())
 
 const actionModal = useModalUtil<undefined, ActionModalProps>()
 
-function takeShortRest(dice: number) {
-    const result = sheet.shortRest(dice)
-    if (result) sheet.save()
-    return result
-}
-function takeLongRest() {
-    sheet.longRest()
-    sheet.save()
-}
-function useSpellSlot(level: CharacterSpellLevel, delta: number) {
-    sheet.adjustSpellSlot(level, delta)
-    sheet.save()
-}
-function useInventoryItem(id: string) {
-    if (sheet.useInventoryItem(id)) sheet.save()
-}
 function createCharacter() {
     if (sheet.character || sheet.loadError) {
         actionModal.props.value = {
@@ -58,6 +41,10 @@ function createCharacter() {
     }
     sheet.createCharacter()
 }
+
+onMounted(() => {
+    sheet.load()
+})
 </script>
 <template>
     <main class="p-6">
@@ -66,34 +53,24 @@ function createCharacter() {
         <template v-if="!sheet.isLoading && !sheet.loadError">
             <template v-if="sheet.character">
                 <CharacterSheetHeader :character="sheet.character" :dirty="sheet.isDirty" :saving="sheet.isSaving"
-                    :saved="sheet.savedNotice" :save-error="sheet.saveError" @save="sheet.save"
-                    @update="sheet.updateIdentity" />
+                    :save-error="sheet.saveError" @save="sheet.save" />
                 <NTabs v-model:value="activeTab" type="line">
                     <NTab v-for="tab in tabs" :key="tab.value" :name="tab.value" :tab="tab.name" />
                 </NTabs>
                 <div v-show="activeTab === 'main'" id="sheet-tab-panel-main">
-                    <CharacterMainTab :character="sheet.character" :disabled="sheet.isSaving"
-                        @update:saving-throw="sheet.updateSavingThrow" @update:ability="sheet.updateAbility"
-                        @update:skill="sheet.updateSkill" @update:feats="sheet.updateFeats" />
+                    <CharacterMainTab :character="sheet.character" :disabled="sheet.isSaving" />
                 </div>
                 <div v-show="activeTab === 'combat'" id="sheet-tab-panel-combat">
-                    <CharacterCombatTab :character="sheet.character" :disabled="sheet.isSaving"
-                        :on-short-rest="takeShortRest" :on-long-rest="takeLongRest" @update:combat="sheet.updateCombat"
-                        @update:attacks="sheet.updateAttacks" />
+                    <CharacterCombatTab :character="sheet.character" :disabled="sheet.isSaving" />
                 </div>
                 <div v-show="activeTab === 'magic'" id="sheet-tab-panel-magic">
-                    <CharacterMagicTab :character="sheet.character" :disabled="sheet.isSaving"
-                        @update:spells="sheet.updateSpells" @update:cantrips="sheet.updateCantrips"
-                        @update:spellcasting="sheet.updateSpellcasting" @use-slot="useSpellSlot" />
+                    <CharacterMagicTab :character="sheet.character" :disabled="sheet.isSaving" />
                 </div>
                 <div v-show="activeTab === 'inventory'" id="sheet-tab-panel-inventory">
-                    <CharacterInventoryTab :character="sheet.character" :disabled="sheet.isSaving"
-                        @update:inventory="sheet.updateInventory" @update:money="sheet.updateMoney"
-                        @use-item="useInventoryItem" />
+                    <CharacterInventoryTab :character="sheet.character" :disabled="sheet.isSaving" />
                 </div>
                 <div v-show="activeTab === 'bio'" id="sheet-tab-panel-bio">
-                    <CharacterBioTab :personality="sheet.character.personality" :disabled="sheet.isSaving"
-                        @update="sheet.updatePersonality" />
+                    <CharacterBioTab :personality="sheet.character.personality" :disabled="sheet.isSaving" />
                 </div>
             </template>
             <section v-else aria-live="polite">
