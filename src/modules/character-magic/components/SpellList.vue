@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useModalUtil } from '@/composables/useModal'
-import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import { searchFilterObject } from '@/composables/useFilters'
 import SpellEditorModal from './SpellEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
@@ -137,11 +136,9 @@ function togglePrepared(id: string, checked: boolean) {
             <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>
         </div>
         <CollectionSearch v-model:query="query" :label="`Поиск: ${title.toLowerCase()}`" />
-        <label v-if="showPreparedFilter"
-            ><NCheckbox v-model:checked="preparedOnly" :disabled="disabled"
-                >Только подготовленные</NCheckbox
-            ></label
-        >
+        <label v-if="showPreparedFilter">
+            <NCheckbox v-model:checked="preparedOnly" :disabled="disabled">Только подготовленные</NCheckbox>
+        </label>
         <EmptyCollection v-if="spells.length === 0" :text="`${title} пока нет.`" />
         <EmptyCollection v-else-if="visibleSpells.length === 0" text="Совпадений не найдено." />
         <div v-for="spell in visibleSpells" :key="spell.id" class="py-3">
@@ -151,42 +148,26 @@ function togglePrepared(id: string, checked: boolean) {
                         <h3>{{ spell.name || 'Без названия' }}</h3>
                         <span>{{ cantrip ? 'Заговор' : `Уровень ${spell.level}` }}</span>
                     </div>
-                    <label v-if="showPreparedFilter"
-                        ><NCheckbox
-                            :checked="(preparedIds ?? []).includes(spell.id)"
-                            :disabled="disabled"
-                            @update:checked="togglePrepared(spell.id, $event)"
-                            >Подготовлено</NCheckbox
-                        ></label
-                    >
+                    <label v-if="showPreparedFilter">
+                        <NCheckbox :checked="(preparedIds ?? []).includes(spell.id)" :disabled="disabled"
+                            @update:checked="togglePrepared(spell.id, $event)">Подготовлено</NCheckbox>
+                    </label>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <span v-if="schoolLabel(spell)">Школа: {{ schoolLabel(spell) }}</span
-                    ><span v-if="classLabel(spell)">Классы: {{ classLabel(spell) }}</span
-                    ><span v-if="metadataLabel(spell)">{{ metadataLabel(spell) }}</span>
+                    <span v-if="schoolLabel(spell)">Школа: {{ schoolLabel(spell) }}</span><span
+                        v-if="classLabel(spell)">Классы: {{ classLabel(spell) }}</span><span
+                        v-if="metadataLabel(spell)">{{ metadataLabel(spell) }}</span>
                 </div>
                 <p v-if="spell.description" :title="spell.description">
                     {{ spell.description }}
                 </p>
             </div>
-            <EntryActions
-                :disabled="disabled"
-                @edit="openEditor(spell)"
-                @remove="remove(spell.id, spell.name)"
-            />
+            <EntryActions :disabled="disabled" @edit="openEditor(spell)" @remove="remove(spell.id, spell.name)" />
         </div>
-        <SpellEditorModal
-            v-if="
-                editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
-            "
-            :spell="editorModal.item.value"
-            v-bind="editorModal.props.value"
-            @close="editorModal.openOrClose"
-        />
-        <ConfirmModal
-            v-if="confirmModal.isShowModal.value && confirmModal.props.value"
-            v-bind="confirmModal.props.value"
-            @close="confirmModal.openOrClose"
-        />
+        <SpellEditorModal v-if="
+            editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
+        " :spell="editorModal.item.value" v-bind="editorModal.props.value" @close="editorModal.openOrClose" />
+        <ConfirmModal v-if="confirmModal.isShowModal.value && confirmModal.props.value"
+            v-bind="confirmModal.props.value" @close="confirmModal.openOrClose" />
     </section>
 </template>

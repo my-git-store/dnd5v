@@ -34,7 +34,6 @@ import {
     writeStoredCharacter,
     type StoredCharacterSummary,
 } from '../api/characterStorage'
-import { uniqueCharacterId } from '../api/characterTransfer'
 import { createDefaultNpcProfile } from '../domain/npc'
 import {
     changeSpellSlot,
@@ -229,20 +228,14 @@ export function useCharacterSheet(id = 'demo-character') {
         await load(targetId)
     }
 
-    async function importCharacters(
-        imported: Character[],
-        mode: 'add' | 'replace',
-    ): Promise<string[]> {
+    async function importCharacters(imported: Character[]): Promise<string[]> {
         const usedIds = new Set(listStoredCharacterIds())
 
         const ids: string[] = []
-        for (const [index, importedCharacter] of imported.entries()) {
+        for (const [, importedCharacter] of imported.entries()) {
             const next = JSON.parse(JSON.stringify(importedCharacter)) as Character
 
-            const targetId =
-                mode === 'replace' && index === 0 && activeId.value
-                    ? activeId.value
-                    : uniqueCharacterId(next.id, usedIds)
+            const targetId = '1'
             next.id = targetId
             writeStoredCharacter(next)
             usedIds.add(targetId)

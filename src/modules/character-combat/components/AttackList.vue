@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
 import { useModalUtil } from '@/composables/useModal'
-import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import {
     calculateAttackDamageModifier,
     formatAttackBonus,

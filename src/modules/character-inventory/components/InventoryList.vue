@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useModalUtil } from '@/composables/useModal'
-import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import { searchFilterObject } from '@/composables/useFilters'
 import InventoryItemEditorModal from './InventoryItemEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
@@ -113,54 +112,36 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
         <CollectionSearch v-model:query="query" label="Поиск по инвентарю" />
         <fieldset class="flex flex-wrap items-center gap-2" :disabled="disabled">
             <legend>Показывать</legend>
-            <label
-                ><NCheckbox v-model:checked="showEquipped" :disabled="disabled"
-                    >Экипированные</NCheckbox
-                ></label
-            >
-            <label
-                ><NCheckbox v-model:checked="showUnequipped" :disabled="disabled"
-                    >Не экипированные</NCheckbox
-                ></label
-            >
+            <label>
+                <NCheckbox v-model:checked="showEquipped" :disabled="disabled">Экипированные</NCheckbox>
+            </label>
+            <label>
+                <NCheckbox v-model:checked="showUnequipped" :disabled="disabled">Не экипированные</NCheckbox>
+            </label>
         </fieldset>
         <EmptyCollection v-if="items.length === 0" text="Инвентарь пока пуст." />
         <EmptyCollection v-else-if="visibleItems.length === 0" text="Совпадений не найдено." />
-        <div
-            v-for="item in visibleItems"
-            :key="item.id"
-            class="py-3 flex flex-wrap items-start justify-between gap-3"
-        >
+        <div v-for="item in visibleItems" :key="item.id" class="py-3 flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
                 <div>
                     <div>
                         <h3>{{ item.name || 'Без названия' }}</h3>
-                        <span v-if="item.source === 'creation'">Стартовый набор</span
-                        ><span v-if="item.weaponId && getRules2024Weapon(item.weaponId)"
-                            >Оружие: {{ getRules2024Weapon(item.weaponId)?.name }}</span
-                        >
+                        <span v-if="item.source === 'creation'">Стартовый набор</span><span
+                            v-if="item.weaponId && getRules2024Weapon(item.weaponId)">Оружие: {{
+                                getRules2024Weapon(item.weaponId)?.name }}</span>
                     </div>
                     <span v-if="item.equipped">Экипировано</span>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <span class="flex flex-wrap items-center gap-2"
-                        ><span>Количество: {{ item.quantity }}</span
-                        ><NButton
-                            native-type="button"
-                            :disabled="disabled || item.quantity <= 0"
-                            aria-label="Уменьшить количество"
-                            @click="changeQuantity(item, -1)"
-                        >
-                            −</NButton
-                        ><NButton
-                            native-type="button"
-                            :disabled="disabled"
-                            aria-label="Увеличить количество"
-                            @click="changeQuantity(item, 1)"
-                        >
+                    <span class="flex flex-wrap items-center gap-2"><span>Количество: {{ item.quantity }}</span>
+                        <NButton native-type="button" :disabled="disabled || item.quantity <= 0"
+                            aria-label="Уменьшить количество" @click="changeQuantity(item, -1)">
+                            −</NButton>
+                        <NButton native-type="button" :disabled="disabled" aria-label="Увеличить количество"
+                            @click="changeQuantity(item, 1)">
                             +
-                        </NButton></span
-                    ><span v-if="item.weight !== null">Вес: {{ item.weight }}</span>
+                        </NButton>
+                    </span><span v-if="item.weight !== null">Вес: {{ item.weight }}</span>
                 </div>
                 <p v-if="item.properties.length">
                     {{ item.properties.join(' · ') }}
@@ -171,31 +152,15 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
                 </details>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <NButton
-                    v-if="isConsumable(item)"
-                    :disabled="disabled || item.quantity <= 0"
-                    @click="emit('use-item', item.id)"
-                    >Использовать</NButton
-                >
-                <EntryActions
-                    :disabled="disabled"
-                    @edit="openEditor(item)"
-                    @remove="remove(item.id, item.name)"
-                />
+                <NButton v-if="isConsumable(item)" :disabled="disabled || item.quantity <= 0"
+                    @click="emit('use-item', item.id)">Использовать</NButton>
+                <EntryActions :disabled="disabled" @edit="openEditor(item)" @remove="remove(item.id, item.name)" />
             </div>
         </div>
-        <InventoryItemEditorModal
-            v-if="
-                editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
-            "
-            :item="editorModal.item.value"
-            v-bind="editorModal.props.value"
-            @close="editorModal.openOrClose"
-        />
-        <ConfirmModal
-            v-if="confirmModal.isShowModal.value && confirmModal.props.value"
-            v-bind="confirmModal.props.value"
-            @close="confirmModal.openOrClose"
-        />
+        <InventoryItemEditorModal v-if="
+            editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value
+        " :item="editorModal.item.value" v-bind="editorModal.props.value" @close="editorModal.openOrClose" />
+        <ConfirmModal v-if="confirmModal.isShowModal.value && confirmModal.props.value"
+            v-bind="confirmModal.props.value" @close="confirmModal.openOrClose" />
     </section>
 </template>

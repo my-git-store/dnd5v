@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useModalUtil } from '@/composables/useModal'
-import ConfirmModal from '@/components/modals/ConfirmModal.vue'
 import CharacterFeatEditorModal from './CharacterFeatEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
