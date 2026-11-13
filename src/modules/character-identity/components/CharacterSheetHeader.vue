@@ -4,36 +4,21 @@ import { NButton } from 'naive-ui'
 
 import { proficiencyBonus } from '@/domain/proficiencyBonus'
 import { signedModifier } from '@/domain/abilityModifier'
-import { useCharacterIdentity } from '../composables/useCharacterIdentity'
-import type { Character } from '@/types/character'
+import { useCharacterSheet } from '@/composables/useCharacterSheet'
 
 import IdentityFields from './IdentityFields.vue'
 
-type Props = {
-    character: Character
-    dirty: boolean
-    saving: boolean
-    saveError: string | null
-}
-
-type Emits = {
-    save: []
-}
-
-const props = defineProps<Props>()
-
-const emit = defineEmits<Emits>()
-
-const { updateIdentity } = useCharacterIdentity()
+const { character, isDirty, saveError, save } = useCharacterSheet()
 
 const proficiencyLabel = computed(() => {
-    const bonus = proficiencyBonus(props.character.identity.level)
+    if (!character.value) return '-'
+    const bonus = proficiencyBonus(character.value.identity.level)
     return bonus === null ? '-' : signedModifier(bonus)
 })
 </script>
 
 <template>
-    <header class="flex flex-wrap items-center justify-between gap-4">
+    <header v-if="character" class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="min-w-0 flex-1">
                 <h1>{{ character.identity.name || 'Безымянный герой' }}</h1>
@@ -41,12 +26,12 @@ const proficiencyLabel = computed(() => {
                     Бонус владения <strong>{{ proficiencyLabel }}</strong>
                 </p>
             </div>
-            <NButton class="shrink-0" type="primary" :loading="saving" :disabled="!dirty || saving"
-                @click="emit('save')">
+            <NButton class="shrink-0" type="primary" :disabled="!isDirty"
+                @click="save">
                 Сохранить
             </NButton>
         </div>
-        <IdentityFields :character="character" :disabled="saving" @update="updateIdentity" />
+        <IdentityFields />
         <p v-if="saveError" role="alert">{{ saveError }}</p>
     </header>
 </template>

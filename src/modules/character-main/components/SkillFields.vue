@@ -5,31 +5,27 @@ import { NCollapse, NCollapseItem, NFormItem, NInputNumber, NSelect } from 'naiv
 import { ABILITY_FIELDS } from '@/data/characterFields'
 import { calculateSkillBonus, getSkillCalculationMode } from '@/domain/skillBonus'
 import { signedModifier } from '@/domain/abilityModifier'
+import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import type {
     AbilityKey,
-    CharacterAbilities,
-    CharacterCalculationMode,
-    CharacterSkillPatch,
     CharacterSkillRecord,
     SkillProficiency,
     SkillProficiencySource,
 } from '@/types/character'
 
-type Emits = {
-    update: [id: string, patch: CharacterSkillPatch]
-}
+const { character } = useCharacterSheet()
 
-const props = defineProps<{
-    skills: CharacterSkillRecord[]
-    abilities: CharacterAbilities
-    level: number
-    classSkillIds?: string[]
-    raceSkillIds?: string[]
-    backgroundSkillIds?: string[]
-    disabled?: boolean
-}>()
+const characterCreation = computed(() => character.value?.extensions.characterCreation)
 
-const emit = defineEmits<Emits>()
+const raceSkillIds = computed(() => [
+    ...(characterCreation.value?.raceSkillIds ?? []),
+    ...(characterCreation.value?.subraceSkillIds ?? []),
+])
+
+const backgroundSkillIds = computed(() => [
+    ...(characterCreation.value?.backgroundSkillIds ?? []),
+    ...(character.value?.identity.background.skillProficiencies ?? []),
+])
 
 const abilityLabels = Object.fromEntries(
     ABILITY_FIELDS.map(field => [field.key, field.label]),
@@ -69,38 +65,26 @@ const abilityShortLabels: Record<AbilityKey, string> = {
 }
 
 const skillColumns = computed(() => [
-    props.skills.filter((_, index) => index % 2 === 0),
-    props.skills.filter((_, index) => index % 2 === 1),
+    character.value?.skills.filter((_, index) => index % 2 === 0) ?? [],
+    character.value?.skills.filter((_, index) => index % 2 === 1) ?? [],
 ])
 
-function updateValue(id: string, value: number | null) {
-    const bonus = value ?? 0
-    emit('update', id, { value: Number.isFinite(bonus) ? bonus : 0 })
+function numberValue(value: number | null) {
+    return value !== null && Number.isFinite(value) ? value : 0
 }
-function updateAdditional(id: string, value: number | null) {
-    const bonus = value ?? 0
-    emit('update', id, { additionalBonus: Number.isFinite(bonus) ? Math.trunc(bonus) : 0 })
-}
-function updateAbility(id: string, ability: AbilityKey | '' | null) {
-    emit('update', id, { ability: ability || null })
-}
-function updateProficiency(id: string, proficiency: SkillProficiency) {
-    emit('update', id, { proficiency })
-}
-function updateMode(id: string, calculationMode: CharacterCalculationMode) {
-    emit('update', id, { calculationMode })
-}
+
 function displayBonus(skill: CharacterSkillRecord) {
-    const bonus = calculateSkillBonus(skill, props.abilities, props.level)
+    if (!character.value) return '—'
+    const bonus = calculateSkillBonus(skill, character.value.abilities, character.value.identity.level)
     return bonus === null ? '—' : signedModifier(bonus)
 }
 function skillSourceLabel(skill: CharacterSkillRecord) {
     const sources = skill.proficiencySources ?? []
 
     if (!skill.proficiencySources && skill.proficiency !== 'none') {
-        if (props.raceSkillIds?.includes(skill.id)) sources.push('race')
-        if (props.classSkillIds?.includes(skill.id)) sources.push('class')
-        if (props.backgroundSkillIds?.includes(skill.id)) sources.push('background')
+        if (raceSkillIds.value.includes(skill.id)) sources.push('race')
+        if (characterCreation.value?.classSkillIds.includes(skill.id)) sources.push('class')
+        if (backgroundSkillIds.value.includes(skill.id)) sources.push('background')
         if (!sources.length) sources.push('manual')
     }
 
@@ -160,8 +144,7 @@ function skillSourceLabel(skill: CharacterSkillRecord) {
                                         :value="skill.ability ?? ''"
                                         :aria-label="`${skill.name}: связанная характеристика`"
                                         :options="abilityOptions"
-                                        :disabled="disabled"
-                                        @update:value="updateAbility(skill.id, $event)"
+                                        @update:value="skill.ability = $event || null"
                                     />
                                 </NFormItem>
                                 <NFormItem
@@ -170,12 +153,10 @@ function skillSourceLabel(skill: CharacterSkillRecord) {
                                     :show-feedback="false"
                                 >
                                     <NSelect
+                                        v-model:value="skill.proficiency"
                                         size="small"
-                                        :value="skill.proficiency"
                                         :aria-label="`${skill.name}: уровень владения`"
                                         :options="proficiencyOptions"
-                                        :disabled="disabled"
-                                        @update:value="updateProficiency(skill.id, $event)"
                                     />
                                 </NFormItem>
                                 <NFormItem
@@ -188,8 +169,7 @@ function skillSourceLabel(skill: CharacterSkillRecord) {
                                         :value="getSkillCalculationMode(skill)"
                                         :aria-label="`${skill.name}: как считать бонус`"
                                         :options="calculationModeOptions"
-                                        :disabled="disabled"
-                                        @update:value="updateMode(skill.id, $event)"
+                                        @update:value="skill.calculationMode = $event"
                                     />
                                 </NFormItem>
                                 <NFormItem
@@ -202,9 +182,8 @@ function skillSourceLabel(skill: CharacterSkillRecord) {
                                         size="small"
                                         button-placement="both"
                                         :aria-label="`${skill.name}: бонус вручную`"
-                                        :disabled="disabled"
                                         :value="skill.value"
-                                        @update:value="updateValue(skill.id, $event)"
+                                        @update:value="skill.value = numberValue($event)"
                                     />
                                 </NFormItem>
                                 <NFormItem
@@ -217,9 +196,8 @@ function skillSourceLabel(skill: CharacterSkillRecord) {
                                         size="small"
                                         button-placement="both"
                                         :aria-label="`${skill.name}: дополнительная поправка`"
-                                        :disabled="disabled"
                                         :value="skill.additionalBonus"
-                                        @update:value="updateAdditional(skill.id, $event)"
+                                        @update:value="skill.additionalBonus = Math.trunc(numberValue($event))"
                                     />
                                 </NFormItem>
                             </div>

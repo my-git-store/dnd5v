@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { NButton, NCheckbox } from 'naive-ui'
+import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import { useModalUtil } from '@/composables/useModal'
 import { searchFilterObject } from '@/composables/useFilters'
 import SpellEditorModal from './SpellEditorModal.vue'
@@ -8,23 +9,22 @@ import EmptyCollection from '@/modules/character-inventory/components/EmptyColle
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
 import CollectionSearch from '@/modules/character-inventory/components/CollectionSearch.vue'
 import type { CharacterSpellRecord } from '@/types/character'
-import { RULES_2024_CLASSES, getRules2024Spell } from '@/data/rules2024/index.ts'
-
-type Emits = {
-    update: [spells: CharacterSpellRecord[]]
-    'update:prepared-ids': [ids: string[]]
-}
+import { RULES_2024_CLASSES, getRules2024Spell, isRules2024SpellId } from '@/data/rules2024/index.ts'
 
 const props = defineProps<{
     title: string
-    spells: CharacterSpellRecord[]
     cantrip?: boolean
-    preparedIds?: string[]
     showPreparedFilter?: boolean
-    disabled?: boolean
 }>()
 
-const emit = defineEmits<Emits>()
+const { character } = useCharacterSheet()
+
+const spells = computed(() => {
+    if (!character.value) return []
+    return props.cantrip
+        ? character.value.spellcasting.cantrips
+        : character.value.spellcasting.knownSpells
+})
 
 const query = ref('')
 
@@ -32,7 +32,6 @@ const preparedOnly = ref(false)
 
 type EditorModalProps = {
     cantrip?: boolean
-    disabled?: boolean
     onSave: (spell: CharacterSpellRecord) => void
 }
 
@@ -69,29 +68,39 @@ const visibleSpells = computed(() => {
     const search = query.value.trim()
 
     const matches = search
-        ? searchFilterObject(props.spells, ['name', 'description'], search)
-        : props.spells
-    return props.spells.filter(
+        ? searchFilterObject(spells.value, ['name', 'description'], search)
+        : spells.value
+    return spells.value.filter(
         spell =>
             matches.includes(spell) &&
-            (!preparedOnly.value || (props.preparedIds ?? []).includes(spell.id)),
+            (!preparedOnly.value || character.value?.spellcasting.preparedSpellIds.includes(spell.id)),
     )
 })
 
+function syncSpellIds() {
+    if (!character.value) return
+    const ids = [...new Set(spells.value.map(spell => spell.id).filter(isRules2024SpellId))]
+    if (props.cantrip) {
+        character.value.spellcasting.cantripIds = ids
+    } else {
+        character.value.spellcasting.spellIds = ids
+        const knownIds = new Set(spells.value.map(spell => spell.id))
+        character.value.spellcasting.preparedSpellIds =
+            character.value.spellcasting.preparedSpellIds.filter(id => knownIds.has(id))
+    }
+}
+
 function save(spell: CharacterSpellRecord) {
-    const exists = props.spells.some(item => item.id === spell.id)
-    emit(
-        'update',
-        exists
-            ? props.spells.map(item => (item.id === spell.id ? spell : item))
-            : [...props.spells, spell],
-    )
+    if (!character.value) return
+    const index = spells.value.findIndex(current => current.id === spell.id)
+    if (index === -1) spells.value.push(spell)
+    else spells.value[index] = spell
+    syncSpellIds()
 }
 function openEditor(spell: CharacterSpellRecord) {
     editorModal.item.value = { ...spell }
     editorModal.props.value = {
         cantrip: props.cantrip,
-        disabled: props.disabled,
         onSave: save,
     }
     editorModal.openOrClose()
@@ -112,28 +121,30 @@ function add() {
     })
 }
 function remove(id: string) {
-    emit(
-        'update',
-        props.spells.filter(spell => spell.id !== id),
-    )
+    if (!character.value) return
+    const index = spells.value.findIndex(spell => spell.id === id)
+    if (index === -1) return
+    spells.value.splice(index, 1)
+    syncSpellIds()
 }
 function togglePrepared(id: string, checked: boolean) {
-    const prepared = new Set(props.preparedIds ?? [])
+    if (!character.value) return
+    const prepared = new Set(character.value.spellcasting.preparedSpellIds)
     if (checked) prepared.add(id)
     else prepared.delete(id)
-    emit('update:prepared-ids', [...prepared])
+    character.value.spellcasting.preparedSpellIds = [...prepared]
 }
 </script>
 
 <template>
-    <section>
+    <section v-if="character">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <h2>{{ title }}</h2>
-            <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>
+            <NButton type="default" @click="add">Добавить</NButton>
         </div>
         <CollectionSearch v-model:query="query" :label="`Поиск: ${title.toLowerCase()}`" />
         <label v-if="showPreparedFilter">
-            <NCheckbox v-model:checked="preparedOnly" :disabled="disabled">Только подготовленные</NCheckbox>
+            <NCheckbox v-model:checked="preparedOnly">Только подготовленные</NCheckbox>
         </label>
         <EmptyCollection v-if="spells.length === 0" :text="`${title} пока нет.`" />
         <EmptyCollection v-else-if="visibleSpells.length === 0" text="Совпадений не найдено." />
@@ -145,7 +156,7 @@ function togglePrepared(id: string, checked: boolean) {
                         <span>{{ cantrip ? 'Заговор' : `Уровень ${spell.level}` }}</span>
                     </div>
                     <label v-if="showPreparedFilter">
-                        <NCheckbox :checked="(preparedIds ?? []).includes(spell.id)" :disabled="disabled"
+                        <NCheckbox :checked="character.spellcasting.preparedSpellIds.includes(spell.id)"
                             @update:checked="togglePrepared(spell.id, $event)">Подготовлено</NCheckbox>
                     </label>
                 </div>
@@ -158,7 +169,7 @@ function togglePrepared(id: string, checked: boolean) {
                     {{ spell.description }}
                 </p>
             </div>
-            <EntryActions :disabled="disabled" @edit="openEditor(spell)" @remove="remove(spell.id)" />
+            <EntryActions @edit="openEditor(spell)" @remove="remove(spell.id)" />
         </div>
         <SpellEditorModal v-if="
             editorModal.isShowModal.value && editorModal.item.value && editorModal.props.value

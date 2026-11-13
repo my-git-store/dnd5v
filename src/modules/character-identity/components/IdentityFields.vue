@@ -1,76 +1,60 @@
 <script setup lang="ts">
 import { NFormItem, NInput, NInputNumber } from 'naive-ui'
 
-import type { CharacterIdentityPatch, Character } from '@/types/character'
+import { useCharacterSheet } from '@/composables/useCharacterSheet'
+import {
+    defaultProgressionForCharacter,
+    progressionAtLevel,
+} from '@/domain/characterProgressionData'
 
-type Emits = {
-    update: [patch: CharacterIdentityPatch]
+const { character } = useCharacterSheet()
+
+function integerValue(value: number | null) {
+    return value !== null && Number.isFinite(value) ? Math.trunc(value) : 0
 }
 
-type Props = {
-    character: Character
-    disabled?: boolean
-}
-
-defineProps<Props>()
-
-const emit = defineEmits<Emits>()
-
-function update(key: Exclude<keyof CharacterIdentityPatch, 'race' | 'background'>, value: unknown) {
-    if (key === 'level' || key === 'experience') {
-        const parsed = Number(value)
-
-        const integer = Number.isFinite(parsed) ? Math.trunc(parsed) : 0
-        emit('update', {
-            [key]: key === 'level' ? Math.min(20, Math.max(1, integer)) : Math.max(0, integer),
-        })
-        return
-    }
-    emit('update', { [key]: String(value ?? '') } as CharacterIdentityPatch)
+function updateLevel(value: number | null) {
+    if (!character.value) return
+    const level = Math.min(20, Math.max(1, integerValue(value)))
+    character.value.identity.level = level
+    character.value.progression = progressionAtLevel(
+        character.value.progression ?? defaultProgressionForCharacter(character.value),
+        level,
+    )
 }
 </script>
 
 <template>
-    <div>
+    <div v-if="character">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <NFormItem label="Имя" :show-feedback="false">
                 <NInput
-                    :disabled="disabled"
-                    :value="character.identity.name"
+                    v-model:value="character.identity.name"
                     :input-props="{ 'aria-label': 'Имя' }"
-                    @update:value="update('name', $event)"
                 />
             </NFormItem>
             <NFormItem label="Вид" :show-feedback="false">
                 <NInput
-                    :disabled="disabled"
-                    :value="character.identity.race.name"
+                    v-model:value="character.identity.race.name"
                     :input-props="{ 'aria-label': 'Вид' }"
-                    @update:value="emit('update', { race: { ...character.identity.race, name: $event } })"
                 />
             </NFormItem>
             <NFormItem label="Класс" :show-feedback="false">
                 <NInput
-                    :disabled="disabled"
-                    :value="character.identity.class"
+                    v-model:value="character.identity.class"
                     :input-props="{ 'aria-label': 'Класс' }"
-                    @update:value="update('class', $event)"
                 />
             </NFormItem>
             <NFormItem label="Подкласс" :show-feedback="false">
                 <NInput
-                    :disabled="disabled"
-                    :value="character.identity.subclass"
+                    v-model:value="character.identity.subclass"
                     :input-props="{ 'aria-label': 'Подкласс' }"
-                    @update:value="update('subclass', $event)"
                 />
             </NFormItem>
             <NFormItem label="Мировоззрение" :show-feedback="false">
                 <NInput
-                    :disabled="disabled"
-                    :value="character.identity.alignment"
+                    v-model:value="character.identity.alignment"
                     :input-props="{ 'aria-label': 'Мировоззрение' }"
-                    @update:value="update('alignment', $event)"
                 />
             </NFormItem>
             <NFormItem label="Уровень" :show-feedback="false">
@@ -79,10 +63,9 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'race' | 'background'
                     :min="1"
                     :max="20"
                     :step="1"
-                    :disabled="disabled"
                     :value="character.identity.level"
                     :input-props="{ 'aria-label': 'Уровень' }"
-                    @update:value="update('level', $event)"
+                    @update:value="updateLevel($event)"
                 />
             </NFormItem>
             <NFormItem label="Опыт" :show-feedback="false">
@@ -90,10 +73,9 @@ function update(key: Exclude<keyof CharacterIdentityPatch, 'race' | 'background'
                     button-placement="both"
                     :min="0"
                     :step="1"
-                    :disabled="disabled"
                     :value="character.identity.experience"
                     :input-props="{ 'aria-label': 'Опыт' }"
-                    @update:value="update('experience', $event)"
+                    @update:value="character.identity.experience = Math.max(0, integerValue($event))"
                 />
             </NFormItem>
         </div>

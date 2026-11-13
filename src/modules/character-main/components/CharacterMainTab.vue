@@ -3,31 +3,15 @@ import { computed } from 'vue'
 import AbilityFields from './AbilityFields.vue'
 import SkillFields from './SkillFields.vue'
 import CharacterFeatList from '@/modules/character-feats/components/CharacterFeatList.vue'
-import { useCharacterMain } from '../composables/useCharacterMain'
-import { useCharacterFeats } from '@/modules/character-feats/composables/useCharacterFeats'
-import type { Character } from '@/types/character'
+import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import { getRules2024Class, getRules2024Feature } from '@/data/rules2024/index.ts'
 
-const props = defineProps<{ character: Character; disabled?: boolean }>()
+const { character } = useCharacterSheet()
 
-const { updateAbility, updateSkill, updateSavingThrow } = useCharacterMain()
-
-const { updateFeats } = useCharacterFeats()
-
-const characterCreation = computed(() => props.character.extensions.characterCreation)
-
-const raceSkillIds = computed(() => [
-    ...(characterCreation.value?.raceSkillIds ?? []),
-    ...(characterCreation.value?.subraceSkillIds ?? []),
-])
-
-const backgroundSkillIds = computed(() => [
-    ...(characterCreation.value?.backgroundSkillIds ?? []),
-    ...props.character.identity.background.skillProficiencies,
-])
+const characterCreation = computed(() => character.value?.extensions.characterCreation)
 
 const progressionFeatures = computed(() => {
-    const featureIds = props.character.features ?? props.character.progression?.features ?? []
+    const featureIds = character.value?.features ?? character.value?.progression?.features ?? []
 
     return featureIds.map(id => {
         const feature = getRules2024Feature(id)
@@ -42,25 +26,9 @@ const progressionFeatures = computed(() => {
 </script>
 
 <template>
-    <div class="grid gap-4">
-        <AbilityFields
-            :abilities="character.abilities"
-            :saving-throws="character.savingThrows"
-            :level="character.identity.level"
-            :disabled="disabled"
-            @update="updateAbility"
-            @update:saving-throw="updateSavingThrow"
-        />
-        <SkillFields
-            :skills="character.skills"
-            :abilities="character.abilities"
-            :level="character.identity.level"
-            :class-skill-ids="characterCreation?.classSkillIds"
-            :race-skill-ids="raceSkillIds"
-            :background-skill-ids="backgroundSkillIds"
-            :disabled="disabled"
-            @update="updateSkill"
-        />
+    <div v-if="character" class="grid gap-4">
+        <AbilityFields />
+        <SkillFields />
         <section v-if="characterCreation || progressionFeatures.length">
             <h2>Особенности героя</h2>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -91,6 +59,6 @@ const progressionFeatures = computed(() => {
                 </div>
             </div>
         </section>
-        <CharacterFeatList :feats="character.feats ?? []" :disabled="disabled" @update="updateFeats" />
+        <CharacterFeatList />
     </div>
 </template>

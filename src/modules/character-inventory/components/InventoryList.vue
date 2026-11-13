@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { NButton, NCheckbox } from 'naive-ui'
+import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import { useModalUtil } from '@/composables/useModal'
 import { searchFilterObject } from '@/composables/useFilters'
 import InventoryItemEditorModal from './InventoryItemEditorModal.vue'
@@ -10,14 +11,7 @@ import CollectionSearch from '@/modules/character-inventory/components/Collectio
 import type { CharacterInventoryItemRecord } from '@/types/character'
 import { getRules2024Weapon } from '@/data/rules2024/index.ts'
 
-type Emits = {
-    update: [items: CharacterInventoryItemRecord[]]
-    'use-item': [id: string]
-}
-
-const props = defineProps<{ items: CharacterInventoryItemRecord[]; disabled?: boolean }>()
-
-const emit = defineEmits<Emits>()
+const { character } = useCharacterSheet()
 
 const query = ref('')
 
@@ -26,19 +20,20 @@ const showEquipped = ref(true)
 const showUnequipped = ref(true)
 
 type EditorModalProps = {
-    disabled?: boolean
     onSave: (item: CharacterInventoryItemRecord) => void
 }
 
 const editorModal = useModalUtil<CharacterInventoryItemRecord, EditorModalProps>()
 
 const visibleItems = computed(() => {
+    const items = character.value?.inventory.items ?? []
+
     const search = query.value.trim()
 
     const matches = search
-        ? searchFilterObject(props.items, ['name', 'description', 'properties'], search)
-        : props.items
-    return props.items.filter(item => {
+        ? searchFilterObject(items, ['name', 'description', 'properties'], search)
+        : items
+    return items.filter(item => {
         const matchesSearch = matches.includes(item)
 
         const matchesEquipmentFilter = item.equipped ? showEquipped.value : showUnequipped.value
@@ -47,17 +42,14 @@ const visibleItems = computed(() => {
 })
 
 function save(item: CharacterInventoryItemRecord) {
-    const exists = props.items.some(current => current.id === item.id)
-    emit(
-        'update',
-        exists
-            ? props.items.map(current => (current.id === item.id ? item : current))
-            : [...props.items, item],
-    )
+    if (!character.value) return
+    const index = character.value.inventory.items.findIndex(current => current.id === item.id)
+    if (index === -1) character.value.inventory.items.push(item)
+    else character.value.inventory.items[index] = item
 }
 function openEditor(item: CharacterInventoryItemRecord) {
     editorModal.item.value = { ...item, properties: [...item.properties] }
-    editorModal.props.value = { disabled: props.disabled, onSave: save }
+    editorModal.props.value = { onSave: save }
     editorModal.openOrClose()
 }
 function add() {
@@ -72,43 +64,31 @@ function add() {
     })
 }
 function remove(id: string) {
-    emit(
-        'update',
-        props.items.filter(item => item.id !== id),
-    )
+    if (!character.value) return
+    character.value.inventory.items = character.value.inventory.items.filter(item => item.id !== id)
 }
 function isConsumable(item: CharacterInventoryItemRecord): boolean {
     return item.properties.some(property => /расход|однораз|consumable/i.test(property))
 }
-function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
-    emit(
-        'update',
-        props.items.map(current =>
-            current.id === item.id
-                ? { ...current, quantity: Math.max(0, current.quantity + delta) }
-                : current,
-        ),
-    )
-}
 </script>
 
 <template>
-    <section>
+    <section v-if="character">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <h2>Предметы</h2>
-            <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>
+            <NButton type="default" @click="add">Добавить</NButton>
         </div>
         <CollectionSearch v-model:query="query" label="Поиск по инвентарю" />
-        <fieldset class="flex flex-wrap items-center gap-2" :disabled="disabled">
+        <fieldset class="flex flex-wrap items-center gap-2">
             <legend>Показывать</legend>
             <label>
-                <NCheckbox v-model:checked="showEquipped" :disabled="disabled">Экипированные</NCheckbox>
+                <NCheckbox v-model:checked="showEquipped">Экипированные</NCheckbox>
             </label>
             <label>
-                <NCheckbox v-model:checked="showUnequipped" :disabled="disabled">Не экипированные</NCheckbox>
+                <NCheckbox v-model:checked="showUnequipped">Не экипированные</NCheckbox>
             </label>
         </fieldset>
-        <EmptyCollection v-if="items.length === 0" text="Инвентарь пока пуст." />
+        <EmptyCollection v-if="character.inventory.items.length === 0" text="Инвентарь пока пуст." />
         <EmptyCollection v-else-if="visibleItems.length === 0" text="Совпадений не найдено." />
         <div v-for="item in visibleItems" :key="item.id" class="py-3 flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
@@ -123,11 +103,11 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="flex flex-wrap items-center gap-2"><span>Количество: {{ item.quantity }}</span>
-                        <NButton native-type="button" :disabled="disabled || item.quantity <= 0"
-                            aria-label="Уменьшить количество" @click="changeQuantity(item, -1)">
+                        <NButton native-type="button" :disabled="item.quantity <= 0"
+                            aria-label="Уменьшить количество" @click="item.quantity = Math.max(0, item.quantity - 1)">
                             −</NButton>
-                        <NButton native-type="button" :disabled="disabled" aria-label="Увеличить количество"
-                            @click="changeQuantity(item, 1)">
+                        <NButton native-type="button" aria-label="Увеличить количество"
+                            @click="item.quantity += 1">
                             +
                         </NButton>
                     </span><span v-if="item.weight !== null">Вес: {{ item.weight }}</span>
@@ -141,9 +121,9 @@ function changeQuantity(item: CharacterInventoryItemRecord, delta: number) {
                 </details>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <NButton v-if="isConsumable(item)" :disabled="disabled || item.quantity <= 0"
-                    @click="emit('use-item', item.id)">Использовать</NButton>
-                <EntryActions :disabled="disabled" @edit="openEditor(item)" @remove="remove(item.id)" />
+                <NButton v-if="isConsumable(item)" :disabled="item.quantity <= 0"
+                    @click="item.quantity = Math.max(0, item.quantity - 1)">Использовать</NButton>
+                <EntryActions @edit="openEditor(item)" @remove="remove(item.id)" />
             </div>
         </div>
         <InventoryItemEditorModal v-if="

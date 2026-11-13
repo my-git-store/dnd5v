@@ -2,13 +2,10 @@
 import { NCard, NModal } from 'naive-ui'
 
 import AttackEditor from './AttackEditor.vue'
-import type { CharacterAbilities } from '@/types/character'
 import type { CharacterAttackRecord } from '@/types/character'
 
 type Props = {
     attack: CharacterAttackRecord
-    abilities: CharacterAbilities
-    level: number
     disabled?: boolean
     onSave: (attack: CharacterAttackRecord) => void
     onCancel?: () => void
@@ -39,8 +36,6 @@ function cancel() {
             <template #header>Атака</template>
             <AttackEditor
                 :attack="attack"
-                :abilities="abilities"
-                :level="level"
                 :disabled="disabled"
                 @save="save"
                 @cancel="cancel"

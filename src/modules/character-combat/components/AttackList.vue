@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { NButton } from 'naive-ui'
+import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import { useModalUtil } from '@/composables/useModal'
-import { useAttacks } from '../composables/useAttacks'
 import {
     calculateAttackDamageModifier,
     formatAttackBonus,
@@ -14,31 +14,11 @@ import { getRules2024Weapon, getRules2024WeaponMastery } from '@/data/rules2024/
 import AttackEditorModal from './AttackEditorModal.vue'
 import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
-import type { CharacterAbilities } from '@/types/character'
 import type { CharacterAttackRecord } from '@/types/character'
 
-type Emits = {
-    update: [attacks: CharacterAttackRecord[]]
-}
-
-const props = defineProps<{
-    attacks: CharacterAttackRecord[]
-    abilities: CharacterAbilities
-    level: number
-    disabled?: boolean
-}>()
-
-const emit = defineEmits<Emits>()
-
-const { attacks, createAttackDraft, saveAttack, removeAttack } = useAttacks(
-    () => props.attacks,
-    attacks => emit('update', attacks),
-)
+const { character } = useCharacterSheet()
 
 type EditorModalProps = {
-    abilities: CharacterAbilities
-    level: number
-    disabled?: boolean
     onSave: (attack: CharacterAttackRecord) => void
 }
 
@@ -75,27 +55,56 @@ const rollHistory = ref<AttackRollRecord[]>([])
 
 const lastRoll = ref<AttackRollRecord | null>(null)
 
+function saveAttack(attack: CharacterAttackRecord) {
+    if (!character.value) return
+    const index = character.value.attacks.findIndex(current => current.id === attack.id)
+    if (index === -1) character.value.attacks.push(attack)
+    else character.value.attacks[index] = attack
+}
+
+function removeAttack(id: string) {
+    if (!character.value) return
+    character.value.attacks = character.value.attacks.filter(attack => attack.id !== id)
+}
+
 function openEditor(attack: CharacterAttackRecord) {
     editorModal.item.value = { ...attack, properties: [...attack.properties] }
     editorModal.props.value = {
-        abilities: props.abilities,
-        level: props.level,
-        disabled: props.disabled,
         onSave: saveAttack,
     }
     editorModal.openOrClose()
 }
 function add() {
-    openEditor(createAttackDraft())
+    openEditor({
+        id: `attack-${Date.now()}`,
+        name: '',
+        kind: 'other',
+        attackBonus: '',
+        abilitySource: 'manual',
+        proficient: false,
+        calculationMode: 'manual',
+        additionalBonus: 0,
+        damage: '',
+        damageType: '',
+        properties: [],
+        range: '',
+        description: '',
+        weaponId: undefined,
+        masteryId: undefined,
+    })
 }
 function attackSummary(attack: CharacterAttackRecord) {
     const source = getAttackBonusSource(attack)
 
     const mode = getAttackCalculationMode(attack)
 
-    const bonus = formatAttackBonus(attack, props.abilities, props.level)
+    const bonus = character.value
+        ? formatAttackBonus(attack, character.value.abilities, character.value.identity.level)
+        : '—'
 
-    const damageModifier = calculateAttackDamageModifier(attack, props.abilities)
+    const damageModifier = character.value
+        ? calculateAttackDamageModifier(attack, character.value.abilities)
+        : null
     return {
         source: sourceLabels[source] ?? 'Источник не настроен',
         mode: mode === 'manual' ? 'Ручной бонус' : 'Расчётный бонус',
@@ -114,13 +123,13 @@ function masteryLabel(attack: CharacterAttackRecord): string {
 </script>
 
 <template>
-    <section>
+    <section v-if="character">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <h2>Атаки</h2>
-            <NButton type="default" :disabled="disabled" @click="add">Добавить</NButton>
+            <NButton type="default" @click="add">Добавить</NButton>
         </div>
-        <EmptyCollection v-if="attacks.length === 0" text="Атак пока нет." />
-        <div v-for="attack in attacks" :key="attack.id" class="py-3 flex flex-wrap items-start justify-between gap-3">
+        <EmptyCollection v-if="character.attacks.length === 0" text="Атак пока нет." />
+        <div v-for="attack in character.attacks" :key="attack.id" class="py-3 flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
                 <div>
                     <div>
@@ -159,7 +168,7 @@ function masteryLabel(attack: CharacterAttackRecord): string {
                 </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <EntryActions :disabled="disabled || isRolling" @edit="openEditor(attack)"
+                <EntryActions :disabled="isRolling" @edit="openEditor(attack)"
                     @remove="removeAttack(attack.id)" />
             </div>
         </div>

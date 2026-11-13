@@ -9,7 +9,6 @@ import {
     RULES_2024_WEAPONS,
 } from '@/data/rules2024/index.ts'
 import { getAttackBonusSource, getAdditionalAttackBonus } from '@/domain/attackBonus'
-import type { CharacterAbilities } from '@/types/character'
 import type { CharacterAttackRecord } from '@/types/character'
 
 type Emits = {
@@ -19,8 +18,6 @@ type Emits = {
 
 const props = defineProps<{
     attack: CharacterAttackRecord
-    abilities: CharacterAbilities
-    level: number
     disabled?: boolean
 }>()
 

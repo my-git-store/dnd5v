@@ -273,17 +273,6 @@ export interface Character {
     extensions: Record<string, unknown> & { characterCreation?: CharacterCreation }
 }
 
-export type CharacterIdentityPatch = Partial<CharacterIdentity>
-
-export type CharacterSkillPatch = Partial<
-    Pick<
-        CharacterSkillRecord,
-        'value' | 'ability' | 'proficiency' | 'calculationMode' | 'additionalBonus'
-    >
->
-
-export type CharacterSavingThrowPatch = Partial<CharacterSavingThrow>
-
 export function cloneCharacter(character: Character): Character {
     return JSON.parse(JSON.stringify(character)) as Character
 }

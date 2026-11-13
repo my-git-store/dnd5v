@@ -2,94 +2,49 @@
 import { computed } from 'vue'
 import { NFormItem, NInput, NInputNumber } from 'naive-ui'
 
+import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import { signedModifier } from '@/domain/abilityModifier'
 import { calculateInitiative } from '@/domain/combatCalculations'
-import type { CharacterAbilities } from '@/types/character'
-import type { CharacterCombat } from '@/types/character'
 
-type Emits = {
-    update: [combat: CharacterCombat]
-}
+const { character } = useCharacterSheet()
 
-const props = defineProps<{
-    combat: CharacterCombat
-    abilities: CharacterAbilities
-    disabled?: boolean
-}>()
-
-const emit = defineEmits<Emits>()
-
-const armorClass = computed(() => {
-    return props.combat.armorClass.value
+const initiative = computed(() => {
+    if (!character.value) return 0
+    return (
+        calculateInitiative(
+            character.value.abilities,
+            character.value.combat.initiative.additionalBonus,
+        ) ?? 0
+    )
 })
 
-const initiative = computed(
-    () => calculateInitiative(props.abilities, props.combat.initiative.additionalBonus) ?? 0,
+const speed = computed(
+    () => character.value?.combat.speed.override ?? character.value?.combat.speed.base,
 )
 
-const speed = computed(() => props.combat.speed.override ?? props.combat.speed.base)
+function numberValue(value: number | null) {
+    return value !== null && Number.isFinite(value) ? value : 0
+}
 
-function numberValue(value: unknown): number {
-    const parsed = Number(value)
-    return Number.isFinite(parsed) ? parsed : 0
-}
-function nullableNumber(value: unknown): number | null {
-    return value === '' || value === null || value === undefined ? null : numberValue(value)
-}
-function copy(): CharacterCombat {
-    return JSON.parse(JSON.stringify(props.combat)) as CharacterCombat
-}
-function updateArmorValue(value: unknown) {
-    const next = copy()
-
-    const parsed = numberValue(value)
-    // Keep the character record intact while making a direct edit authoritative.
-    // Existing computed values are shown first, then switch to manual on edit.
-    next.armorClass.mode = 'manual'
-    next.armorClass.value = parsed
-    emit('update', next)
-}
-function updateInitiative(value: unknown) {
-    const next = copy()
-    next.initiative.additionalBonus = numberValue(value)
-    emit('update', next)
-}
-function updateSpeed(key: keyof CharacterCombat['speed'], value: unknown) {
-    const next = copy()
-    if (key === 'base') next.speed.base = numberValue(value)
-    else next.speed[key] = nullableNumber(value)
-    emit('update', next)
-}
-function updateHitPoints(key: keyof CharacterCombat['hitPoints'], value: unknown) {
-    const next = copy()
-    next.hitPoints[key] = numberValue(value)
-    emit('update', next)
-}
-function updateHitDice(key: keyof CharacterCombat['hitDice'], value: unknown) {
-    const next = copy()
-    if (key === 'size') next.hitDice.size = String(value ?? '')
-    else next.hitDice[key] = numberValue(value)
-    emit('update', next)
-}
-function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknown) {
-    const next = copy()
-    next.deathSaves[key] = numberValue(value)
-    emit('update', next)
+function updateArmorValue(value: number | null) {
+    if (!character.value) return
+    character.value.combat.armorClass.mode = 'manual'
+    character.value.combat.armorClass.value = numberValue(value)
 }
 </script>
 
 <template>
-    <section>
+    <section v-if="character">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <h3>Класс доспеха</h3>
-                    <p>{{ armorClass }}</p>
+                    <p>{{ character.combat.armorClass.value }}</p>
                     <span>Ручное значение</span>
                 </div>
                 <p>Расчёт КД не настроен — укажите итоговое значение вручную.</p>
                 <NFormItem label="КД">
-                    <NInputNumber button-placement="both" min="0" step="1" :value="armorClass" :disabled="disabled"
+                    <NInputNumber button-placement="both" min="0" step="1" :value="character.combat.armorClass.value"
                         @update:value="updateArmorValue" />
                 </NFormItem>
             </div>
@@ -101,8 +56,8 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                 </div>
                 <p>Модификатор Ловкости + добавка</p>
                 <NFormItem label="Доп. бонус инициативы">
-                    <NInputNumber button-placement="both" step="1" :value="combat.initiative.additionalBonus"
-                        :disabled="disabled" @update:value="updateInitiative" />
+                    <NInputNumber button-placement="both" step="1" :value="character.combat.initiative.additionalBonus"
+                        @update:value="character.combat.initiative.additionalBonus = numberValue($event)" />
                 </NFormItem>
             </div>
             <div>
@@ -112,60 +67,59 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <NFormItem label="Базовая">
-                        <NInputNumber button-placement="both" min="0" :value="combat.speed.base" :disabled="disabled"
-                            @update:value="updateSpeed('base', $event)" />
+                        <NInputNumber button-placement="both" min="0" :value="character.combat.speed.base"
+                            @update:value="character.combat.speed.base = numberValue($event)" />
                     </NFormItem>
                     <NFormItem label="Переопределение">
-                        <NInputNumber button-placement="both" min="0" :value="combat.speed.override ?? null"
-                            :disabled="disabled" @update:value="updateSpeed('override', $event)" />
+                        <NInputNumber v-model:value="character.combat.speed.override" button-placement="both" min="0"
+                            />
                     </NFormItem>
                     <NFormItem label="Полёт">
-                        <NInputNumber button-placement="both" min="0" :value="combat.speed.fly ?? null"
-                            :disabled="disabled" @update:value="updateSpeed('fly', $event)" />
+                        <NInputNumber v-model:value="character.combat.speed.fly" button-placement="both" min="0"
+                            />
                     </NFormItem>
                     <NFormItem label="Плавание">
-                        <NInputNumber button-placement="both" min="0" :value="combat.speed.swim ?? null"
-                            :disabled="disabled" @update:value="updateSpeed('swim', $event)" />
+                        <NInputNumber v-model:value="character.combat.speed.swim" button-placement="both" min="0"
+                            />
                     </NFormItem>
                 </div>
             </div>
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <h3>Хиты</h3>
-                    <p>{{ combat.hitPoints.current }} / {{ combat.hitPoints.max }}</p>
+                    <p>{{ character.combat.hitPoints.current }} / {{ character.combat.hitPoints.max }}</p>
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <NFormItem label="Максимум">
-                        <NInputNumber button-placement="both" min="0" step="1" :value="combat.hitPoints.max"
-                            :disabled="disabled" @update:value="updateHitPoints('max', $event)" />
+                        <NInputNumber button-placement="both" min="0" step="1" :value="character.combat.hitPoints.max"
+                            @update:value="character.combat.hitPoints.max = numberValue($event)" />
                     </NFormItem>
                     <NFormItem label="Текущие">
-                        <NInputNumber button-placement="both" min="0" step="1" :value="combat.hitPoints.current"
-                            :disabled="disabled" @update:value="updateHitPoints('current', $event)" />
+                        <NInputNumber button-placement="both" min="0" step="1" :value="character.combat.hitPoints.current"
+                            @update:value="character.combat.hitPoints.current = numberValue($event)" />
                     </NFormItem>
                     <NFormItem label="Временные">
-                        <NInputNumber button-placement="both" min="0" step="1" :value="combat.hitPoints.temporary"
-                            :disabled="disabled" @update:value="updateHitPoints('temporary', $event)" />
+                        <NInputNumber button-placement="both" min="0" step="1" :value="character.combat.hitPoints.temporary"
+                            @update:value="character.combat.hitPoints.temporary = numberValue($event)" />
                     </NFormItem>
                 </div>
             </div>
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <h3>Кости хитов</h3>
-                    <p>{{ combat.hitDice.spent }} / {{ combat.hitDice.total }}</p>
+                    <p>{{ character.combat.hitDice.spent }} / {{ character.combat.hitDice.total }}</p>
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <NFormItem label="Размер (например, d8)">
-                        <NInput :value="combat.hitDice.size" :disabled="disabled"
-                            @update:value="updateHitDice('size', $event)" />
+                        <NInput v-model:value="character.combat.hitDice.size" />
                     </NFormItem>
                     <NFormItem label="Всего">
-                        <NInputNumber button-placement="both" min="0" step="1" :value="combat.hitDice.total"
-                            :disabled="disabled" @update:value="updateHitDice('total', $event)" />
+                        <NInputNumber button-placement="both" min="0" step="1" :value="character.combat.hitDice.total"
+                            @update:value="character.combat.hitDice.total = numberValue($event)" />
                     </NFormItem>
                     <NFormItem label="Потрачено">
-                        <NInputNumber button-placement="both" min="0" step="1" :value="combat.hitDice.spent"
-                            :disabled="disabled" @update:value="updateHitDice('spent', $event)" />
+                        <NInputNumber button-placement="both" min="0" step="1" :value="character.combat.hitDice.spent"
+                            @update:value="character.combat.hitDice.spent = numberValue($event)" />
                     </NFormItem>
                 </div>
             </div>
@@ -173,19 +127,19 @@ function updateDeathSave(key: keyof CharacterCombat['deathSaves'], value: unknow
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <h3>Спасброски от смерти</h3>
                     <p>
-                        {{ combat.deathSaves.successes }} / 3 · {{ combat.deathSaves.failures }} / 3
+                        {{ character.combat.deathSaves.successes }} / 3 · {{ character.combat.deathSaves.failures }} / 3
                     </p>
                 </div>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <NFormItem label="Успехи">
                         <NInputNumber button-placement="both" min="0" max="3" step="1"
-                            :value="combat.deathSaves.successes" :disabled="disabled"
-                            @update:value="updateDeathSave('successes', $event)" />
+                            :value="character.combat.deathSaves.successes"
+                            @update:value="character.combat.deathSaves.successes = numberValue($event)" />
                     </NFormItem>
                     <NFormItem label="Провалы">
                         <NInputNumber button-placement="both" min="0" max="3" step="1"
-                            :value="combat.deathSaves.failures" :disabled="disabled"
-                            @update:value="updateDeathSave('failures', $event)" />
+                            :value="character.combat.deathSaves.failures"
+                            @update:value="character.combat.deathSaves.failures = numberValue($event)" />
                     </NFormItem>
                 </div>
             </div>

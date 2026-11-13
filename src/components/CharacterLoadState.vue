@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { NButton, NSpin } from 'naive-ui'
+import { useCharacterSheet } from '@/composables/useCharacterSheet'
 
 type Emits = {
-    retry: []
     create: []
 }
 
-defineProps<{ loading: boolean; error: string | null }>()
+const { isLoading, loadError, load } = useCharacterSheet()
 
 const emit = defineEmits<Emits>()
 </script>
 <template>
-    <div v-if="loading" role="status" aria-label="Загрузка персонажа">
+    <div v-if="isLoading" role="status" aria-label="Загрузка персонажа">
         <div>
             <NSpin size="large" />
         </div>
     </div>
-    <div v-else-if="error" role="alert">
-        <p>{{ error }}</p>
-        <NButton type="primary" @click="emit('retry')">Повторить</NButton>
+    <div v-else-if="loadError" role="alert">
+        <p>{{ loadError }}</p>
+        <NButton type="primary" @click="load">Повторить</NButton>
         <NButton @click="emit('create')">Создать персонажа</NButton>
     </div>
 </template>

@@ -1,68 +1,49 @@
 <script setup lang="ts">
 import { NFormItem, NInput } from 'naive-ui'
 
-import { useCharacterIdentity } from '../composables/useCharacterIdentity'
-import type { CharacterPersonality } from '@/types/character'
+import { useCharacterSheet } from '@/composables/useCharacterSheet'
 
-const props = defineProps<{ personality: CharacterPersonality; disabled?: boolean }>()
-
-const { updatePersonality } = useCharacterIdentity()
-
-function update(key: keyof CharacterPersonality, value: unknown) {
-    updatePersonality({ ...props.personality, [key]: String(value ?? '') })
-}
+const { character } = useCharacterSheet()
 </script>
 
 <template>
-    <div class="grid gap-4">
+    <div v-if="character" class="grid gap-4">
         <section class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <NFormItem label="Черты характера"
                 ><NInput
+                    v-model:value="character.personality.traits"
                     type="textarea"
                     rows="4"
-                    :value="personality.traits"
-                    :disabled="disabled"
-                    @update:value="update('traits', $event)"
             /></NFormItem>
             <NFormItem label="Идеалы"
                 ><NInput
+                    v-model:value="character.personality.ideals"
                     type="textarea"
                     rows="4"
-                    :value="personality.ideals"
-                    :disabled="disabled"
-                    @update:value="update('ideals', $event)"
             /></NFormItem>
             <NFormItem label="Привязанности"
                 ><NInput
+                    v-model:value="character.personality.bonds"
                     type="textarea"
                     rows="4"
-                    :value="personality.bonds"
-                    :disabled="disabled"
-                    @update:value="update('bonds', $event)"
             /></NFormItem>
             <NFormItem label="Слабости"
                 ><NInput
+                    v-model:value="character.personality.flaws"
                     type="textarea"
                     rows="4"
-                    :value="personality.flaws"
-                    :disabled="disabled"
-                    @update:value="update('flaws', $event)"
             /></NFormItem>
             <NFormItem label="Биография"
                 ><NInput
+                    v-model:value="character.personality.biography"
                     type="textarea"
                     rows="10"
-                    :value="personality.biography"
-                    :disabled="disabled"
-                    @update:value="update('biography', $event)"
             /></NFormItem>
             <NFormItem label="Особенности и дополнительные заметки"
                 ><NInput
+                    v-model:value="character.personality.features"
                     type="textarea"
                     rows="5"
-                    :value="personality.features"
-                    :disabled="disabled"
-                    @update:value="update('features', $event)"
             /></NFormItem>
         </section>
     </div>
