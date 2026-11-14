@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import CombatStatsFields from './CombatStatsFields.vue'
-import AttackList from './AttackList.vue'
+import CombatStatsFields from './components/CombatStatsFields.vue'
+import AttackList from './components/AttackList.vue';
 </script>
 
 <template>

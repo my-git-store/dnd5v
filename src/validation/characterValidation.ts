@@ -1,4 +1,3 @@
-import { isAttackBonusSource } from '../domain/attackBonus.ts'
 import {
     getRules2024Feature,
     isBackground2024Id,
@@ -7,7 +6,6 @@ import {
     isRules2024FeatId,
     isRules2024SpellId,
     isRules2024WeaponId,
-    isRules2024WeaponMasteryId,
     isSpecies2024Id,
 } from '../data/rules2024/index.ts'
 import type { AbilityKey } from '../types/character.ts'
@@ -368,7 +366,7 @@ function validSkill(value: unknown): boolean {
     )
 }
 
-/** Validates an attack entry and its optional 2024 weapon links. */
+/** Validates an attack entry. */
 function validAttack(value: unknown): boolean {
     return (
         isRecord(value) &&
@@ -376,24 +374,14 @@ function validAttack(value: unknown): boolean {
         isString(value.name) &&
         typeof value.kind === 'string' &&
         ATTACK_KINDS.includes(value.kind as (typeof ATTACK_KINDS)[number]) &&
-        isAttackBonusSource(value.abilitySource) &&
+        (value.ability === null || isAbilityKey(value.ability)) &&
         typeof value.proficient === 'boolean' &&
-        isString(value.attackBonus) &&
-        isCalculationMode(value.calculationMode) &&
         isInteger(value.additionalBonus) &&
-        isString(value.damage) &&
+        isFiniteNumber(value.damage) &&
+        value.damage >= 0 &&
         isString(value.damageType) &&
-        isStringArray(value.properties) &&
-        (value.weaponMastery === undefined || isString(value.weaponMastery)) &&
-        (value.weaponId === undefined ||
-            (isString(value.weaponId) &&
-                value.weaponId.length > 0 &&
-                isRules2024WeaponId(value.weaponId))) &&
-        (value.masteryId === undefined ||
-            (isString(value.masteryId) &&
-                value.masteryId.length > 0 &&
-                isRules2024WeaponMasteryId(value.masteryId))) &&
-        isString(value.range) &&
+        isFiniteNumber(value.range) &&
+        value.range >= 0 &&
         isString(value.description)
     )
 }

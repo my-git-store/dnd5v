@@ -2,7 +2,6 @@ export type AbilityKey =
     'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma'
 
 export type CharacterAbilities = Record<AbilityKey, number>
-export type AttackBonusSource = AbilityKey | 'manual'
 export type SkillProficiency = 'none' | 'proficient' | 'expertise'
 /** Presentation choice used by the character builder for class portraits. */
 export type CharacterGender = 'female' | 'male'
@@ -121,19 +120,12 @@ export interface CharacterAttackRecord {
     id: string
     name: string
     kind: 'melee' | 'ranged' | 'spell' | 'other'
-    abilitySource: AttackBonusSource
+    ability: AbilityKey | null
     proficient: boolean
-    attackBonus: string
-    calculationMode: CharacterCalculationMode
     additionalBonus: number
-    damage: string
+    damage: number
     damageType: string
-    properties: string[]
-    weaponMastery?: string
-    /** Canonical catalog link; legacy free-text weaponMastery remains supported. */
-    weaponId?: string
-    masteryId?: string
-    range: string
+    range: number
     description: string
 }
 
