@@ -6,7 +6,6 @@ import { useModalUtil } from '@/composables/useModal'
 import { ABILITY_FIELDS } from '@/data/characterFields'
 import { formatAttackBonus } from '@/domain/attackBonus'
 import AttackEditorModal from './AttackEditorModal.vue'
-import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
 import type { CharacterAttackRecord } from '@/types/character'
 
@@ -68,12 +67,8 @@ function add() {
             <h2>Атаки</h2>
             <NButton type="default" @click="add">Добавить</NButton>
         </div>
-        <EmptyCollection v-if="character.attacks.length === 0" text="Атак пока нет." />
-        <div
-            v-for="{ attack, abilityLabel, bonus } in attacks"
-            :key="attack.id"
-            class="py-3 flex flex-wrap items-start justify-between gap-3"
-        >
+        <div v-for="{ attack, abilityLabel, bonus } in attacks" :key="attack.id"
+            class="py-3 flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
                 <h3>{{ attack.name || 'Без названия' }}</h3>
                 <div class="flex flex-wrap items-center gap-2">
@@ -99,10 +94,7 @@ function add() {
             </div>
             <EntryActions @edit="openEditor(attack)" @remove="removeAttack(attack.id)" />
         </div>
-        <AttackEditorModal
-            v-if="editorModal.isShowModal.value && editorModal.item.value"
-            :attack="editorModal.item.value"
-            @close="editorModal.openOrClose"
-        />
+        <AttackEditorModal v-if="editorModal.isShowModal.value && editorModal.item.value"
+            :attack="editorModal.item.value" @close="editorModal.openOrClose" />
     </section>
 </template>

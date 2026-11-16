@@ -1,4 +1,3 @@
-import { defaultProgressionForCharacter } from '@/domain/characterProgressionData'
 import { DEFAULT_SKILLS } from './characterFields.ts'
 import type { Character } from '../types/character.ts'
 
@@ -15,7 +14,6 @@ function createCharacter(): Character {
     const character: Character = {
         kind: 'character',
         identity: {
-            name: 'Новый персонаж',
             race: {
                 name: '',
                 subrace: '',
@@ -62,8 +60,6 @@ function createCharacter(): Character {
         skills: DEFAULT_SKILLS.map(skill => ({ ...skill })),
         attacks: [],
         spellcasting: {
-            spellIds: [],
-            cantripIds: [],
             knownSpells: [],
             preparedSpellIds: [],
             cantrips: [],
@@ -93,10 +89,8 @@ function createCharacter(): Character {
         },
         origin: { species: '', background: '', originFeat: '', languages: [], tools: [] },
         feats: [],
-        features: [],
         extensions: {},
     }
-    character.progression = defaultProgressionForCharacter(character)
     return character
 }
 

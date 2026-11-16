@@ -12,18 +12,6 @@ function numberValue(value: number | null) {
     return value !== null && Number.isFinite(value) ? value : 0
 }
 
-function updateProficiency(key: AbilityKey, proficient: boolean) {
-    if (!character.value) return
-    character.value.savingThrows[key].proficient = proficient
-    const creation = character.value.extensions.characterCreation
-    if (creation && !creation.classSavingThrowKeys.includes(key)) {
-        const manualKeys = new Set(creation.manualSavingThrowKeys ?? [])
-        if (proficient) manualKeys.add(key)
-        else manualKeys.delete(key)
-        creation.manualSavingThrowKeys = [...manualKeys]
-    }
-}
-
 function savingThrowLabel(key: AbilityKey) {
     if (!character.value) return '-'
     const bonus = calculateSavingThrowBonus(
@@ -42,31 +30,23 @@ function savingThrowLabel(key: AbilityKey) {
                 <div class="w-full">
                     <NTooltip>
                         <template #trigger>
-                            <NCheckbox
-                                :checked="character.savingThrows[field.key].proficient"
-                                @update:checked="updateProficiency(field.key, $event)"
-                            >
+                            <NCheckbox v-model:checked="character.savingThrows[field.key].proficient">
                                 {{ field.label }}
+                                <div class="flex gap-2">
+                                    <div> Модификатор:
+                                        <strong>{{ signedModifier(abilityModifier(character.abilities[field.key]))
+                                            }}</strong>
+                                    </div>
+                                    <div>Спасбросок: <strong>{{ savingThrowLabel(field.key) }}</strong></div>
+                                </div>
                             </NCheckbox>
                         </template>
                         Владение характеристикой
                     </NTooltip>
                 </div>
-                <NInputNumber
-                    button-placement="both"
-                    :value="character.abilities[field.key]"
-                    @update:value="character.abilities[field.key] = numberValue($event)"
-                />
+                <NInputNumber button-placement="both" :value="character.abilities[field.key]"
+                    @update:value="character.abilities[field.key] = numberValue($event)" />
             </NFormItem>
-            <p title="Модификатор = ⌊(значение − 10) / 2⌋">
-                Модификатор (расчёт):
-                {{ signedModifier(abilityModifier(character.abilities[field.key])) }}
-            </p>
-            <div class="flex flex-wrap items-center gap-2">
-                <span>
-                    Спасбросок: <strong>{{ savingThrowLabel(field.key) }}</strong>
-                </span>
-            </div>
         </div>
     </div>
 </template>

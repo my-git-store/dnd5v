@@ -5,11 +5,9 @@ import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import { useModalUtil } from '@/composables/useModal'
 import { searchFilterObject } from '@/composables/useFilters'
 import InventoryItemEditorModal from './InventoryItemEditorModal.vue'
-import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
 import CollectionSearch from '@/modules/character-inventory/components/CollectionSearch.vue'
 import type { CharacterInventoryItemRecord } from '@/types/character'
-import { getRules2024Weapon } from '@/data/rules2024/index.ts'
 
 const { character } = useCharacterSheet()
 
@@ -88,26 +86,20 @@ function isConsumable(item: CharacterInventoryItemRecord): boolean {
                 <NCheckbox v-model:checked="showUnequipped">Не экипированные</NCheckbox>
             </label>
         </fieldset>
-        <EmptyCollection v-if="character.inventory.items.length === 0" text="Инвентарь пока пуст." />
-        <EmptyCollection v-else-if="visibleItems.length === 0" text="Совпадений не найдено." />
         <div v-for="item in visibleItems" :key="item.id" class="py-3 flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
                 <div>
                     <div>
                         <h3>{{ item.name || 'Без названия' }}</h3>
-                        <span v-if="item.source === 'creation'">Стартовый набор</span><span
-                            v-if="item.weaponId && getRules2024Weapon(item.weaponId)">Оружие: {{
-                                getRules2024Weapon(item.weaponId)?.name }}</span>
                     </div>
                     <span v-if="item.equipped">Экипировано</span>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="flex flex-wrap items-center gap-2"><span>Количество: {{ item.quantity }}</span>
-                        <NButton native-type="button" :disabled="item.quantity <= 0"
-                            aria-label="Уменьшить количество" @click="item.quantity = Math.max(0, item.quantity - 1)">
+                        <NButton native-type="button" :disabled="item.quantity <= 0" aria-label="Уменьшить количество"
+                            @click="item.quantity = Math.max(0, item.quantity - 1)">
                             −</NButton>
-                        <NButton native-type="button" aria-label="Увеличить количество"
-                            @click="item.quantity += 1">
+                        <NButton native-type="button" aria-label="Увеличить количество" @click="item.quantity += 1">
                             +
                         </NButton>
                     </span><span v-if="item.weight !== null">Вес: {{ item.weight }}</span>

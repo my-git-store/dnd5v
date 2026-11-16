@@ -6,7 +6,6 @@ import { useModalUtil } from '@/composables/useModal'
 import CharacterFeatEditorModal, {
     type Props as EditorModalProps,
 } from './CharacterFeatEditorModal.vue'
-import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
 import type { CharacterFeat } from '@/types/character'
 
@@ -40,8 +39,8 @@ function remove(id: string) {
             <h2>Черты персонажа</h2>
             <NButton type="default" @click="add">Добавить</NButton>
         </div>
-        <EmptyCollection v-if="!character.feats?.length" text="Черты пока не добавлены." />
-        <div v-for="feat in character.feats" :key="feat.id" class="py-3 flex flex-wrap items-start justify-between gap-3">
+        <div v-for="feat in character.feats" :key="feat.id"
+            class="py-3 flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
                 <h3 :title="feat.name || 'Без названия'">
                     {{ feat.name || 'Без названия' }}
@@ -49,10 +48,7 @@ function remove(id: string) {
             </div>
             <EntryActions @edit="openEditor(feat)" @remove="remove(feat.id)" />
         </div>
-        <CharacterFeatEditorModal
-            v-if="editorModal.isShowModal.value && editorModal.props.value"
-            v-bind="editorModal.props.value"
-            @close="editorModal.openOrClose"
-        />
+        <CharacterFeatEditorModal v-if="editorModal.isShowModal.value && editorModal.props.value"
+            v-bind="editorModal.props.value" @close="editorModal.openOrClose" />
     </section>
 </template>

@@ -3,8 +3,6 @@ export type AbilityKey =
 
 export type CharacterAbilities = Record<AbilityKey, number>
 export type SkillProficiency = 'none' | 'proficient' | 'expertise'
-/** Presentation choice used by the character builder for class portraits. */
-export type CharacterGender = 'female' | 'male'
 
 export interface CharacterMoney {
     copper: number
@@ -14,24 +12,8 @@ export interface CharacterMoney {
     platinum: number
 }
 
-import type { CharacterProgression, RuleSourceRef, SpellProgressionType } from './rules.ts'
-
-export type CharacterSchema = 3
 export type CharacterCalculationMode = 'manual' | 'computed'
-export type SkillProficiencySource = 'race' | 'class' | 'background' | 'manual' | 'feat'
-export type CharacterAbilityBonusSource = 'species' | 'background' | 'manual' | 'feat' | 'class'
 export type CharacterSpellLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
-export interface CharacterEncounterParticipant {
-    id: string
-    sourceId?: string
-    name: string
-    maxHitPoints: number
-    currentHitPoints: number
-    armorClass: number
-    initiative: number
-    defeated: boolean
-}
 
 export interface RaceProfile {
     name: string
@@ -52,19 +34,15 @@ export interface BackgroundProfile {
     notes: string
 }
 
-/** 2024 origin data. Legacy race/background fields remain the compatibility view. */
 export interface CharacterOrigin {
     species: string
     background: string
-    /** Canonical catalog reference; originFeat remains a legacy display label. */
-    featId?: string
     originFeat: string
     languages: string[]
     tools: string[]
 }
 
 export interface CharacterIdentity {
-    name: string
     race: RaceProfile
     class: string
     subclass: string
@@ -77,8 +55,6 @@ export interface CharacterIdentity {
 export interface CharacterProficiency {
     toolProficiencies: string[]
     languageProficiencies: string[]
-    /** Optional attribution for selected languages; does not apply any feat effects. */
-    languageSources?: Record<string, RuleSourceRef[]>
 }
 
 export interface CharacterSavingThrow {
@@ -113,7 +89,6 @@ export interface CharacterSkillRecord {
     proficiency: SkillProficiency
     calculationMode: CharacterCalculationMode
     additionalBonus: number
-    proficiencySources?: SkillProficiencySource[]
 }
 
 export interface CharacterAttackRecord {
@@ -141,9 +116,6 @@ export interface CharacterSpellRecord {
     duration: string
     concentration: boolean
     ritual: boolean
-    /** Optional catalog metadata; embedded legacy/custom spells remain valid without it. */
-    classes?: string[]
-    metadata?: Record<string, unknown>
 }
 
 export interface CharacterSpellSlot {
@@ -154,11 +126,6 @@ export interface CharacterSpellSlot {
 export type CharacterSpellSlots = Record<CharacterSpellLevel, CharacterSpellSlot>
 
 export interface CharacterSpellcasting {
-    /** Metadata only: full slot/level progression is intentionally out of scope. */
-    spellProgressionType?: SpellProgressionType
-    /** Canonical 2024 catalog references. Embedded knownSpells remain the compatibility view. */
-    spellIds?: string[]
-    cantripIds?: string[]
     knownSpells: CharacterSpellRecord[]
     preparedSpellIds: string[]
     cantrips: CharacterSpellRecord[]
@@ -173,10 +140,6 @@ export interface CharacterInventoryItemRecord {
     description: string
     equipped: boolean
     properties: string[]
-    /** Optional link to a canonical weapon definition. Existing items remain unlinked. */
-    weaponId?: string
-    /** Optional marker for items created by the character creation flow. */
-    source?: 'creation' | 'user'
 }
 
 export interface CharacterInventory {
@@ -200,48 +163,6 @@ export interface CharacterFeat {
     description: string
 }
 
-export interface CharacterCreation {
-    /** Optional presentation choice; omitted by old records and treated as female. */
-    gender?: CharacterGender
-    speciesId?: string
-    raceId: string
-    classId: string
-    /** Optional class foundation metadata; older records omit these safely. */
-    classLevel?: number
-    classSources?: RuleSourceRef[]
-    spellProgressionType?: SpellProgressionType
-    baseAbilityScores: CharacterAbilities
-    raceSkillIds?: string[]
-    raceAbilityChoices?: AbilityKey[]
-    classSkillIds: string[]
-    classSavingThrowKeys: AbilityKey[]
-    manualSavingThrowKeys?: AbilityKey[]
-    classFeatures: string[]
-    raceFeatures: string[]
-    classProficiencies: string[]
-    raceLanguages?: string[]
-    subraceId?: string
-    subraceFeatures?: string[]
-    subraceSkillIds?: string[]
-    subraceLanguages?: string[]
-    backgroundId?: string
-    originFeatId?: string
-    originAbilityChoices?: AbilityKey[]
-    originAbilityFocus?: AbilityKey
-    abilityBonusSources?: Partial<
-        Record<AbilityKey, Array<{ source: CharacterAbilityBonusSource; amount: number }>>
-    >
-    /** Selected 2024 species choices; mechanics remain data-only until a rules layer handles them. */
-    speciesChoices?: Record<string, string[]>
-    backgroundSkillIds?: string[]
-    backgroundToolProficiencies?: string[]
-    backgroundLanguages?: string[]
-    classEquipmentId?: string
-    backgroundEquipmentId?: string
-    startingEquipmentIds?: string[]
-    startingGold?: number
-}
-
 export interface Character {
     /** Optional marker retained for compatibility with stored characters. */
     kind?: 'character'
@@ -258,13 +179,5 @@ export interface Character {
     origin: CharacterOrigin
     /** Optional user-authored feats; absent on older records and treated as an empty list. */
     feats?: CharacterFeat[]
-    /** Canonical feature references; descriptions and levels resolve from the rules catalog. */
-    features?: string[]
-    /** Optional additive foundation; absent on older records and filled with safe defaults at runtime. */
-    progression?: CharacterProgression
-    extensions: Record<string, unknown> & { characterCreation?: CharacterCreation }
-}
-
-export function cloneCharacter(character: Character): Character {
-    return JSON.parse(JSON.stringify(character)) as Character
+    extensions: Record<string, unknown>
 }

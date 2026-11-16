@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { NButton, NCheckbox, NFormItem, NInput, NInputNumber, NSelect } from 'naive-ui'
+import { NButton, NCheckbox, NFormItem, NInput, NInputNumber } from 'naive-ui'
 
-import { RULES_2024_WEAPONS } from '@/data/rules2024/index.ts'
 import type { CharacterInventoryItemRecord } from '@/types/character'
 
 type Emits = {
@@ -13,11 +12,6 @@ type Emits = {
 const props = defineProps<{ item: CharacterInventoryItemRecord; disabled?: boolean }>()
 
 const emit = defineEmits<Emits>()
-
-const weaponOptions = [
-    { value: '', label: 'Не оружие / без связи' },
-    ...RULES_2024_WEAPONS.map(weapon => ({ value: weapon.id, label: weapon.name })),
-]
 
 const draft = ref<CharacterInventoryItemRecord>({
     ...props.item,
@@ -45,10 +39,6 @@ function updateProperties(value: unknown) {
         .map(item => item.trim())
         .filter(Boolean)
 }
-function updateWeapon(value: string | null) {
-    const id = value ?? ''
-    draft.value.weaponId = id || undefined
-}
 function submit() {
     if (!draft.value.name.trim()) return
     emit('save', {
@@ -66,16 +56,6 @@ function submit() {
         <NFormItem label="Название">
             <NInput v-model:value="draft.name" :disabled="disabled" />
         </NFormItem>
-        <label class="grid gap-2"
-            >Связь с оружием
-            <NSelect
-                class="w-full"
-                :value="draft.weaponId ?? ''"
-                :options="weaponOptions"
-                :disabled="disabled"
-                @update:value="updateWeapon"
-            />
-        </label>
         <NFormItem label="Количество">
             <NInputNumber
                 v-model:value="draft.quantity"

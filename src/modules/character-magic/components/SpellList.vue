@@ -5,11 +5,9 @@ import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import { useModalUtil } from '@/composables/useModal'
 import { searchFilterObject } from '@/composables/useFilters'
 import SpellEditorModal from './SpellEditorModal.vue'
-import EmptyCollection from '@/modules/character-inventory/components/EmptyCollection.vue'
 import EntryActions from '@/modules/character-inventory/components/EntryActions.vue'
 import CollectionSearch from '@/modules/character-inventory/components/CollectionSearch.vue'
 import type { CharacterSpellRecord } from '@/types/character'
-import { RULES_2024_CLASSES, getRules2024Spell, isRules2024SpellId } from '@/data/rules2024/index.ts'
 
 const props = defineProps<{
     title: string
@@ -37,33 +35,6 @@ type EditorModalProps = {
 
 const editorModal = useModalUtil<CharacterSpellRecord, EditorModalProps>()
 
-const classLabels = new Map(RULES_2024_CLASSES.map(item => [item.id, item.label]))
-
-function catalogSpell(spell: CharacterSpellRecord) {
-    return getRules2024Spell(spell.id)
-}
-
-function schoolLabel(spell: CharacterSpellRecord): string {
-    return spell.school || catalogSpell(spell)?.school || ''
-}
-
-function classLabel(spell: CharacterSpellRecord): string {
-    const classes = spell.classes ?? catalogSpell(spell)?.classes ?? []
-    return classes.map(id => classLabels.get(id) ?? id).join(' · ')
-}
-
-function metadataLabel(spell: CharacterSpellRecord): string {
-    const metadata = spell.metadata ?? catalogSpell(spell)?.metadata
-    if (!metadata) return ''
-    return Object.entries(metadata)
-        .filter(([key]) => key !== 'referenceOnly')
-        .map(
-            ([key, value]) =>
-                `${key === 'source' ? 'Источник' : key}: ${Array.isArray(value) ? value.join(', ') : String(value)}`,
-        )
-        .join(' · ')
-}
-
 const visibleSpells = computed(() => {
     const search = query.value.trim()
 
@@ -77,25 +48,11 @@ const visibleSpells = computed(() => {
     )
 })
 
-function syncSpellIds() {
-    if (!character.value) return
-    const ids = [...new Set(spells.value.map(spell => spell.id).filter(isRules2024SpellId))]
-    if (props.cantrip) {
-        character.value.spellcasting.cantripIds = ids
-    } else {
-        character.value.spellcasting.spellIds = ids
-        const knownIds = new Set(spells.value.map(spell => spell.id))
-        character.value.spellcasting.preparedSpellIds =
-            character.value.spellcasting.preparedSpellIds.filter(id => knownIds.has(id))
-    }
-}
-
 function save(spell: CharacterSpellRecord) {
     if (!character.value) return
     const index = spells.value.findIndex(current => current.id === spell.id)
     if (index === -1) spells.value.push(spell)
     else spells.value[index] = spell
-    syncSpellIds()
 }
 function openEditor(spell: CharacterSpellRecord) {
     editorModal.item.value = { ...spell }
@@ -125,7 +82,10 @@ function remove(id: string) {
     const index = spells.value.findIndex(spell => spell.id === id)
     if (index === -1) return
     spells.value.splice(index, 1)
-    syncSpellIds()
+    if (!props.cantrip) {
+        character.value.spellcasting.preparedSpellIds =
+            character.value.spellcasting.preparedSpellIds.filter(preparedId => preparedId !== id)
+    }
 }
 function togglePrepared(id: string, checked: boolean) {
     if (!character.value) return
@@ -146,8 +106,6 @@ function togglePrepared(id: string, checked: boolean) {
         <label v-if="showPreparedFilter">
             <NCheckbox v-model:checked="preparedOnly">Только подготовленные</NCheckbox>
         </label>
-        <EmptyCollection v-if="spells.length === 0" :text="`${title} пока нет.`" />
-        <EmptyCollection v-else-if="visibleSpells.length === 0" text="Совпадений не найдено." />
         <div v-for="spell in visibleSpells" :key="spell.id" class="py-3">
             <div>
                 <div>
@@ -161,9 +119,7 @@ function togglePrepared(id: string, checked: boolean) {
                     </label>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <span v-if="schoolLabel(spell)">Школа: {{ schoolLabel(spell) }}</span><span
-                        v-if="classLabel(spell)">Классы: {{ classLabel(spell) }}</span><span
-                        v-if="metadataLabel(spell)">{{ metadataLabel(spell) }}</span>
+                    <span v-if="spell.school">Школа: {{ spell.school }}</span>
                 </div>
                 <p v-if="spell.description" :title="spell.description">
                     {{ spell.description }}

@@ -1,13 +1,3 @@
-import {
-    getRules2024Feature,
-    isBackground2024Id,
-    isRules2024ClassId,
-    isRules2024FeatureId,
-    isRules2024FeatId,
-    isRules2024SpellId,
-    isRules2024WeaponId,
-    isSpecies2024Id,
-} from '../data/rules2024/index.ts'
 import type { AbilityKey } from '../types/character.ts'
 import type { Character } from '../types/character.ts'
 
@@ -34,8 +24,6 @@ const PROFICIENCY_VALUES = ['none', 'proficient', 'expertise'] as const
 const CALCULATION_MODES = ['manual', 'computed'] as const
 
 const ATTACK_KINDS = ['melee', 'ranged', 'spell', 'other'] as const
-
-const SPELL_PROGRESSION_TYPES = ['none', 'prepared', 'known', 'pact'] as const
 
 /** Checks that a value can be inspected as a plain record. */
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -64,156 +52,6 @@ const isCalculationMode = (value: unknown): boolean =>
 /** Checks that every member of a value is a string. */
 const isStringArray = (value: unknown): value is string[] =>
     Array.isArray(value) && value.every(isString)
-
-/** Checks that a skill source is one of the tracked source kinds. */
-const isSkillSource = (value: unknown): boolean =>
-    value === 'race' ||
-    value === 'class' ||
-    value === 'background' ||
-    value === 'manual' ||
-    value === 'feat'
-
-/** Checks that a source map entry uses a known domain source kind. */
-const isRuleSourceKind = (value: unknown): boolean =>
-    [
-        'species',
-        'race',
-        'class',
-        'background',
-        'feat',
-        'manual',
-        'equipment',
-        'spell',
-        'temporary-effect',
-    ].includes(String(value))
-
-/** Validates one gained feature entry in a progression envelope. */
-function validProgressionFeatureGain(value: unknown): boolean {
-    if (
-        !isRecord(value) ||
-        !isString(value.featureId) ||
-        !value.featureId ||
-        !isInteger(value.level) ||
-        value.level < 1 ||
-        value.level > 20 ||
-        !isRecord(value.source)
-    )
-        return false
-    if (!isString(value.source.id) || !value.source.id || !isRuleSourceKind(value.source.kind))
-        return false
-    const feature = getRules2024Feature(value.featureId)
-    return (
-        feature !== undefined &&
-        feature.level <= 20 &&
-        value.source.kind === 'class' &&
-        value.source.id === feature.classId
-    )
-}
-
-/** Validates the historical level-change entries in progression data. */
-function validProgressionHistory(value: unknown): boolean {
-    if (!Array.isArray(value)) return false
-    return value.every(
-        entry =>
-            isRecord(entry) &&
-            isInteger(entry.fromLevel) &&
-            entry.fromLevel >= 1 &&
-            entry.fromLevel <= 20 &&
-            isInteger(entry.toLevel) &&
-            entry.toLevel > entry.fromLevel &&
-            entry.toLevel <= 20 &&
-            Array.isArray(entry.gainedFeatures) &&
-            entry.gainedFeatures.every(gain => validProgressionFeatureGain(gain)) &&
-            isRecord(entry.choices) &&
-            Object.values(entry.choices).every(selection => isStringArray(selection)),
-    )
-}
-
-/** Validates the complete progression envelope and its feature references. */
-function validProgression(value: unknown): boolean {
-    if (
-        !isRecord(value) ||
-        !isInteger(value.level) ||
-        value.level < 1 ||
-        value.level > 20 ||
-        !Array.isArray(value.classLevels) ||
-        !isRecord(value.choices)
-    )
-        return false
-    const progressionLevel = value.level
-
-    const featureValues = value.features ?? value.featureIds
-    if (!isStringArray(featureValues)) return false
-    if (new Set(featureValues).size !== featureValues.length) return false
-    if (
-        !value.classLevels.every(
-            entry =>
-                isRecord(entry) &&
-                isString(entry.classId) &&
-                entry.classId.length > 0 &&
-                isInteger(entry.level) &&
-                entry.level >= 1 &&
-                entry.level <= 20 &&
-                entry.level <= progressionLevel &&
-                isRules2024ClassId(entry.classId),
-        )
-    )
-        return false
-    const classIds = new Set(
-        value.classLevels.map(entry =>
-            isRecord(entry) && isString(entry.classId) ? entry.classId : '',
-        ),
-    )
-    if (
-        !featureValues.every(
-            id =>
-                isRules2024FeatureId(id) &&
-                (!classIds.size || classIds.has(getRules2024Feature(id)?.classId ?? '')),
-        )
-    )
-        return false
-    if (!Object.values(value.choices).every(selection => isStringArray(selection))) return false
-    if (
-        value.featureIds !== undefined &&
-        (!isStringArray(value.featureIds) ||
-            new Set(value.featureIds).size !== value.featureIds.length)
-    )
-        return false
-    if (value.gainedFeatures !== undefined) {
-        if (
-            !Array.isArray(value.gainedFeatures) ||
-            new Set(value.gainedFeatures.map(gain => (isRecord(gain) ? gain.featureId : '')))
-                .size !== value.gainedFeatures.length ||
-            !value.gainedFeatures.every(gain => validProgressionFeatureGain(gain))
-        )
-            return false
-        if (
-            !value.gainedFeatures.every(
-                gain =>
-                    isRecord(gain) &&
-                    featureValues.includes(gain.featureId as string) &&
-                    isInteger(gain.level) &&
-                    gain.level <= progressionLevel,
-            )
-        )
-            return false
-    }
-    if (value.history !== undefined && !validProgressionHistory(value.history)) return false
-    if (value.choiceMetadata !== undefined) {
-        const metadata = value.choiceMetadata
-        if (
-            !isRecord(metadata) ||
-            !Array.isArray(metadata.abilityScoreImprovementLevels) ||
-            !Array.isArray(metadata.featChoiceLevels) ||
-            !metadata.abilityScoreImprovementLevels.every(
-                level => isInteger(level) && level >= 1 && level <= 20,
-            ) ||
-            !metadata.featChoiceLevels.every(level => isInteger(level) && level >= 1 && level <= 20)
-        )
-            return false
-    }
-    return true
-}
 
 /** Validates the legacy race profile stored in a  character. */
 function validRace(value: unknown): boolean {
@@ -246,101 +84,16 @@ function validBackground(value: unknown): boolean {
     )
 }
 
-/** Validates origin links and optional 2024 feat references. */
+/** Validates the character's origin fields. */
 function validOrigin(value: unknown): boolean {
     return (
         isRecord(value) &&
         isString(value.species) &&
         isString(value.background) &&
-        (value.featId === undefined ||
-            (isString(value.featId) && isRules2024FeatId(value.featId))) &&
         isString(value.originFeat) &&
         isStringArray(value.languages) &&
         isStringArray(value.tools)
     )
-}
-
-/** Validates source tracking arrays used by proficiencies and effects. */
-function validSourceMap(value: unknown): boolean {
-    if (!isRecord(value)) return false
-    return Object.values(value).every(
-        sources =>
-            Array.isArray(sources) &&
-            sources.every(
-                source =>
-                    isRecord(source) &&
-                    isRuleSourceKind(source.kind) &&
-                    isString(source.id) &&
-                    source.id.length > 0,
-            ),
-    )
-}
-
-/** Validates additive character-creation extensions against the D&D 2024 catalog. */
-function validCreationExtension(value: unknown): boolean {
-    if (value === undefined) return true
-    if (
-        !isRecord(value) ||
-        !isString(value.raceId) ||
-        !isString(value.classId) ||
-        !validAbilities(value.baseAbilityScores) ||
-        !isStringArray(value.classSkillIds) ||
-        !Array.isArray(value.classSavingThrowKeys) ||
-        !value.classSavingThrowKeys.every(isAbilityKey) ||
-        !isStringArray(value.classFeatures) ||
-        !isStringArray(value.raceFeatures) ||
-        !isStringArray(value.classProficiencies)
-    )
-        return false
-    if (value.gender !== undefined && value.gender !== 'female' && value.gender !== 'male')
-        return false
-    if (
-        value.speciesId !== undefined &&
-        (!isString(value.speciesId) || !isSpecies2024Id(value.speciesId))
-    )
-        return false
-    if (
-        value.classId !== undefined &&
-        (!isString(value.classId) || !isRules2024ClassId(value.classId))
-    )
-        return false
-    if (
-        value.backgroundId !== undefined &&
-        (!isString(value.backgroundId) || !isBackground2024Id(value.backgroundId))
-    )
-        return false
-    if (
-        value.originFeatId !== undefined &&
-        (!isString(value.originFeatId) || !isRules2024FeatId(value.originFeatId))
-    )
-        return false
-    if (
-        value.classLevel !== undefined &&
-        (!isInteger(value.classLevel) || value.classLevel < 1 || value.classLevel > 20)
-    )
-        return false
-    if (
-        value.spellProgressionType !== undefined &&
-        (typeof value.spellProgressionType !== 'string' ||
-            !SPELL_PROGRESSION_TYPES.includes(
-                value.spellProgressionType as (typeof SPELL_PROGRESSION_TYPES)[number],
-            ))
-    )
-        return false
-    if (
-        value.classSources !== undefined &&
-        (!Array.isArray(value.classSources) ||
-            !value.classSources.every(
-                source =>
-                    isRecord(source) &&
-                    source.kind === 'class' &&
-                    isString(source.id) &&
-                    isRules2024ClassId(source.id) &&
-                    source.id.length > 0,
-            ))
-    )
-        return false
-    return true
 }
 
 /** Validates the six ability score values. */
@@ -359,10 +112,7 @@ function validSkill(value: unknown): boolean {
         typeof value.proficiency === 'string' &&
         PROFICIENCY_VALUES.includes(value.proficiency as (typeof PROFICIENCY_VALUES)[number]) &&
         isCalculationMode(value.calculationMode) &&
-        isInteger(value.additionalBonus) &&
-        (value.proficiencySources === undefined ||
-            (isStringArray(value.proficiencySources) &&
-                value.proficiencySources.every(isSkillSource)))
+        isInteger(value.additionalBonus)
     )
 }
 
@@ -404,9 +154,7 @@ function validSpell(value: unknown, cantrip: boolean): boolean {
         isString(value.components) &&
         isString(value.duration) &&
         typeof value.concentration === 'boolean' &&
-        typeof value.ritual === 'boolean' &&
-        (value.classes === undefined || isStringArray(value.classes)) &&
-        (value.metadata === undefined || isRecord(value.metadata))
+        typeof value.ritual === 'boolean'
     )
 }
 
@@ -429,35 +177,24 @@ function validSavingThrows(value: unknown): boolean {
     })
 }
 
-/** Validates spellcasting metadata, catalog links, and spell slot counters. */
+/** Validates spell lists, prepared spells, and spell slot counters. */
 function validSpellcasting(value: unknown): boolean {
     if (
         !isRecord(value) ||
-        (value.spellProgressionType !== undefined &&
-            (typeof value.spellProgressionType !== 'string' ||
-                !SPELL_PROGRESSION_TYPES.includes(
-                    value.spellProgressionType as (typeof SPELL_PROGRESSION_TYPES)[number],
-                ))) ||
         !Array.isArray(value.knownSpells) ||
         !Array.isArray(value.cantrips) ||
         !isStringArray(value.preparedSpellIds) ||
         !isRecord(value.spellSlots)
     )
         return false
-    /** Validates optional references into the D&D 2024 spell catalog. */
-    const validCatalogIds = (ids: unknown): boolean =>
-        ids === undefined ||
-        (isStringArray(ids) && ids.every(id => id.length > 0 && isRules2024SpellId(id)))
-    if (!validCatalogIds(value.spellIds) || !validCatalogIds(value.cantripIds)) return false
     if (
         !value.knownSpells.every(spell => validSpell(spell, false)) ||
         !value.cantrips.every(spell => validSpell(spell, true))
     )
         return false
-    const knownIds = new Set([
-        ...value.knownSpells.map(spell => (isRecord(spell) ? spell.id : null)),
-        ...(isStringArray(value.spellIds) ? value.spellIds : []),
-    ])
+    const knownIds = new Set(
+        value.knownSpells.map(spell => (isRecord(spell) ? spell.id : null)),
+    )
     if (!value.preparedSpellIds.every(id => knownIds.has(id))) return false
     const spellSlots = value.spellSlots
     return SPELL_LEVELS.every(level => {
@@ -473,7 +210,7 @@ function validSpellcasting(value: unknown): boolean {
     })
 }
 
-/** Validates inventory items and their optional weapon catalog links. */
+/** Validates inventory items and money. */
 function validInventory(value: unknown): boolean {
     if (!isRecord(value) || !Array.isArray(value.items) || !validMoney(value.money)) return false
     return value.items.every(
@@ -486,12 +223,7 @@ function validInventory(value: unknown): boolean {
             (item.weight === null || isFiniteNumber(item.weight)) &&
             isString(item.description) &&
             typeof item.equipped === 'boolean' &&
-            isStringArray(item.properties) &&
-            (item.source === undefined || item.source === 'creation' || item.source === 'user') &&
-            (item.weaponId === undefined ||
-                (isString(item.weaponId) &&
-                    item.weaponId.length > 0 &&
-                    isRules2024WeaponId(item.weaponId))),
+            isStringArray(item.properties),
     )
 }
 
@@ -547,8 +279,6 @@ export function validateCharacter(value: unknown): string[] {
         errors.push('Некорректные данные столкновений.')
     if (
         !isRecord(identity) ||
-        !isString(identity.name) ||
-        !identity.name.trim() ||
         !validRace(identity.race) ||
         !isString(identity.class) ||
         !isString(identity.subclass) ||
@@ -565,9 +295,7 @@ export function validateCharacter(value: unknown): string[] {
     if (
         !isRecord(value.proficiency) ||
         !isStringArray(value.proficiency.toolProficiencies) ||
-        !isStringArray(value.proficiency.languageProficiencies) ||
-        (value.proficiency.languageSources !== undefined &&
-            !validSourceMap(value.proficiency.languageSources))
+        !isStringArray(value.proficiency.languageProficiencies)
     )
         errors.push('Некорректная proficiency-секция.')
     if (!validSavingThrows(value.savingThrows)) errors.push('Некорректные спасброски.')
@@ -577,15 +305,6 @@ export function validateCharacter(value: unknown): string[] {
         errors.push('Некорректные атаки.')
     if (!validSpellcasting(value.spellcasting)) errors.push('Некорректные данные магии.')
     if (!validInventory(value.inventory)) errors.push('Некорректный инвентарь.')
-    if (value.progression !== undefined && !validProgression(value.progression))
-        errors.push('Некорректная progression-секция.')
-    if (
-        value.features !== undefined &&
-        (!isStringArray(value.features) ||
-            new Set(value.features).size !== value.features.length ||
-            !value.features.every(id => isRules2024FeatureId(id)))
-    )
-        errors.push('Некорректные ссылки на особенности.')
     if (
         value.feats !== undefined &&
         (!Array.isArray(value.feats) ||
@@ -610,8 +329,6 @@ export function validateCharacter(value: unknown): string[] {
     )
         errors.push('Некорректная personality-секция.')
     if (!isRecord(value.extensions)) errors.push('Некорректные extension-данные.')
-    else if (!validCreationExtension(value.extensions.characterCreation))
-        errors.push('Некорректный вид, класс или предыстория D&D 2024 в данных создания.')
     if (!validOrigin(value.origin)) errors.push('Некорректная origin-секция.')
     return errors
 }
