@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NFormItem, NInputNumber } from 'naive-ui'
+import { NFormItem, NInputNumber } from 'naive-ui'
 
 import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import type { CharacterSpellSlot } from '@/types/character'
@@ -33,13 +33,6 @@ function updateMax(slot: CharacterSpellSlot, value: number | null) {
                         <NInputNumber button-placement="both" min="0" step="1" :value="slot.used"
                             @update:value="slot.used = Math.min(slot.max, integerValue($event))" />
                     </NFormItem>
-                </div>
-                <p>Осталось: {{ Math.max(0, slot.max - slot.used) }}</p>
-                <div class="flex flex-wrap items-center gap-2">
-                    <NButton :disabled="slot.used >= slot.max"
-                        @click="slot.used = Math.min(slot.max, slot.used + 1)">Потратить</NButton>
-                    <NButton :disabled="slot.used <= 0" @click="slot.used = Math.max(0, slot.used - 1)">
-                        Вернуть</NButton>
                 </div>
             </div>
         </div>

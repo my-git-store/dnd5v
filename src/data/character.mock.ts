@@ -94,10 +94,6 @@ function createCharacter(): Character {
     return character
 }
 
-export function createMockCharacter(): Character {
-    return createCharacter()
-}
-
 export function createEmptyCharacter(): Character {
     return createCharacter()
 }

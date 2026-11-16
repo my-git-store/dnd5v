@@ -52,11 +52,13 @@ function displayBonus(skill: CharacterSkillRecord) {
                 <NCollapse arrow-placement="right">
                     <NCollapseItem :name="skill.id">
                         <template #header="">
-                            <span v-if="skill.proficiency !== 'none'">
-                                {{ skill.proficiency === 'expertise' ? 'Экспертиза' : 'Владение' }}
-                            </span>
-                            <strong class="min-w-0">{{ skill.name }}</strong>
-                            <span>{{ displayBonus(skill) }}</span>
+                            <div class="flex gap-2">
+                                <span v-if="skill.proficiency !== 'none'">
+                                    {{ skill.proficiency === 'expertise' ? 'Экспертиза' : 'Владение' }}
+                                </span>
+                                <strong class="min-w-0">{{ skill.name }}</strong>
+                                <span>{{ displayBonus(skill) }}</span>
+                            </div>
                         </template>
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <NFormItem label="Связанная характеристика" label-placement="top" :show-feedback="false">

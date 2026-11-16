@@ -23,21 +23,16 @@ function submit() {
 </script>
 
 <template>
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <NFormItem label="Наименование"
-            ><NInput v-model:value="draft.name" :disabled="disabled"
-        /></NFormItem>
-        <NFormItem label="Описание"
-            ><NInput
-                v-model:value="draft.description"
-                type="textarea"
-                :disabled="disabled"
-                rows="5"
-        /></NFormItem>
-        <div class="flex flex-wrap items-center gap-2">
-            <NButton type="primary" :disabled="disabled || !draft.name.trim()" @click="submit"
-                >Сохранить</NButton
-            ><NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>
+    <div class="flex flex-col gap-4">
+        <NFormItem label="Наименование">
+            <NInput v-model:value="draft.name" :disabled="disabled" />
+        </NFormItem>
+        <NFormItem label="Описание">
+            <NInput v-model:value="draft.description" type="textarea" :disabled="disabled" rows="5" />
+        </NFormItem>
+        <div class="flex flex-wrap justify-end items-center gap-2">
+            <NButton :disabled="disabled" @click="emit('cancel')">Отмена</NButton>
+            <NButton type="primary" :disabled="disabled || !draft.name.trim()" @click="submit">Сохранить</NButton>
         </div>
     </div>
 </template>

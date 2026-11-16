@@ -56,27 +56,17 @@ onMounted(() => {
     <main class="p-6">
         <CharacterLoadState @create="createCharacter" />
         <template v-if="!isLoading && !loadError">
-            <template v-if="character">
+            <div class="flex flex-col gap-4" v-if="character">
                 <CharacterSheetHeader />
                 <NTabs v-model:value="activeTab" type="line">
                     <NTab v-for="tab in tabs" :key="tab.value" :name="tab.value" :tab="tab.name" />
                 </NTabs>
-                <div v-show="activeTab === 'main'" id="sheet-tab-panel-main">
-                    <CharacterMainTab />
-                </div>
-                <div v-show="activeTab === 'combat'" id="sheet-tab-panel-combat">
-                    <CharacterCombatTab />
-                </div>
-                <div v-show="activeTab === 'magic'" id="sheet-tab-panel-magic">
-                    <CharacterMagicTab />
-                </div>
-                <div v-show="activeTab === 'inventory'" id="sheet-tab-panel-inventory">
-                    <CharacterInventoryTab />
-                </div>
-                <div v-show="activeTab === 'bio'" id="sheet-tab-panel-bio">
-                    <CharacterBioTab />
-                </div>
-            </template>
+                <CharacterMainTab v-if="activeTab === 'main'" />
+                <CharacterCombatTab v-if="activeTab === 'combat'" />
+                <CharacterMagicTab v-if="activeTab === 'magic'" />
+                <CharacterInventoryTab v-if="activeTab === 'inventory'" />
+                <CharacterBioTab v-if="activeTab === 'bio'" />
+            </div>
             <section v-else aria-live="polite">
                 <h1>Персонаж не создан</h1>
                 <p>Создайте нового персонажа, чтобы начать работу с листом.</p>

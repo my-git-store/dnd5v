@@ -2,15 +2,19 @@
 import AbilityFields from './AbilityFields.vue'
 import SkillFields from './SkillFields.vue'
 import CharacterFeatList from '@/modules/character-feats/components/CharacterFeatList.vue'
-import { useCharacterSheet } from '@/composables/useCharacterSheet'
-
-const { character } = useCharacterSheet()
+import { NCollapse, NCollapseItem } from 'naive-ui'
 </script>
 
 <template>
-    <div v-if="character" class="grid gap-4">
-        <AbilityFields />
-        <SkillFields />
-        <CharacterFeatList />
-    </div>
+    <NCollapse>
+        <NCollapseItem name="AbilityFields" title="Характеристики">
+            <AbilityFields />
+        </NCollapseItem>
+        <NCollapseItem name="SkillFields" title="Навыки">
+            <SkillFields />
+        </NCollapseItem>
+        <NCollapseItem name="CharacterFeatList" title="Черты и особенности">
+            <CharacterFeatList />
+        </NCollapseItem>
+    </NCollapse>
 </template>

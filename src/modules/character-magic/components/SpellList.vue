@@ -102,7 +102,7 @@ function togglePrepared(id: string, checked: boolean) {
             <h2>{{ title }}</h2>
             <NButton type="default" @click="add">Добавить</NButton>
         </div>
-        <CollectionSearch v-model:query="query" :label="`Поиск: ${title.toLowerCase()}`" />
+        <CollectionSearch v-model:query="query" label="Поиск" />
         <label v-if="showPreparedFilter">
             <NCheckbox v-model:checked="preparedOnly">Только подготовленные</NCheckbox>
         </label>
