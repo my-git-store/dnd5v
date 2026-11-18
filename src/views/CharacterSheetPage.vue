@@ -3,15 +3,15 @@ import { onMounted, ref } from 'vue'
 import { NButton, NTab, NTabs } from 'naive-ui'
 import { useModalUtil } from '@/composables/useModal'
 import CharacterSheetHeader from '@/modules/character-identity/components/CharacterSheetHeader.vue'
-import CharacterLoadState from '@/components/CharacterLoadState.vue'
+import CLoadState from '@/components/CLoadState.vue'
 import CharacterMainTab from '@/modules/character-main/components/CharacterMainTab.vue'
 import CharacterCombatTab from '@/modules/character-combat/CharacterCombatTab.vue'
 import CharacterMagicTab from '@/modules/character-magic/components/CharacterMagicTab.vue'
 import CharacterInventoryTab from '@/modules/character-inventory/components/CharacterInventoryTab.vue'
 import CharacterBioTab from '@/modules/character-identity/components/CharacterBioTab.vue'
-import CharacterActionConfirmModal, {
+import CActionConfirmModal, {
     type Props as ActionModalProps,
-} from '@/components/CharacterActionConfirmModal.vue'
+} from '@/components/CActionConfirmModal.vue'
 import { useCharacterSheet } from '@/composables/useCharacterSheet'
 
 const tabs = [
@@ -54,7 +54,7 @@ onMounted(() => {
 </script>
 <template>
     <main class="p-6">
-        <CharacterLoadState @create="createCharacter" />
+        <CLoadState @create="createCharacter" />
         <template v-if="!isLoading && !loadError">
             <div class="flex flex-col gap-4" v-if="character">
                 <CharacterSheetHeader />
@@ -73,7 +73,7 @@ onMounted(() => {
                 <NButton type="primary" @click="createCharacter">Создать персонажа</NButton>
             </section>
         </template>
-        <CharacterActionConfirmModal v-if="actionModal.isShowModal.value && actionModal.props.value"
+        <CActionConfirmModal v-if="actionModal.isShowModal.value && actionModal.props.value"
             v-bind="actionModal.props.value" @close="actionModal.openOrClose" />
     </main>
 </template>

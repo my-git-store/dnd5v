@@ -19,7 +19,7 @@ function updateMax(slot: CharacterSpellSlot, value: number | null) {
 <template>
     <section v-if="character">
         <div class="flex flex-wrap items-center justify-between gap-4">
-            <h2>Ресурс заклинаний</h2>
+            <h3>Ресурс заклинаний</h3>
         </div>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div v-for="(slot, level) in character.spellcasting.spellSlots" :key="level">

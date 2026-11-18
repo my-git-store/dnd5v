@@ -19,7 +19,6 @@ export interface RaceProfile {
     name: string
     subrace: string
     size: string
-    speed: number
     abilityBonuses: Partial<Record<AbilityKey, number>>
     traits: string[]
     languages: string[]
@@ -75,14 +74,13 @@ export interface CharacterArmorClass {
 export interface CharacterCombat {
     armorClass: CharacterArmorClass
     initiative: { additionalBonus: number }
-    speed: { base: number; fly: number | null; swim: number | null; override: number | null }
+    speed: number
     hitPoints: { max: number; current: number; temporary: number }
     hitDice: { size: string; total: number; spent: number }
     deathSaves: { successes: number; failures: number }
 }
 
 export interface CharacterSkillRecord {
-    id: string
     name: string
     value: number
     ability: AbilityKey | null
@@ -91,21 +89,23 @@ export interface CharacterSkillRecord {
     additionalBonus: number
 }
 
-export interface CharacterAttackRecord {
-    id: string
-    name: string
-    kind: 'melee' | 'ranged' | 'spell' | 'other'
+export interface CharacterAttackDamageRecord {
+    damage: string
+    damageType: string
+    additionalDamage: number
     ability: AbilityKey | null
     proficient: boolean
-    additionalBonus: number
-    damage: number
-    damageType: string
+}
+
+export interface CharacterAttackRecord {
+    name: string
+    kind: 'melee' | 'ranged' | 'spell' | 'other'
+    damages: CharacterAttackDamageRecord[]
     range: number
     description: string
 }
 
 export interface CharacterSpellRecord {
-    id: string
     name: string
     level: number
     description: string
@@ -118,6 +118,10 @@ export interface CharacterSpellRecord {
     ritual: boolean
 }
 
+export interface CharacterKnownSpellRecord extends CharacterSpellRecord {
+    prepared: boolean
+}
+
 export interface CharacterSpellSlot {
     max: number
     used: number
@@ -126,20 +130,18 @@ export interface CharacterSpellSlot {
 export type CharacterSpellSlots = Record<CharacterSpellLevel, CharacterSpellSlot>
 
 export interface CharacterSpellcasting {
-    knownSpells: CharacterSpellRecord[]
-    preparedSpellIds: string[]
+    knownSpells: CharacterKnownSpellRecord[]
     cantrips: CharacterSpellRecord[]
     spellSlots: CharacterSpellSlots
 }
 
 export interface CharacterInventoryItemRecord {
-    id: string
     name: string
     quantity: number
     weight: number | null
     description: string
     equipped: boolean
-    properties: string[]
+    properties: string
 }
 
 export interface CharacterInventory {
@@ -158,7 +160,6 @@ export interface CharacterPersonality {
 
 /** User-authored character feats. These entries are descriptive only and never apply rules effects. */
 export interface CharacterFeat {
-    id: string
     name: string
     description: string
 }

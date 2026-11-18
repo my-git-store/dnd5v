@@ -1,5 +1,4 @@
 import type { Character } from '@/types/character'
-import { assertValidCharacter, InvalidCharacterError } from '@/validation/characterValidation'
 
 export const CHARACTER_STORAGE_KEY = 'nastolka:character-sheet'
 
@@ -30,22 +29,17 @@ export function readStoredCharacter(storage?: CharacterStorageLike): Character |
 
         const raw = target.getItem(CHARACTER_STORAGE_KEY)
         if (raw === null) return null
-        const value: unknown = JSON.parse(raw)
-        assertValidCharacter(value)
+        const value: Character = JSON.parse(raw)
+        if (value === undefined) return null
+
         return value
-    } catch (error) {
-        throw new CharacterStorageError(
-            error instanceof InvalidCharacterError || error instanceof CharacterStorageError
-                ? error.message
-                : 'Не удалось прочитать персонажа.',
-            { cause: error },
-        )
+    } catch {
+        console.log('Не удалось прочитать персонажа.')
     }
 }
 
 export function writeStoredCharacter(character: Character, storage?: CharacterStorageLike): void {
     try {
-        assertValidCharacter(character)
         const target = storage ?? browserStorage()
         target.setItem(CHARACTER_STORAGE_KEY, JSON.stringify(character))
     } catch (error) {

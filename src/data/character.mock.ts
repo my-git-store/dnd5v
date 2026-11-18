@@ -18,7 +18,6 @@ function createCharacter(): Character {
                 name: '',
                 subrace: '',
                 size: '',
-                speed: 0,
                 abilityBonuses: {},
                 traits: [],
                 languages: [],
@@ -52,7 +51,7 @@ function createCharacter(): Character {
                 additionalBonus: 0,
             },
             initiative: { additionalBonus: 0 },
-            speed: { base: 0, fly: null, swim: null, override: null },
+            speed: 0,
             hitPoints: { max: 0, current: 0, temporary: 0 },
             hitDice: { size: '', total: 0, spent: 0 },
             deathSaves: { successes: 0, failures: 0 },
@@ -61,7 +60,6 @@ function createCharacter(): Character {
         attacks: [],
         spellcasting: {
             knownSpells: [],
-            preparedSpellIds: [],
             cantrips: [],
             spellSlots: {
                 1: { max: 0, used: 0 },

@@ -19,16 +19,32 @@ function updateLevel(value: number | null) {
     <div v-if="character">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <NFormItem label="Вид" :show-feedback="false">
-                <NInput v-model:value="character.identity.race.name" :input-props="{ 'aria-label': 'Вид' }" />
+                <NInput
+                    :value="character.identity.race.name"
+                    :input-props="{ 'aria-label': 'Вид' }"
+                    @update:value="character.identity.race.name = $event.trim()"
+                />
             </NFormItem>
             <NFormItem label="Класс" :show-feedback="false">
-                <NInput v-model:value="character.identity.class" :input-props="{ 'aria-label': 'Класс' }" />
+                <NInput
+                    :value="character.identity.class"
+                    :input-props="{ 'aria-label': 'Класс' }"
+                    @update:value="character.identity.class = $event.trim()"
+                />
             </NFormItem>
             <NFormItem label="Подкласс" :show-feedback="false">
-                <NInput v-model:value="character.identity.subclass" :input-props="{ 'aria-label': 'Подкласс' }" />
+                <NInput
+                    :value="character.identity.subclass"
+                    :input-props="{ 'aria-label': 'Подкласс' }"
+                    @update:value="character.identity.subclass = $event.trim()"
+                />
             </NFormItem>
             <NFormItem label="Мировоззрение" :show-feedback="false">
-                <NInput v-model:value="character.identity.alignment" :input-props="{ 'aria-label': 'Мировоззрение' }" />
+                <NInput
+                    :value="character.identity.alignment"
+                    :input-props="{ 'aria-label': 'Мировоззрение' }"
+                    @update:value="character.identity.alignment = $event.trim()"
+                />
             </NFormItem>
             <NFormItem label="Уровень" :show-feedback="false">
                 <NInputNumber button-placement="both" :min="1" :step="1" :value="character.identity.level"

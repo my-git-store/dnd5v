@@ -7,44 +7,54 @@ const { character } = useCharacterSheet()
 </script>
 
 <template>
-    <div v-if="character" class="grid gap-4">
-        <section class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <NFormItem label="Черты характера"
-                ><NInput
-                    v-model:value="character.personality.traits"
-                    type="textarea"
-                    rows="4"
-            /></NFormItem>
-            <NFormItem label="Идеалы"
-                ><NInput
-                    v-model:value="character.personality.ideals"
-                    type="textarea"
-                    rows="4"
-            /></NFormItem>
-            <NFormItem label="Привязанности"
-                ><NInput
-                    v-model:value="character.personality.bonds"
-                    type="textarea"
-                    rows="4"
-            /></NFormItem>
-            <NFormItem label="Слабости"
-                ><NInput
-                    v-model:value="character.personality.flaws"
-                    type="textarea"
-                    rows="4"
-            /></NFormItem>
-            <NFormItem label="Биография"
-                ><NInput
-                    v-model:value="character.personality.biography"
-                    type="textarea"
-                    rows="10"
-            /></NFormItem>
-            <NFormItem label="Особенности и дополнительные заметки"
-                ><NInput
-                    v-model:value="character.personality.features"
-                    type="textarea"
-                    rows="5"
-            /></NFormItem>
-        </section>
+    <div v-if="character" class="flex flex-col gap-4">
+        <NFormItem label="Черты характера">
+            <NInput
+                :value="character.personality.traits"
+                type="textarea"
+                rows="4"
+                @update:value="character.personality.traits = $event.trim()"
+            />
+        </NFormItem>
+        <NFormItem label="Идеалы">
+            <NInput
+                :value="character.personality.ideals"
+                type="textarea"
+                rows="4"
+                @update:value="character.personality.ideals = $event.trim()"
+            />
+        </NFormItem>
+        <NFormItem label="Привязанности">
+            <NInput
+                :value="character.personality.bonds"
+                type="textarea"
+                rows="4"
+                @update:value="character.personality.bonds = $event.trim()"
+            />
+        </NFormItem>
+        <NFormItem label="Слабости">
+            <NInput
+                :value="character.personality.flaws"
+                type="textarea"
+                rows="4"
+                @update:value="character.personality.flaws = $event.trim()"
+            />
+        </NFormItem>
+        <NFormItem label="Биография">
+            <NInput
+                :value="character.personality.biography"
+                type="textarea"
+                rows="10"
+                @update:value="character.personality.biography = $event.trim()"
+            />
+        </NFormItem>
+        <NFormItem label="Особенности и дополнительные заметки">
+            <NInput
+                :value="character.personality.features"
+                type="textarea"
+                rows="5"
+                @update:value="character.personality.features = $event.trim()"
+            />
+        </NFormItem>
     </div>
 </template>

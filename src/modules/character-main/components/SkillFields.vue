@@ -6,6 +6,7 @@ import { ABILITY_FIELDS } from '@/data/characterFields'
 import { calculateSkillBonus, getSkillCalculationMode } from '@/domain/skillBonus'
 import { signedModifier } from '@/domain/abilityModifier'
 import { useCharacterSheet } from '@/composables/useCharacterSheet'
+import { getEntryKey } from '@/utils/getEntryKey'
 import type {
     CharacterSkillRecord,
     SkillProficiency,
@@ -48,9 +49,9 @@ function displayBonus(skill: CharacterSkillRecord) {
 <template>
     <div class="grid grid-cols-1 w-full gap-4 sm:grid-cols-2">
         <div v-for="(column, columnIndex) in skillColumns" :key="columnIndex" class="min-w-0">
-            <div v-for="skill in column" :key="skill.id" class="py-3">
+            <div v-for="skill in column" :key="getEntryKey(skill)" class="py-3">
                 <NCollapse arrow-placement="right">
-                    <NCollapseItem :name="skill.id">
+                    <NCollapseItem name="settings">
                         <template #header="">
                             <div class="flex gap-2">
                                 <span v-if="skill.proficiency !== 'none'">

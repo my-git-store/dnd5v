@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import InventoryList from './InventoryList.vue'
 import MoneyFields from './MoneyFields.vue'
+import { NCollapse, NCollapseItem } from 'naive-ui';
 </script>
 
 <template>
-    <div class="grid gap-4">
-        <InventoryList />
-        <MoneyFields />
-    </div>
+    <NCollapse>
+        <NCollapseItem name="InventoryList" title="Инвентарь">
+            <InventoryList />
+        </NCollapseItem>
+        <NCollapseItem name="MoneyFields" title="Финансы">
+            <MoneyFields />
+        </NCollapseItem>
+    </NCollapse>
 </template>

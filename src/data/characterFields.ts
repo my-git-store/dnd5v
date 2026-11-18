@@ -51,11 +51,10 @@ export const DEFAULT_SKILLS: CharacterSkillRecord[] = (
         ['stealth', 'Скрытность'],
         ['survival', 'Выживание'],
     ] satisfies [string, string][]
-).map(([id, name]) => ({
-    id,
+).map(([key, name]) => ({
     name,
     value: 0,
-    ability: SKILL_ABILITIES[id] ?? null,
+    ability: SKILL_ABILITIES[key] ?? null,
     proficiency: 'none',
     calculationMode: 'computed',
     additionalBonus: 0,
