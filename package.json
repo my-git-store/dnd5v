@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://my-git-store.github.io/dnd5v/",
   "scripts": {
     "typecheck": "vue-tsc -b",
     "lint": "eslint .",
