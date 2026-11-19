@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CharacterSheetPage from '@/views/CharacterSheetPage.vue'
+// import CharacterSheetPage from '@/views/CharacterSheetPage.vue'
 import {
     NConfigProvider,
     NDialogProvider,
@@ -13,6 +13,8 @@ import {
 } from 'naive-ui'
 import { computed, ref } from 'vue';
 import colors from "tailwindcss/colors";
+
+import MonsterSheetPage from './modules/monster/views/MonsterSheetPage.vue';
 
 const tailwindColors = colors;
 
@@ -76,6 +78,15 @@ const naiveTheme = ref<GlobalThemeOverrides>({
         fontSizeMedium: "15px",
         paddingMedium: "0 14px",
     },
+    Select: {
+        peers: {
+            InternalSelection: {
+                heightMedium: "44px",
+                fontSizeMedium: "15px",
+                borderRadius: theme.radius.input,
+            }
+        }
+    },
 
     Form: {
         labelFontWeight: "600",
@@ -113,7 +124,7 @@ const themeNaive = computed(() => {
                 <n-modal-provider>
                     <n-message-provider placement="bottom-right" :duration="3000" :closable="true">
                         <NScrollbar class="h-[800px]">
-                            <CharacterSheetPage class="overflow-auto w-[1000px]" />
+                            <MonsterSheetPage class="overflow-auto w-[1000px]" />
                         </NScrollbar>
                     </n-message-provider>
                 </n-modal-provider>
