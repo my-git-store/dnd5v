@@ -12,7 +12,6 @@ const abilities = {
 
 function createCharacter(): Character {
     const character: Character = {
-        kind: 'character',
         identity: {
             race: {
                 name: '',

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { NButton, NCard, NFormItem, NInput, NInputNumber, NModal } from 'naive-ui'
+import { NButton, NCard, NFormItem, NInput, NInputNumber, NModal, NForm } from 'naive-ui'
 
 import type { CharacterKnownSpellRecord } from '@/types/character'
 
@@ -41,7 +41,7 @@ function submit() {
 <template>
     <NModal :show="true" class="w-full max-w-3xl max-h-[90vh] overflow-auto" @update:show="emit('close')">
         <NCard class="w-full" :title="spell ? 'Редактирование заклинания' : 'Создание заклинания'">
-            <form class="flex flex-col gap-4" @submit.prevent="submit">
+            <NForm class="flex flex-col gap-4" @submit="submit">
                 <div class="flex gap-4">
                     <NFormItem class="flex-1" label="Название">
                         <NInput :value="draft.name" @update:value="draft.name = $event.trim()" />
@@ -52,20 +52,16 @@ function submit() {
                     </NFormItem>
                 </div>
                 <NFormItem label="Описание" class="sm:col-span-2">
-                    <NInput
-                        :value="draft.description"
-                        type="textarea"
-                        :rows="3"
-                        @update:value="draft.description = $event.trim()"
-                    />
+                    <NInput :value="draft.description" type="textarea" :rows="3"
+                        @update:value="draft.description = $event.trim()" />
                 </NFormItem>
                 <div class="flex flex-wrap items-center gap-2 sm:col-span-2">
-                    <NButton type="primary" native-type="submit" :disabled="!draft.name">
+                    <NButton type="primary" attr-type="submit" :disabled="!draft.name">
                         Применить
                     </NButton>
                     <NButton @click="emit('close')">Отмена</NButton>
                 </div>
-            </form>
+            </NForm>
         </NCard>
     </NModal>
 </template>

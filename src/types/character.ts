@@ -166,7 +166,6 @@ export interface CharacterFeat {
 
 export interface Character {
     /** Optional marker retained for compatibility with stored characters. */
-    kind?: 'character'
     identity: CharacterIdentity
     abilities: CharacterAbilities
     proficiency: CharacterProficiency
