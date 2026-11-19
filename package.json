@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "deploy": "npx gh-pages -d dist"
+    "deploy": "vue-tsc -b && vite build && gh-pages -d dist"
   },
   "dependencies": {
     "@editorjs/editorjs": "^2.31.6",
