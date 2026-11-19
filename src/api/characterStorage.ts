@@ -23,7 +23,7 @@ function browserStorage(): CharacterStorageLike {
     return window.localStorage
 }
 
-export function readStoredCharacter(storage?: CharacterStorageLike): Character | null {
+export function readStoredCharacter(storage?: CharacterStorageLike) {
     try {
         const target = storage ?? browserStorage()
 
