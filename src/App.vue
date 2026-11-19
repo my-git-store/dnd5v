@@ -123,7 +123,6 @@ const themeNaive = computed(() => {
             <n-dialog-provider>
                 <n-modal-provider>
                     <n-message-provider placement="bottom-right" :duration="3000" :closable="true">
-                        !!!
                         <NScrollbar class="h-[800px]">
                             <MonsterSheetPage class="overflow-auto w-[1000px]" />
                         </NScrollbar>
