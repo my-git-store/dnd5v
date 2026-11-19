@@ -1,22 +1,64 @@
-import { ref } from "vue"
-import { tryCatch } from "./tryCatch"
+import { isAxiosError, type AxiosResponse } from 'axios'
+import { ref } from 'vue'
 
-export const useReqDefault = <T = unknown>() => {
-    const isError = ref<boolean>(false)
-    const isLoading = ref<boolean>(false)
+import { useAlert } from './useAlert'
 
-    const request = async(promise: Promise<T>) => {
+export interface ApiError {
+    status: number
+    code: string
+    message: string
+}
+
+type RequestValue<T> = T | AxiosResponse<T>
+type Result<T> = [T, null] | [null, ApiError]
+
+export function useReqDefault<T = unknown>(isSuccesAlert = false) {
+    const { openError, openSucces } = useAlert()
+
+    const isError = ref(false)
+
+    const isLoading = ref(false)
+
+    async function request(promise: Promise<RequestValue<T>>): Promise<Result<T>> {
+        isError.value = false
         isLoading.value = true
-        const res = await tryCatch(promise)
-        if(res[1])
-            isError.value = true
+        try {
+            const response = await promise
 
-        isLoading.value = false
-        return res
+            const result =
+                response && typeof response === 'object' && 'data' in response
+                    ? response.data
+                    : response
+            if (isSuccesAlert) openSucces()
+            return [result as T, null]
+        } catch (error: unknown) {
+            isError.value = true
+            const message = isAxiosError(error)
+                ? error.response?.data &&
+                  typeof error.response.data === 'object' &&
+                  'message' in error.response.data
+                    ? String(error.response.data.message)
+                    : error.message
+                : error instanceof Error
+                  ? error.message
+                  : 'Неизвестная ошибка'
+            openError(message)
+            return [
+                null,
+                {
+                    status: isAxiosError(error) ? (error.response?.status ?? 500) : 500,
+                    code: 'REQUEST_ERROR',
+                    message,
+                },
+            ]
+        } finally {
+            isLoading.value = false
+        }
     }
+
     return {
         isError,
         isLoading,
-        request
+        request,
     }
 }

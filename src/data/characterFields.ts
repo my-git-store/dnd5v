@@ -1,0 +1,61 @@
+import type { AbilityKey, CharacterSkillRecord } from '../types/character.ts'
+
+export const ABILITY_FIELDS: Array<{ key: AbilityKey; label: string }> = [
+    { key: 'strength', label: 'Сила' },
+    { key: 'dexterity', label: 'Ловкость' },
+    { key: 'constitution', label: 'Телосложение' },
+    { key: 'intelligence', label: 'Интеллект' },
+    { key: 'wisdom', label: 'Мудрость' },
+    { key: 'charisma', label: 'Харизма' },
+]
+
+export const SKILL_ABILITIES: Record<string, AbilityKey> = {
+    acrobatics: 'dexterity',
+    'animal-handling': 'wisdom',
+    arcana: 'intelligence',
+    athletics: 'strength',
+    deception: 'charisma',
+    history: 'intelligence',
+    insight: 'wisdom',
+    intimidation: 'charisma',
+    investigation: 'intelligence',
+    medicine: 'wisdom',
+    nature: 'intelligence',
+    perception: 'wisdom',
+    performance: 'charisma',
+    persuasion: 'charisma',
+    religion: 'intelligence',
+    'sleight-of-hand': 'dexterity',
+    stealth: 'dexterity',
+    survival: 'wisdom',
+}
+
+export const DEFAULT_SKILLS: CharacterSkillRecord[] = (
+    [
+        ['acrobatics', 'Акробатика'],
+        ['animal-handling', 'Уход за животными'],
+        ['arcana', 'Магия'],
+        ['athletics', 'Атлетика'],
+        ['deception', 'Обман'],
+        ['history', 'История'],
+        ['insight', 'Проницательность'],
+        ['intimidation', 'Запугивание'],
+        ['investigation', 'Расследование'],
+        ['medicine', 'Медицина'],
+        ['nature', 'Природа'],
+        ['perception', 'Внимательность'],
+        ['performance', 'Выступление'],
+        ['persuasion', 'Убеждение'],
+        ['religion', 'Религия'],
+        ['sleight-of-hand', 'Ловкость рук'],
+        ['stealth', 'Скрытность'],
+        ['survival', 'Выживание'],
+    ] satisfies [string, string][]
+).map(([key, name]) => ({
+    name,
+    value: 0,
+    ability: SKILL_ABILITIES[key] ?? null,
+    proficiency: 'none',
+    calculationMode: 'computed',
+    additionalBonus: 0,
+}))
