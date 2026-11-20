@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 
-import { readStoredMonster, writeStoredMonster } from '../api/monsterStorage'
+import { readStoredMonster } from '../api/monsterStorage'
 import { createEmptyMonster } from '../data/monster.mock'
 import type { Monster } from '../types/monster'
 
@@ -40,7 +40,7 @@ export function useMonsterSheet() {
         if (!monster.value) return
         saveError.value = null
         try {
-            writeStoredMonster(monster.value)
+            // writeStoredMonster(monster.value)
             savedSnapshot.value = JSON.stringify(monster.value)
         } catch {
             saveError.value =

@@ -16,10 +16,10 @@ const tabs = [
 
 const activeTab = ref('main')
 
-const { monster, isLoading, loadError, saveError, load } =
+const { monster, isLoading, loadError, saveError, createMonster } =
     useMonsterSheet()
 
-onMounted(() => load())
+onMounted(() => createMonster())
 </script>
 
 <template>
