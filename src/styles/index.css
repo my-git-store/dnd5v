@@ -1,5 +1,43 @@
 @import 'tailwindcss';
 
+html,
+body,
+#app {
+    min-height: 100%;
+}
+
+body {
+    min-width: 320px;
+    margin: 0;
+    background-color: #e9dbc2;
+    background-image:
+        linear-gradient(rgba(249, 239, 218, 0.26), rgba(230, 205, 165, 0.2)),
+        var(--sheet-map-background, none);
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+#app {
+    min-height: 100vh;
+}
+
+.character-sheet-page {
+    box-sizing: border-box;
+    border: 1px solid rgba(132, 92, 43, 0.32);
+    border-radius: 18px;
+    background: rgba(255, 250, 239, 0.86);
+    box-shadow: 0 8px 28px rgba(83, 59, 38, 0.14);
+}
+
+@media (max-width: 560px) {
+    body {
+        background-attachment: scroll;
+        background-size: auto 100%;
+    }
+}
+
 h3 {
     font-weight: bold;
 }

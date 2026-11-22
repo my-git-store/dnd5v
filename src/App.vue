@@ -1,12 +1,10 @@
 <script setup lang="ts">
-// import CharacterSheetPage from '@/views/CharacterSheetPage.vue'
 import {
     NConfigProvider,
     NDialogProvider,
     NMessageProvider,
     NModalProvider,
     NNotificationProvider,
-    NScrollbar,
     ruRU,
     dateRuRU,
     type GlobalThemeOverrides,
@@ -14,7 +12,7 @@ import {
 import { computed, ref } from 'vue';
 import colors from "tailwindcss/colors";
 
-import MonsterSheetPage from './modules/monster/views/MonsterSheetPage.vue';
+import CharacterSheetPage from './views/CharacterSheetPage.vue'
 
 const tailwindColors = colors;
 
@@ -123,9 +121,7 @@ const themeNaive = computed(() => {
             <n-dialog-provider>
                 <n-modal-provider>
                     <n-message-provider placement="bottom-right" :duration="3000" :closable="true">
-                        <NScrollbar class="h-[800px]">
-                            <MonsterSheetPage class="overflow-auto w-[1000px]" />
-                        </NScrollbar>
+                        <CharacterSheetPage />
                     </n-message-provider>
                 </n-modal-provider>
             </n-dialog-provider>

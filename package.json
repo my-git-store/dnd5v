@@ -5,6 +5,7 @@
   "homepage": "https://my-git-store.github.io/dnd5v/",
   "scripts": {
     "typecheck": "vue-tsc -b",
+    "test": "node --experimental-strip-types --test tests/characterStorage.test.ts",
     "lint": "eslint .",
     "format": "eslint . --fix && prettier --write \"src/**/*.{ts,vue,css}\"",
     "dev": "vite",

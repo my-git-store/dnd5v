@@ -41,16 +41,22 @@ function remove(feat: CharacterFeat) {
             <h3>Черты персонажа</h3>
             <NButton type="default" @click="add">Добавить</NButton>
         </div>
-        <div v-for="feat in character.feats" :key="getEntryKey(feat)"
-            class="py-3 flex flex-wrap items-start justify-between gap-3">
-            <div class="min-w-0">
-                <h3 :title="feat.name || 'Без названия'">
+        <div
+            v-for="feat in character.feats"
+            :key="getEntryKey(feat)"
+            class="flex min-w-0 flex-wrap items-start justify-between gap-3 py-3"
+        >
+            <div class="min-w-0 flex-1">
+                <h3 class="max-w-full truncate" :title="feat.name || 'Без названия'">
                     {{ feat.name || 'Без названия' }}
                 </h3>
             </div>
             <CEntryActions @edit="openEditor(feat)" @remove="remove(feat)" />
         </div>
-        <CharacterFeatEditorModal v-if="editorModal.isShowModal.value && editorModal.props.value"
-            v-bind="editorModal.props.value" @close="editorModal.openOrClose" />
+        <CharacterFeatEditorModal
+            v-if="editorModal.isShowModal.value && editorModal.props.value"
+            v-bind="editorModal.props.value"
+            @close="editorModal.openOrClose"
+        />
     </section>
 </template>

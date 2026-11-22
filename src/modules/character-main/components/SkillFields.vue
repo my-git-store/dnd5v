@@ -7,10 +7,7 @@ import { calculateSkillBonus, getSkillCalculationMode } from '@/domain/skillBonu
 import { signedModifier } from '@/domain/abilityModifier'
 import { useCharacterSheet } from '@/composables/useCharacterSheet'
 import { getEntryKey } from '@/utils/getEntryKey'
-import type {
-    CharacterSkillRecord,
-    SkillProficiency,
-} from '@/types/character'
+import type { CharacterSkillRecord, SkillProficiency } from '@/types/character'
 
 const { character } = useCharacterSheet()
 
@@ -41,7 +38,11 @@ function numberValue(value: number | null) {
 
 function displayBonus(skill: CharacterSkillRecord) {
     if (!character.value) return '—'
-    const bonus = calculateSkillBonus(skill, character.value.abilities, character.value.identity.level)
+    const bonus = calculateSkillBonus(
+        skill,
+        character.value.abilities,
+        character.value.identity.level,
+    )
     return bonus === null ? '—' : signedModifier(bonus)
 }
 </script>
@@ -52,42 +53,98 @@ function displayBonus(skill: CharacterSkillRecord) {
             <div v-for="skill in column" :key="getEntryKey(skill)" class="py-3">
                 <NCollapse arrow-placement="right">
                     <NCollapseItem name="settings">
-                        <template #header="">
-                            <div class="flex gap-2">
-                                <span v-if="skill.proficiency !== 'none'">
-                                    {{ skill.proficiency === 'expertise' ? 'Экспертиза' : 'Владение' }}
-                                </span>
-                                <strong class="min-w-0">{{ skill.name }}</strong>
-                                <span>{{ displayBonus(skill) }}</span>
+                        <template #header>
+                            <div
+                                class="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_3.25rem] items-center gap-2"
+                            >
+                                <div class="flex min-w-0 items-center gap-2">
+                                    <span
+                                        v-if="skill.proficiency !== 'none'"
+                                        class="shrink-0 text-xs"
+                                    >
+                                        {{
+                                            skill.proficiency === 'expertise'
+                                                ? 'Экспертиза'
+                                                : 'Владение'
+                                        }}
+                                    </span>
+                                    <strong class="min-w-0 truncate" :title="skill.name">{{
+                                        skill.name
+                                    }}</strong>
+                                </div>
+                                <span class="w-full text-right font-semibold tabular-nums">{{
+                                    displayBonus(skill)
+                                }}</span>
                             </div>
                         </template>
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <NFormItem label="Связанная характеристика" label-placement="top" :show-feedback="false">
-                                <NSelect size="small" :value="skill.ability ?? ''"
-                                    :aria-label="`${skill.name}: связанная характеристика`" :options="abilityOptions"
-                                    @update:value="skill.ability = $event || null" />
+                            <NFormItem
+                                label="Связанная характеристика"
+                                label-placement="top"
+                                :show-feedback="false"
+                            >
+                                <NSelect
+                                    size="small"
+                                    :value="skill.ability ?? ''"
+                                    :aria-label="`${skill.name}: связанная характеристика`"
+                                    :options="abilityOptions"
+                                    @update:value="skill.ability = $event || null"
+                                />
                             </NFormItem>
-                            <NFormItem label="Уровень владения" label-placement="top" :show-feedback="false">
-                                <NSelect v-model:value="skill.proficiency" size="small"
-                                    :aria-label="`${skill.name}: уровень владения`" :options="proficiencyOptions" />
+                            <NFormItem
+                                label="Уровень владения"
+                                label-placement="top"
+                                :show-feedback="false"
+                            >
+                                <NSelect
+                                    v-model:value="skill.proficiency"
+                                    size="small"
+                                    :aria-label="`${skill.name}: уровень владения`"
+                                    :options="proficiencyOptions"
+                                />
                             </NFormItem>
-                            <NFormItem label="Как считать бонус" label-placement="top" :show-feedback="false">
-                                <NSelect size="small" :value="getSkillCalculationMode(skill)"
-                                    :aria-label="`${skill.name}: как считать бонус`" :options="calculationModeOptions"
-                                    @update:value="skill.calculationMode = $event" />
+                            <NFormItem
+                                label="Как считать бонус"
+                                label-placement="top"
+                                :show-feedback="false"
+                            >
+                                <NSelect
+                                    size="small"
+                                    :value="getSkillCalculationMode(skill)"
+                                    :aria-label="`${skill.name}: как считать бонус`"
+                                    :options="calculationModeOptions"
+                                    @update:value="skill.calculationMode = $event"
+                                />
                             </NFormItem>
-                            <NFormItem v-if="getSkillCalculationMode(skill) === 'manual'" label="Бонус вручную"
-                                label-placement="top" :show-feedback="false">
-                                <NInputNumber size="small" button-placement="both"
-                                    :aria-label="`${skill.name}: бонус вручную`" :value="skill.value"
-                                    @update:value="skill.value = numberValue($event)" />
+                            <NFormItem
+                                v-if="getSkillCalculationMode(skill) === 'manual'"
+                                label="Бонус вручную"
+                                label-placement="top"
+                                :show-feedback="false"
+                            >
+                                <NInputNumber
+                                    size="small"
+                                    button-placement="both"
+                                    :aria-label="`${skill.name}: бонус вручную`"
+                                    :value="skill.value"
+                                    @update:value="skill.value = numberValue($event)"
+                                />
                             </NFormItem>
-                            <NFormItem v-else label="Дополнительная поправка" label-placement="top"
-                                :show-feedback="false">
-                                <NInputNumber size="small" button-placement="both"
+                            <NFormItem
+                                v-else
+                                label="Дополнительная поправка"
+                                label-placement="top"
+                                :show-feedback="false"
+                            >
+                                <NInputNumber
+                                    size="small"
+                                    button-placement="both"
                                     :aria-label="`${skill.name}: дополнительная поправка`"
                                     :value="skill.additionalBonus"
-                                    @update:value="skill.additionalBonus = Math.trunc(numberValue($event))" />
+                                    @update:value="
+                                        skill.additionalBonus = Math.trunc(numberValue($event))
+                                    "
+                                />
                             </NFormItem>
                         </div>
                     </NCollapseItem>
