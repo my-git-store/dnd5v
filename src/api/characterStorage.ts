@@ -15,6 +15,7 @@ const ABILITY_KEYS = [
 export interface CharacterStorageLike {
     getItem(key: string): string | null
     setItem(key: string, value: string): void
+    removeItem?(key: string): void
     readonly length?: number
     key?(index: number): string | null
 }
@@ -45,8 +46,132 @@ function hasAbilityScores(value: unknown): boolean {
     return isRecord(value) && ABILITY_KEYS.every(key => isFiniteNumber(value[key]))
 }
 
+function isEncounterList(value: unknown): boolean {
+    if (!Array.isArray(value)) return false
+    const encounterIds = new Set<string>()
+    return value.every(encounter => {
+        if (!isRecord(encounter)) return false
+        if (
+            !isString(encounter.id) ||
+            !isString(encounter.name) ||
+            typeof encounter.round !== 'number' ||
+            !Number.isInteger(encounter.round) ||
+            encounter.round < 1 ||
+            !(encounter.currentParticipantId === null || isString(encounter.currentParticipantId)) ||
+            !Array.isArray(encounter.participants) ||
+            encounterIds.has(encounter.id)
+        )
+            return false
+        encounterIds.add(encounter.id)
+
+        const ids = new Set<string>()
+        const hasValidParticipants = encounter.participants.every(participant => {
+            if (
+                !isRecord(participant) ||
+                !isString(participant.id) ||
+                !isString(participant.name) ||
+                !isFiniteNumber(participant.maxHitPoints) ||
+                participant.maxHitPoints < 0 ||
+                !isFiniteNumber(participant.currentHitPoints) ||
+                participant.currentHitPoints < 0 ||
+                participant.currentHitPoints > participant.maxHitPoints ||
+                !isFiniteNumber(participant.armorClass) ||
+                !isFiniteNumber(participant.initiative) ||
+                typeof participant.defeated !== 'boolean' ||
+                (participant.sourceId !== undefined && !isString(participant.sourceId)) ||
+                ids.has(participant.id)
+            )
+                return false
+            ids.add(participant.id)
+            return true
+        })
+        return (
+            hasValidParticipants &&
+            (encounter.currentParticipantId === null ||
+                encounter.participants.some(
+                    participant =>
+                        isRecord(participant) && participant.id === encounter.currentParticipantId,
+                ))
+        )
+    })
+}
+
+function isNpcBonusList(value: unknown): boolean {
+    return (
+        Array.isArray(value) &&
+        value.every(
+            entry =>
+                isRecord(entry) &&
+                isString(entry.id) &&
+                isString(entry.name) &&
+                isFiniteNumber(entry.value),
+        )
+    )
+}
+
+function isNpcEntryList(value: unknown): boolean {
+    return (
+        Array.isArray(value) &&
+        value.every(
+            entry =>
+                isRecord(entry) &&
+                isString(entry.id) &&
+                isString(entry.name) &&
+                isString(entry.description) &&
+                isString(entry.attackBonus) &&
+                isString(entry.damage),
+        )
+    )
+}
+
+function isNpcProfile(value: unknown): boolean {
+    if (!isRecord(value)) return false
+    const armorClass = value.armorClass
+    const hitPoints = value.hitPoints
+    const initiative = value.initiative
+    return (
+        isString(value.name) &&
+        isString(value.creatureType) &&
+        isString(value.size) &&
+        isString(value.alignment) &&
+        isString(value.challengeRating) &&
+        isFiniteNumber(value.proficiencyBonus) &&
+        value.proficiencyBonus >= 0 &&
+        isRecord(armorClass) &&
+        ['manual', 'computed'].includes(String(armorClass.mode)) &&
+        isFiniteNumber(armorClass.value) &&
+        isFiniteNumber(armorClass.additionalBonus) &&
+        isRecord(hitPoints) &&
+        isFiniteNumber(hitPoints.max) &&
+        hitPoints.max >= 0 &&
+        isFiniteNumber(hitPoints.current) &&
+        hitPoints.current >= 0 &&
+        hitPoints.current <= hitPoints.max &&
+        isFiniteNumber(hitPoints.temporary) &&
+        hitPoints.temporary >= 0 &&
+        isFiniteNumber(value.speed) &&
+        value.speed >= 0 &&
+        isRecord(initiative) &&
+        (initiative.mode === undefined || ['manual', 'computed'].includes(String(initiative.mode))) &&
+        isFiniteNumber(initiative.additionalBonus) &&
+        (initiative.value === undefined || isFiniteNumber(initiative.value)) &&
+        isString(value.senses) &&
+        isString(value.languages) &&
+        hasAbilityScores(value.abilities) &&
+        isNpcBonusList(value.skills) &&
+        isNpcBonusList(value.savingThrows) &&
+        isNpcEntryList(value.features) &&
+        isNpcEntryList(value.actions)
+    )
+}
+
 function isCharacterPayload(value: unknown): value is Character {
-    if (!isRecord(value) || value.kind === 'npc') return false
+    if (
+        !isRecord(value) ||
+        value.kind === 'npc' ||
+        (value.kind !== undefined && value.kind !== 'character')
+    )
+        return false
 
     const identity = value.identity
     const abilities = value.abilities
@@ -60,6 +185,7 @@ function isCharacterPayload(value: unknown): value is Character {
 
     if (!isRecord(identity) || !isRecord(identity.race) || !isRecord(identity.background))
         return false
+    if (identity.name !== undefined && !isString(identity.name)) return false
     if (
         !isString(identity.race.name) ||
         !isString(identity.race.subrace) ||
@@ -79,6 +205,10 @@ function isCharacterPayload(value: unknown): value is Character {
         !isFiniteNumber(identity.level) ||
         !isFiniteNumber(identity.experience)
     )
+        return false
+    if (value.id !== undefined && (!isString(value.id) || !value.id.trim())) return false
+    if (value.schemaVersion !== undefined && value.schemaVersion !== 3) return false
+    if (value.ruleset !== undefined && !['2014', '2024'].includes(String(value.ruleset)))
         return false
     if (
         !isString(identity.background.name) ||
@@ -265,8 +395,15 @@ function isCharacterPayload(value: unknown): value is Character {
             ))
     )
         return false
+    if (value.encounters !== undefined && !isEncounterList(value.encounters)) return false
+    if (value.npc !== undefined && !isNpcProfile(value.npc)) return false
 
     return true
+}
+
+/** Validates the currently editable character payload without reading browser storage. */
+export function isCurrentCharacterPayload(value: unknown): value is Character {
+    return isCharacterPayload(value)
 }
 
 function preserveRawRecord(raw: string, storage: CharacterStorageLike): void {
@@ -371,6 +508,12 @@ export function hasIncompatibleStoredCharacter(storage?: CharacterStorageLike): 
                 (key.startsWith('nastolka:character-sheet:v1:') ||
                     key.startsWith('nastolka:character-sheet:v2:') ||
                     key.startsWith('nastolka:character-sheet:v3:') ||
+                    (key.startsWith('nastolka:character-sheet:') &&
+                        !key.startsWith('nastolka:character-sheet:legacy:') &&
+                        key !== 'nastolka:character-sheet:index' &&
+                        key !== 'nastolka:character-sheet:active') ||
+                    key === 'nastolka:character-sheet:index' ||
+                    key === 'nastolka:character-sheet:active' ||
                     key === 'nastolka:monster-sheet')
             )
                 return true

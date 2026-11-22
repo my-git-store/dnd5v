@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { NFormItem, NInput, NInputNumber } from 'naive-ui'
+import { NFormItem, NInput, NInputNumber, NSelect } from 'naive-ui'
 
 import { useCharacterSheet } from '@/composables/useCharacterSheet'
+import type { CharacterRuleset } from '@/types/character'
 
 const { character } = useCharacterSheet()
+const rulesetOptions = [
+    { label: 'D&D 2014', value: '2014' },
+    { label: 'D&D 2024', value: '2024' },
+]
 
 function integerValue(value: number | null) {
     return value !== null && Number.isFinite(value) ? Math.trunc(value) : 0
@@ -13,11 +18,31 @@ function updateLevel(value: number | null) {
     if (!character.value) return
     character.value.identity.level = Math.min(20, Math.max(1, integerValue(value)))
 }
+
+function updateRuleset(value: string) {
+    if (!character.value || (value !== '2014' && value !== '2024')) return
+    character.value.ruleset = value as CharacterRuleset
+}
 </script>
 
 <template>
     <div v-if="character">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <NFormItem label="Имя персонажа" :show-feedback="false">
+                <NInput
+                    :value="character.identity.name ?? ''"
+                    :input-props="{ 'aria-label': 'Имя персонажа' }"
+                    @update:value="character.identity.name = $event"
+                />
+            </NFormItem>
+            <NFormItem label="Редакция правил" :show-feedback="false">
+                <NSelect
+                    :value="character.ruleset ?? '2024'"
+                    :options="rulesetOptions"
+                    aria-label="Редакция правил"
+                    @update:value="updateRuleset"
+                />
+            </NFormItem>
             <NFormItem label="Вид" :show-feedback="false">
                 <NInput
                     :value="character.identity.race.name"

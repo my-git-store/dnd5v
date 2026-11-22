@@ -12,7 +12,11 @@ const abilities = {
 
 function createCharacter(): Character {
     const character: Character = {
+        id: createCharacterId(),
+        schemaVersion: 3,
+        ruleset: '2024',
         identity: {
+            name: '',
             race: {
                 name: '',
                 subrace: '',
@@ -86,9 +90,14 @@ function createCharacter(): Character {
         },
         origin: { species: '', background: '', originFeat: '', languages: [], tools: [] },
         feats: [],
+        encounters: [],
         extensions: {},
     }
     return character
+}
+
+function createCharacterId(): string {
+    return globalThis.crypto?.randomUUID?.() ?? `character-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
 export function createEmptyCharacter(): Character {
