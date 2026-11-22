@@ -27,7 +27,7 @@ const emit = defineEmits<Emits>()
         role="alert"
     >
         <p>{{ loadError }}</p>
-        <NButton type="primary" @click="load">Повторить</NButton>
+        <NButton type="primary" @click="load()">Повторить</NButton>
         <NButton @click="emit('create')">Создать персонажа</NButton>
     </div>
 </template>

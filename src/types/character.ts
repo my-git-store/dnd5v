@@ -42,6 +42,8 @@ export interface CharacterOrigin {
 }
 
 export interface CharacterIdentity {
+    /** Optional display name retained when reading older v3 records. */
+    name?: string
     race: RaceProfile
     class: string
     subclass: string
@@ -164,7 +166,67 @@ export interface CharacterFeat {
     description: string
 }
 
+export type CharacterKind = 'character' | 'npc'
+export type CharacterRuleset = '2014' | '2024'
+
+export interface CharacterNpcBonus {
+    id: string
+    name: string
+    value: number
+}
+
+export interface CharacterNpcEntry {
+    id: string
+    name: string
+    description: string
+    attackBonus: string
+    damage: string
+}
+
+export interface CharacterNpc {
+    name: string
+    creatureType: string
+    size: string
+    alignment: string
+    challengeRating: string
+    proficiencyBonus: number
+    armorClass: { mode: CharacterCalculationMode; value: number; additionalBonus: number }
+    hitPoints: { max: number; current: number; temporary: number }
+    speed: number
+    initiative: { mode?: CharacterCalculationMode; additionalBonus: number; value?: number }
+    senses: string
+    languages: string
+    abilities: CharacterAbilities
+    skills: CharacterNpcBonus[]
+    savingThrows: CharacterNpcBonus[]
+    features: CharacterNpcEntry[]
+    actions: CharacterNpcEntry[]
+}
+
+export interface CharacterEncounterParticipant {
+    id: string
+    sourceId?: string
+    name: string
+    maxHitPoints: number
+    currentHitPoints: number
+    armorClass: number
+    initiative: number
+    defeated: boolean
+}
+
+export interface CharacterEncounter {
+    id: string
+    name: string
+    round: number
+    currentParticipantId: string | null
+    participants: CharacterEncounterParticipant[]
+}
+
 export interface Character {
+    /** Compatibility identity fields used by the collection adapter. */
+    id?: string
+    schemaVersion?: 3
+    ruleset?: CharacterRuleset
     /** Optional marker retained for compatibility with stored characters. */
     identity: CharacterIdentity
     abilities: CharacterAbilities
@@ -179,5 +241,10 @@ export interface Character {
     origin: CharacterOrigin
     /** Optional user-authored feats; absent on older records and treated as an empty list. */
     feats?: CharacterFeat[]
+    /** Optional NPC profile retained in current character records for compatibility. */
+    npc?: CharacterNpc
+    /** Optional saved encounter planner state; absent on older records. */
+    encounters?: CharacterEncounter[]
+    kind?: CharacterKind
     extensions: Record<string, unknown>
 }
